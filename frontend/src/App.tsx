@@ -1,4 +1,5 @@
-import 'App.css'
+// @ts-ignore
+import './App.css'
 
 function App() {
 
