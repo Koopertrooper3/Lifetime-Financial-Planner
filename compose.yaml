@@ -1,0 +1,6 @@
+services:
+  mongodb:
+    image: "mongodb/mongodb-community-server"
+    env_file: ".env"
+    ports:
+      - "${DATABASE_PORT}:27017"
