@@ -1,5 +1,5 @@
 import { chromium, firefox } from 'playwright';
-import {taxModel, taxBracketSchema, taxBracketType} from './db/taxes.js'
+import {taxModel, taxBracketSchema, taxBracketType} from '../db/taxes.js'
 import mongoose from "mongoose"
 import { exit } from 'process';
 import dotenv from "dotenv"
@@ -13,6 +13,7 @@ const databaseConnectionString = databaseHost + ':' + databasePort + '/' + datab
 
 const federalIncomeTaxRatesWebsite = "https://www.irs.gov/filing/federal-income-tax-rates-and-brackets";
 const federalStandardDeductionWebsite = "https://www.irs.gov/publications/p17"
+const federalCapitalGainsWebsite = "https://www.irs.gov/taxtopics/tc409"
 
 export async function federalIncomeTaxScraper(){
     await mongoose.connect(databaseConnectionString);
@@ -116,4 +117,19 @@ export async function federalIncomeTaxScraper(){
     exit()
 };
 
+async function test1(){
+    const browser = await firefox.launch({ headless: true });
+    const context = await browser.newContext({
+        userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'
+    });
+    const page = await context.newPage();
+
+
+
+    const CapitalGainsCategory1 = await page.locator("/html/body/div[2]/div[3]/div/div[2]/div/article/div/div").getByRole("list").all()
+
+
+
+    await page.goto(federalCapitalGainsWebsite);
+}
 federalIncomeTaxScraper()
