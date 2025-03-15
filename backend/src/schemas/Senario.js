@@ -1,5 +1,4 @@
 import mongoose from 'mongoose'
-import InvestmentTypes from './InvestmentTypes'
 
 const senarioSchema = new mongoose.Schema({
     name: {
