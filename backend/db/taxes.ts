@@ -24,7 +24,7 @@ export const taxBracketSchema = new Schema<taxBracketType>({
 export const taxSchema = new Schema<taxType>({
     year: {
         type : Number,
-        index : true
+        unique: true
     },
     taxType : String,
     singleIncomeTaxBrackets : [taxBracketSchema],
