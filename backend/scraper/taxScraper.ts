@@ -1,5 +1,5 @@
 import { chromium, firefox } from 'playwright';
-import {taxModel, taxBracketSchema, taxBracketType} from './db/taxes.js'
+import {taxModel, taxBracketSchema, taxBracketType} from '../db/taxes.js'
 import mongoose from "mongoose"
 import { exit } from 'process';
 import dotenv from "dotenv"
@@ -13,6 +13,7 @@ const databaseConnectionString = databaseHost + ':' + databasePort + '/' + datab
 
 const federalIncomeTaxRatesWebsite = "https://www.irs.gov/filing/federal-income-tax-rates-and-brackets";
 const federalStandardDeductionWebsite = "https://www.irs.gov/publications/p17"
+const federalCapitalGainsTaxRateWebsite = "https://www.irs.gov/taxtopics/tc409"
 
 export async function federalIncomeTaxScraper(){
     await mongoose.connect(databaseConnectionString);
@@ -55,12 +56,12 @@ export async function federalIncomeTaxScraper(){
         let upperThreshold : string;
 
         [taxRate,lowerThreshold,upperThreshold] = await Promise.all([cells[0].innerHTML(),cells[1].innerHTML(),cells[2].innerHTML()]);
-        let USDFormatting = /[$,]/g;
+        let USDFormattingRegex = /[$,]/g;
 
         let taxBracket : taxBracketType = {
-            rate : Number(taxRate.replace('%','')),
-            lowerThreshold: Number(lowerThreshold.replace(USDFormatting,'')),
-            upperThreshold :  Number.isNaN(Number(upperThreshold.replace(USDFormatting, ''))) ?  999999 : Number(upperThreshold.replace(USDFormatting,''))
+            rate : Number(taxRate.replace('%',''))/100,
+            lowerThreshold: Number(lowerThreshold.replace(USDFormattingRegex,'')),
+            upperThreshold :  Number.isNaN(Number(upperThreshold.replace(USDFormattingRegex, ''))) ?  Infinity : Number(upperThreshold.replace(USDFormattingRegex,''))
         }
 
         newFederalTaxBrackets.singleIncomeTaxBrackets.push(taxBracket)
@@ -75,12 +76,12 @@ export async function federalIncomeTaxScraper(){
         let upperThreshold : string
 
         [taxRate,lowerThreshold,upperThreshold] = await Promise.all([cells[0].innerHTML(),cells[1].innerHTML(),cells[2].innerHTML()])
-        let USDFormatting = /[$,]/g
+        let USDFormattingRegex = /[$,]/g
 
         let taxBracket : taxBracketType = {
-            rate : Number(taxRate.replace('%','')),
-            lowerThreshold: Number(lowerThreshold.replace(USDFormatting,'')),
-            upperThreshold :  Number.isNaN(Number(upperThreshold.replace(USDFormatting, ''))) ?  999999 : Number(upperThreshold.replace(USDFormatting,''))
+            rate : Number(taxRate.replace('%',''))/100,
+            lowerThreshold: Number(lowerThreshold.replace(USDFormattingRegex,'')),
+            upperThreshold :  Number.isNaN(Number(upperThreshold.replace(USDFormattingRegex, ''))) ?  Infinity : Number(upperThreshold.replace(USDFormattingRegex,''))
         }
 
         newFederalTaxBrackets.marriedIncomeTaxBrackets.push(taxBracket)
@@ -95,7 +96,7 @@ export async function federalIncomeTaxScraper(){
     for(const row of standardDeductionTable){
         const cells = await row.getByRole("cell").all()
         console.log(await cells[0].innerHTML())
-        let USDFormatting = /[$,]/g;
+        let USDFormattingRegex = /[$,]/g;
 
         let deductionType : String
         let deduction : String
@@ -104,16 +105,157 @@ export async function federalIncomeTaxScraper(){
 
         if(deductionType == "Single or Married filing separately"){
             deduction = await cells[1].innerHTML()
-            newFederalTaxBrackets.singleStandardDeduction = Number(deduction.replace(USDFormatting, ''))
+            newFederalTaxBrackets.singleStandardDeduction = Number(deduction.replace(USDFormattingRegex, ''))
         }else if(deductionType == "Married filing jointly or Qualifying surviving spouse"){
             deduction = await cells[1].innerHTML()
-            newFederalTaxBrackets.marriedStandardDeduction = Number(deduction.replace(USDFormatting, ''))
+            newFederalTaxBrackets.marriedStandardDeduction = Number(deduction.replace(USDFormattingRegex, ''))
         }
+    }
+
+    const hasDollarValueRegex = /\$\d*,\d*/g
+    const taxRateElement = 0
+    const bracketIncomeElement = 1
+    const possibleTaxRateStringRegex = /capital gains rate of\xa0\d*%/g
+    const taxRateRegex = /(\d*%)/g
+
+
+    await page.goto(federalCapitalGainsTaxRateWebsite);
+
+    const mainBody = await page.getByRole("article");
+
+    const [possibleRates, possibleIncomes] = await Promise.all(
+        [mainBody.getByRole("paragraph").filter({hasText : "capital gains rate of"}).all(),
+        mainBody.getByRole("list").filter({hasText: hasDollarValueRegex}).all()
+        ])
+    
+
+    const possibleIncomeAndRates = possibleRates.map((k,i) => [k,possibleIncomes?.at(i) != null ? possibleIncomes[i] : null])
+    let maxLimit = {"single": 0, "married": 0}
+
+    for(const bracket of possibleIncomeAndRates){
+
+        let taxRate = await bracket[taxRateElement]!.textContent().then( (paragraph) =>paragraph?.match(possibleTaxRateStringRegex)?.[0].match(taxRateRegex)?.[0]?.replace('%','') || null )
+
+        if(bracket[bracketIncomeElement] != null){
+
+            const income = bracket[bracketIncomeElement]
+            let singleFiling = income.getByRole("listitem").filter({hasText: "single"}).textContent().then( textOfElement => textOfElement?.match(hasDollarValueRegex) || [])
+            let marriedFiling = income.getByRole("listitem").filter({hasText: "married filing jointly"}).textContent().then( textOfElement => textOfElement?.match(hasDollarValueRegex) || [])
+
+            const [singlesBracket, marriedBracket] = await Promise.all(
+            [   singleFiling,
+                marriedFiling
+            ])
+            let USDFormattingRegex = /[$,]/g;
+
+            if(singlesBracket?.length == 1){
+                let singleLimit = Number(singlesBracket[0].replace(USDFormattingRegex, ''))
+                let taxBracket : taxBracketType = {
+                    rate : Number(taxRate)/100,
+                    lowerThreshold: 0,
+                    upperThreshold :  singleLimit
+                }
+                console.log(taxBracket)
+                newFederalTaxBrackets.singleCapitalGainsTaxBrackets.push(taxBracket)
+
+            }else{
+
+                let firstLimit = Number(singlesBracket[0].replace(USDFormattingRegex, ''))
+                let secondLimit = Number(singlesBracket[1].replace(USDFormattingRegex, ''))
+
+                if(firstLimit < secondLimit){
+                    let taxBracket : taxBracketType = {
+                        rate : Number(taxRate)/100,
+                        lowerThreshold: firstLimit,
+                        upperThreshold :  secondLimit
+                    }
+                    maxLimit["single"] = Math.max(secondLimit,maxLimit["single"])
+                    console.log(taxBracket)
+
+                    newFederalTaxBrackets.singleCapitalGainsTaxBrackets.push(taxBracket)
+                }else{
+                    let taxBracket : taxBracketType = {
+                        rate : Number(taxRate)/100,
+                        lowerThreshold: secondLimit,
+                        upperThreshold :  firstLimit
+                    }
+                    maxLimit["single"] = Math.max(firstLimit,maxLimit["single"])
+                    console.log(taxBracket)
+
+                    newFederalTaxBrackets.singleCapitalGainsTaxBrackets.push(taxBracket)
+                }
+            }
+
+            if(marriedBracket?.length == 1){
+                let singleLimit = Number(marriedBracket[0].replace(USDFormattingRegex, ''))
+                let taxBracket : taxBracketType = {
+                    rate : Number(taxRate)/100,
+                    lowerThreshold: 0,
+                    upperThreshold :  singleLimit
+                }
+                newFederalTaxBrackets.marriedcapitalGainsTaxBrackets.push(taxBracket)
+
+            }else{
+                let firstLimit = Number(marriedBracket[0].replace(USDFormattingRegex, ''))
+                let secondLimit = Number(marriedBracket[1].replace(USDFormattingRegex, ''))
+
+                if(firstLimit < secondLimit){
+                    let taxBracket : taxBracketType = {
+                        rate : Number(taxRate)/100,
+                        lowerThreshold: firstLimit,
+                        upperThreshold :  secondLimit
+                    }
+                    maxLimit["married"] = Math.max(secondLimit,maxLimit["married"])
+                    console.log(taxBracket)
+
+                    newFederalTaxBrackets.marriedcapitalGainsTaxBrackets.push(taxBracket)
+                }else{
+                    let taxBracket : taxBracketType = {
+                        rate : Number(taxRate)/100,
+                        lowerThreshold: secondLimit,
+                        upperThreshold :  firstLimit
+                    }
+                    maxLimit["married"] = Math.max(firstLimit,maxLimit["married"])
+                    console.log(taxBracket)
+
+                    newFederalTaxBrackets.marriedcapitalGainsTaxBrackets.push(taxBracket)
+                }
+            }
+        }else{
+            let singleTaxBracket : taxBracketType = {
+                rate : Number(taxRate)/100,
+                lowerThreshold: maxLimit["single"],
+                upperThreshold : Infinity
+            }
+            let marriedTaxBracket : taxBracketType = {
+                rate : Number(taxRate)/100,
+                lowerThreshold: maxLimit["married"],
+                upperThreshold : Infinity
+            }
+            newFederalTaxBrackets.singleCapitalGainsTaxBrackets.push(singleTaxBracket)
+            newFederalTaxBrackets.marriedcapitalGainsTaxBrackets.push(marriedTaxBracket)
+
+
+
+
+        }
+
     }
 
     await newFederalTaxBrackets.save()
     await browser.close();
     exit()
 };
+
+async function federalIncomeTax(){
+
+}
+
+async function federalStandardDeductions(){
+    
+}
+async function capitalGainsTax() {
+
+}
 
 federalIncomeTaxScraper()

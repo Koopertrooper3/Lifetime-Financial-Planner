@@ -1,17 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.taxModel = exports.taxBracketSchema = void 0;
+exports.taxModel = exports.taxSchema = exports.taxBracketSchema = void 0;
 const mongoose_1 = require("mongoose");
-// export interface taxType {
-//     taxType : String,
-//     brackets : [taxBracket]
-// }
 exports.taxBracketSchema = new mongoose_1.Schema({
     rate: Number,
     lowerThreshold: Number,
     upperThreshold: Number
 });
-const taxSchema = new mongoose_1.Schema({
+exports.taxSchema = new mongoose_1.Schema({
     year: {
         type: Number,
         index: true
@@ -19,8 +15,10 @@ const taxSchema = new mongoose_1.Schema({
     taxType: String,
     singleIncomeTaxBrackets: [exports.taxBracketSchema],
     marriedIncomeTaxBrackets: [exports.taxBracketSchema],
-    singleDeduction: Number,
-    marriedDeduction: Number
+    singleStandardDeduction: Number,
+    marriedStandardDeduction: Number,
+    singleCapitalGainsTaxBrackets: [exports.taxBracketSchema],
+    marriedcapitalGainsTaxBrackets: [exports.taxBracketSchema]
 });
-exports.taxModel = (0, mongoose_1.model)('taxModel', taxSchema);
+exports.taxModel = (0, mongoose_1.model)('taxModel', exports.taxSchema);
 //# sourceMappingURL=taxes.js.map

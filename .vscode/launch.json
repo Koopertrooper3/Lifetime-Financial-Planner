@@ -10,7 +10,7 @@
             "request": "launch",
             "name": "Launch tax scraper",
             "program": "${workspaceFolder}/backend/scraper/taxScraper.ts",
-            "preLaunchTask": "tsc: build - backend/scraper/tsconfig.json",
+            "preLaunchTask": "tsc: build - backend/tsconfig.json",
             "outFiles": ["${workspaceFolder}/backend/scraper/*.js"],
             "envFile": "${workspaceFolder}/.env"
           }

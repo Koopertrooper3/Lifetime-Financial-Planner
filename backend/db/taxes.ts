@@ -5,17 +5,23 @@ export interface taxBracketType {
     lowerThreshold : Number,
     upperThreshold : Number
   }
-// export interface taxType {
-//     taxType : String,
-//     brackets : [taxBracket]
-// }
+export interface taxType {
+    year: Number
+    taxType : String,
+    singleIncomeTaxBrackets : [taxBracketType],
+    marriedIncomeTaxBrackets : [taxBracketType],
+    singleStandardDeduction : Number,
+    marriedStandardDeduction: Number,
+    singleCapitalGainsTaxBrackets : [taxBracketType],
+    marriedcapitalGainsTaxBrackets : [taxBracketType]
+}
 export const taxBracketSchema = new Schema<taxBracketType>({
     rate : Number,
     lowerThreshold : Number,
     upperThreshold : Number
 })
 
-const taxSchema = new Schema({
+export const taxSchema = new Schema<taxType>({
     year: {
         type : Number,
         index : true
@@ -24,7 +30,9 @@ const taxSchema = new Schema({
     singleIncomeTaxBrackets : [taxBracketSchema],
     marriedIncomeTaxBrackets : [taxBracketSchema],
     singleStandardDeduction : Number,
-    marriedStandardDeduction: Number
+    marriedStandardDeduction: Number,
+    singleCapitalGainsTaxBrackets : [taxBracketSchema],
+    marriedcapitalGainsTaxBrackets : [taxBracketSchema]
 })
 
 export let taxModel = model('taxModel',taxSchema);
