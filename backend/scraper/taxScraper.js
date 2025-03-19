@@ -16,7 +16,6 @@ exports.federalTaxScraper = federalTaxScraper;
 const playwright_1 = require("playwright");
 const taxes_js_1 = require("../db/taxes.js");
 const mongoose_1 = __importDefault(require("mongoose"));
-const process_1 = require("process");
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const databaseHost = process.env.DATABASE_HOST;
@@ -73,7 +72,6 @@ function federalTaxScraper() {
             .getByRole("row").all();
         for (const row of standardDeductionTable) {
             const cells = yield row.getByRole("cell").all();
-            console.log(yield cells[0].innerHTML());
             let deduction;
             const deductionType = yield cells[0].innerHTML();
             if (deductionType == "Single or Married filing separately") {
@@ -113,7 +111,6 @@ function federalTaxScraper() {
                         lowerThreshold: 0,
                         upperThreshold: singleLimit
                     };
-                    console.log(taxBracket);
                     newFederalTaxBrackets.singleCapitalGainsTaxBrackets.push(taxBracket);
                 }
                 else {
@@ -126,7 +123,6 @@ function federalTaxScraper() {
                             upperThreshold: secondLimit
                         };
                         maxLimit["single"] = Math.max(secondLimit, maxLimit["single"]);
-                        console.log(taxBracket);
                         newFederalTaxBrackets.singleCapitalGainsTaxBrackets.push(taxBracket);
                     }
                     else {
@@ -136,7 +132,6 @@ function federalTaxScraper() {
                             upperThreshold: firstLimit
                         };
                         maxLimit["single"] = Math.max(firstLimit, maxLimit["single"]);
-                        console.log(taxBracket);
                         newFederalTaxBrackets.singleCapitalGainsTaxBrackets.push(taxBracket);
                     }
                 }
@@ -159,7 +154,6 @@ function federalTaxScraper() {
                             upperThreshold: secondLimit
                         };
                         maxLimit["married"] = Math.max(secondLimit, maxLimit["married"]);
-                        console.log(taxBracket);
                         newFederalTaxBrackets.marriedcapitalGainsTaxBrackets.push(taxBracket);
                     }
                     else {
@@ -169,7 +163,6 @@ function federalTaxScraper() {
                             upperThreshold: firstLimit
                         };
                         maxLimit["married"] = Math.max(firstLimit, maxLimit["married"]);
-                        console.log(taxBracket);
                         newFederalTaxBrackets.marriedcapitalGainsTaxBrackets.push(taxBracket);
                     }
                 }
@@ -191,7 +184,7 @@ function federalTaxScraper() {
         }
         yield newFederalTaxBrackets.save();
         yield browser.close();
-        (0, process_1.exit)();
+        console.log("scraper done!");
     });
 }
 ;

@@ -1,7 +1,6 @@
 import {firefox } from 'playwright';
 import {federalTaxModel, taxBracketType} from '../db/taxes.js'
 import mongoose from "mongoose"
-import { exit } from 'process';
 import dotenv from "dotenv"
 
 dotenv.config()
@@ -91,7 +90,6 @@ export async function federalTaxScraper(){
 
     for(const row of standardDeductionTable){
         const cells = await row.getByRole("cell").all()
-        console.log(await cells[0].innerHTML())
 
         let deduction : string
 
@@ -148,7 +146,6 @@ export async function federalTaxScraper(){
                     lowerThreshold: 0,
                     upperThreshold :  singleLimit
                 }
-                console.log(taxBracket)
                 newFederalTaxBrackets.singleCapitalGainsTaxBrackets.push(taxBracket)
 
             }else{
@@ -163,7 +160,6 @@ export async function federalTaxScraper(){
                         upperThreshold :  secondLimit
                     }
                     maxLimit["single"] = Math.max(secondLimit,maxLimit["single"])
-                    console.log(taxBracket)
 
                     newFederalTaxBrackets.singleCapitalGainsTaxBrackets.push(taxBracket)
                 }else{
@@ -173,7 +169,6 @@ export async function federalTaxScraper(){
                         upperThreshold :  firstLimit
                     }
                     maxLimit["single"] = Math.max(firstLimit,maxLimit["single"])
-                    console.log(taxBracket)
 
                     newFederalTaxBrackets.singleCapitalGainsTaxBrackets.push(taxBracket)
                 }
@@ -199,7 +194,6 @@ export async function federalTaxScraper(){
                         upperThreshold :  secondLimit
                     }
                     maxLimit["married"] = Math.max(secondLimit,maxLimit["married"])
-                    console.log(taxBracket)
 
                     newFederalTaxBrackets.marriedcapitalGainsTaxBrackets.push(taxBracket)
                 }else{
@@ -209,7 +203,6 @@ export async function federalTaxScraper(){
                         upperThreshold :  firstLimit
                     }
                     maxLimit["married"] = Math.max(firstLimit,maxLimit["married"])
-                    console.log(taxBracket)
 
                     newFederalTaxBrackets.marriedcapitalGainsTaxBrackets.push(taxBracket)
                 }
@@ -237,7 +230,7 @@ export async function federalTaxScraper(){
 
     await newFederalTaxBrackets.save()
     await browser.close();
-    exit()
+    console.log("scraper done!")
 };
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function
@@ -253,3 +246,4 @@ async function federalStandardDeductions(){
 async function capitalGainsTax() {
 
 }
+

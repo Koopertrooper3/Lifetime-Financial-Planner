@@ -1,12 +1,13 @@
 /*global console, setTimeout, clearTimeout*/
 /*eslint no-undef: "error"*/
 
-import express from 'express'
+import express, { Request, Response } from 'express'
 import 'dotenv/config';
 import mongoose from 'mongoose';
 import process from 'process';
 import {federalTaxModel} from '../db/taxes.js'
 import {federalTaxScraper} from '../scraper/taxScraper.js'
+import { Queue } from 'bullmq';
 
 const app = express();
 const port : number = Number(process.env.BACKEND_PORT) || 8080;
@@ -15,8 +16,10 @@ const databaseHost = process.env.DATABASE_HOST
 const databasePort = process.env.DATABASE_PORT
 const databaseName = process.env.DATABASE_NAME
 const databaseConnectionString = databaseHost + ':' + databasePort + '/' + databaseName
-
-//Startup code
+const REDIS_HOST = process.env.REDIS_HOST || "localhost"
+const REDIS_PORT = Number(process.env.REDIS_PORT) || 6379
+let simulatorQueue : Queue
+//Startup code to be run before the server starts
 async function startUp(){
     //Open a connection to mongodb
     await mongoose.connect(databaseConnectionString);
@@ -24,22 +27,43 @@ async function startUp(){
     //Query if we have the current tax year, if we do not run the scraper
     //TP: Code below created with Github Copilot with the prompt 
     //"Create a mongoose query that queries the federalTaxModel to check if the current tax year's information is in the database."
+    //Code was outdated and replaced with the code below
+    // const currentTaxYear = new Date().getFullYear()-1;
+
+    // federalTaxModel.findOne({ year: currentTaxYear }, (err: unknown, taxData: unknown) => {
+    //     if (err) {
+    //         console.error('Error querying the database:', err);
+    //         return;
+    //     }
+    //     if (!taxData) {
+    //         console.log(`Tax data for the year ${currentTaxYear} not found. Running the scraper...`);
+    //         // Call the scraper function here
+    //         federalTaxScraper();
+    //     } else {
+    //         console.log(`Tax data for the year ${currentTaxYear} is already in the database.`);
+    //     }
+    // });
+
+
     const currentTaxYear = new Date().getFullYear()-1;
 
-    federalTaxModel.findOne({ year: currentTaxYear }, (err: unknown, taxData: unknown) => {
-        if (err) {
-            console.error('Error querying the database:', err);
-            return;
-        }
-        if (!taxData) {
+    federalTaxModel.findOne({ year: currentTaxYear }).lean().then(async (taxData)=>{
+        if(!taxData){
             console.log(`Tax data for the year ${currentTaxYear} not found. Running the scraper...`);
-            // Call the scraper function here
-            federalTaxScraper();
-        } else {
+            await federalTaxScraper();
+        }else{
             console.log(`Tax data for the year ${currentTaxYear} is already in the database.`);
         }
     });
-    //Start up simulator process
+
+    simulatorQueue = new Queue('simulatorQueue', {
+        connection: {
+          host: REDIS_HOST,
+          port: REDIS_PORT,
+        },
+      });
+
+    return
 }
 
 startUp().then(()=>{
@@ -69,5 +93,16 @@ startUp().then(()=>{
 app.get("/", (req, res)=>{
     res.send("yeah");
 });
+
+app.post("/scenario/taxes/import", (req, res)=>{
+    res.send("yeah");
+});
+
+
+app.post("/scenario/runsimulation", (req : Request, res : Response)=>{
+
+    return
+});
+
 
 // async () => {scraper.federalIncomeTaxScraper()}

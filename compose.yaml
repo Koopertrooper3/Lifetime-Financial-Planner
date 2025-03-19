@@ -4,3 +4,8 @@ services:
     env_file: ".env"
     ports:
       - "${DATABASE_PORT}:27017"
+  redis:
+    image: "redis"
+    env_file: ".env"
+    ports:
+      - "${REDIS_PORT}:6379"
