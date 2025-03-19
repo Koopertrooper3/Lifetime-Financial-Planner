@@ -11,9 +11,9 @@ const databasePort = process.env.DATABASE_PORT
 const databaseName = process.env.DATABASE_NAME
 const databaseConnectionString = databaseHost + ':' + databasePort + '/' + databaseName 
 
-const federalIncomeTaxRatesWebsite = "https://www.irs.gov/filing/federal-income-tax-rates-and-brackets";
-const federalStandardDeductionWebsite = "https://www.irs.gov/publications/p17"
-const federalCapitalGainsTaxRateWebsite = "https://www.irs.gov/taxtopics/tc409"
+const federalIncomeTaxRatesWebsite = process.env.FEDERAL_INCOME_TAX_RATES_WEBSITE || "https://www.irs.gov/filing/federal-income-tax-rates-and-brackets";
+const federalStandardDeductionWebsite = process.env.FEDERAL_STANDARD_DEDUCTION_WEBSITE || "https://www.irs.gov/publications/p17"
+const federalCapitalGainsTaxRateWebsite = process.env.FEDERAL_CAPITAL_GAINS_TAX_RATE_WEBSITE || "https://www.irs.gov/taxtopics/tc409";
 
 export async function federalTaxScraper(){
     await mongoose.connect(databaseConnectionString);

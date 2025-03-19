@@ -13,6 +13,15 @@
             "preLaunchTask": "tsc: build - backend/tsconfig.json",
             "outFiles": ["${workspaceFolder}/backend/scraper/*.js"],
             "envFile": "${workspaceFolder}/.env"
+          },
+          {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch server",
+            "program": "${workspaceFolder}/backend/scraper/server.ts",
+            "preLaunchTask": "tsc: build - backend/tsconfig.json",
+            "outFiles": ["${workspaceFolder}/backend/scraper/*.js"],
+            "envFile": "${workspaceFolder}/.env"
           }
     ]
   }
