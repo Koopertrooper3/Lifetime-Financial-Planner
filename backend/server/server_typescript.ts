@@ -7,7 +7,6 @@ import mongoose from 'mongoose';
 import process from 'process';
 import {federalTaxModel} from '../db/taxes.js'
 import {federalTaxScraper} from '../scraper/taxScraper.js'
-import { Server } from 'http';
 
 const app = express();
 const port : number = Number(process.env.BACKEND_PORT) || 8080;
