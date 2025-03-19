@@ -1,17 +1,17 @@
-import { Schema, model, connect } from 'mongoose';
+import { Schema, model } from 'mongoose';
 
 export interface taxBracketType {
-    rate : Number,
-    lowerThreshold : Number,
-    upperThreshold : Number
+    rate : number,
+    lowerThreshold : number,
+    upperThreshold : number
   }
 export interface taxType {
-    year: Number
-    taxType : String,
+    year: number
+    taxType : string,
     singleIncomeTaxBrackets : [taxBracketType],
     marriedIncomeTaxBrackets : [taxBracketType],
-    singleStandardDeduction : Number,
-    marriedStandardDeduction: Number,
+    singleStandardDeduction : number,
+    marriedStandardDeduction: number,
     singleCapitalGainsTaxBrackets : [taxBracketType],
     marriedcapitalGainsTaxBrackets : [taxBracketType]
 }
@@ -34,4 +34,4 @@ export const federalTaxSchema = new Schema<taxType>({
     marriedcapitalGainsTaxBrackets : [taxBracketSchema]
 })
 
-export let federalTaxModel = model('taxModel',federalTaxSchema);
+export const federalTaxModel = model('taxModel',federalTaxSchema);
