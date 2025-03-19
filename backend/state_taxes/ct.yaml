@@ -1,0 +1,76 @@
+state: CT
+year: 2024
+single_income_tax:
+  - 0:
+      rate: 0.02
+      lower_threshold: 0.00
+      upper_threshold: 10000.00
+      flat_adjustment: 0.00
+  - 1:
+      rate: 0.045
+      lower_threshold: 10000.01 
+      upper_threshold: 50000.00
+      flat_adjustment: 200.00
+  - 2:
+      rate: 0.055
+      lower_threshold: 50000.01
+      upper_threshold: 100000.00
+      flat_adjustment: 2000.00
+  - 3:
+      rate: 0.060
+      lower_threshold: 100000.01
+      upper_threshold: 200000.00
+      flat_adjustment: 4750.00
+  - 4:
+      rate: 0.065
+      lower_threshold: 200000.01
+      upper_threshold: 250000.00
+      flat_adjustment: 10750.00
+  - 5:
+      rate: 0.069
+      lower_threshold: 250000.01
+      upper_threshold: 500000.00
+      flat_adjustment: 14250.00
+  - 6:  
+      rate: 0.0699
+      lower_threshold: 500000.01
+      upper_threshold: .inf
+      flat_adjustment: 31250.00
+  
+married_income_tax:
+  - 0:
+      rate: 0.02
+      lower_threshold: 0.00
+      upper_threshold: 20000.00
+      flat_adjustment: 0.00
+  - 1:
+      rate: 0.045
+      lower_threshold: 20000.01
+      upper_threshold: 100000.00
+      flat_adjustment: 400.00
+  - 2:
+      rate: 0.055
+      lower_threshold: 100000.01
+      upper_threshold: 200000.00
+      flat_adjustment: 4000.00
+  - 3:
+      rate: 0.060
+      lower_threshold: 200000.01
+      upper_threshold: 400000.00
+      flat_adjustment: 9500.00
+  - 4:
+      rate: 0.065
+      lower_threshold: 400000.01
+      upper_threshold: 500000.00
+      flat_adjustment: 21500.00
+  - 5:
+      rate: 0.069
+      lower_threshold: 500000.01
+      upper_threshold: 1000000.00
+      flat_adjustment: 28500.00
+  - 6:
+      rate: 0.0699
+      lower_threshold: 1000000.01
+      upper_threshold: .inf
+      flat_adjustment: 62500.00
+

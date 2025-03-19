@@ -21,12 +21,11 @@ export const taxBracketSchema = new Schema<taxBracketType>({
     upperThreshold : Number
 })
 
-export const taxSchema = new Schema<taxType>({
+export const federalTaxSchema = new Schema<taxType>({
     year: {
         type : Number,
         unique: true
     },
-    taxType : String,
     singleIncomeTaxBrackets : [taxBracketSchema],
     marriedIncomeTaxBrackets : [taxBracketSchema],
     singleStandardDeduction : Number,
@@ -35,4 +34,4 @@ export const taxSchema = new Schema<taxType>({
     marriedcapitalGainsTaxBrackets : [taxBracketSchema]
 })
 
-export let taxModel = model('taxModel',taxSchema);
+export let federalTaxModel = model('taxModel',federalTaxSchema);

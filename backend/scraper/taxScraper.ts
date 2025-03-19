@@ -1,5 +1,5 @@
 import { chromium, firefox } from 'playwright';
-import {taxModel, taxBracketSchema, taxBracketType} from '../db/taxes.js'
+import {federalTaxModel, taxBracketSchema, taxBracketType} from '../db/taxes.js'
 import mongoose from "mongoose"
 import { exit } from 'process';
 import dotenv from "dotenv"
@@ -44,7 +44,7 @@ export async function federalIncomeTaxScraper(){
         (taxYearHeading) => taxYearHeading != null ? Number(yearRegex.exec(taxYearHeading)) : 0
     )
 
-    let newFederalTaxBrackets = new taxModel({year: taxYear, taxType : "federal"});
+    let newFederalTaxBrackets = new federalTaxModel({year: taxYear});
 
 
     //For single filed income taxes
