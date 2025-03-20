@@ -5,8 +5,8 @@ import express, { Request, Response } from 'express'
 import 'dotenv/config';
 import mongoose from 'mongoose';
 import process from 'process';
-import {federalTaxModel} from '../db/taxes.js'
-import {federalTaxScraper} from '../scraper/taxScraper.js'
+import {federalTaxModel} from '../db/taxes'
+import {federalTaxScraper} from './../scraper/taxScraper'
 import { Queue } from 'bullmq';
 
 const app = express();
@@ -98,9 +98,13 @@ app.post("/scenario/taxes/import", (req, res)=>{
     res.send("yeah");
 });
 
-
-app.post("/scenario/runsimulation", (req : Request, res : Response)=>{
-
+interface runSimulationBody {
+    scenarioID : string;
+}
+app.post("/scenario/runsimulation", async (req : Request, res : Response)=>{
+    const requestBody : runSimulationBody = req.body
+    await simulatorQueue.add('simulatorQueue', {scenarioID : requestBody.scenarioID})
+    res.status(400)
     return
 });
 
