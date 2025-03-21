@@ -181,7 +181,7 @@ async function testScenario() {
     // })
 
     const vacationEvent : eventInterface = {
-        name: "food",
+        name: "vacation",
         start: {type: "EventBased", withOrAfter: "with", event: "salary"},
         duration: {type: "Fixed", value: 200},
         event: {
@@ -211,7 +211,7 @@ async function testScenario() {
     // })
 
     const streamingEvent : eventInterface = {
-        name: "food",
+        name: "streaming services",
         start: {type: "EventBased", withOrAfter: "with", event: "salary"},
         duration: {type: "Fixed", value: 200},
         event: {
@@ -236,7 +236,7 @@ async function testScenario() {
     //     }
     // })
     const investEvent : eventInterface = {
-        name: "food",
+        name: "invest",
         start: {type: "EventBased", withOrAfter: "with", event: "salary"},
         duration: {type: "Fixed", value: 200},
         event: {
@@ -258,7 +258,7 @@ async function testScenario() {
     // })
 
     const rebalanceEvent : eventInterface = {
-        name: "food",
+        name: "rebalance",
         start: {type: "EventBased", withOrAfter: "with", event: "salary"},
         duration: {type: "Fixed", value: 200},
         event: {

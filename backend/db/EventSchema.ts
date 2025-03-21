@@ -1,7 +1,7 @@
 import { Schema } from 'mongoose';
 import { fixedValueSchema,normalDistSchema,uniformDistSchema } from './DistributionSchemas';
 
-const options = {discriminatorKey: 'type'}
+const options = {discriminatorKey: 'type', _id: false}
 
 //Top interfaces
 const distributionWrapper = new Schema({}, options)
@@ -27,10 +27,7 @@ const eventbasedStartSchema = new Schema({
         type: String,
         enum: ["with", "after"]
     },
-    event: {
-        type: 'ObjectId',
-        ref: 'Event'
-    }
+    event: String
 })
 
 eventStartField.discriminator('Fixed',fixedValueSchema);

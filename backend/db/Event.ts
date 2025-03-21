@@ -28,8 +28,7 @@ const eventbasedStartSchema = new Schema({
         enum: ["with", "after"]
     },
     event: {
-        type: 'ObjectId',
-        ref: 'Event'
+        type: String
     }
 })
 
