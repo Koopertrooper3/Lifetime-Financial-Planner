@@ -4,9 +4,9 @@ import Scenario from "./Scenario"
 import InvestmentType from "./InvestmentTypes";
 import Distribution from "./Distribution";
 import Investments from "./Investments"
-import Event from "./Event";
 import { fixedValueSchema,normalDistSchema,uniformDistSchema } from './DistributionSchemas';
 import AssetAllocation from "./AssetAllocation";
+import { eventInterface } from "./EventSchema";
 
 const databaseHost = process.env.DATABASE_HOST
 const databasePort = process.env.DATABASE_PORT
@@ -104,88 +104,171 @@ async function testScenario() {
         id: "S&P 500 after-tax"
     })
 
-    const salaryEvent = await Event.create({
+    // const salaryEvent = await Event.create({
+    //     name: "salary",
+    //     start: {type: "Fixed", value: 2025},
+    //     duration: {type: "Fixed", value: 40},
+    //     event: {
+    //         type: "Income", 
+    //         initalAmount: 75000, 
+    //         changeAmountOrPecent: "amount",
+    //         changeDistribution: {type: "Uniform", lower: 500, upper: 2000},
+    //         inflationAdjusted: false,
+    //         userFraction: 1.0,
+    //         socialSecurity: false
+    //     }
+    // })
+
+    const salaryEvent : eventInterface = {
         name: "salary",
         start: {type: "Fixed", value: 2025},
         duration: {type: "Fixed", value: 40},
         event: {
-            type: "Income", 
-            initalAmount: 75000, 
-            changeAmountOrPecent: "amount",
+            type: "Income",
+            initalAmount: 7500,
+            changeAmountOrPercent: "amount",
             changeDistribution: {type: "Uniform", lower: 500, upper: 2000},
             inflationAdjusted: false,
             userFraction: 1.0,
             socialSecurity: false
         }
-    })
+    }
 
-    const foodEvent = await Event.create({
+
+    // const foodEvent = await Event.create({
+    //     name: "food",
+    //     start: {type: "EventBased", withOrAfter: "with", event: salaryEvent._id},
+    //     duration: {type: "Fixed", value: 200},
+    //     event: {
+    //         type: "Expense", 
+    //         initalAmount: 5000, 
+    //         changeAmountOrPecent: "percent",
+    //         changeDistribution: {type: "Normal", mean: 0.01, stdev: 0.01},
+    //         inflationAdjusted: true,
+    //         userFraction: 0.5,
+    //         discretionary: false
+    //     }
+    // })
+
+    const foodEvent : eventInterface = {
         name: "food",
-        start: {type: "EventBased", withOrAfter: "with", event: salaryEvent._id},
+        start: {type: "EventBased", withOrAfter: "with", event: "salary"},
         duration: {type: "Fixed", value: 200},
         event: {
-            type: "Expense", 
-            initalAmount: 5000, 
-            changeAmountOrPecent: "percent",
+            type: "Expense",
+            initalAmount: 5000,
+            changeAmountOrPercent: "percent",
             changeDistribution: {type: "Normal", mean: 0.01, stdev: 0.01},
             inflationAdjusted: true,
-            userFraction: 0.5,
+            userFraction: 1.0,
             discretionary: false
         }
-    })
+    }
 
-    const vacationEvent = await Event.create({
+    // const vacationEvent = await Event.create({
+    //     name: "food",
+    //     start: {type: "EventBased", withOrAfter: "with", event: salaryEvent._id},
+    //     duration: {type: "Fixed", value: 40},
+    //     event: {
+    //         type: "Expense", 
+    //         initalAmount: 1200, 
+    //         changeAmountOrPecent: "amount",
+    //         changeDistribution: {type: "Fixed", value: 0},
+    //         inflationAdjusted: true,
+    //         userFraction: 0.6,
+    //         discretionary: true
+    //     }
+    // })
+
+    const vacationEvent : eventInterface = {
         name: "food",
-        start: {type: "EventBased", withOrAfter: "with", event: salaryEvent._id},
-        duration: {type: "Fixed", value: 40},
+        start: {type: "EventBased", withOrAfter: "with", event: "salary"},
+        duration: {type: "Fixed", value: 200},
         event: {
-            type: "Expense", 
-            initalAmount: 1200, 
-            changeAmountOrPecent: "amount",
-            changeDistribution: {type: "Fixed", value: 0},
+            type: "Expense",
+            initalAmount: 5000,
+            changeAmountOrPercent: "percent",
+            changeDistribution: {type: "Normal", mean: 0.01, stdev: 0.01},
             inflationAdjusted: true,
-            userFraction: 0.6,
-            discretionary: true
+            userFraction: 1.0,
+            discretionary: false
         }
-    })
+    }
 
-    const streamingEvent = await Event.create({
+    // const streamingEvent = await Event.create({
+    //     name: "food",
+    //     start: {type: "EventBased", withOrAfter: "with", event: salaryEvent._id},
+    //     duration: {type: "Fixed", value: 40},
+    //     event: {
+    //         type: "Expense", 
+    //         initalAmount: 500, 
+    //         changeAmountOrPecent: "amount",
+    //         changeDistribution: {type: "Fixed", value: 0},
+    //         inflationAdjusted: true,
+    //         userFraction: 1.0,
+    //         discretionary: true
+    //     }
+    // })
+
+    const streamingEvent : eventInterface = {
         name: "food",
-        start: {type: "EventBased", withOrAfter: "with", event: salaryEvent._id},
-        duration: {type: "Fixed", value: 40},
+        start: {type: "EventBased", withOrAfter: "with", event: "salary"},
+        duration: {type: "Fixed", value: 200},
         event: {
-            type: "Expense", 
-            initalAmount: 500, 
-            changeAmountOrPecent: "amount",
+            type: "Expense",
+            initalAmount: 500,
+            changeAmountOrPercent: "amount",
             changeDistribution: {type: "Fixed", value: 0},
             inflationAdjusted: true,
             userFraction: 1.0,
             discretionary: true
         }
-    })
-
-    const investEvent = await Event.create({
-        start: {type: "Uniform", lower: 2025, upper: 2030},
-        duration: {type: "Fixed", value: 10},
+    }
+    // const investEvent = await Event.create({
+    //     start: {type: "Uniform", lower: 2025, upper: 2030},
+    //     duration: {type: "Fixed", value: 10},
+    //     event: {
+    //         type: "Invest", 
+    //         AssetAllocation: [{asset: "S&P 500 non-retirement", proportion: 0.6},{asset: "S&P 500 non-retirement", proportion: 0.4}],
+    //         glidePath: true,
+    //         AssetAllocation2: [{asset: "S&P 500 non-retirement", proportion: 0.8},{asset: "S&P 500 non-retirement", proportion: 0.2}],
+    //         maxCash: 1000
+    //     }
+    // })
+    const investEvent : eventInterface = {
+        name: "food",
+        start: {type: "EventBased", withOrAfter: "with", event: "salary"},
+        duration: {type: "Fixed", value: 200},
         event: {
-            type: "Invest", 
-            AssetAllocation: [{asset: "S&P 500 non-retirement", proportion: 0.6},{asset: "S&P 500 non-retirement", proportion: 0.4}],
+            type: "Invest",
+            assetAllocation: [{asset: "S&P 500 non-retirement", proportion: 0.6},{asset: "S&P 500 non-retirement", proportion: 0.4}],
             glidePath: true,
-            AssetAllocation2: [{asset: "S&P 500 non-retirement", proportion: 0.8},{asset: "S&P 500 non-retirement", proportion: 0.2}],
-            maxCash: 1000
+            assetAllocation2: [{asset: "S&P 500 non-retirement", proportion: 0.8},{asset: "S&P 500 non-retirement", proportion: 0.2}],
+            maxCash: 1000,
         }
-    })
+    }
+    // const rebalanceEvent = await Event.create({
+    //     start: {type: "Uniform", lower: 2025, upper: 2030},
+    //     duration: {type: "Fixed", value: 10},
+    //     event: {
+    //         type: "Rebalance", 
+    //         AssetAllocation: [{asset: "S&P 500 non-retirement", proportion: 0.7},{asset: "S&P 500 non-retirement", proportion: 0.3}],
 
-    const rebalanceEvent = await Event.create({
-        start: {type: "Uniform", lower: 2025, upper: 2030},
-        duration: {type: "Fixed", value: 10},
+    //     }
+    // })
+
+    const rebalanceEvent : eventInterface = {
+        name: "food",
+        start: {type: "EventBased", withOrAfter: "with", event: "salary"},
+        duration: {type: "Fixed", value: 200},
         event: {
-            type: "Rebalance", 
-            AssetAllocation: [{asset: "S&P 500 non-retirement", proportion: 0.7},{asset: "S&P 500 non-retirement", proportion: 0.3}],
-
+            type: "Invest",
+            assetAllocation: [{asset: "S&P 500 non-retirement", proportion: 0.6},{asset: "S&P 500 non-retirement", proportion: 0.4}],
+            glidePath: true,
+            assetAllocation2: [{asset: "S&P 500 non-retirement", proportion: 0.8},{asset: "S&P 500 non-retirement", proportion: 0.2}],
+            maxCash: 1000,
         }
-    })
-
+    }
 
    
     const exampleScenario = await Scenario.create({
@@ -195,7 +278,7 @@ async function testScenario() {
         lifeExpectancy : [ {type: "Fixed",value: 80} , {type: "Normal", mean: 82, stdev: 3} ],
         investmentTypes: [cashInvestmentType._id,SNPInvestmentType._id,taxExemptBondsInvestmentType._id],
         investments: [cashInvestment._id,snp500Investment._id,taxExemptBondsInvestment._id,snp500InvestmentPreTax._id,snp500InvestmentAfterTax._id],
-        eventSeries: [salaryEvent._id,foodEvent._id,vacationEvent._id,streamingEvent._id,investEvent._id,rebalanceEvent._id],
+        eventSeries: [salaryEvent,foodEvent,vacationEvent,streamingEvent,investEvent,rebalanceEvent],
         inflationAsssumption: {type: "Fixed", value: 80},
         afterTaxContributionLimit: 7000,
         spendingStrategy: ["vacation", "streaming services"],
