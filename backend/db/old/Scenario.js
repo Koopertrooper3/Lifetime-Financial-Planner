@@ -1,7 +1,13 @@
-import mongoose from 'mongoose'
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import {Schema,model} from 'mongoose'
 import InvestmentTypes from './InvestmentTypes'
+import { fixedValueSchema,normalDistSchema,uniformDistSchema } from './DistributionSchemas';
 
-const senarioSchema = new mongoose.Schema({
+const options = {discriminatorKey: 'type'}
+
+const distributionWrapper = new Schema({}, options)
+
+const senarioSchema = new Schema({
     name: {
         type: String,
         required: true
@@ -29,7 +35,7 @@ const senarioSchema = new mongoose.Schema({
         required: true,
     },
     lifeExpectancy: {
-        type: [mongoose.Schema.Types.ObjectId],
+        type: [Schema.Types.ObjectId],
         validate: {
             validator: function(value){
                 if(this.martialStatus === 'couple'){
@@ -47,24 +53,23 @@ const senarioSchema = new mongoose.Schema({
         required: true,
     },
     investmentTypes: {
-        type: [mongoose.Schema.Types.ObjectId],
+        type: [Schema.Types.ObjectId],
         ref: 'InvestmentTypes',
         required: true,
     },
     investments: {
-        type: [mongoose.Schema.Types.ObjectId],
+        type: [Schema.Types.ObjectId],
         ref: 'Investments',
         required: true,
     },
     eventSeries: {
-        type: [mongoose.Schema.Types.ObjectId],
-        ref: 'EventSeries',
+        type: [Schema.Types.ObjectId],
+        ref: 'Event',
         required: true,
     },
     inflationAssumption: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Distribution',
-        required: true,
+        type: distributionWrapper,
+        required: true
     },
     afterTaxContributionLimit: {
         type: Number,
@@ -90,8 +95,8 @@ const senarioSchema = new mongoose.Schema({
         type: Number,
         required: true,
     },
-    spendRothConversionEndingStrategy: {
-        type: Boolean,
+    RothConversionEnd: {
+        type: Number,
         required: true,
     },
     RothConversionStrategy: {
@@ -109,6 +114,12 @@ const senarioSchema = new mongoose.Schema({
     
 });
 
-const Scenario = mongoose.model('Senario', senarioSchema);
+const inflationAssumptionField = senarioSchema.path('inflationAssumption');
+
+inflationAssumptionField.discriminator('Fixed',fixedValueSchema);
+inflationAssumptionField.discriminator('Normal',normalDistSchema)
+inflationAssumptionField.discriminator('Uniform',uniformDistSchema)
+
+const Scenario = model('Senario', senarioSchema);
 
 export default Scenario;

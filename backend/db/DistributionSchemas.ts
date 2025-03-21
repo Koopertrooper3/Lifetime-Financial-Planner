@@ -1,7 +1,10 @@
 import { Schema } from "mongoose"
 
 export const fixedValueSchema = new Schema({
-    value: Number
+    value: {
+        type: Number,
+        required: true
+    }
 })
 
 export const normalDistSchema = new Schema({
@@ -16,11 +19,11 @@ export const normalDistSchema = new Schema({
 })
 
 export const uniformDistSchema = new Schema({
-    upper: {
+    lower: {
         type: Number,
         required: true
     },
-    lower: {
+    upper: {
         type: Number,
         required: true
     }

@@ -37,6 +37,6 @@ const distributionSchema = new mongoose.Schema({
     }
 });
 
-const Distribution = mongoose.model('Dustribution', distributionSchema);
+const Distribution = mongoose.model('Distribution', distributionSchema);
 
 export default Distribution;

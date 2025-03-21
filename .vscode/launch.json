@@ -31,6 +31,15 @@
             "preLaunchTask": "tsc: build - backend/tsconfig.json",
             "outFiles": ["${workspaceFolder}/backend/out/simulator/*.js"],
             "envFile": "${workspaceFolder}/.env"
+          },
+          {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch populate",
+            "program": "${workspaceFolder}/backend/db/populate.ts",
+            "preLaunchTask": "tsc: build - backend/tsconfig.json",
+            "outFiles": ["${workspaceFolder}/backend/out/**/*.js"],
+            "envFile": "${workspaceFolder}/.env"
           }
     ]
   }

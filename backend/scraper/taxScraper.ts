@@ -25,6 +25,7 @@ export async function federalTaxScraper(){
     await page.goto(federalIncomeTaxRatesWebsite);
 
     const USDFormattingRegex = /[$,]/g;
+    const yearRegex = /\d{4}/g
 
 
     const taxTables = await page.getByRole("table",{includeHidden: true}).all()
@@ -38,7 +39,6 @@ export async function federalTaxScraper(){
         async (incomeTaxTable) => { return await incomeTaxTable[1].getByRole("row").all()}
     );
 
-    const yearRegex = /\d{4}/g
     const taxYear = await page.getByRole("heading",{name: "tax rates for a single taxpayer"})
     .textContent()
     .then(
@@ -104,7 +104,7 @@ export async function federalTaxScraper(){
         }
     }
 
-    const hasDollarValueRegex = /\$\d*,\d*/g
+    const hasDollarValueRegex = /\$\d*(?:,\d*)*/g ///\$\d*,\d*/g
     const taxRateElement = 0
     const bracketIncomeElement = 1
     const possibleTaxRateStringRegex = /capital gains rate of\xa0\d*%/g
