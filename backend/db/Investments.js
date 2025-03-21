@@ -16,7 +16,7 @@ const investmentsSchema = new mongoose.Schema({
     },
     id: {
         type: String,
-        required: true
+        required: true,
     },
 });
 

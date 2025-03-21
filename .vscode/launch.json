@@ -27,7 +27,7 @@
             "type": "node",
             "request": "launch",
             "name": "Launch simulator",
-            "program": "${workspaceFolder}/backend/simulator/simulationHead.js",
+            "program": "${workspaceFolder}/backend/simulator/simulationHead.ts",
             "preLaunchTask": "tsc: build - backend/tsconfig.json",
             "outFiles": ["${workspaceFolder}/backend/out/simulator/*.js"],
             "envFile": "${workspaceFolder}/.env"
