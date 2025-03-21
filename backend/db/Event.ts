@@ -18,6 +18,7 @@ const eventSchema = new Schema({
     event: multiTypeSchema
 })
 
+const Event = model('Event', eventSchema);
 
 //Different event types
 const eventStartField = eventSchema.path<Schema.Types.DocumentArray>('start');
@@ -98,4 +99,4 @@ eventDataField.discriminator('Expense',expenseEventSchema);
 eventDataField.discriminator('Invest',investEventSchema);
 eventDataField.discriminator('Rebalance',rebalanceEventSchema);
 
-export const Event = model('Event', eventSchema);
+export default Event
