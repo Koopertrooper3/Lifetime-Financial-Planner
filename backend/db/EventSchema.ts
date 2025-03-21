@@ -1,24 +1,23 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { Schema, model } from 'mongoose';
+import { Schema } from 'mongoose';
 import { fixedValueSchema,normalDistSchema,uniformDistSchema } from './DistributionSchemas';
 
-const options = {discriminatorKey: 'type'}
+const options = {discriminatorKey: 'type', _id: false}
 
 //Top interfaces
 const distributionWrapper = new Schema({}, options)
 
-const multiTypeSchema = new Schema({}, options)
+const startTypeSchema = new Schema({}, options)
 
-const eventSchema = new Schema({
-    name: {
-        type: String,
-    },
-    start: multiTypeSchema,
-    duration: multiTypeSchema,
-    event: multiTypeSchema
+const durationTypeSchema = new Schema({}, options)
+
+const eventDataSchema = new Schema({}, options)
+
+export const eventSchema = new Schema({
+    name: String,
+    start: startTypeSchema,
+    duration: durationTypeSchema,
+    event: eventDataSchema
 })
-
-const Event = model('Event', eventSchema);
 
 //Different event types
 const eventStartField = eventSchema.path<Schema.Types.DocumentArray>('start');
@@ -28,9 +27,7 @@ const eventbasedStartSchema = new Schema({
         type: String,
         enum: ["with", "after"]
     },
-    event: {
-        type: String
-    }
+    event: String
 })
 
 eventStartField.discriminator('Fixed',fixedValueSchema);
@@ -38,14 +35,17 @@ eventStartField.discriminator('Normal',normalDistSchema)
 eventStartField.discriminator('Uniform',uniformDistSchema)
 eventStartField.discriminator('EventBased',eventbasedStartSchema)
 
+//Different duration types
 const eventDurationField = eventSchema.path<Schema.Types.DocumentArray>('duration');
 
 eventDurationField.discriminator('Fixed',fixedValueSchema);
 eventDurationField.discriminator('Normal',normalDistSchema)
 eventDurationField.discriminator('Uniform',uniformDistSchema)
 
+//Different event types (income,expense,invest,rebalance)
 const eventDataField = eventSchema.path<Schema.Types.DocumentArray>('event');
 
+//Income schema
 const incomeEventSchema = new Schema({
     initalAmount: Number,
     changeAmountOrPecent : {
@@ -58,10 +58,13 @@ const incomeEventSchema = new Schema({
     socialSecurity: Boolean,
 })
 
+
 const incomeChangeDistributionField = incomeEventSchema.path<Schema.Types.DocumentArray>('changeDistribution')
+incomeChangeDistributionField.discriminator('Fixed',fixedValueSchema)
 incomeChangeDistributionField.discriminator('Normal',normalDistSchema)
 incomeChangeDistributionField.discriminator('Uniform',uniformDistSchema)
 
+//Expense schema
 const expenseEventSchema = new Schema({
     initalAmount: Number,
     changeAmountOrPecent : {
@@ -77,6 +80,7 @@ const expenseChangeDistributionField = expenseEventSchema.path<Schema.Types.Docu
 expenseChangeDistributionField.discriminator('Normal',normalDistSchema)
 expenseChangeDistributionField.discriminator('Uniform',uniformDistSchema)
 
+//Invest schema
 const assetProportion = new Schema({
     asset: String,
     proportion: Number,
@@ -89,6 +93,9 @@ const investEventSchema = new Schema({
     maxCash: Number,
 
 })
+
+//Rebalance schema
+
 const rebalanceEventSchema = new Schema({
     assetAllocation: [assetProportion]
 })
@@ -98,4 +105,75 @@ eventDataField.discriminator('Expense',expenseEventSchema);
 eventDataField.discriminator('Invest',investEventSchema);
 eventDataField.discriminator('Rebalance',rebalanceEventSchema);
 
-export default Event
+
+interface fixedDistribution {
+    type: "Fixed",
+    value: number,
+}
+
+interface normalDistribution {
+    type: "Normal",
+    mean: number,
+    stdev: number,
+}
+
+interface uniformDistribution {
+    type: "Uniform",
+    lower: number,
+    upper: number,
+}
+
+interface eventBased{
+    type: "EventBased",
+    withOrAfter: "with" | "before",
+    event: string,
+}
+type eventStartType = fixedDistribution | normalDistribution | uniformDistribution | eventBased
+type distributionWrapperType = fixedDistribution | normalDistribution | uniformDistribution
+
+interface incomeEvent{
+    type: "Income",
+    initalAmount: number,
+    changeAmountOrPercent: string,
+    changeDistribution: distributionWrapperType,
+    inflationAdjusted: boolean
+    userFraction: number,
+    socialSecurity: boolean
+}
+
+interface expenseEvent{
+    type: "Expense",
+    initalAmount: number,
+    changeAmountOrPercent: string,
+    changeDistribution: distributionWrapperType,
+    inflationAdjusted: boolean,
+    userFraction: number,
+    discretionary: boolean
+}
+
+interface assetProportion {
+    asset: string,
+    proportion: number,
+}
+
+interface investEvent{
+    type: "Invest",
+    assetAllocation: assetProportion[],
+    glidePath: boolean,
+    assetAllocation2: assetProportion[],
+    maxCash: number
+}
+
+interface rebalanceEvent{
+    type: "Rebalance"
+    assetAllocation2: [assetProportion]
+}
+
+type eventData = incomeEvent | expenseEvent | investEvent | rebalanceEvent
+
+export interface eventInterface{
+    name: string,
+    start: eventStartType,
+    duration: distributionWrapperType,
+    event: eventData
+}
