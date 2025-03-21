@@ -4,7 +4,7 @@ import Scenario from "./Scenario"
 import InvestmentType from "./InvestmentTypes";
 import Distribution from "./Distribution";
 import Investments from "./Investments"
-import Event from "./Event";
+import { eventInterface } from "./EventSchema";
 import { fixedValueSchema,normalDistSchema,uniformDistSchema } from './DistributionSchemas';
 import AssetAllocation from "./AssetAllocation";
 
@@ -104,7 +104,7 @@ async function testScenario() {
         id: "S&P 500 after-tax"
     })
 
-    const salaryEvent = await Event.create({
+    const salaryEvent = {
         name: "salary",
         start: {type: "Fixed", value: 2025},
         duration: {type: "Fixed", value: 40},
@@ -117,11 +117,11 @@ async function testScenario() {
             userFraction: 1.0,
             socialSecurity: false
         }
-    })
+    }
 
-    const foodEvent = await Event.create({
+    const foodEvent = {
         name: "food",
-        start: {type: "EventBased", withOrAfter: "with", event: salaryEvent._id},
+        start: {type: "EventBased", withOrAfter: "with", event: salaryEvent},
         duration: {type: "Fixed", value: 200},
         event: {
             type: "Expense", 
@@ -132,7 +132,7 @@ async function testScenario() {
             userFraction: 0.5,
             discretionary: false
         }
-    })
+    }
 
     // const vacationEvent = await Event.create({
     //     name: "food",
@@ -156,13 +156,13 @@ async function testScenario() {
         event: {
             type: "Expense", 
             initalAmount: 1200, 
-            changeAmountOrPecent: "amount",
+            changeAmountOrPercent: "amount",
             changeDistribution: {type: "Fixed", value: 0},
             inflationAdjusted: true,
             userFraction: 0.6,
             discretionary: true
         }
-    })
+    }
 
     // const streamingEvent = await Event.create({
     //     name: "food",
@@ -186,7 +186,7 @@ async function testScenario() {
         event: {
             type: "Expense", 
             initalAmount: 500, 
-            changeAmountOrPecent: "amount",
+            changeAmountOrPercent: "amount",
             changeDistribution: {type: "Fixed", value: 0},
             inflationAdjusted: true,
             userFraction: 1.0,
@@ -210,9 +210,9 @@ async function testScenario() {
         duration: {type: "Fixed", value: 200},
         event: {
             type: "Invest", 
-            AssetAllocation: [{asset: "S&P 500 non-retirement", proportion: 0.6},{asset: "S&P 500 non-retirement", proportion: 0.4}],
+            assetAllocation: [{asset: "S&P 500 non-retirement", proportion: 0.6},{asset: "S&P 500 non-retirement", proportion: 0.4}],
             glidePath: true,
-            AssetAllocation2: [{asset: "S&P 500 non-retirement", proportion: 0.8},{asset: "S&P 500 non-retirement", proportion: 0.2}],
+            assetAllocation2: [{asset: "S&P 500 non-retirement", proportion: 0.8},{asset: "S&P 500 non-retirement", proportion: 0.2}],
             maxCash: 1000
         }
     }
@@ -232,10 +232,10 @@ async function testScenario() {
         duration: {type: "Fixed", value: 200},
         event: {
             type: "Rebalance", 
-            AssetAllocation: [{asset: "S&P 500 non-retirement", proportion: 0.7},{asset: "S&P 500 non-retirement", proportion: 0.3}],
+            assetAllocation: [{asset: "S&P 500 non-retirement", proportion: 0.7},{asset: "S&P 500 non-retirement", proportion: 0.3}],
 
         }
-    })
+    }
 
 
    
@@ -246,7 +246,7 @@ async function testScenario() {
         lifeExpectancy : [ {type: "Fixed",value: 80} , {type: "Normal", mean: 82, stdev: 3} ],
         investmentTypes: [cashInvestmentType._id,SNPInvestmentType._id,taxExemptBondsInvestmentType._id],
         investments: [cashInvestment._id,snp500Investment._id,taxExemptBondsInvestment._id,snp500InvestmentPreTax._id,snp500InvestmentAfterTax._id],
-        eventSeries: [salaryEvent._id,foodEvent._id,vacationEvent._id,streamingEvent._id,investEvent._id,rebalanceEvent._id],
+        eventSeries: [salaryEvent],
         inflationAsssumption: {type: "Fixed", value: 80},
         afterTaxContributionLimit: 7000,
         spendingStrategy: ["vacation", "streaming services"],

@@ -1,5 +1,6 @@
 import {Schema,model} from 'mongoose'
 import { fixedValueSchema,normalDistSchema,uniformDistSchema } from './DistributionSchemas';
+import {eventSchema} from './EventSchema'
 
 const options = {discriminatorKey: 'type'}
 
@@ -65,9 +66,9 @@ const senarioSchema = new Schema({
         required: true,
     },
     eventSeries: {
-        type: [Schema.Types.ObjectId],
-        ref: 'Event',
+        type: [eventSchema],
         required: true,
+        default: []
     },
     inflationAssumption: distributionWrapper,
     afterTaxContributionLimit: {
@@ -112,10 +113,6 @@ const senarioSchema = new Schema({
     }
     
 });
-
-
-const Scenario = model('Scenario', senarioSchema);
-
 const lifeExpectancyField = senarioSchema.path<Schema.Types.DocumentArray>('lifeExpectancy');
 
 lifeExpectancyField.discriminator('Fixed',fixedValueSchema);
@@ -127,5 +124,7 @@ const inflationAssumptionField = senarioSchema.path<Schema.Types.DocumentArray>(
 inflationAssumptionField.discriminator('Fixed',fixedValueSchema);
 inflationAssumptionField.discriminator('Normal',normalDistSchema)
 inflationAssumptionField.discriminator('Uniform',uniformDistSchema)
+
+const Scenario = model('Scenario', senarioSchema);
 
 export default Scenario;

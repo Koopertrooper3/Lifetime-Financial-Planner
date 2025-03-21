@@ -166,7 +166,7 @@ interface investEvent{
 
 interface rebalanceEvent{
     type: "Rebalance"
-    assetAllocation2: [assetProportion]
+    assetAllocation: assetProportion[]
 }
 
 type eventData = incomeEvent | expenseEvent | investEvent | rebalanceEvent
