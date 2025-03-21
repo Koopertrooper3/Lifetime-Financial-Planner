@@ -121,7 +121,7 @@ async function testScenario() {
 
     const foodEvent = {
         name: "food",
-        start: {type: "EventBased", withOrAfter: "with", event: salaryEvent},
+        start: {type: "EventBased", withOrAfter: "with", event: "salary"},
         duration: {type: "Fixed", value: 200},
         event: {
             type: "Expense", 
@@ -246,7 +246,7 @@ async function testScenario() {
         lifeExpectancy : [ {type: "Fixed",value: 80} , {type: "Normal", mean: 82, stdev: 3} ],
         investmentTypes: [cashInvestmentType._id,SNPInvestmentType._id,taxExemptBondsInvestmentType._id],
         investments: [cashInvestment._id,snp500Investment._id,taxExemptBondsInvestment._id,snp500InvestmentPreTax._id,snp500InvestmentAfterTax._id],
-        eventSeries: [salaryEvent],
+        eventSeries: [salaryEvent,foodEvent,vacationEvent,streamingEvent,investEvent,rebalanceEvent],
         inflationAsssumption: {type: "Fixed", value: 80},
         afterTaxContributionLimit: 7000,
         spendingStrategy: ["vacation", "streaming services"],
