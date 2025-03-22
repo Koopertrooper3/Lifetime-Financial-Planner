@@ -4,7 +4,7 @@ import mongoose from "mongoose"
 import path from "path"
 import { finished } from "stream/promises"
 import { workerData } from "worker_threads"
-import Scenario from "../db/Scenario"
+import {Scenario} from "../db/Scenario"
 const databaseHost = process.env.DATABASE_HOST
 const databasePort = process.env.DATABASE_PORT
 const databaseName = process.env.DATABASE_NAME

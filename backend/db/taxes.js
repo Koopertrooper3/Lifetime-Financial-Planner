@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.federalTaxModel = exports.federalTaxSchema = exports.taxBracketSchema = void 0;
-const mongoose_1 = require("mongoose");
+var mongoose_1 = require("mongoose");
 exports.taxBracketSchema = new mongoose_1.Schema({
     rate: Number,
     lowerThreshold: Number,
@@ -20,4 +20,3 @@ exports.federalTaxSchema = new mongoose_1.Schema({
     marriedcapitalGainsTaxBrackets: [exports.taxBracketSchema]
 });
 exports.federalTaxModel = (0, mongoose_1.model)('taxModel', exports.federalTaxSchema);
-//# sourceMappingURL=taxes.js.map

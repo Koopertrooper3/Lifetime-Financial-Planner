@@ -1,16 +1,18 @@
 /*global console, setTimeout, clearTimeout*/
 /*eslint no-undef: "error"*/
 
-import express, { Request, Response } from 'express'
-import 'dotenv/config';
+import { Request, Response } from 'express';
+import * as dotenv from 'dotenv';
 import mongoose from 'mongoose';
-import process from 'process';
-import {federalTaxModel} from '../db/taxes'
-import {federalTaxScraper} from './../scraper/taxScraper'
+import * as process from 'process';
+import {federalTaxModel} from '../db/taxes';
+import {federalTaxScraper} from '../scraper/taxScraper';
 import { Queue } from 'bullmq';
 import bodyParser from 'body-parser';
+import app from './app';
 
-const app = express();
+dotenv.config();
+
 const port : number = Number(process.env.BACKEND_PORT) || 8080;
 const ip = process.env.BACKEND_IP || "0.0.0.0";
 const databaseHost = process.env.DATABASE_HOST
