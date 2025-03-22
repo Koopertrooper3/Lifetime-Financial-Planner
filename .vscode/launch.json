@@ -11,7 +11,7 @@
             "name": "Launch tax scraper",
             "program": "${workspaceFolder}/backend/scraper/taxScraper.ts",
             "preLaunchTask": "tsc: build - backend/tsconfig.json",
-            "outFiles": ["${workspaceFolder}/backend/scraper/*.js"],
+            "outFiles": ["${workspaceFolder}/backend/out/scraper/*.js"],
             "envFile": "${workspaceFolder}/.env"
           },
           {
@@ -20,7 +20,25 @@
             "name": "Launch server",
             "program": "${workspaceFolder}/backend/server/server_typescript.ts",
             "preLaunchTask": "tsc: build - backend/tsconfig.json",
-            "outFiles": ["${workspaceFolder}/backend/server/*.js"],
+            "outFiles": ["${workspaceFolder}/backend/out/server/*.js"],
+            "envFile": "${workspaceFolder}/.env"
+          },
+          {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch simulator",
+            "program": "${workspaceFolder}/backend/simulator/simulationHead.ts",
+            "preLaunchTask": "tsc: build - backend/tsconfig.json",
+            "outFiles": ["${workspaceFolder}/backend/out/simulator/*.js"],
+            "envFile": "${workspaceFolder}/.env"
+          },
+          {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch populate",
+            "program": "${workspaceFolder}/backend/db/populate.ts",
+            "preLaunchTask": "tsc: build - backend/tsconfig.json",
+            "outFiles": ["${workspaceFolder}/backend/out/**/*.js"],
             "envFile": "${workspaceFolder}/.env"
           }
     ]

@@ -8,7 +8,6 @@ const investmentTypeScehma = new mongoose.Schema({
     },
     description: {
         type: String,
-        required: true,
     },
     returnAmtOrPct: {
         type: String,

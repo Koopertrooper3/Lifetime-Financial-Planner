@@ -1,6 +1,6 @@
 import mongoose from 'mongoose'
 
-const investmentsSchema = new mongoose.Schema({
+export const investmentSchema = new mongoose.Schema({
     investmentType: {
         type: String,
         required: true,
@@ -17,9 +17,13 @@ const investmentsSchema = new mongoose.Schema({
     id: {
         type: String,
         required: true,
-    },
+    }
 });
 
-const Investments = mongoose.model('Investments', investmentsSchema);
+export interface Investment{
+    investmentType: string,
+    value: number,
+    taxStatus: "non-retirement" | "pre-tax" | "after-tax",
+    id: string
 
-export default Investments;
+}

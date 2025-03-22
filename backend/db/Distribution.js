@@ -34,21 +34,9 @@ const distributionSchema = new mongoose.Schema({
         required: function(){
             return this.type === 'uniform';
         },
-    },
-    mu: {
-        type: Number,
-        required: function(){
-            return this.type === 'GBM';
-        },
-    },
-    sigma: {
-        type: Number,
-        required: function(){
-            return this.type === 'GBM';
-        },
-    },
+    }
 });
 
-const Distribution = mongoose.model('Dustribution', distributionSchema);
+const Distribution = mongoose.model('Distribution', distributionSchema);
 
 export default Distribution;

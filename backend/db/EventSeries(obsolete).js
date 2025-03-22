@@ -1,16 +1,18 @@
 import mongoose from 'mongoose';
 
-const eventSeriesSchema = new mongoose.Schema({
+
+//Events can start based on
+//fixed value
+//other events
+//distribution
+const options = {discriminationKey: 'kind'}
+
+const blab = new mongoose.Schema({
     name: {
         type: String,
-        enum: ["salary", "food", "vacation", "streaming services", "my investments", "rebalance"],
         required: true,
     },
-    start: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Distribution',
-        required: true,
-    },
+    start: startTypeSchema,
     duration: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Distribution',
@@ -26,8 +28,9 @@ const eventSeriesSchema = new mongoose.Schema({
         required: false
     },
     changeAmtOrPct: {
-        type: Number,
-        required: false,
+        type: String,
+        enum: ["amount", "percent"],
+        required: true,
     },
     changeDistribution: {
         type: mongoose.Schema.Types.ObjectId,
@@ -81,6 +84,7 @@ const eventSeriesSchema = new mongoose.Schema({
         required: false,
     },
 });
+
 
 const EventSeries = mongoose.model('EventSeries', eventSeriesSchema);
 

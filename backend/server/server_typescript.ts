@@ -5,9 +5,10 @@ import express, { Request, Response } from 'express'
 import 'dotenv/config';
 import mongoose from 'mongoose';
 import process from 'process';
-import {federalTaxModel} from '../db/taxes.js'
-import {federalTaxScraper} from '../scraper/taxScraper.js'
+import {federalTaxModel} from '../db/taxes'
+import {federalTaxScraper} from './../scraper/taxScraper'
 import { Queue } from 'bullmq';
+import bodyParser from 'body-parser';
 
 const app = express();
 const port : number = Number(process.env.BACKEND_PORT) || 8080;
@@ -18,6 +19,8 @@ const databaseName = process.env.DATABASE_NAME
 const databaseConnectionString = databaseHost + ':' + databasePort + '/' + databaseName
 const REDIS_HOST = process.env.REDIS_HOST || "localhost"
 const REDIS_PORT = Number(process.env.REDIS_PORT) || 6379
+const jsonParser = bodyParser.json()
+
 let simulatorQueue : Queue
 //Startup code to be run before the server starts
 async function startUp(){
@@ -98,10 +101,13 @@ app.post("/scenario/taxes/import", (req, res)=>{
     res.send("yeah");
 });
 
-
-app.post("/scenario/runsimulation", (req : Request, res : Response)=>{
-
-    return
+interface runSimulationBody {
+    scenarioID : string;
+}
+app.post("/scenario/runsimulation", jsonParser , async (req : Request, res : Response)=>{
+    const requestBody : runSimulationBody = req.body
+    await simulatorQueue.add("simulatorQueue", {scenarioID : requestBody.scenarioID},{ removeOnComplete: true, removeOnFail: true })
+    res.status(200).send({})
 });
 
 
