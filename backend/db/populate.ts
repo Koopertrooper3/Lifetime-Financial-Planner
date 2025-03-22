@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import mongoose from "mongoose";
-import Scenario from "./Scenario"
+import {Scenario, scenarioModel} from "./Scenario"
 import InvestmentType from "./InvestmentTypes";
 import Distribution from "./Distribution";
-import Investments from "./Investments"
-import { eventInterface } from "./EventSchema";
+import {Investment, investmentSchema} from "./InvestmentSchema"
+import { Event } from "./EventSchema";
 import { fixedValueSchema,normalDistSchema,uniformDistSchema } from './DistributionSchemas';
 import AssetAllocation from "./AssetAllocation";
 
@@ -72,37 +72,39 @@ async function testScenario() {
         
     })
 
-    const cashInvestment = await Investments.create({
+    const cashInvestment : Investment = {
         investmentType : "cash",
         value: 100,
         taxStatus : "non-retirement",
         id: "cash"
-    })
+    }
 
-    const snp500Investment = await Investments.create({
+    const snp500Investment : Investment = {
         investmentType : "S&P 500",
         value: 100000,
         taxStatus : "non-retirement",
         id: "S&P 500 non-retirement"
-    })
-    const taxExemptBondsInvestment = await Investments.create({
+    }
+
+    const taxExemptBondsInvestment : Investment = {
         investmentType : "S&P 500",
         value: 2000,
         taxStatus : "non-retirement",
         id: "tax-exempt bonds"
-    })
-    const snp500InvestmentPreTax = await Investments.create({
+    }
+
+    const snp500InvestmentPreTax : Investment = {
         investmentType : "S&P 500",
         value: 10000,
         taxStatus : "pre-tax",
         id: "S&P 500 pre-tax"
-    })
-    const snp500InvestmentAfterTax = await Investments.create({
+    }
+    const snp500InvestmentAfterTax : Investment = {
         investmentType : "S&P 500",
         value: 2000,
         taxStatus : "after-tax",
         id: "S&P 500 after-tax"
-    })
+    }
 
     const salaryEvent = {
         name: "salary",
@@ -149,7 +151,7 @@ async function testScenario() {
     //     }
     // })
 
-    const vacationEvent : eventInterface = {
+    const vacationEvent : Event = {
         name: "vacation",
         start: {type: "EventBased", withOrAfter: "with", event: "salary"},
         duration: {type: "Fixed", value: 200},
@@ -179,7 +181,7 @@ async function testScenario() {
     //     }
     // })
 
-    const streamingEvent : eventInterface = {
+    const streamingEvent : Event = {
         name: "streaming services",
         start: {type: "EventBased", withOrAfter: "with", event: "salary"},
         duration: {type: "Fixed", value: 200},
@@ -204,7 +206,7 @@ async function testScenario() {
     //         maxCash: 1000
     //     }
     // })
-    const investEvent : eventInterface = {
+    const investEvent : Event = {
         name: "invest",
         start: {type: "EventBased", withOrAfter: "with", event: "salary"},
         duration: {type: "Fixed", value: 200},
@@ -226,7 +228,7 @@ async function testScenario() {
     //     }
     // })
 
-    const rebalanceEvent : eventInterface = {
+    const rebalanceEvent : Event = {
         name: "rebalance",
         start: {type: "EventBased", withOrAfter: "with", event: "salary"},
         duration: {type: "Fixed", value: 200},
@@ -239,13 +241,13 @@ async function testScenario() {
 
 
    
-    const exampleScenario = await Scenario.create({
+    const exampleScenario = await scenarioModel.create({
         name: "reimu",
         maritalStatus: "couple",
         birthYear : [1985,1987],
         lifeExpectancy : [ {type: "Fixed",value: 80} , {type: "Normal", mean: 82, stdev: 3} ],
         investmentTypes: [cashInvestmentType._id,SNPInvestmentType._id,taxExemptBondsInvestmentType._id],
-        investments: [cashInvestment._id,snp500Investment._id,taxExemptBondsInvestment._id,snp500InvestmentPreTax._id,snp500InvestmentAfterTax._id],
+        investments: [cashInvestment,snp500Investment,taxExemptBondsInvestment,snp500InvestmentPreTax,snp500InvestmentAfterTax],
         eventSeries: [salaryEvent,foodEvent,vacationEvent,streamingEvent,investEvent,rebalanceEvent],
         inflationAsssumption: {type: "Fixed", value: 80},
         afterTaxContributionLimit: 7000,

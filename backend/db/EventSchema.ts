@@ -1,5 +1,5 @@
 import { Schema } from 'mongoose';
-import { fixedValueSchema,normalDistSchema,uniformDistSchema } from './DistributionSchemas';
+import { fixedValueSchema,normalDistSchema,uniformDistSchema,FixedDistribution,NormalDistribution,UniformDistribution } from './DistributionSchemas';
 
 const options = {discriminatorKey: 'type', _id: false}
 
@@ -12,7 +12,7 @@ const durationTypeSchema = new Schema({}, options)
 
 const eventDataSchema = new Schema({}, options)
 
-export const eventSchema = new Schema({
+export const eventSchema = new Schema<Event>({
     name: String,
     start: startTypeSchema,
     duration: durationTypeSchema,
@@ -105,33 +105,15 @@ eventDataField.discriminator('Expense',expenseEventSchema);
 eventDataField.discriminator('Invest',investEventSchema);
 eventDataField.discriminator('Rebalance',rebalanceEventSchema);
 
-
-interface fixedDistribution {
-    type: "Fixed",
-    value: number,
-}
-
-interface normalDistribution {
-    type: "Normal",
-    mean: number,
-    stdev: number,
-}
-
-interface uniformDistribution {
-    type: "Uniform",
-    lower: number,
-    upper: number,
-}
-
 interface eventBased{
     type: "EventBased",
     withOrAfter: "with" | "before",
     event: string,
 }
-type eventStartType = fixedDistribution | normalDistribution | uniformDistribution | eventBased
-type distributionWrapperType = fixedDistribution | normalDistribution | uniformDistribution
+type eventStartType = FixedDistribution | NormalDistribution | UniformDistribution | eventBased
+type distributionWrapperType = FixedDistribution | NormalDistribution | UniformDistribution
 
-interface incomeEvent{
+export interface incomeEvent{
     type: "Income",
     initalAmount: number,
     changeAmountOrPercent: string,
@@ -141,7 +123,7 @@ interface incomeEvent{
     socialSecurity: boolean
 }
 
-interface expenseEvent{
+export interface expenseEvent{
     type: "Expense",
     initalAmount: number,
     changeAmountOrPercent: string,
@@ -156,7 +138,7 @@ interface assetProportion {
     proportion: number,
 }
 
-interface investEvent{
+export interface investEvent{
     type: "Invest",
     assetAllocation: assetProportion[],
     glidePath: boolean,
@@ -164,14 +146,14 @@ interface investEvent{
     maxCash: number
 }
 
-interface rebalanceEvent{
+export interface rebalanceEvent{
     type: "Rebalance"
     assetAllocation: assetProportion[]
 }
 
 type eventData = incomeEvent | expenseEvent | investEvent | rebalanceEvent
 
-export interface eventInterface{
+export interface Event{
     name: string,
     start: eventStartType,
     duration: distributionWrapperType,

@@ -28,3 +28,20 @@ export const uniformDistSchema = new Schema({
         required: true
     }
 })
+
+export interface FixedDistribution {
+    type: "Fixed",
+    value: number,
+}
+
+export interface NormalDistribution {
+    type: "Normal",
+    mean: number,
+    stdev: number,
+}
+
+export interface UniformDistribution {
+    type: "Uniform",
+    lower: number,
+    upper: number,
+}

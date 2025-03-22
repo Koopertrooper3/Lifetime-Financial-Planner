@@ -1,16 +1,15 @@
 import {Schema,model} from 'mongoose'
-import { fixedValueSchema,normalDistSchema,uniformDistSchema } from './DistributionSchemas';
+import { fixedValueSchema,normalDistSchema,uniformDistSchema, FixedDistribution, NormalDistribution, UniformDistribution } from './DistributionSchemas';
 import {eventSchema} from './EventSchema'
+import { Event } from './EventSchema';
+import InvestmentType from './InvestmentTypes';
+import {Investment, investmentSchema} from './InvestmentSchema';
 
 const options = {discriminatorKey: 'type'}
 
 const distributionWrapper = new Schema({}, options)
 
-interface scenarioInterface {
-    name: string
-    maritalStatus: string
-}
-const senarioSchema = new Schema({
+const senarioSchema = new Schema<Scenario>({
     name: {
         type: String,
         required: true
@@ -23,10 +22,10 @@ const senarioSchema = new Schema({
         type: [Number],
         validate: {
             validator: function(value: number[]){
-                if((this as scenarioInterface).maritalStatus === 'couple'){
+                if((this as Scenario).maritalStatus === 'couple'){
                     return value.length == 2;
                 }
-                else if((this as scenarioInterface).maritalStatus === 'individual'){
+                else if((this as Scenario).maritalStatus === 'individual'){
                     return value.length === 1;
                 }
                 else{
@@ -41,10 +40,10 @@ const senarioSchema = new Schema({
         type: [distributionWrapper],
         validate: {
             validator: function(value: unknown[]){
-                if((this as scenarioInterface).maritalStatus === 'couple'){
+                if((this as Scenario).maritalStatus === 'couple'){
                     return value.length == 2;
                 }
-                else if((this as scenarioInterface).maritalStatus === 'individual'){
+                else if((this as Scenario).maritalStatus === 'individual'){
                     return value.length === 1;
                 }
                 else{
@@ -57,13 +56,13 @@ const senarioSchema = new Schema({
     },
     investmentTypes: {
         type: [Schema.Types.ObjectId],
-        ref: 'InvestmentTypes',
+        ref: InvestmentType.modelName,
         required: true,
     },
     investments: {
-        type: [Schema.Types.ObjectId],
-        ref: 'Investments',
+        type: [investmentSchema],
         required: true,
+        default: []
     },
     eventSeries: {
         type: [eventSchema],
@@ -125,6 +124,26 @@ inflationAssumptionField.discriminator('Fixed',fixedValueSchema);
 inflationAssumptionField.discriminator('Normal',normalDistSchema)
 inflationAssumptionField.discriminator('Uniform',uniformDistSchema)
 
-const Scenario = model('Scenario', senarioSchema);
+export const scenarioModel = model('Scenario', senarioSchema);
 
-export default Scenario;
+
+export interface Scenario {
+    name: string,
+    maritalStatus: string,
+    birthYear: number[],
+    lifeExpectancy: (FixedDistribution | NormalDistribution | UniformDistribution)[]
+    investmentTypes: Schema.Types.ObjectId[],
+    investments: Investment[],
+    eventSeries: Event[],
+    inflationAssumption: FixedDistribution | NormalDistribution | UniformDistribution,
+    afterTaxContributionLimit: number,
+    spendingStrategy: string[],
+    expenseWithdrawalStrategy: string[],
+    RMDStrategy: string[],
+    RothConversionOpt: boolean,
+    RothConversionStart: number,
+    RothConversionEnd: number,
+    RothConversionStrategy: string[],
+    financialGoal: number,
+    residenceState: string,
+}
