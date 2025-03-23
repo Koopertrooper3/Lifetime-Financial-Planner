@@ -4,7 +4,7 @@
 import { Request, Response } from 'express';
 import * as dotenv from 'dotenv';
 import mongoose from 'mongoose';
-import * as process from 'process';
+import process from 'node:process';
 import {federalTaxModel} from '../db/taxes';
 import {federalTaxScraper} from '../scraper/taxScraper';
 import { Queue } from 'bullmq';
@@ -76,7 +76,7 @@ startUp().then(()=>{
         console.log(`Server listening on ip:${ip}, port:${port}`);
     });
     //gracefully handle server close on SIGINT(CTRL+C) by waiting for remaining request to finish
-    process.once('SIGINT', ()=>{
+    process.on('SIGINT', ()=>{
         console.log("Server is now closing...");
 
         //timer to force server to shutdown even if there are active connections
