@@ -22,12 +22,32 @@ app.use(
         cookie: {},
         resave: false,
         saveUninitialized: true,
-        store: MongoStore.create({mongoUrl: fullMongoUrl })
+        store: MongoStore.create({ mongoUrl: fullMongoUrl })
 }))
 
 app.use(passport.initialize())
 app.use(passport.session())
 
 // routes
+
+// this is the route called when user clicks login using google
+app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email']}));
+
+// this is a callback from passport after google login
+app.get('/auth/google/callback', 
+    passport.authenticate('google', { failureRedirect: '/loginfail' }), // this is a middleware by passport that runs the verify function in passport.use
+    (req, res) => {
+
+    }
+);
+
+// this route gets called if one of the following is met
+// User Denies Permission on the Consent Screen in google login
+// Invalid or Expired Authorization Code in google login
+// Network or Server Errors (google server down),
+// or we specifically defined the login as an error in 'verify' using done(null, false)
+app.get("/loginfail", (req, res) => {
+    res.send("Authentication failed. Please try again.");
+});
 
 export default app;
