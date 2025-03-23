@@ -1,5 +1,5 @@
 import { useState } from "react";
-import "../stylesheets/CreateScenario.css";
+import "../stylesheets/LifeExpectancy.css";
 
 const LifeExpectancy = (lifeExpectancyType: string) => {
   const [useCustomValues, setUseCustomValues] = useState(false);
@@ -41,7 +41,7 @@ const LifeExpectancy = (lifeExpectancyType: string) => {
       <div>
         <p>Enter Expected Age</p>
         <input
-          className="textbox"
+          className="life-expectancy-textbox"
           type="text"
           placeholder="Enter age (eg. 80 years old)"
         ></input>
