@@ -3,7 +3,8 @@ import "../stylesheets/CreateScenario.css";
 import LifeExpectency from "../components/LifeExpectency";
 
 const CreateScenario = () => {
-  const [lifeExpectancyType, setLifeExpectancyType] = useState("fixed");
+  const [filingStatus, setFilingStatus] = useState("Single");
+  const [lifeExpectancyType, setLifeExpectancyType] = useState("Fixed Age");
 
   return (
     <div className="create-scenario-container">
@@ -24,12 +25,19 @@ const CreateScenario = () => {
               type="radio"
               id="filingStatus"
               value="Single"
-              defaultChecked
+              onChange={() => setFilingStatus("Single")}
+              checked={filingStatus == "Single"}
             ></input>
             Single
           </label>
           <label>
-            <input type="radio" id="filingStatus" value="FilingJointly"></input>
+            <input
+              type="radio"
+              id="filingStatus"
+              value="Filing Jointly"
+              onChange={() => setFilingStatus("Filing Jointly")}
+              checked={filingStatus == "Filing Jointly"}
+            ></input>
             Filing Jointly
           </label>
         </div>
@@ -51,6 +59,7 @@ const CreateScenario = () => {
             className="textbox"
             type="text"
             placeholder="Enter a year (e.g., 2003)"
+            disabled={filingStatus !== "Filing Jointly"}
           ></input>
         </div>
       </div>
@@ -65,49 +74,59 @@ const CreateScenario = () => {
         ></input>
       </div>
 
-      {/*Life Expectancy*/}
-      <div className="life-expectancy-container">
-        <h3>Life Expectancy (How long you live)</h3>
-        <p>
-          Choose how to model your life expectancy. You can enter a fixed age or
-          use a normal distribution
-        </p>
-        <div>
-          <label>
-            <input type="radio" id="life-expectancy" value="Fixed Age"></input>
-            Fixed Age
-          </label>
-          <label>
-            <input
-              type="radio"
-              id="life-expectancy"
-              value="Normal Distribution"
-            ></input>
-            Normal Distribution
-          </label>
+      <div className="section-container">
+        {/*Life Expectancy*/}
+        <div className="life-expectancy-container">
+          <h3>Life Expectancy (How long you live)</h3>
+          <p>
+            Choose how to model your life expectancy. You can enter a fixed age
+            or use a normal distribution
+          </p>
+          <div>
+            <label>
+              <input
+                type="radio"
+                id="life-expectancy"
+                value="Fixed Age"
+                onChange={() => setLifeExpectancyType("Fixed Age")}
+                checked={lifeExpectancyType == "Fixed Age"}
+              ></input>
+              Fixed Age
+            </label>
+            <label>
+              <input
+                type="radio"
+                id="life-expectancy"
+                value="Normal Distribution"
+                onChange={() => setLifeExpectancyType("Normal Distribution")}
+                checked={lifeExpectancyType == "Normal Distribution"}
+              ></input>
+              Normal Distribution
+            </label>
 
-          {LifeExpectency(lifeExpectancyType)}
+            {LifeExpectency(lifeExpectancyType)}
+          </div>
         </div>
-      </div>
 
-      {/*Investment Types*/}
-      <div>
-        <h3>Investment Types</h3>
-        <p>
-          Expand below to view previously defined investment types or create a
-          new one.
-        </p>
-        {/*not sure how this works yet*/}
-        <a href="#">Click here to expand Investment Types settings ▼</a>
-      </div>
+        {/*Investment Types*/}
+        <div className="investment-type-container">
+          <h3>Investment Types</h3>
+          <p>
+            Expand below to view previously defined investment types or create a
+            new one.
+          </p>
+          {/*not sure how this works yet*/}
+          <a href="#">Click here to expand Investment Types settings ▼</a>
+        </div>
 
-      {/*Event Series*/}
-      <div>
-        <h3>Event Series</h3>
-        <p>
-          Expand below to view previously defined events or create a new one.
-        </p>
-        <a href="#">Click here to expand Event Series settings ▼</a>
+        {/*Event Series*/}
+        <div className="event-series-container">
+          <h3>Event Series</h3>
+          <p>
+            Expand below to view previously defined events or create a new one.
+          </p>
+          <a href="#">Click here to expand Event Series settings ▼</a>
+        </div>
       </div>
     </div>
   );

@@ -11,7 +11,7 @@
     "bullmq": "^5.44.0",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
-    "mongoose": "^8.12.1",
+    "mongoose": "^8.12.2",
     "playwright": "^1.51.0",
     "probability-distributions": "^0.9.1"
   },

@@ -18,15 +18,17 @@ const AddPlan = () => {
       )}
 
       {addPlan && (
-        <div className="modal">
-          <div className="modal-content">
-            <CreateScenario />
-          </div>
+        <div className="popup-overlay">
+          <div className="popup-box">
+            <div className="inner-content">
+              <CreateScenario />
+            </div>
 
-          {/*Close Button */}
-          <button className="close-button" onClick={() => setAddPlan(false)}>
-            ✕ Close
-          </button>
+            {/*Close Button */}
+            <button className="close-button" onClick={() => setAddPlan(false)}>
+              ✕ Close
+            </button>
+          </div>
         </div>
       )}
     </>
