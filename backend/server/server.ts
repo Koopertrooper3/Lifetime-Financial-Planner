@@ -1,16 +1,18 @@
 /*global console, setTimeout, clearTimeout*/
 /*eslint no-undef: "error"*/
 
-import express, { Request, Response } from 'express'
-import 'dotenv/config';
+import { Request, Response } from 'express';
+import * as dotenv from 'dotenv';
 import mongoose from 'mongoose';
-import process from 'process';
-import {federalTaxModel} from '../db/taxes'
-import {federalTaxScraper} from './../scraper/taxScraper'
+import process from 'node:process';
+import {federalTaxModel} from '../db/taxes';
+import {federalTaxScraper} from '../scraper/taxScraper';
 import { Queue } from 'bullmq';
 import bodyParser from 'body-parser';
+import app from './app';
 
-const app = express();
+dotenv.config();
+
 const port : number = Number(process.env.BACKEND_PORT) || 8080;
 const ip = process.env.BACKEND_IP || "0.0.0.0";
 const databaseHost = process.env.DATABASE_HOST
@@ -74,7 +76,7 @@ startUp().then(()=>{
         console.log(`Server listening on ip:${ip}, port:${port}`);
     });
     //gracefully handle server close on SIGINT(CTRL+C) by waiting for remaining request to finish
-    process.once('SIGINT', ()=>{
+    process.on('SIGINT', ()=>{
         console.log("Server is now closing...");
 
         //timer to force server to shutdown even if there are active connections

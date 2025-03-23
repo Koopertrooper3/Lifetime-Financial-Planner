@@ -18,7 +18,7 @@
             "type": "node",
             "request": "launch",
             "name": "Launch server",
-            "program": "${workspaceFolder}/backend/server/server_typescript.ts",
+            "program": "${workspaceFolder}/backend/server/server.ts",
             "preLaunchTask": "tsc: build - backend/tsconfig.json",
             "outFiles": ["${workspaceFolder}/backend/out/server/*.js"],
             "envFile": "${workspaceFolder}/.env"
