@@ -1,0 +1,10 @@
+.life-expectancy-textbox {
+  width: 35%;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  padding-right: 30px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-sizing: border-box;
+  margin-bottom: 10px;
+}

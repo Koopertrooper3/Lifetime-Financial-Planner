@@ -1,4 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import dotenv from "dotenv";
+dotenv.config();
 import mongoose from "mongoose";
 import {Scenario, scenarioModel} from "./Scenario"
 import InvestmentType from "./InvestmentTypes";
