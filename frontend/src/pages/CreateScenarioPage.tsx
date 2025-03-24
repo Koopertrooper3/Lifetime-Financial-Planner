@@ -2,7 +2,7 @@ import { useState } from "react";
 import "../stylesheets/CreateScenario.css";
 import LifeExpectency from "../components/LifeExpectency";
 
-const CreateScenario = () => {
+export default function CreateScenarioPage() {
   const [filingStatus, setFilingStatus] = useState("Single");
   const [lifeExpectancyType, setLifeExpectancyType] = useState("Fixed Age");
 
@@ -131,5 +131,3 @@ const CreateScenario = () => {
     </div>
   );
 };
-
-export default CreateScenario;

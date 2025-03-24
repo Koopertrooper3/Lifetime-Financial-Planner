@@ -2,6 +2,10 @@ import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import User from '../schemas/User';
 import mongoose from 'mongoose';
+import dotenv from 'dotenv';
+import process from 'process';
+
+dotenv.config();
 
 interface IUser {
   googleId: string;
@@ -10,13 +14,15 @@ interface IUser {
   sharedSenarios: mongoose.Types.ObjectId[];
 }
 
+const backend_full_url = "http://" + process.env.BACKEND_IP + ":" + process.env.BACKEND_PORT;
+
 // Configure Google Strategy
 passport.use(
   new GoogleStrategy(
     {
-      clientID: "1011823152528-m1hem7upbt6rgibtl08ppr9aqhlriuql.apps.googleusercontent.com",
-      clientSecret: "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",
-      callbackURL: "http://localhost:8000/auth/google/callback", // where to redirect user upon successfully login
+      clientID: process.env.GOOGLE_CLIENT_ID || "",
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+      callbackURL: backend_full_url + "/auth/google/callback" // where to redirect user upon successfully login
     },
     async function verify(accessToken, refreshToken, profile, done){ // This middleware is called when user successfully log in to google
       try{
@@ -45,7 +51,7 @@ passport.serializeUser((user, done) => {
 });
 
 passport.deserializeUser((user, done) => {
-  // done(null, user);
+    //done(null, user);
 });
 
 export default passport;

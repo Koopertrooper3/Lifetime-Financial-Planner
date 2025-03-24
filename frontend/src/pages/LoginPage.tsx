@@ -2,6 +2,14 @@ import GoogleIcon from "@mui/icons-material/Google";
 import "../stylesheets/LoginPage.css";
 
 const LoginPage = () => {
+  const handleGoogleLogin = () => {
+    const fullBackendUrl = "http://" + import.meta.env.VITE_BACKEND_IP + ":" + import.meta.env.VITE_BACKEND_PORT;
+
+    console.log(fullBackendUrl);
+
+    window.location.href = fullBackendUrl + "/auth/google";
+  }
+
   return (
     <div className="page">
       <div className="container">
@@ -17,7 +25,7 @@ const LoginPage = () => {
               Click below to sign in with an existing Google account
             </p>
 
-            <button className="google-button">
+            <button className="google-button" onClick={handleGoogleLogin}>
               <GoogleIcon className="google-icon"></GoogleIcon>
               <p>Sign In with Google</p>
             </button>

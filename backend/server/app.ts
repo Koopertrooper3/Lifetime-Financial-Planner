@@ -8,7 +8,7 @@ import process from 'process';
 
 dotenv.config();
 const fullMongoUrl = (process.env.DATABASE_HOST + ":" + process.env.DATABASE_PORT + "/" + process.env.DATABASE_NAME) || 'mongodb://mongodb:127.0.0.1:27017/CSE416';
-
+const fullFrontendUrl = ("http://" + process.env.FRONTEND_IP + ":" + process.env.FRONTEND_PORT) || "http://localhost:5173";
 const app = express();
 
 // middlewares
@@ -37,7 +37,7 @@ app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'em
 app.get('/auth/google/callback', 
     passport.authenticate('google', { failureRedirect: '/loginfail' }), // this is a middleware by passport that runs the verify function in passport.use
     (req, res) => {
-
+        res.redirect(fullFrontendUrl + "/dashboard");
     }
 );
 
@@ -47,7 +47,16 @@ app.get('/auth/google/callback',
 // Network or Server Errors (google server down),
 // or we specifically defined the login as an error in 'verify' using done(null, false)
 app.get("/loginfail", (req, res) => {
-    res.send("Authentication failed. Please try again.");
+    res.redirect(fullFrontendUrl);
 });
+
+app.get("/user", (req, res) => {
+    if(req.isAuthenticated()){
+        res.send(req.user);
+    }
+    else{
+        res.send("error not authenticated");
+    }
+})
 
 export default app;
