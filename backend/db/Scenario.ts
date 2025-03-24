@@ -69,7 +69,10 @@ const senarioSchema = new Schema<Scenario>({
         required: true,
         default: []
     },
-    inflationAssumption: distributionWrapper,
+    inflationAssumption: {
+        type: distributionWrapper,
+        required: true,
+    },
     afterTaxContributionLimit: {
         type: Number,
         required: true,

@@ -1,4 +1,4 @@
-import {firefox } from 'playwright';
+import {firefox} from 'playwright';
 import {federalTaxModel, taxBracketType} from '../db/taxes.js'
 import mongoose from "mongoose"
 import dotenv from "dotenv"
