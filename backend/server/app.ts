@@ -5,8 +5,9 @@ import MongoStore from 'connect-mongo';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import process from 'process';
+import path from "path";
 
-dotenv.config();
+dotenv.config({ path: path.resolve(__dirname,'..','..','..','.env')});
 const fullMongoUrl = (process.env.DATABASE_HOST + ":" + process.env.DATABASE_PORT + "/" + process.env.DATABASE_NAME) || 'mongodb://mongodb:127.0.0.1:27017/CSE416';
 const fullFrontendUrl = ("http://" + process.env.FRONTEND_IP + ":" + process.env.FRONTEND_PORT) || "http://localhost:5173";
 const app = express();

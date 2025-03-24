@@ -30,6 +30,7 @@
     "@types/passport-google-oauth20": "^2.0.16",
     "@types/probability-distributions": "^0.1.3",
     "eslint": "^9.22.0",
+    "nyc": "^17.1.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.2",
     "typescript-eslint": "^8.26.1"

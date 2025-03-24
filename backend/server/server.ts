@@ -10,8 +10,9 @@ import {federalTaxScraper} from '../scraper/taxScraper';
 import { Queue, QueueEvents } from 'bullmq';
 import bodyParser from 'body-parser';
 import app from './app';
+import path from 'node:path';
 
-dotenv.config();
+dotenv.config({ path: path.resolve(__dirname,'..','..','..','.env')});
 
 const port : number = Number(process.env.BACKEND_PORT) || 8080;
 const ip = process.env.BACKEND_IP || "0.0.0.0";
