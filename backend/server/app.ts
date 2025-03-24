@@ -12,14 +12,20 @@ const fullFrontendUrl = ("http://" + process.env.FRONTEND_IP + ":" + process.env
 const app = express();
 
 // middlewares
-app.use(cors());
+app.use(cors({
+    origin: fullFrontendUrl,
+    credentials: true
+}));
 app.use(express.json());
 app.use(express.urlencoded({extended:true}))
 
 app.use(
     session({
         secret: "some-secret-key",
-        cookie: {},
+        cookie: {
+            maxAge: 1000 * 60 * 60 * 24, // 1 day
+            httpOnly: true, // Prevent client-side JS from accessing the cookie
+        },
         resave: false,
         saveUninitialized: true,
         store: MongoStore.create({ mongoUrl: fullMongoUrl })
@@ -27,6 +33,13 @@ app.use(
 
 app.use(passport.initialize())
 app.use(passport.session())
+
+app.use((req, res, next) => { //debug middleware
+    console.log("Request received:", req.method, req.url);
+    console.log("Session ID:", req.sessionID);
+    console.log("Authenticated:", req.isAuthenticated());
+    next();
+});
 
 // routes
 
@@ -51,10 +64,13 @@ app.get("/loginfail", (req, res) => {
 });
 
 app.get("/user", (req, res) => {
+    console.log("/user is called");
     if(req.isAuthenticated()){
+        console.log("user is authenticated: " + req.user);
         res.send(req.user);
     }
     else{
+        console.log("user not authenticated");
         res.send("error not authenticated");
     }
 })
