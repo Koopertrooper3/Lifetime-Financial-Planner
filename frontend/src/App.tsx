@@ -1,5 +1,5 @@
 // @ts-ignore
-import './App.css'
+import './stylesheets/App.css';
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import LoginPage from './components/LoginPage';
 import Dashboard from './components/Dashboard';
