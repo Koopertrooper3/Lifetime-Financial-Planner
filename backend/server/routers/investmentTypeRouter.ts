@@ -1,5 +1,5 @@
 import express from 'express';
-import { getInvestmentType, getAllInvestmentTypes } from "../controllers/investmentTypes-controller";
+import { getInvestmentType, getAllInvestmentTypes } from "../../controllers/investmentTypes-controller";
 const router = express.Router();
 
 router.get('/:id', getInvestmentType);
