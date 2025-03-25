@@ -22,10 +22,11 @@ const senarioSchema = new Schema<Scenario>({
         type: [Number],
         validate: {
             validator: function(value: number[]){
-                if((this as Scenario).maritalStatus === 'couple'){
+                if((this as Scenario).maritalStatus === 'couple') {
                     return value.length == 2;
                 }
-                else if((this as Scenario).maritalStatus === 'individual'){
+                else if((this as Scenario).maritalStatus === 'couple')
+                {
                     return value.length === 1;
                 }
                 else{
@@ -115,6 +116,7 @@ const senarioSchema = new Schema<Scenario>({
     }
     
 });
+
 const lifeExpectancyField = senarioSchema.path<Schema.Types.DocumentArray>('lifeExpectancy');
 
 lifeExpectancyField.discriminator('Fixed',fixedValueSchema);
