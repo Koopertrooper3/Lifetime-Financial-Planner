@@ -1,40 +1,23 @@
-// @ts-ignore
-<<<<<<< HEAD
+import "./stylesheets/App.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import LoginPage from "./components/LoginPage";
-import Dashboard from "./components/Dashboard";
-import ScenarioDashboard from "./components/ExampleScenario";
+import LoginPage from "./pages/LoginPage";
+import DashboardPage from "./pages/DashboardPage";
+import CreateScenarioPage from "./pages/CreateScenarioPage";
 import { HelperContextProvider } from "./HelperContext";
+import ScenarioPage from "./pages/ScenarioPage";
 
 function App() {
   return (
     <HelperContextProvider>
-      {/* <Router>
+      <Router>
         <Routes>
-           <Route path="/" element={<LoginPage />} />
-           <Route path="/Dashboard" element={<Dashboard />} />
+          <Route path="/" element={<LoginPage />} />
+          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/createSenario" element={<CreateScenarioPage />} />
+          <Route path="/scenario/:id" element={<ScenarioPage />} />
         </Routes>
-      </Router> */}
-      {/* <ScenarioDashboard /> */}
-      <Dashboard></Dashboard>
+      </Router>
     </HelperContextProvider>
-=======
-import './stylesheets/App.css';
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import LoginPage from './pages/LoginPage';
-import DashboardPage from './pages/DashboardPage';
-import CreateScenarioPage from './pages/CreateScenarioPage';
-
-function App() {
-  return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<LoginPage />} />
-        <Route path="/dashboard" element={<DashboardPage />} />
-        <Route path="/createSenario" element={<CreateScenarioPage />} />
-      </Routes>
-    </Router>
->>>>>>> main
   );
 }
 

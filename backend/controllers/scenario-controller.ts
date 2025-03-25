@@ -1,6 +1,4 @@
 import { Request, Response } from 'express';
-const mongoose = require('mongoose');
-import { model } from 'mongoose';
 import { scenarioModel as ScenarioModel } from "../db/Scenario";
 
 const getScenario = async (req : Request, res: Response) => {

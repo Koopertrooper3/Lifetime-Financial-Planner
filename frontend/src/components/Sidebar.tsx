@@ -24,7 +24,7 @@ const SideBar = () => {
     <aside>
       <div className="side-bar">
         {upperIcons.map((item) => (
-          <button className="sidebar-button">
+          <button className="sidebar-button" key={item.name}>
             <item.icon></item.icon>
             {item.name}
           </button>
@@ -33,7 +33,7 @@ const SideBar = () => {
         <hr className="delimiter" />
 
         {lowerIcons.map((item) => (
-          <button className="sidebar-button">
+          <button className="sidebar-button" key={item.name}>
             <item.icon></item.icon>
             {item.name}
           </button>
