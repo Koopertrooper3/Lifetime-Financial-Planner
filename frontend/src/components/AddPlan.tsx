@@ -1,7 +1,7 @@
 import "../stylesheets/AddPlan.css";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import { useState } from "react";
-import CreateScenario from "./CreateScenario";
+import { Link } from 'react-router';
 
 const AddPlan = () => {
   const [addPlan, setAddPlan] = useState(false);
@@ -20,10 +20,7 @@ const AddPlan = () => {
       {addPlan && (
         <div className="popup-overlay">
           <div className="popup-box">
-            <div className="inner-content">
-              <CreateScenario />
-            </div>
-
+            <Link to="/createSenario">CREATE SENARIO</Link>
             {/*Close Button */}
             <button className="close-button" onClick={() => setAddPlan(false)}>
               ✕ Close

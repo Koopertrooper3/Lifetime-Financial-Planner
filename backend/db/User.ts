@@ -1,7 +1,15 @@
 import mongoose from 'mongoose'
 
-const userSchema = new mongoose.Schema({
-    name: { type: String, required: true},
+interface IUser {
+    googleId: string;
+    name: string;
+    ownedSenarios: mongoose.Types.ObjectId[];
+    sharedSenarios: mongoose.Types.ObjectId[];
+};
+
+const userSchema = new mongoose.Schema<IUser>({
+    googleId: { type: String, required: true },
+    name: { type: String, required: true },
     ownedSenarios: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Senario',

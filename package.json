@@ -1,0 +1,21 @@
+{
+  "name": "deepseek-cse416-project",
+  "version": "1.0.0",
+  "description": "Team Deepseek's CSE 416 Project, a financial and retirement planner.",
+  "main": "index.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Koopertrooper3/DeepSeek-CSE416-Project.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Koopertrooper3/DeepSeek-CSE416-Project/issues"
+  },
+  "homepage": "https://github.com/Koopertrooper3/DeepSeek-CSE416-Project#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.51.1",
+    "@types/node": "^22.13.13"
+  }
+}

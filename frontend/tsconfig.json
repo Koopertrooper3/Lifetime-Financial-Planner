@@ -4,5 +4,8 @@
     { "path": "./tsconfig.app.json" },
     { "path": "./tsconfig.node.json" }
   ],
-  "exclude": ["**./*.css"]
+  "exclude": ["**./*.css"],
+  "compilerOptions": {
+    "types": ["vite/client"]
+  }
 }

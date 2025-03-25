@@ -1,5 +1,5 @@
 import "react";
-import "../stylesheets/SideBar.css";
+import "../stylesheets/Sidebar.css";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import WalletIcon from "@mui/icons-material/Wallet";
 import SignalCellularAltIcon from "@mui/icons-material/SignalCellularAlt";

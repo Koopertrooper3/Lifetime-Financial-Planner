@@ -1,4 +1,4 @@
-/*global console, setTimeout, clearTimeout*/
+/*global console, setTimeout, clearTimeout, __dirname*/
 /*eslint no-undef: "error"*/
 
 import { Request, Response } from 'express';
@@ -7,11 +7,12 @@ import mongoose from 'mongoose';
 import process from 'node:process';
 import {federalTaxModel} from '../db/taxes';
 import {federalTaxScraper} from '../scraper/taxScraper';
-import { Queue } from 'bullmq';
+import { Queue, QueueEvents } from 'bullmq';
 import bodyParser from 'body-parser';
 import app from './app';
+import path from 'node:path';
 
-dotenv.config();
+dotenv.config({ path: path.resolve(__dirname,'..','..','..','.env')});
 
 const port : number = Number(process.env.BACKEND_PORT) || 8080;
 const ip = process.env.BACKEND_IP || "0.0.0.0";
@@ -24,9 +25,11 @@ const REDIS_PORT = Number(process.env.REDIS_PORT) || 6379
 const jsonParser = bodyParser.json()
 
 let simulatorQueue : Queue
+let queueEvents : QueueEvents
 //Startup code to be run before the server starts
 async function startUp(){
     //Open a connection to mongodb
+    console.log("String1")
     await mongoose.connect(databaseConnectionString);
 
     //Query if we have the current tax year, if we do not run the scraper
@@ -67,6 +70,14 @@ async function startUp(){
           port: REDIS_PORT,
         },
       });
+    
+    queueEvents = new QueueEvents('simulatorQueue', {
+        connection: {
+          host: REDIS_HOST,
+          port: REDIS_PORT,
+        },
+      });
+
 
     return
 }
@@ -107,9 +118,12 @@ interface runSimulationBody {
     scenarioID : string;
 }
 app.post("/scenario/runsimulation", jsonParser , async (req : Request, res : Response)=>{
+    console.log("Job request")
     const requestBody : runSimulationBody = req.body
-    await simulatorQueue.add("simulatorQueue", {scenarioID : requestBody.scenarioID},{ removeOnComplete: true, removeOnFail: true })
-    res.status(200).send({})
+    const job = await simulatorQueue.add("simulatorQueue", {scenarioID : requestBody.scenarioID},{ removeOnComplete: true, removeOnFail: true })
+
+    const result = await job.waitUntilFinished(queueEvents,1000*60*1)
+    res.status(200).send(result)
 });
 
 
