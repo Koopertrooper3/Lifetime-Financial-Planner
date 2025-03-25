@@ -1,5 +1,5 @@
 import {firefox} from 'playwright';
-import {federalTaxModel, taxBracketType} from '../db/taxes.js'
+import {federalTaxModel, taxBracketType} from '../db/taxes'
 import dotenv from "dotenv"
 import path from 'path';
 

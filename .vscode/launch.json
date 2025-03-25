@@ -12,7 +12,6 @@
             "program": "${workspaceFolder}/backend/scraper/taxScraper.ts",
             "preLaunchTask": "tsc: build - backend/tsconfig.json",
             "outFiles": ["${workspaceFolder}/backend/out/scraper/*.js"],
-            "envFile": "${workspaceFolder}/.env"
           },
           {
             "type": "node",
@@ -21,7 +20,6 @@
             "program": "${workspaceFolder}/backend/server/server.ts",
             "preLaunchTask": "tsc: build - backend/tsconfig.json",
             "outFiles": ["${workspaceFolder}/backend/out/server/*.js"],
-            //"envFile": "${workspaceFolder}/.env"
           },
           {
             "type": "node",
@@ -30,7 +28,6 @@
             "program": "${workspaceFolder}/backend/simulator/simulationHead.ts",
             "preLaunchTask": "tsc: build - backend/tsconfig.json",
             "outFiles": ["${workspaceFolder}/backend/out/simulator/*.js"],
-            "envFile": "${workspaceFolder}/.env"
           },
           {
             "type": "node",
@@ -39,7 +36,6 @@
             "program": "${workspaceFolder}/backend/db/populate.ts",
             "preLaunchTask": "tsc: build - backend/tsconfig.json",
             "outFiles": ["${workspaceFolder}/backend/out/**/*.js"],
-            "envFile": "${workspaceFolder}/.env"
           }
     ]
   }

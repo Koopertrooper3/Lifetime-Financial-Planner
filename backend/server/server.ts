@@ -29,9 +29,7 @@ let queueEvents : QueueEvents
 //Startup code to be run before the server starts
 async function startUp(){
     //Open a connection to mongodb
-    console.log("String1")
-    await mongoose.connect(databaseConnectionString);
-
+    const connres = await mongoose.connect(databaseConnectionString);
     //Query if we have the current tax year, if we do not run the scraper
     //TP: Code below created with Github Copilot with the prompt 
     //"Create a mongoose query that queries the federalTaxModel to check if the current tax year's information is in the database."
