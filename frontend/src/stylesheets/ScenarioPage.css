@@ -1,4 +1,4 @@
-.dashboard-container {
+.scenario-container {
   padding: 20px;
   font-family: sans-serif;
   max-width: 1000px;
@@ -66,3 +66,22 @@
   flex-direction: column;
   gap: 12px;
 }
+
+.header-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.close-button {
+  background: transparent;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  color: #888;
+}
+
+.close-button:hover {
+  color: #333;
+}
+

@@ -1,0 +1,281 @@
+import { useHelperContext } from "../HelperContext";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import "../stylesheets/ScenarioPage.css";
+import { Link } from "react-router-dom";
+
+export default function ScenarioPage() {
+  const { id } = useParams();
+  console.log("useParams id:", id);
+  const [scenario, setScenario] = useState<any>(null);
+  const { allInvestmentTypes, fetchDistribution, fetchScenario, allScenarios } =
+    useHelperContext();
+
+  const [activeTab, setActiveTab] = useState("investments");
+  const [investmentTypes, setInvestmentTypes] = useState<any[]>([]);
+  const [distributionMap, setDistributionMap] = useState<Record<string, any>>(
+    {}
+  );
+
+  useEffect(() => {
+    if (!id) return;
+    const fetch = async () => {
+      const res = await fetchScenario(id);
+      setScenario(res);
+    };
+    fetch();
+  }, [id]);
+
+  useEffect(() => {
+    if (!allScenarios) return;
+    const filteredScenario = allScenarios.find(
+      (scenario: any) => scenario._id === id
+    );
+    setScenario(filteredScenario);
+  }, []);
+
+  useEffect(() => {
+    if (!scenario || !allInvestmentTypes) return;
+
+    const filteredInvestmentTypes = allInvestmentTypes.filter((invType: any) =>
+      scenario.investmentTypes.includes(invType._id)
+    );
+
+    setInvestmentTypes(filteredInvestmentTypes);
+  }, [scenario, allInvestmentTypes]);
+
+  useEffect(() => {
+    const fetchDistributions = async () => {
+      const allDistIds = new Set<string>();
+      for (const invType of investmentTypes) {
+        if (invType.returnDistribution)
+          allDistIds.add(invType.returnDistribution);
+        if (invType.incomeDistribution)
+          allDistIds.add(invType.incomeDistribution);
+      }
+
+      const results: Record<string, any> = {};
+      for (const id of allDistIds) {
+        const res = await fetchDistribution(id);
+        results[id] = res;
+      }
+
+      setDistributionMap(results);
+    };
+
+    if (investmentTypes.length > 0) fetchDistributions();
+  }, [investmentTypes]);
+
+  if (!scenario) return <div>Loading....</div>;
+
+  const investments = scenario.investments;
+  const eventSeries = scenario.eventSeries;
+  const spendingStrategy = scenario.spendingStrategy;
+  const expenseWithdrawalStrategy = scenario.expenseWithdrawalStrategy;
+  const RMDStrategy = scenario.RMDStrategy;
+  const RothConversionStrategy = scenario.RothConversionStrategy;
+
+  const tabs = [
+    { id: "investments", label: "Investments" },
+    { id: "investmentTypes", label: "Investment Types" },
+    { id: "events", label: "Events" },
+    { id: "strategies", label: "Strategies" },
+  ];
+
+  return (
+    <div className="scenario-container">
+      <div className="card header-card">
+        <div className="header-line">
+          <h2>Scenario: {scenario.name}</h2>
+          <Link to="/dashboard" className="close-link">
+            Close
+          </Link>
+        </div>
+        <div className="grid">
+          <div>Martial Status: {scenario.maritalStatus}</div>
+          <div>
+            Life Expectancy:
+            {scenario.lifeExpectancy
+              .map((expectancy: any) => {
+                if (expectancy.type === "Fixed") {
+                  return ` Fixed: ${expectancy.value}`;
+                }
+                if (expectancy.type === "Normal") {
+                  return ` Normal: mean = ${expectancy.mean}, stdev = ${expectancy.stdev}`;
+                }
+                return null;
+              })
+              .join(" / ")}
+          </div>
+          <div>Financial Goal: ${scenario.financialGoal}</div>
+          <div>
+            Birth Year:
+            {scenario.maritalStatus === "couple"
+              ? `${scenario.birthYear[0]}, ${scenario.birthYear[1]}`
+              : scenario.birthYear[0]}
+          </div>
+          <div>Residence State: {scenario.residenceState}</div>
+        </div>
+      </div>
+
+      {/* Tabs */}
+      <div className="tab-buttons">
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            className={`tab-button ${activeTab === tab.id ? "active" : ""}`}
+            onClick={() => setActiveTab(tab.id)}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Investments */}
+      {activeTab === "investments" && (
+        <div className="card tab-content">
+          <div className="card-grid">
+            {investments.map((inv: any) => (
+              <div className="mini-card" key={inv._id}>
+                <strong>{inv.investmentType}</strong>
+                <div>Value: {inv.value}</div>
+                <div>Tax Status: {inv.taxStatus}</div>
+                <div>ID: {inv.id}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Investment Types */}
+      {activeTab === "investmentTypes" && (
+        <div className="card tab-content">
+          <div className="card-grid">
+            {investmentTypes.map((invType: any) => {
+              const returnDist = distributionMap[invType.returnDistribution];
+              const incomeDist = distributionMap[invType.incomeDistribution];
+
+              return (
+                <div className="mini-card" key={invType._id}>
+                  <strong>{invType.name}</strong>
+                  <div>Description: {invType.description}</div>
+                  <div>Return Type: {invType.returnAmtOrPct}</div>
+                  <div>
+                    Return Distribution:{" "}
+                    {returnDist?.type === "fixed" &&
+                      `Fixed (${returnDist.value})`}
+                    {returnDist?.type === "percent" &&
+                      `Percent (mean = ${returnDist.mean}, stdev = ${returnDist.stdev})`}
+                    {returnDist?.type === "normal" &&
+                      `Normal (mean = ${returnDist.mean}, stdev = ${returnDist.stdev})`}
+                  </div>
+                  <div>Expense Ratio: {invType.expenseRatio}</div>
+                  <div>Income Type: {invType.incomeAmtOrPct}</div>
+                  <div>
+                    Income Distribution:{" "}
+                    {incomeDist?.type === "fixed" &&
+                      `Fixed (${incomeDist.value})`}
+                    {incomeDist?.type === "percent" &&
+                      `Percent (mean = ${incomeDist.mean}, stdev = ${incomeDist.stdev})`}
+                    {incomeDist?.type === "normal" &&
+                      `Normal (mean = ${incomeDist.mean}, stdev = ${incomeDist.stdev})`}
+                  </div>
+                  <div>Taxable: {invType.taxability ? "Yes" : "No"}</div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Events */}
+      {activeTab === "events" && (
+        <div className="card tab-content">
+          {eventSeries.map((event: any) => (
+            <div className="mini-card" key={event._id}>
+              <strong>{event.name}</strong>
+              <div>
+                Start: {event.start.type} – {event.start.value}
+              </div>
+              <div>
+                Duration: {event.duration.type} – {event.duration.value}
+              </div>
+              <div>Type: {event.event.type}</div>
+              <div>
+                Initial Amount: ${event.event.initalAmount?.toLocaleString()}
+              </div>
+              <div>Change Mode: {event.event.changeAmountOrPecent}</div>
+              <div>
+                Change Distribution: {event.event.changeDistribution?.type}
+                {event.event.changeDistribution?.type === "Uniform" && (
+                  <>
+                    {" "}
+                    ({event.event.changeDistribution.lower} –{" "}
+                    {event.event.changeDistribution.upper})
+                  </>
+                )}
+              </div>
+              <div>
+                Inflation Adjusted:{" "}
+                {event.event.inflationAdjusted ? "Yes" : "No"}
+              </div>
+              <div>User Fraction: {event.event.userFraction}</div>
+              <div>
+                Social Security: {event.event.socialSecurity ? "Yes" : "No"}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Strategies */}
+      {activeTab === "strategies" && (
+        <div className="card tab-content">
+          <div className="mini-card">
+            <strong>Strategies</strong>
+
+            <div>
+              <strong>Spending Strategy:</strong>
+              <ul>
+                {spendingStrategy.map((item: string, idx: number) => (
+                  <li key={idx}>{item}</li>
+                ))}
+              </ul>
+            </div>
+
+            <div>
+              <strong>Expense Withdrawal Strategy:</strong>
+              <ul>
+                {expenseWithdrawalStrategy.map((item: string, idx: number) => (
+                  <li key={idx}>{item}</li>
+                ))}
+              </ul>
+            </div>
+
+            <div>
+              <strong>RMD Strategy:</strong>
+              <ul>
+                {RMDStrategy.map((item: string, idx: number) => (
+                  <li key={idx}>{item}</li>
+                ))}
+              </ul>
+            </div>
+
+            <div>
+              <strong>Roth Conversion:</strong>
+              <div>Opted In: {scenario.RothConversionOpt ? "Yes" : "No"}</div>
+              <div>Start Year: {scenario.RothConversionStart}</div>
+              <div>End Year: {scenario.RothConversionEnd}</div>
+              <div>Strategy:</div>
+              <ul>
+                {RothConversionStrategy.map((item: string, idx: number) => (
+                  <li key={idx}>{item}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
