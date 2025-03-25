@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "_test": "node ./backend/out/simulator/simulationHead.js & node ./backend/out/server/server.js & npx playwright test",
-    "test": "npx nyc npm run _test"
+    "test": "npx nyc npm run _test",
+    "combined": "npx tsc --project ./backend/tsconfig.json && node ./backend/out/simulator/simulationHead.js & node ./backend/out/server/server.js",
+    "server": "npx tsc --project ./backend/tsconfig.json && node ./backend/out/server/server.js"
   },
   "repository": {
     "type": "git",
