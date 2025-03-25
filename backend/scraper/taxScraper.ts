@@ -15,7 +15,9 @@ const federalStandardDeductionWebsite = process.env.FEDERAL_STANDARD_DEDUCTION_W
 const federalCapitalGainsTaxRateWebsite = process.env.FEDERAL_CAPITAL_GAINS_TAX_RATE_WEBSITE || "https://www.irs.gov/taxtopics/tc409";
 
 export async function federalTaxScraper(){
-    await mongoose.connect(databaseConnectionString);
+    console.log("String2")
+    //await mongoose.connect(databaseConnectionString);
+    console.log("String3")
 
     const browser = await firefox.launch({ headless: true });
     const context = await browser.newContext({

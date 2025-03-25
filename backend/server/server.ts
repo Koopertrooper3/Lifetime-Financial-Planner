@@ -29,7 +29,7 @@ let queueEvents : QueueEvents
 //Startup code to be run before the server starts
 async function startUp(){
     //Open a connection to mongodb
-    console.log(databaseConnectionString)
+    console.log("String1")
     await mongoose.connect(databaseConnectionString);
 
     //Query if we have the current tax year, if we do not run the scraper
