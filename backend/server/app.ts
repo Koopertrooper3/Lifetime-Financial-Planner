@@ -5,11 +5,8 @@ import MongoStore from 'connect-mongo';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import process from 'process';
-<<<<<<< HEAD
 import scenarioRouter from "../routers/scenarioRouter";
-=======
 import path from "path";
->>>>>>> main
 
 console.log(path.resolve(__dirname,'..','..','..','.env'))
 dotenv.config({ path: path.resolve(__dirname,'..','..','..','.env')});
