@@ -18,6 +18,9 @@ function simulationStartLogMessage(scenarioID: string){
 function lifeExpectancyLogMessage(lifeExpectancy: number){
     return `Life Expectancy: ${lifeExpectancy}`
 }
+function incomeEventLogMessage(year : number, eventName: string, amount : number){
+    return `[Income] Year: ${year}, Amount: ${amount}, Event name: ${eventName}`
+}
 function logMessage(threadNumber: string, message : string){
     return `[Thread ${threadNumber}] ` + message + "\n"
 }
@@ -46,8 +49,7 @@ async function main(){
     console.log("Starting")
     
 
-    const logStream = createWriteStream(path.resolve(__dirname, '..','..','logs','simulator.log'), {flags: 'a'})
-
+    const logStream = createWriteStream(path.resolve(__dirname, '..','..','logs','user_datetime.log'), {flags: 'a'})
     const threadData : threadData = workerData
 
     const scenarioID : string = threadData.scenarioID
@@ -62,19 +64,21 @@ async function main(){
         return logStream
     }
 
-    pushToLog(logStream,logMessage(threadNumber,simulationStartLogMessage(scenarioID)))
+    //pushToLog(logStream,logMessage(threadNumber,simulationStartLogMessage(scenarioID)))
 
     const lifeExpectancy : number = calculateLifeExpectancy(scenario)
-
-    pushToLog(logStream,logMessage(threadNumber,lifeExpectancyLogMessage(lifeExpectancy)))
+    //pushToLog(logStream,logMessage(threadNumber,lifeExpectancyLogMessage(lifeExpectancy)))
 
     
     console.log("Starting")
-    
+    const startingYear = new Date().getFullYear();
     for(let simulation = 0; simulation < totalSimulations; simulation++){
         console.log("New simulation")
+        let simulatedYear = new Date().getFullYear();
+
         let previousYearIncome = 0
-        for(let year = 0; year < lifeExpectancy; year++){
+    
+        for(let age = startingYear - scenario.birthYear[0]; age < lifeExpectancy; age++){
             console.log("New Year")
             let currentYearIncome = 0
             let currentYearSocialSecurityIncome = 0
@@ -96,6 +100,7 @@ async function main(){
 
                     cash.value += eventIncome
                     currentYearIncome += eventIncome
+                    pushToLog(logStream,logMessage(threadNumber,incomeEventLogMessage(simulatedYear,incomeEvent.name,eventIncome)))
 
                     if(incomeEvent.event.socialSecurity == true){
                         currentYearSocialSecurityIncome += incomeEvent.event.initalAmount
@@ -112,14 +117,15 @@ async function main(){
                 
             }
 
-
+            simulatedYear += 1
             previousYearIncome = currentYearIncome
         }
         result['completed'] += 1
     }
 
     
-    logStream.close()
+    logStream.end()
+    await finished(logStream)
     parentPort?.postMessage(result)
     return logStream
 }

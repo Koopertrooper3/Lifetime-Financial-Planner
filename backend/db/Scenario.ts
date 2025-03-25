@@ -25,7 +25,7 @@ const senarioSchema = new Schema<Scenario>({
                 if((this as Scenario).maritalStatus === 'couple') {
                     return value.length == 2;
                 }
-                else if((this as Scenario).maritalStatus === 'couple')
+                else if((this as Scenario).maritalStatus === 'single')
                 {
                     return value.length === 1;
                 }
