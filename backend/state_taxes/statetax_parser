@@ -1,0 +1,11 @@
+import { parse, stringify } from 'yaml'
+import fs from 'node:fs'
+import path from 'node:path'
+
+let stateTaxFile = path.resolve("..","..","state_taxes","statetaxes.yaml")
+
+
+export default async function stateTaxParser(){
+    const file = fs.readFileSync(stateTaxFile, 'utf8')
+    parse(file)
+}

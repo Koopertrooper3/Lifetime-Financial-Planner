@@ -1,14 +1,9 @@
 import {firefox} from 'playwright';
 import {federalTaxModel, taxBracketType} from '../db/taxes.js'
-import mongoose from "mongoose"
 import dotenv from "dotenv"
+import path from 'path';
 
-dotenv.config()
-
-const databaseHost = process.env.DATABASE_HOST
-const databasePort = process.env.DATABASE_PORT
-const databaseName = process.env.DATABASE_NAME
-const databaseConnectionString = databaseHost + ':' + databasePort + '/' + databaseName 
+dotenv.config({ path: path.resolve(__dirname,'..','..','..','.env')})
 
 const federalIncomeTaxRatesWebsite = process.env.FEDERAL_INCOME_TAX_RATES_WEBSITE || "https://www.irs.gov/filing/federal-income-tax-rates-and-brackets";
 const federalStandardDeductionWebsite = process.env.FEDERAL_STANDARD_DEDUCTION_WEBSITE || "https://www.irs.gov/publications/p17"

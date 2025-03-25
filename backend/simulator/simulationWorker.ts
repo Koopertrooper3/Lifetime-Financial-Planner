@@ -8,7 +8,8 @@ import {scenarioModel, Scenario} from "../db/Scenario"
 import { rnorm, rint } from "probability-distributions"
 import InvestmentType from "../db/InvestmentTypes"
 import { Investment } from "../db/InvestmentSchema"
-
+import { federalTaxModel, taxBracketSchema } from "../db/taxes"
+import {}
 
 
 //String generator functions
@@ -66,7 +67,11 @@ async function main(){
 
     pushToLog(logStream,logMessage(threadNumber,lifeExpectancyLogMessage(lifeExpectancy)))
 
+    //Collect tax information
+    const taxYear = new Date().getFullYear()-1;
+    const federalTax = federalTaxModel.findOne({year: taxYear})
     console.log("Starting")
+    
     for(let simulation = 0; simulation < totalSimulations; simulation++){
         console.log("New simulation")
         let previousYearIncome = 0
