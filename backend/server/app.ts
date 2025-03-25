@@ -5,6 +5,7 @@ import MongoStore from 'connect-mongo';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import process from 'process';
+import scenarioRouter from "../routers/scenarioRouter";
 
 dotenv.config();
 const fullMongoUrl = (process.env.DATABASE_HOST + ":" + process.env.DATABASE_PORT + "/" + process.env.DATABASE_NAME) || 'mongodb://mongodb:127.0.0.1:27017/CSE416';
@@ -29,5 +30,6 @@ app.use(passport.initialize())
 app.use(passport.session())
 
 // routes
+app.use("/scenarios", scenarioRouter)
 
 export default app;
