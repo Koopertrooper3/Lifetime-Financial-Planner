@@ -5,9 +5,9 @@ import MongoStore from 'connect-mongo';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import process from 'process';
-import scenarioRouter from "../routers/scenarioRouter";
-import investmentTypeRouter from "../routers/investmentTypeRouter";
-import distributionRouter from "../routers/distribution";
+import scenarioRouter from "./routers/scenarioRouter";
+import investmentTypeRouter from "./routers/investmentTypeRouter";
+import distributionRouter from "./routers/distribution";
 import path from "path";
 
 console.log(path.resolve(__dirname,'..','..','..','.env'))
