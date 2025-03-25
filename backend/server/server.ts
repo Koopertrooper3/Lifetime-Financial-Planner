@@ -1,4 +1,4 @@
-/*global console, setTimeout, clearTimeout*/
+/*global console, setTimeout, clearTimeout, __dirname*/
 /*eslint no-undef: "error"*/
 
 import { Request, Response } from 'express';
@@ -122,7 +122,7 @@ app.post("/scenario/runsimulation", jsonParser , async (req : Request, res : Res
     const requestBody : runSimulationBody = req.body
     const job = await simulatorQueue.add("simulatorQueue", {scenarioID : requestBody.scenarioID},{ removeOnComplete: true, removeOnFail: true })
 
-    const result = await job.waitUntilFinished(queueEvents,1000*60*5)
+    const result = await job.waitUntilFinished(queueEvents,1000*60*1)
     res.status(200).send(result)
 });
 

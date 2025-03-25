@@ -1,6 +1,6 @@
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
-import User from '../schemas/User';
+import User from '../db/User';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import process from 'process';

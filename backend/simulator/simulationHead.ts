@@ -5,7 +5,10 @@ import path from 'path';
 import mongoose from 'mongoose';
 import {Scenario, scenarioModel} from '../db/Scenario';
 import * as dotenv from 'dotenv';
-dotenv.config();
+import { stateTax, stateTaxParser } from '../state_taxes/statetax_parser';
+import { federalTaxModel } from '../db/taxes';
+
+dotenv.config({ path: path.resolve(__dirname,'..','..','..','.env')});
 
 const databaseHost = process.env.DATABASE_HOST
 const databasePort = process.env.DATABASE_PORT
@@ -19,7 +22,8 @@ const TOTAL_NUMBER_OF_SIMULATIONS = Number(process.env.TOTAL_NUMBER_OF_SIMULATIO
 const worker = new Worker("simulatorQueue",simulation,{connection});
 console.log("database connection string")
 console.log(databaseConnectionString)
-const dbconnection = mongoose.connect(databaseConnectionString)
+mongoose.connect(databaseConnectionString)
+
 interface queue {
   scenarioID : string;
 }
@@ -36,6 +40,11 @@ async function simulation(job: Job) {
 
 
   const scenario : Scenario | null = await scenarioModel.findById(jobData.scenarioID).lean();
+  //Collect tax information
+  const taxYear = new Date().getFullYear()-1;
+  const federalTax = await federalTaxModel.findOne({year: taxYear}).lean()
+  const stateTaxes : stateTax = stateTaxParser()
+
 
   const threadArray : Promise<Result>[] = []
   for(let threads = 0; threads < MAX_THREADS; threads++){
@@ -43,8 +52,11 @@ async function simulation(job: Job) {
       scenarioID : jobData.scenarioID, 
       threadNumber: threads, 
       simulationsPerThread: simulationsPerThread,
-      scenario: scenario
+      scenario: scenario,
+      federalTaxes : federalTax,
+      stateTaxes: stateTaxes
     }
+
     threadArray.push(new Promise((resolve) => {
       const workerThread = new WorkerThreads.Worker(path.resolve(__dirname, './simulationWorker.js'),{workerData : workerData})
       workerThread.on('message',(message : Result)=>{

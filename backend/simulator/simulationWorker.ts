@@ -8,9 +8,8 @@ import {scenarioModel, Scenario} from "../db/Scenario"
 import { rnorm, rint } from "probability-distributions"
 import InvestmentType from "../db/InvestmentTypes"
 import { Investment } from "../db/InvestmentSchema"
-import { federalTaxModel, taxBracketSchema } from "../db/taxes"
-import {}
-
+import { taxType } from "../db/taxes"
+import {stateTax, stateTaxParser} from "../state_taxes/statetax_parser"
 
 //String generator functions
 function simulationStartLogMessage(scenarioID: string){
@@ -30,7 +29,9 @@ interface threadData {
     scenarioID : string, 
     threadNumber: number
     simulationsPerThread: number,
-    scenario: Scenario
+    scenario: Scenario,
+    federalTaxes : taxType,
+    stateTaxes: stateTax
 }
 
 interface Result{
@@ -67,9 +68,7 @@ async function main(){
 
     pushToLog(logStream,logMessage(threadNumber,lifeExpectancyLogMessage(lifeExpectancy)))
 
-    //Collect tax information
-    const taxYear = new Date().getFullYear()-1;
-    const federalTax = federalTaxModel.findOne({year: taxYear})
+    
     console.log("Starting")
     
     for(let simulation = 0; simulation < totalSimulations; simulation++){
