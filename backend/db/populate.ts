@@ -9,6 +9,7 @@ import {Investment, investmentSchema} from "./InvestmentSchema"
 import { Event } from "./EventSchema";
 import { fixedValueSchema,normalDistSchema,uniformDistSchema } from './DistributionSchemas';
 import AssetAllocation from "./AssetAllocation";
+import User from "./User"
 
 const databaseHost = process.env.DATABASE_HOST
 const databasePort = process.env.DATABASE_PORT
@@ -264,6 +265,7 @@ async function testScenario() {
         residenceState: "NY",
     })
 
+    await User.findOneAndUpdate({ name: "Christian Yu" },{ ownedScenarios: [exampleScenario._id] })
     return
 }
 

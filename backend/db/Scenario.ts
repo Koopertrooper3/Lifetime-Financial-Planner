@@ -25,7 +25,7 @@ const senarioSchema = new Schema<Scenario>({
                 if((this as Scenario).maritalStatus === 'couple') {
                     return value.length == 2;
                 }
-                else if((this as Scenario).maritalStatus === 'single')
+                else if((this as Scenario).maritalStatus === 'individual')
                 {
                     return value.length === 1;
                 }
@@ -134,7 +134,7 @@ export const scenarioModel = model('Scenario', senarioSchema);
 
 export interface Scenario {
     name: string,
-    maritalStatus: string,
+    maritalStatus: "couple" | "individual",
     birthYear: number[],
     lifeExpectancy: (FixedDistribution | NormalDistribution | UniformDistribution)[]
     investmentTypes: Schema.Types.ObjectId[],

@@ -10,8 +10,8 @@ dotenv.config({ path: path.resolve(__dirname,'..','..','..','.env') });
 interface IUser {
   googleId: string;
   name: string;
-  ownedSenarios: mongoose.Types.ObjectId[];
-  sharedSenarios: mongoose.Types.ObjectId[];
+  ownedScenarios: mongoose.Types.ObjectId[];
+  sharedScenarios: mongoose.Types.ObjectId[];
 }
 
 const backend_full_url = "http://" + process.env.BACKEND_IP + ":" + process.env.BACKEND_PORT;

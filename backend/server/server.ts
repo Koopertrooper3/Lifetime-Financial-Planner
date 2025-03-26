@@ -11,6 +11,8 @@ import { Queue, QueueEvents } from 'bullmq';
 import bodyParser from 'body-parser';
 import app from './app';
 import path from 'node:path';
+import { Scenario,scenarioModel } from '../db/Scenario';
+import User from '../db/User';
 
 dotenv.config({ path: path.resolve(__dirname,'..','..','..','.env')});
 
@@ -26,10 +28,12 @@ const jsonParser = bodyParser.json()
 
 let simulatorQueue : Queue
 let queueEvents : QueueEvents
+
+
 //Startup code to be run before the server starts
 async function startUp(){
     //Open a connection to mongodb
-    const connres = await mongoose.connect(databaseConnectionString);
+    await mongoose.connect(databaseConnectionString);
     //Query if we have the current tax year, if we do not run the scraper
     //TP: Code below created with Github Copilot with the prompt 
     //"Create a mongoose query that queries the federalTaxModel to check if the current tax year's information is in the database."
@@ -112,17 +116,42 @@ app.post("/scenario/taxes/import", (req, res)=>{
     res.send("yeah");
 });
 
-interface runSimulationBody {
-    scenarioID : string;
+
+interface runSimulationBody{
+    userID: string,
+    scenarioID: string
 }
 app.post("/scenario/runsimulation", jsonParser , async (req : Request, res : Response)=>{
     console.log("Job request")
     const requestBody : runSimulationBody = req.body
-    const job = await simulatorQueue.add("simulatorQueue", {scenarioID : requestBody.scenarioID},{ removeOnComplete: true, removeOnFail: true })
+    const job = await simulatorQueue.add("simulatorQueue", {userID: requestBody.userID, scenarioID : requestBody.scenarioID},{ removeOnComplete: true, removeOnFail: true })
 
     const result = await job.waitUntilFinished(queueEvents,1000*60*1)
     res.status(200).send(result)
 });
 
 
+interface createScenarioBody{
+    userID: string,
+    scenario: Scenario
+}
+
+//TP: Code below created with Github Copilot with the prompt 
+//"Create a express route that creates a scenario"
+app.post("/scenario/create", jsonParser, async (req: Request, res: Response) => {
+    const reqBody : createScenarioBody = req.body;
+
+    try {
+        const user = await User.findById(reqBody.userID)
+        const newScenario =  await scenarioModel.create(reqBody.scenario);
+        
+        user?.ownedScenarios.push(newScenario._id)
+        user?.save()
+
+        res.status(200).send({ message: "Scenario created successfully", scenarioID: newScenario._id });
+    } catch (error) {
+        console.error("Error creating scenario:", error);
+        res.status(500).send({ message: "Error creating scenario", error });
+    }
+});
 // async () => {scraper.federalIncomeTaxScraper()}

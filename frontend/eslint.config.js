@@ -20,6 +20,12 @@ export default tseslint.config(
       'react-refresh': reactRefresh,
       'react-x': reactX,
       'react-dom': reactDom,
+      'istanbul': istanbul({
+        include: 'src/*',
+        exclude: ['node_modules', 'test/'],
+        extension: ['.js', '.ts', '.vue'],
+        requireEnv: false,
+      })
     },
     rules: {
       ...reactHooks.configs.recommended.rules,

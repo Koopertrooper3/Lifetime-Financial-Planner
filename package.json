@@ -7,7 +7,11 @@
     "_test": "node ./backend/out/simulator/simulationHead.js & node ./backend/out/server/server.js & npx playwright test",
     "test": "npx nyc npm run _test",
     "combined": "npx tsc --project ./backend/tsconfig.json && node ./backend/out/simulator/simulationHead.js & node ./backend/out/server/server.js",
-    "server": "npx tsc --project ./backend/tsconfig.json && node ./backend/out/server/server.js"
+    "server": "npx tsc --project ./backend/tsconfig.json && node ./backend/out/server/server.js",
+    "simulator": "npx tsc --project ./backend/tsconfig.json && node ./backend/out/simulator/simulationHead.js",
+    "frontend": "npm run --prefix ./frontend dev",
+    "test2": "sh ./backend_test_script.sh",
+    "compile_backend": "npx tsc --project ./backend/tsconfig.json"
   },
   "repository": {
     "type": "git",
@@ -27,6 +31,7 @@
     "istanbul": "^0.4.5",
     "playwright": "^1.51.1",
     "playwright-test-coverage": "^1.2.12",
+    "pm2": "^6.0.5",
     "source-map-support": "^0.5.21",
     "ts-node": "^10.9.2"
   },

@@ -105,7 +105,7 @@ export default function ScenarioPage() {
                 }
                 return null;
               })
-              .join(" / ")}
+              .join(" | ")}
           </div>
           <div>Financial Goal: ${scenario.financialGoal}</div>
           <div>

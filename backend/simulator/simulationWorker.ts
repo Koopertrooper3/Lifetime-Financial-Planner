@@ -10,6 +10,7 @@ import InvestmentType from "../db/InvestmentTypes"
 import { Investment } from "../db/InvestmentSchema"
 import { taxType } from "../db/taxes"
 import {stateTax, stateTaxParser} from "../state_taxes/statetax_parser"
+import { start } from "repl"
 
 //String generator functions
 function simulationStartLogMessage(scenarioID: string){
@@ -29,6 +30,7 @@ function pushToLog(logStream : WriteStream, message : string){
 }
 
 interface threadData {
+    username: string,
     scenarioID : string, 
     threadNumber: number
     simulationsPerThread: number,
@@ -44,13 +46,13 @@ interface Result{
   }
 
 async function main(){
-    console.log("New thread")
     const result : Result = {completed : 0, succeeded: 0, failed: 0}
-    console.log("Starting")
     
-
-    const logStream = createWriteStream(path.resolve(__dirname, '..','..','logs','user_datetime.log'), {flags: 'a'})
+ 
     const threadData : threadData = workerData
+    const startTime = new Date();
+    const dateTimeString = `${startTime.getMonth()}_${startTime.getDay()}_${startTime.getFullYear()}_${startTime.getHours()}:${startTime.getMinutes()}:${startTime.getSeconds()}`
+    const logStream = createWriteStream(path.resolve(__dirname, '..','..','logs',`${threadData.username}_${dateTimeString}.log`), {flags: 'a'})
 
     const scenarioID : string = threadData.scenarioID
     const threadNumber : string = threadData.threadNumber.toString()
@@ -73,13 +75,11 @@ async function main(){
     console.log("Starting")
     const startingYear = new Date().getFullYear();
     for(let simulation = 0; simulation < totalSimulations; simulation++){
-        console.log("New simulation")
         let simulatedYear = new Date().getFullYear();
 
         let previousYearIncome = 0
     
         for(let age = startingYear - scenario.birthYear[0]; age < lifeExpectancy; age++){
-            console.log("New Year")
             let currentYearIncome = 0
             let currentYearSocialSecurityIncome = 0
             const inflationRate = calculateInflation(scenario)

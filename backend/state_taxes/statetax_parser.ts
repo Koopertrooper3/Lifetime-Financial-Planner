@@ -7,7 +7,7 @@ const stateTaxFile = path.resolve(__dirname,"..","..","state_taxes","statetaxes.
 export function stateTaxParser(){
     console.log(stateTaxFile)
     const file = readFileSync(stateTaxFile, 'utf8')
-    const parsedTaxes = parse(file)
+    const parsedTaxes : stateTax[] = parse(file)
     return parsedTaxes
 }
 

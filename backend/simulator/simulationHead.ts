@@ -7,7 +7,7 @@ import {Scenario, scenarioModel} from '../db/Scenario';
 import * as dotenv from 'dotenv';
 import { stateTax, stateTaxParser } from '../state_taxes/statetax_parser';
 import { federalTaxModel } from '../db/taxes';
-
+import User from '../db/User';
 dotenv.config({ path: path.resolve(__dirname,'..','..','..','.env')});
 
 const databaseHost = process.env.DATABASE_HOST
@@ -24,7 +24,8 @@ console.log("database connection string")
 console.log(databaseConnectionString)
 mongoose.connect(databaseConnectionString)
 
-interface queue {
+interface queueData {
+  userID: string,
   scenarioID : string;
 }
 
@@ -35,7 +36,7 @@ interface Result {
 }
 async function simulation(job: Job) {
   console.log("New Job")
-  const jobData : queue = job.data
+  const jobData : queueData = job.data
   const simulationsPerThread = TOTAL_NUMBER_OF_SIMULATIONS/MAX_THREADS
 
 
@@ -43,12 +44,13 @@ async function simulation(job: Job) {
   //Collect tax information
   const taxYear = new Date().getFullYear()-1;
   const federalTax = await federalTaxModel.findOne({year: taxYear}).lean()
-  const stateTaxes : stateTax = stateTaxParser()
-
+  const stateTaxes : stateTax[] = stateTaxParser()
+  const user = await User.findById(jobData.userID);
 
   const threadArray : Promise<Result>[] = []
   for(let threads = 0; threads < MAX_THREADS; threads++){
     const workerData = {
+      username: user?.name,
       scenarioID : jobData.scenarioID, 
       threadNumber: threads, 
       simulationsPerThread: simulationsPerThread,
