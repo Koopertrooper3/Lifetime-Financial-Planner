@@ -8,7 +8,6 @@ import Distribution from "./Distribution";
 import {Investment, investmentSchema} from "./InvestmentSchema"
 import { Event } from "./EventSchema";
 import { fixedValueSchema,normalDistSchema,uniformDistSchema } from './DistributionSchemas';
-import AssetAllocation from "./AssetAllocation";
 import User from "./User"
 
 const databaseHost = process.env.DATABASE_HOST

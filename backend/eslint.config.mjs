@@ -8,5 +8,5 @@ export default tseslint.config(
   eslint.configs.recommended,
   tseslint.configs.strict,
   tseslint.configs.stylistic,
-  globalIgnores(["scraper/*.js","server/*.js","db/*.js,out/*.js"])
+  globalIgnores(["out/","*.js"])
 );

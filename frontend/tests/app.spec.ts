@@ -3,7 +3,7 @@ import { expect } from 'playwright/test';
 
 
 
-test('Life expectancy', async ({ page }) => {
+test('Check scenario display', async ({ page }) => {
   await page.goto('http://localhost:5173/dashboard');
   await page.getByRole('link', { name: 'reimu' }).click();
   await expect(page.locator('#root')).toContainText('Fixed: 80');

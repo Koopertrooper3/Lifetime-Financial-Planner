@@ -10,3 +10,4 @@ simulator.log
 /playwright/.cache/
 
 .nyc_output
+frontend/coverage/*

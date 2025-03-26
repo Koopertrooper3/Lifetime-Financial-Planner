@@ -19,21 +19,13 @@ export default tseslint.config(
       'react-hooks': reactHooks,
       'react-refresh': reactRefresh,
       'react-x': reactX,
-      'react-dom': reactDom,
-      'istanbul': istanbul({
-        include: 'src/*',
-        exclude: ['node_modules', 'test/'],
-        extension: ['.js', '.ts', '.vue'],
-        requireEnv: false,
-      })
+      'react-dom': reactDom
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
       'react-refresh/only-export-components': [
         'warn',
         { allowConstantExport: true },
-        ...reactX.configs['recommended-typescript'].rules,
-        ...reactDom.configs.recommended.rules,
       ],
     },
   },

@@ -1,3 +1,5 @@
+//TP: https://github.com/mxschmitt/playwright-test-coverage
+
 import * as fs from 'fs';
 import * as path from 'path';
 import * as crypto from 'crypto';

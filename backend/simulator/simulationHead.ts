@@ -16,7 +16,7 @@ const databaseName = process.env.DATABASE_NAME
 const databaseConnectionString = databaseHost + ':' + databasePort + '/' + databaseName
 
 const connection = new IORedis({ maxRetriesPerRequest: null });
-const MAX_THREADS = Number(process.env.THREADS_PER_ATTEMPT) || 1
+const MAX_THREADS = Number(process.env.MAX_THREADS) || 1
 const TOTAL_NUMBER_OF_SIMULATIONS = Number(process.env.TOTAL_NUMBER_OF_SIMULATIONS) || 1
 
 const worker = new Worker("simulatorQueue",simulation,{connection});
