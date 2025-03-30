@@ -1,0 +1,56 @@
+.create-scenario-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 30px;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+} 
+
+.grayed-text {
+  font-size: 15px;
+  color: gray
+}
+
+.birth-container {
+  display: flex;
+  flex-direction: row;
+}
+
+.first-birth-textbox {
+  margin-right: 75px;
+}
+
+.textbox {
+  width: 100%;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  padding-right: 30px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.residence-container {
+  margin-bottom: 10px;
+}
+
+.section-container {
+  width: 100%;
+  margin: 0 auto;
+}
+
+.life-expectancy-container, 
+.investment-type-container, 
+.event-series-container {
+  padding-top: 5px;
+  padding-bottom: 5px;
+  padding-left: 30px;
+  padding-right: 70px;
+  border-radius: 10px;
+  background-color: rgb(189, 237, 252);
+  margin-bottom: 10px;
+}
+
+
