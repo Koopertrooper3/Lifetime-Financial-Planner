@@ -1,4 +1,4 @@
-.create-scenario-container {
+.create-event-series-container {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -7,23 +7,23 @@
   background-color: white;
   border-radius: 10px;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-} 
-
-.grayed-text {
-  font-size: 15px;
-  color: gray
 }
 
-.birth-container {
+.event-series-label--secondary {
+  font-size: 15px;
+  color: gray;
+}
+
+.event-series-input-group {
   display: flex;
   flex-direction: row;
 }
 
-.first-birth-textbox {
+.event-series-textbox--first {
   margin-right: 75px;
 }
 
-.textbox {
+.event-series-textbox {
   width: 100%;
   padding-top: 10px;
   padding-bottom: 10px;
@@ -32,22 +32,19 @@
   border-radius: 5px;
 }
 
-.residence-container {
+.event-series-residence {
   margin-bottom: 10px;
 }
 
-.section-container {
+.event-series-section {
   width: 100%;
   margin: 0 auto;
 }
 
-.life-expectancy-container, 
-.investment-type-container, 
-.event-series-container {
-  padding-top: 5px;
-  padding-bottom: 5px;
-  padding-left: 30px;
-  padding-right: 70px;
+.event-series-section--life,
+.event-series-section--investment,
+.event-series-section--event {
+  padding: 5px 70px 5px 30px;
   border-radius: 10px;
   background-color: rgb(189, 237, 252);
   margin-bottom: 10px;
