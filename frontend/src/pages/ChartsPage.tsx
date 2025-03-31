@@ -38,7 +38,15 @@ function ChartsPage() {
       <SideBar />
       <div className="charts-container">
         <h2>Charts (WIP)</h2>
-        {/* TODO: Insert Charts */}
+
+        <div className="charts-grid">
+          {[1, 2, 3, 4].map((num) => (
+            <div className="chart-card" key={num}>
+              <span className="chart-card-text">Chart {num}</span>
+            </div>
+          ))}
+        </div>
+        
       </div>
     </div>
   );
