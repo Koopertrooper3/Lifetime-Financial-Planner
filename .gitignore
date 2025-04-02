@@ -9,5 +9,9 @@ simulator.log
 /blob-report/
 /playwright/.cache/
 
+#Code coverage tooling
 .nyc_output
 frontend/coverage/*
+logs
+coverage
+*.txt

@@ -3,8 +3,8 @@ import { MongoClient,ObjectId } from "mongodb";
 import dotenv from 'dotenv';
 import path from 'path';
 
-import {Scenario} from "../backend/db/Scenario"
-dotenv.config({ path: path.resolve(__dirname, '.env') });
+import {Scenario} from "../db/Scenario"
+dotenv.config({ path: path.resolve(__dirname, '..', '..','.env') });
 
 const databaseHost = process.env.DATABASE_HOST
 const databasePort = process.env.DATABASE_PORT
@@ -17,13 +17,12 @@ test('simulation Request', async ({ request }) => {
   const userConnection = client.db(databaseName).collection("users")
 
   const user = await userConnection.findOne({})
-  const userScenarioID = user!.ownedScenarios[0].toString()
+  const userScenarioID = user?.ownedScenarios[0].toString()
 
   const simulationRequest = await request.post(`http://127.0.0.1:8000/scenario/runsimulation`, {
     data: {"userID":user?._id.toString(),"scenarioID":userScenarioID}
   });
 
-  let body = await simulationRequest.json()
   expect(await simulationRequest.json()).toEqual({completed : Number(process.env.TOTAL_NUMBER_OF_SIMULATIONS), succeeded: 0, failed: 0})
 
 });
@@ -37,8 +36,8 @@ test('Create Scenario', async ({ request }) => {
   const client = new MongoClient(databaseConnectionString);
   const userConnection = client.db(databaseName).collection("users")
   let user = await userConnection.findOne({})
-  let originalSharedArray = user?.ownedScenarios
-  let newScenario : Scenario = {
+  const originalSharedArray = user?.ownedScenarios
+  const newScenario : Scenario = {
     name: "Marisa",
     maritalStatus: "individual",
     birthYear: [1985],
@@ -84,15 +83,15 @@ test('Create Scenario', async ({ request }) => {
     data: {"userID": user?._id.toString(), "scenario" : newScenario}
   });
 
-  let body : createScenarioResponse = await simulationRequest.json()
+  const body : createScenarioResponse = await simulationRequest.json()
   user = await userConnection.findOne({_id: user?._id})
-  let newScenarioID = body.scenarioID
+  const newScenarioID = body.scenarioID
 
   expect(body).toEqual(expect.objectContaining({message: "Scenario created successfully"}))
-  let testValue = user?.ownedScenarios.map((x) => x.toString()).includes(newScenarioID)
-
+  const testValue = user?.ownedScenarios.map((x : ObjectId) => x.toString()).includes(newScenarioID)
+  expect(testValue).toBeTruthy()
   //Clean up database
-  let result = await userConnection.findOneAndUpdate({_id: user?._id}, {$set: {"ownedScenarios": originalSharedArray}})
+  await userConnection.findOneAndUpdate({_id: user?._id}, {$set: {"ownedScenarios": originalSharedArray}})
   const scenarioConnection = client.db(databaseName).collection("scenarios")
   await scenarioConnection.findOneAndDelete({_id: new ObjectId(newScenarioID)})
 
