@@ -1,0 +1,53 @@
+.create-event-series-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 30px;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.event-series-label--secondary {
+  font-size: 15px;
+  color: gray;
+}
+
+.event-series-input-group {
+  display: flex;
+  flex-direction: row;
+}
+
+.event-series-textbox--first {
+  margin-right: 75px;
+}
+
+.event-series-textbox {
+  width: 100%;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  padding-right: 30px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.event-series-residence {
+  margin-bottom: 10px;
+}
+
+.event-series-section {
+  width: 100%;
+  margin: 0 auto;
+}
+
+.event-series-section--life,
+.event-series-section--investment,
+.event-series-section--event {
+  padding: 5px 70px 5px 30px;
+  border-radius: 10px;
+  background-color: rgb(189, 237, 252);
+  margin-bottom: 10px;
+}
+
+
