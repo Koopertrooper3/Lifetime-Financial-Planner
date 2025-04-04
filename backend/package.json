@@ -6,14 +6,13 @@
   "author": "",
   "main": "server.js",
   "scripts": {
-    "server" : "npx tsc && node ./out/server/server.js",
-    "simulator" : "npx tsc && node ./out/simulator/simulationHead.js",
-    "_server" : "node ./out/server/server.js",
-    "_simulator" : "node ./out/simulator/simulationHead.js",
-    "combined" : "npx tsc && npm run _server & npm run _simulator",
-    "compile" : "npx tsc",
-    "test" : "bash ./backend_test_script.sh"
-
+    "server": "npx tsc && node ./out/server/server.js",
+    "simulator": "npx tsc && node ./out/simulator/simulationHead.js",
+    "_server": "node ./out/server/server.js",
+    "_simulator": "node ./out/simulator/simulationHead.js",
+    "combined": "npx tsc && npm run _server & npm run _simulator",
+    "compile": "npx tsc",
+    "test": "bash ./backend_test_script.sh"
   },
   "dependencies": {
     "body-parser": "^1.20.3",
@@ -28,6 +27,7 @@
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
     "probability-distributions": "^0.9.1",
+    "workerpool": "^9.2.0",
     "yaml": "^2.7.0"
   },
   "devDependencies": {
