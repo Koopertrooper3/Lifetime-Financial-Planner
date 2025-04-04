@@ -10,7 +10,7 @@ import InvestmentType from "../db/InvestmentTypes"
 import { Investment } from "../db/InvestmentSchema"
 import { taxType } from "../db/taxes"
 import {stateTax, stateTaxParser} from "../state_taxes/statetax_parser"
-import { start } from "repl"
+import { worker } from 'workerpool'
 
 //String generator functions
 function simulationStartLogMessage(scenarioID: string){
@@ -45,11 +45,10 @@ interface Result{
     failed: number,
   }
 
-async function main(){
+async function simulation(threadData : threadData){
     const result : Result = {completed : 0, succeeded: 0, failed: 0}
     
  
-    const threadData : threadData = workerData
     const startTime = new Date();
     const dateTimeString = `${startTime.getMonth()}_${startTime.getDay()}_${startTime.getFullYear()}_${startTime.getHours()}:${startTime.getMinutes()}:${startTime.getSeconds()}`
     const logStream = createWriteStream(path.resolve(__dirname, '..','..','logs',`${threadData.username}_${dateTimeString}.log`), {flags: 'a'})
@@ -126,8 +125,7 @@ async function main(){
     
     logStream.end()
     await finished(logStream)
-    parentPort?.postMessage(result)
-    return logStream
+    return result
 }
 
 function calculateLifeExpectancy(scenario : Scenario){
@@ -151,9 +149,6 @@ function calculateInflation(scenario : Scenario){
     }
 }
 
-main().then(async () =>{
-    process.exit(0)
-}).catch(async (err) =>{
-    console.log(err)
-    throw(err)
+worker({
+    simulation : simulation
 })
