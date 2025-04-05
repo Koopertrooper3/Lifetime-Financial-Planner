@@ -1,3 +1,59 @@
+## DEBUG Environment Setup Tutorial
+
+### 1. Create the `.env` file for the frontend
+
+Inside the `frontend/` folder, create a file named `.env` or `.env.local` and add:
+
+```env
+VITE_DEBUG_MODE=true
+VITE_BACKEND_IP=localhost
+VITE_BACKEND_PORT=8000
+```
+
+> These variables control frontend behavior,so you can use mock data (`VITE_DEBUG_MODE`), without worrying about the backend. 
+
+To use DEBUG mode, make sure envDir in `vite.config.ts` is commented out.
+```ts
+// vite.config.ts
+export default defineConfig({
+  plugins: [...],
+  //envDir: './..', // Make sure this line is commented out.
+});
+```
+
+---
+
+### 2. If you're using the root-level `test.env`
+
+The `test.env` file in the root directory is used for backend configuration.:
+
+```env
+DATABASE_HOST=mongodb://127.0.0.1
+GOOGLE_CLIENT_ID=...
+VITE_BACKEND_IP=localhost
+VITE_BACKEND_PORT=8000
+```
+
+#### By default, Vite **does not** read this file.
+
+---
+
+### 3. Enable `test.env` for frontend (when finished with debugging)
+
+If you want the frontend to read from `test.env` instead of `frontend/.env`, **uncomment** the following line in `vite.config.ts`:
+
+```ts
+// vite.config.ts
+export default defineConfig({
+  plugins: [...],
+  envDir: './..', // Make sure this line is active
+});
+```
+
+> Note: Doing this will disable the use of `frontend/.env`. 
+
+---
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.

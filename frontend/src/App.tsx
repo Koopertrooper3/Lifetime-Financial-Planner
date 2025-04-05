@@ -11,10 +11,10 @@ function App() {
     <HelperContextProvider>
       <Router>
         <Routes>
-          {/* <Route path="/" element={<LoginPage />} />
+          <Route path="/" element={<LoginPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/createSenario" element={<CreateScenarioPage />} />
-          <Route path="/scenario/:id" element={<ScenarioPage />} /> */}
+          <Route path="/scenario/:id" element={<ScenarioPage />} />
           <Route path="/" element={<CreateScenarioPage />} />
         </Routes>
       </Router>
