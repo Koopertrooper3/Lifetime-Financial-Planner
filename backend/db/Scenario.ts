@@ -1,8 +1,8 @@
 import {Schema,model} from 'mongoose'
 import { fixedValueSchema,normalDistSchema,uniformDistSchema, FixedDistribution, NormalDistribution, UniformDistribution } from './DistributionSchemas';
 import {eventSchema} from './EventSchema'
+import { investmentTypeSchema, InvestmentType } from './InvestmentTypesSchema';
 import { Event } from './EventSchema';
-import InvestmentType from './InvestmentTypes';
 import {Investment, investmentSchema} from './InvestmentSchema';
 
 const options = {discriminatorKey: 'type'}
@@ -56,9 +56,9 @@ const senarioSchema = new Schema<Scenario>({
         required: true,
     },
     investmentTypes: {
-        type: [Schema.Types.ObjectId],
-        ref: InvestmentType.modelName,
+        type: [investmentTypeSchema],
         required: true,
+        default: []
     },
     investments: {
         type: [investmentSchema],
@@ -137,7 +137,7 @@ export interface Scenario {
     maritalStatus: "couple" | "individual",
     birthYear: number[],
     lifeExpectancy: (FixedDistribution | NormalDistribution | UniformDistribution)[]
-    investmentTypes: Schema.Types.ObjectId[],
+    investmentTypes: InvestmentType[],
     investments: Investment[],
     eventSeries: Event[],
     inflationAssumption: FixedDistribution | NormalDistribution | UniformDistribution,
