@@ -11,6 +11,8 @@ const databasePort = process.env.DATABASE_PORT
 const databaseName = process.env.DATABASE_NAME
 const databaseConnectionString = databaseHost + ':' + databasePort
 
+const backendHost = process.env.BACKEND_IP
+const backendPort = process.env.BACKEND_PORT
 
 test('simulation Request', async ({ request }) => {
   const client = new MongoClient(databaseConnectionString);
@@ -19,7 +21,7 @@ test('simulation Request', async ({ request }) => {
   const user = await userConnection.findOne({})
   const userScenarioID = user?.ownedScenarios[0].toString()
 
-  const simulationRequest = await request.post(`http://127.0.0.1:8000/scenario/runsimulation`, {
+  const simulationRequest = await request.post(`http://${backendHost}:${backendPort}/scenario/runsimulation`, {
     data: {"userID":user?._id.toString(),"scenarioID":userScenarioID}
   });
 
@@ -79,7 +81,7 @@ test('Create Scenario', async ({ request }) => {
     financialGoal: 10000,
     residenceState: "CT",
   }
-  const simulationRequest = await request.post(`http://127.0.0.1:8000/scenario/create`, {
+  const simulationRequest = await request.post(`http://${backendHost}:${backendPort}/scenario/create`, {
     data: {"userID": user?._id.toString(), "scenario" : newScenario}
   });
 
