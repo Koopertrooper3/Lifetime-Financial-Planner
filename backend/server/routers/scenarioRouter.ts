@@ -1,5 +1,5 @@
 import express from 'express';
-import { getScenario, getAllScenarios } from "../../controllers/scenario-controller"
+import { getScenario, getAllScenarios } from "./../controllers/scenario-controller"
 const router = express.Router();
 
 router.get('/', getAllScenarios);

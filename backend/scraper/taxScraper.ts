@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import {firefox} from 'playwright';
 import {federalTaxModel, taxBracketType,FederalTax} from "../db/taxes"
 import dotenv from "dotenv"
