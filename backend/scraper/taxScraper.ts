@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import {firefox} from 'playwright';
-import {federalTaxModel, taxBracketType} from "../db/taxes"
+import {federalTaxModel, taxBracketType,FederalTax} from "../db/taxes"
 import dotenv from "dotenv"
 import path from 'path';
 
@@ -9,10 +10,43 @@ const federalIncomeTaxRatesWebsite = process.env.FEDERAL_INCOME_TAX_RATES_WEBSIT
 const federalStandardDeductionWebsite = process.env.FEDERAL_STANDARD_DEDUCTION_WEBSITE || "https://www.irs.gov/publications/p17"
 const federalCapitalGainsTaxRateWebsite = process.env.FEDERAL_CAPITAL_GAINS_TAX_RATE_WEBSITE || "https://www.irs.gov/taxtopics/tc409";
 
+const USDFormattingRegex = /[$,]/g;
+const yearRegex = /\d{4}/g
+
 export async function federalTaxScraper(){
-    console.log("String2")
-    //await mongoose.connect(databaseConnectionString);
-    console.log("String3")
+    
+    const federalTaxes : FederalTax = {
+        year: await getTaxYear(),
+        singleIncomeTaxBrackets: [],
+        marriedIncomeTaxBrackets: [],
+        singleStandardDeduction: 0,
+        marriedStandardDeduction: 0,
+        singleCapitalGainsTaxBrackets: [],
+        marriedcapitalGainsTaxBrackets: []
+    }
+
+    const [singleIncomeTaxBracket, marriedIncomeTaxBrackets] = await federalIncomeTax()
+
+    federalTaxes.singleIncomeTaxBrackets = singleIncomeTaxBracket
+    federalTaxes.marriedIncomeTaxBrackets = marriedIncomeTaxBrackets
+
+    const [singleFederalDeduction, marriedFederalDeduction] = await federalStandardDeductions()
+
+    federalTaxes.singleStandardDeduction = singleFederalDeduction
+    federalTaxes.marriedStandardDeduction = marriedFederalDeduction
+
+    const [singleCapitalGainsTaxBrackets,marriedcapitalGainsTaxBrackets] = await capitalGainsTax()
+
+    federalTaxes.singleCapitalGainsTaxBrackets = singleCapitalGainsTaxBrackets
+    federalTaxes.marriedcapitalGainsTaxBrackets = marriedcapitalGainsTaxBrackets
+
+    federalTaxModel.create(federalTaxes)
+    console.log("scraper done!")
+};
+
+async function federalIncomeTax(){
+    const singleIncomeTaxBrackets = []
+    const marriedIncomeTaxBrackets = []
 
     const browser = await firefox.launch({ headless: true });
     const context = await browser.newContext({
@@ -21,12 +55,7 @@ export async function federalTaxScraper(){
     const page = await context.newPage();
     await page.goto(federalIncomeTaxRatesWebsite);
 
-    const USDFormattingRegex = /[$,]/g;
-    const yearRegex = /\d{4}/g
-
-
     const taxTables = await page.getByRole("table",{includeHidden: true}).all()
-
 
     const singleFilingIncomeTaxTable = await taxTables[0].getByRole("rowgroup").all().then(
         async (incomeTaxTable) => { return await incomeTaxTable[1].getByRole("row").all()}
@@ -36,20 +65,9 @@ export async function federalTaxScraper(){
         async (incomeTaxTable) => { return await incomeTaxTable[1].getByRole("row").all()}
     );
 
-    const taxYear = await page.getByRole("heading",{name: "tax rates for a single taxpayer"})
-    .textContent()
-    .then(
-        (taxYearHeading) => taxYearHeading != null ? Number(yearRegex.exec(taxYearHeading)) : 0
-    )
-
-    const newFederalTaxBrackets = new federalTaxModel({year: taxYear});
-
-
     //For single filed income taxes
     for (const row of singleFilingIncomeTaxTable){
         const cells = await row.getByRole("cell").all()
-
-
 
         const [taxRate,lowerThreshold,upperThreshold] = await Promise.all([cells[0].innerHTML(),cells[1].innerHTML(),cells[2].innerHTML()]);
 
@@ -59,14 +77,12 @@ export async function federalTaxScraper(){
             upperThreshold :  Number.isNaN(Number(upperThreshold.replace(USDFormattingRegex, ''))) ?  Infinity : Number(upperThreshold.replace(USDFormattingRegex,''))
         }
 
-        newFederalTaxBrackets.singleIncomeTaxBrackets.push(taxBracket)
+        singleIncomeTaxBrackets.push(taxBracket)
     }
 
     //For jointly filed income taxes
     for (const row of marriedFilingIncomeTaxTable){
         const cells = await row.getByRole("cell").all()
-
-
 
         const [taxRate,lowerThreshold,upperThreshold] = await Promise.all([cells[0].innerHTML(),cells[1].innerHTML(),cells[2].innerHTML()])
 
@@ -76,9 +92,21 @@ export async function federalTaxScraper(){
             upperThreshold :  Number.isNaN(Number(upperThreshold.replace(USDFormattingRegex, ''))) ?  Infinity : Number(upperThreshold.replace(USDFormattingRegex,''))
         }
 
-        newFederalTaxBrackets.marriedIncomeTaxBrackets.push(taxBracket)
+        marriedIncomeTaxBrackets.push(taxBracket)
     }
 
+    return [singleIncomeTaxBrackets,marriedIncomeTaxBrackets]
+}
+
+async function federalStandardDeductions(){
+    let singleStandardDeduction = 0;
+    let marriedStandardDeduction = 0;
+
+    const browser = await firefox.launch({ headless: true });
+    const context = await browser.newContext({
+        userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'
+    });
+    const page = await context.newPage();
     await page.goto(federalStandardDeductionWebsite);
 
     const standardDeductionTable = await page
@@ -94,12 +122,18 @@ export async function federalTaxScraper(){
 
         if(deductionType == "Single or Married filing separately"){
             deduction = await cells[1].innerHTML()
-            newFederalTaxBrackets.singleStandardDeduction = Number(deduction.replace(USDFormattingRegex, ''))
+            singleStandardDeduction = Number(deduction.replace(USDFormattingRegex, '')) || 0
         }else if(deductionType == "Married filing jointly or Qualifying surviving spouse"){
             deduction = await cells[1].innerHTML()
-            newFederalTaxBrackets.marriedStandardDeduction = Number(deduction.replace(USDFormattingRegex, ''))
+            marriedStandardDeduction = Number(deduction.replace(USDFormattingRegex, '')) || 0
         }
     }
+
+    return [singleStandardDeduction,marriedStandardDeduction]
+}
+async function capitalGainsTax() {
+    const singleCapitalGainsTaxBrackets = []
+    const marriedcapitalGainsTaxBrackets = []
 
     const hasDollarValueRegex = /\$\d*(?:,\d*)*/g ///\$\d*,\d*/g
     const taxRateElement = 0
@@ -107,7 +141,11 @@ export async function federalTaxScraper(){
     const possibleTaxRateStringRegex = /capital gains rate of\xa0\d*%/g
     const taxRateRegex = /(\d*%)/g
 
-
+    const browser = await firefox.launch({ headless: true });
+    const context = await browser.newContext({
+        userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'
+    });
+    const page = await context.newPage();
     await page.goto(federalCapitalGainsTaxRateWebsite);
 
     const mainBody = await page.getByRole("article");
@@ -143,7 +181,7 @@ export async function federalTaxScraper(){
                     lowerThreshold: 0,
                     upperThreshold :  singleLimit
                 }
-                newFederalTaxBrackets.singleCapitalGainsTaxBrackets.push(taxBracket)
+                singleCapitalGainsTaxBrackets.push(taxBracket)
 
             }else{
 
@@ -158,7 +196,7 @@ export async function federalTaxScraper(){
                     }
                     maxLimit["single"] = Math.max(secondLimit,maxLimit["single"])
 
-                    newFederalTaxBrackets.singleCapitalGainsTaxBrackets.push(taxBracket)
+                    singleCapitalGainsTaxBrackets.push(taxBracket)
                 }else{
                     const taxBracket : taxBracketType = {
                         rate : Number(taxRate)/100,
@@ -167,7 +205,7 @@ export async function federalTaxScraper(){
                     }
                     maxLimit["single"] = Math.max(firstLimit,maxLimit["single"])
 
-                    newFederalTaxBrackets.singleCapitalGainsTaxBrackets.push(taxBracket)
+                    singleCapitalGainsTaxBrackets.push(taxBracket)
                 }
             }
 
@@ -178,7 +216,7 @@ export async function federalTaxScraper(){
                     lowerThreshold: 0,
                     upperThreshold :  singleLimit
                 }
-                newFederalTaxBrackets.marriedcapitalGainsTaxBrackets.push(taxBracket)
+                marriedcapitalGainsTaxBrackets.push(taxBracket)
 
             }else{
                 const firstLimit = Number(marriedBracket[0].replace(USDFormattingRegex, ''))
@@ -192,7 +230,7 @@ export async function federalTaxScraper(){
                     }
                     maxLimit["married"] = Math.max(secondLimit,maxLimit["married"])
 
-                    newFederalTaxBrackets.marriedcapitalGainsTaxBrackets.push(taxBracket)
+                    marriedcapitalGainsTaxBrackets.push(taxBracket)
                 }else{
                     const taxBracket : taxBracketType = {
                         rate : Number(taxRate)/100,
@@ -201,7 +239,7 @@ export async function federalTaxScraper(){
                     }
                     maxLimit["married"] = Math.max(firstLimit,maxLimit["married"])
 
-                    newFederalTaxBrackets.marriedcapitalGainsTaxBrackets.push(taxBracket)
+                    marriedcapitalGainsTaxBrackets.push(taxBracket)
                 }
             }
         }else{
@@ -215,32 +253,30 @@ export async function federalTaxScraper(){
                 lowerThreshold: maxLimit["married"],
                 upperThreshold : Infinity
             }
-            newFederalTaxBrackets.singleCapitalGainsTaxBrackets.push(singleTaxBracket)
-            newFederalTaxBrackets.marriedcapitalGainsTaxBrackets.push(marriedTaxBracket)
-
-
-
+            singleCapitalGainsTaxBrackets.push(singleTaxBracket)
+            marriedcapitalGainsTaxBrackets.push(marriedTaxBracket)
 
         }
 
     }
 
-    await newFederalTaxBrackets.save()
-    await browser.close();
-    console.log("scraper done!")
-};
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function
-async function federalIncomeTax(){
-
+    return [singleCapitalGainsTaxBrackets,marriedcapitalGainsTaxBrackets]
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function
-async function federalStandardDeductions(){
-    
-}
-// eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function
-async function capitalGainsTax() {
+async function getTaxYear() {
+    const browser = await firefox.launch({ headless: true });
+    const context = await browser.newContext({
+        userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'
+    });
+    const page = await context.newPage();
+    await page.goto(federalIncomeTaxRatesWebsite);
 
+    const taxYear = await page.getByRole("heading",{name: "tax rates for a single taxpayer"})
+    .textContent()
+    .then(
+        (taxYearHeading) => taxYearHeading != null ? Number(yearRegex.exec(taxYearHeading)) : 0
+    )
+
+    return taxYear
 }
 

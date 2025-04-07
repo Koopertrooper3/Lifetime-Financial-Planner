@@ -8,7 +8,7 @@ import {scenarioModel, Scenario} from "../db/Scenario"
 import { rnorm, rint } from "probability-distributions"
 import InvestmentType from "../db/InvestmentTypes"
 import { Investment } from "../db/InvestmentSchema"
-import { taxType } from "../db/taxes"
+import { FederalTax } from "../db/taxes"
 import {stateTax, stateTaxParser} from "../state_taxes/statetax_parser"
 import { worker } from 'workerpool'
 
@@ -35,7 +35,7 @@ interface threadData {
     threadNumber: number
     simulationsPerThread: number,
     scenario: Scenario,
-    federalTaxes : taxType,
+    federalTaxes : FederalTax,
     stateTaxes: stateTax
 }
 
