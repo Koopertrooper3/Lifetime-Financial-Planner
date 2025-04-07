@@ -30,6 +30,11 @@ const LoginPage = () => {
               <p>Sign In with Google</p>
             </button>
 
+            <p className="continue-guest" onClick={() => window.location.href = "/dashboard"}>
+              Continue as Guest
+            </p>
+
+
             <p className="legal">
               Protected by reCAPTCHA and subject to the Google Privacy Policy
               and Terms of Service.

@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
+import { isDebug } from "./debug";
 
 interface HelperContextType {
   fetchScenario: (id: string) => Promise<any>;
@@ -23,13 +24,50 @@ export const useHelperContext = () => useContext(HelperContext);
 export const HelperContextProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [allInvestmentTypes, setAllInvestmentTypes] = useState(null);
-  const [allScenarios, setAllScenarios] = useState(null);
+
+  type Scenario = {
+    _id: string;
+    name: string;
+    [key: string]: any; //for scaling
+  };
+  
+  type InvestmentType = {
+    _id: string;
+    name: string;
+    [key: string]: any; //for scaling
+  };
+
+ const [allScenarios, setAllScenarios] = useState<Scenario[] | null>(null);
+const [allInvestmentTypes, setAllInvestmentTypes] = useState<InvestmentType[] | null>(null);
+
+  const mockScenarios = [
+    { _id: "1", name: "Mock Retirement Plan" },
+    { _id: "2", name: "Guest Scenario" },
+  ];
+
+  
+  const mockInvestmentTypes = [
+    { _id: "a", name: "Stocks" },
+    { _id: "b", name: "Bonds" },
+  ];
 
   useEffect(() => {
-    fetchAllInvestmentTypes();
-    fetchAllScenarios();
+    if (isDebug) {
+      console.log("DEBUG MODE: Injecting mock scenario and investment data.");
+      setAllScenarios(mockScenarios);
+      setAllInvestmentTypes(mockInvestmentTypes);
+    } else {
+      fetchAllInvestmentTypes();
+      fetchAllScenarios();
+    }
   }, []);
+
+  // ------ WITHOUT DEBUG ------
+
+  // useEffect(() => {
+  //   fetchAllInvestmentTypes();
+  //   fetchAllScenarios();
+  // }, []);
 
   const fetchScenario = async (id: string) => {
     try {
@@ -83,16 +121,33 @@ export const HelperContextProvider: React.FC<{ children: React.ReactNode }> = ({
 
   return (
     <HelperContext.Provider
-      value={{
-        fetchScenario,
-        fetchInvestmentType,
-        fetchDistribution,
-        fetchAllScenarios,
-        allInvestmentTypes,
-        allScenarios,
-      }}
+      value={
+        isDebug
+          ? {
+              fetchScenario: async (id: string) =>
+                mockScenarios.find((s) => s._id === id),
+              fetchInvestmentType: async (id: string) =>
+                mockInvestmentTypes.find((i) => i._id === id),
+              fetchDistribution: async (id: string) => ({
+                _id: id,
+                name: "Mock Distribution",
+                percent: 50,
+              }),
+              fetchAllScenarios: async () => mockScenarios,
+              allInvestmentTypes: mockInvestmentTypes,
+              allScenarios: mockScenarios,
+            }
+          : {
+              fetchScenario,
+              fetchInvestmentType,
+              fetchDistribution,
+              fetchAllScenarios,
+              allInvestmentTypes,
+              allScenarios,
+            }
+      }
     >
       {children}
     </HelperContext.Provider>
-  );
+  );  
 };
