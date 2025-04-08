@@ -107,7 +107,7 @@ eventDataField.discriminator('Rebalance',rebalanceEventSchema);
 
 interface eventBased{
     type: "EventBased",
-    withOrAfter: "with" | "before",
+    withOrAfter: "With" | "After",
     event: string,
 }
 type eventStartType = FixedDistribution | NormalDistribution | UniformDistribution | eventBased

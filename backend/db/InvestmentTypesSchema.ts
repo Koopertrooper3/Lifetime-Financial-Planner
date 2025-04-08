@@ -56,7 +56,7 @@ incomeDistributionField.discriminator('Uniform',uniformDistSchema)
 export interface InvestmentType {
     name: string,
     description: string,
-    returnAmtOrPct: "amount" | "percent",
+    returnAmtOrPct: "Amount" | "Percent",
     returnDistribution: FixedDistribution | NormalDistribution | UniformDistribution,
     expenseRatio: number,
     incomeAmtOrPct: string,

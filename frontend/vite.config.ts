@@ -12,6 +12,6 @@ export default defineConfig({
     })
   ]
   ],
-  // envDir: './..' // Uncomment this line to switch back to test.env
+  envDir: './..' // Uncomment this line to switch back to test.env
 })
 

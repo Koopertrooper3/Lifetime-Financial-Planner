@@ -61,15 +61,14 @@ async function simulation(threadData : threadData){
     if(scenario == null){
         //Error log message to be added
         logStream.close()
-        parentPort?.postMessage(result)
-        return logStream
+        return result
     }
 
     //pushToLog(logStream,logMessage(threadNumber,simulationStartLogMessage(scenarioID)))
 
     const lifeExpectancy : number = calculateLifeExpectancy(scenario)
+    const userBirthyear = scenario.birthYear[0]
     //pushToLog(logStream,logMessage(threadNumber,lifeExpectancyLogMessage(lifeExpectancy)))
-
     
     console.log("Starting")
     const startingYear = new Date().getFullYear();
@@ -78,7 +77,7 @@ async function simulation(threadData : threadData){
 
         let previousYearIncome = 0
     
-        for(let age = startingYear - scenario.birthYear[0]; age < lifeExpectancy; age++){
+        for(let age = startingYear - userBirthyear; age < lifeExpectancy; age++){
             let currentYearIncome = 0
             let currentYearSocialSecurityIncome = 0
             const inflationRate = calculateInflation(scenario)

@@ -7,8 +7,8 @@ const getDistribution = async (req: Request, res: Response) => {
   try {
     const distribution = await DistributionModel.findById(id);
     res.status(200).json({ data : distribution });
-  } catch (error: any) {
-    console.log(`Error in fetching distribution ${id}: `, error.message);
+  } catch (error: unknown) {
+    console.log(`Error in fetching distribution ${id}: `, (error as Error).message);
     res.status(500).json({ message: 'Server error' });
   }
 };
