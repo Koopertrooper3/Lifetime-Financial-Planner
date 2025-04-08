@@ -1,10 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { isDebug } from "./debug";
 
 interface HelperContextType {
   fetchScenario: (id: string) => Promise<any>;
-  fetchInvestmentType: (id: string) => Promise<any>;
-  fetchDistribution: (id: string) => Promise<any>;
   fetchAllScenarios: () => Promise<any>;
   allInvestmentTypes: any[] | null;
   allScenarios: any[] | null;
@@ -12,8 +11,6 @@ interface HelperContextType {
 
 const HelperContext = createContext<HelperContextType>({
   fetchScenario: async () => null,
-  fetchInvestmentType: async () => null,
-  fetchDistribution: async () => null,
   fetchAllScenarios: async () => null,
   allInvestmentTypes: null,
   allScenarios: null,
@@ -57,7 +54,6 @@ const [allInvestmentTypes, setAllInvestmentTypes] = useState<InvestmentType[] | 
       setAllScenarios(mockScenarios);
       setAllInvestmentTypes(mockInvestmentTypes);
     } else {
-      fetchAllInvestmentTypes();
       fetchAllScenarios();
     }
   }, []);
@@ -89,35 +85,35 @@ const [allInvestmentTypes, setAllInvestmentTypes] = useState<InvestmentType[] | 
     }
   };
 
-  const fetchInvestmentType = async (id: string) => {
-    try {
-      const res = await fetch(`http://localhost:8000/investmentTypes/${id}`);
-      const json = await res.json();
-      return json.data;
-    } catch (error) {
-      console.error("Error fetching investment type:", error);
-    }
-  };
+  // const fetchInvestmentType = async (id: string) => {
+  //   try {
+  //     const res = await fetch(`http://localhost:8000/investmentTypes/${id}`);
+  //     const json = await res.json();
+  //     return json.data;
+  //   } catch (error) {
+  //     console.error("Error fetching investment type:", error);
+  //   }
+  // };
 
-  const fetchAllInvestmentTypes = async () => {
-    try {
-      const res = await fetch(`http://localhost:8000/investmentTypes/`);
-      const json = await res.json();
-      setAllInvestmentTypes(json.data);
-    } catch (error) {
-      console.error("Error fetching investment type:", error);
-    }
-  };
+  // const fetchAllInvestmentTypes = async () => {
+  //   try {
+  //     const res = await fetch(`http://localhost:8000/investmentTypes/`);
+  //     const json = await res.json();
+  //     setAllInvestmentTypes(json.data);
+  //   } catch (error) {
+  //     console.error("Error fetching investment type:", error);
+  //   }
+  // };
 
-  const fetchDistribution = async (id: string) => {
-    try {
-      const res = await fetch(`http://localhost:8000/distributions/${id}`);
-      const json = await res.json();
-      return json.data;
-    } catch (error) {
-      console.error("Error fetching distribution:", error);
-    }
-  };
+  // const fetchDistribution = async (id: string) => {
+  //   try {
+  //     const res = await fetch(`http://localhost:8000/distributions/${id}`);
+  //     const json = await res.json();
+  //     return json.data;
+  //   } catch (error) {
+  //     console.error("Error fetching distribution:", error);
+  //   }
+  // };
 
   return (
     <HelperContext.Provider
@@ -126,21 +122,12 @@ const [allInvestmentTypes, setAllInvestmentTypes] = useState<InvestmentType[] | 
           ? {
               fetchScenario: async (id: string) =>
                 mockScenarios.find((s) => s._id === id),
-              fetchInvestmentType: async (id: string) =>
-                mockInvestmentTypes.find((i) => i._id === id),
-              fetchDistribution: async (id: string) => ({
-                _id: id,
-                name: "Mock Distribution",
-                percent: 50,
-              }),
               fetchAllScenarios: async () => mockScenarios,
               allInvestmentTypes: mockInvestmentTypes,
               allScenarios: mockScenarios,
             }
           : {
               fetchScenario,
-              fetchInvestmentType,
-              fetchDistribution,
               fetchAllScenarios,
               allInvestmentTypes,
               allScenarios,

@@ -21,10 +21,10 @@ async function testScenario() {
     const cashInvestmentType : InvestmentType = {
         name: "cash",
         description: "cash",
-        returnAmtOrPct: "amount",
+        returnAmtOrPct: "Amount",
         returnDistribution: {type: "Fixed", value: 0},
         expenseRatio: 0,
-        incomeAmtOrPct: "percent",
+        incomeAmtOrPct: "Percent",
         incomeDistribution: {type: "Fixed", value: 0},
         taxability: true
         
@@ -33,10 +33,10 @@ async function testScenario() {
     const SNPInvestmentType : InvestmentType = {
         name: "S&P 500",
         description: "S&P 500 index fund",
-        returnAmtOrPct: "percent",
+        returnAmtOrPct: "Percent",
         returnDistribution: {type: "Normal", mean: 0.06, stdev: 0.02},
         expenseRatio: 0,
-        incomeAmtOrPct: "percent",
+        incomeAmtOrPct: "Amount",
         incomeDistribution: {type: "Normal", mean: 0.01, stdev: 0.005},
         taxability: true
         
@@ -44,10 +44,10 @@ async function testScenario() {
     const taxExemptBondsInvestmentType : InvestmentType = {
         name: "tax-exempt bonds",
         description: "NY tax-exempt bonds",
-        returnAmtOrPct: "amount",
+        returnAmtOrPct: "Amount",
         returnDistribution: {type: "Fixed", value: 0},
         expenseRatio: 0.004,
-        incomeAmtOrPct: "percent",
+        incomeAmtOrPct: "Percent",
         incomeDistribution: {type: "Normal", mean: 0.03, stdev: 0.01},
         taxability: false
     }
@@ -55,34 +55,34 @@ async function testScenario() {
     const cashInvestment : Investment = {
         investmentType : "cash",
         value: 100,
-        taxStatus : "non-retirement",
+        taxStatus : "Non-retirement",
         id: "cash"
     }
 
     const snp500Investment : Investment = {
         investmentType : "S&P 500",
         value: 100000,
-        taxStatus : "non-retirement",
+        taxStatus : "Non-retirement",
         id: "S&P 500 non-retirement"
     }
 
     const taxExemptBondsInvestment : Investment = {
         investmentType : "S&P 500",
         value: 2000,
-        taxStatus : "non-retirement",
+        taxStatus : "Non-retirement",
         id: "tax-exempt bonds"
     }
 
     const snp500InvestmentPreTax : Investment = {
         investmentType : "S&P 500",
         value: 10000,
-        taxStatus : "pre-tax",
+        taxStatus : "Pre-tax",
         id: "S&P 500 pre-tax"
     }
     const snp500InvestmentAfterTax : Investment = {
         investmentType : "S&P 500",
         value: 2000,
-        taxStatus : "after-tax",
+        taxStatus : "After-tax",
         id: "S&P 500 after-tax"
     }
 
@@ -118,7 +118,7 @@ async function testScenario() {
 
     const vacationEvent : Event = {
         name: "vacation",
-        start: {type: "EventBased", withOrAfter: "with", event: "salary"},
+        start: {type: "EventBased", withOrAfter: "With", event: "salary"},
         duration: {type: "Fixed", value: 200},
         event: {
             type: "Expense", 
@@ -133,7 +133,7 @@ async function testScenario() {
 
     const streamingEvent : Event = {
         name: "streaming services",
-        start: {type: "EventBased", withOrAfter: "with", event: "salary"},
+        start: {type: "EventBased", withOrAfter: "With", event: "salary"},
         duration: {type: "Fixed", value: 200},
         event: {
             type: "Expense", 
@@ -148,7 +148,7 @@ async function testScenario() {
 
     const investEvent : Event = {
         name: "invest",
-        start: {type: "EventBased", withOrAfter: "with", event: "salary"},
+        start: {type: "EventBased", withOrAfter: "With", event: "salary"},
         duration: {type: "Fixed", value: 200},
         event: {
             type: "Invest", 
@@ -161,7 +161,7 @@ async function testScenario() {
 
     const rebalanceEvent : Event = {
         name: "rebalance",
-        start: {type: "EventBased", withOrAfter: "with", event: "salary"},
+        start: {type: "EventBased", withOrAfter: "With", event: "salary"},
         duration: {type: "Fixed", value: 200},
         event: {
             type: "Rebalance", 
