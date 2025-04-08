@@ -1,0 +1,45 @@
+{
+  "name": "deepseek-cse416-project",
+  "version": "1.0.0",
+  "description": "Team Deepseek's CSE 416 Project, a financial and retirement planner.",
+  "main": "index.js",
+  "scripts": {
+    "_test": "node ./backend/out/simulator/simulationHead.js & node ./backend/out/server/server.js & npx playwright test",
+    "test": "npx nyc npm run _test",
+    "combined": "npx tsc --project ./backend/tsconfig.json && node ./backend/out/simulator/simulationHead.js & node ./backend/out/server/server.js",
+    "server": "npx tsc --project ./backend/tsconfig.json && node ./backend/out/server/server.js",
+    "simulator": "npx tsc --project ./backend/tsconfig.json && node ./backend/out/simulator/simulationHead.js",
+    "frontend": "npm run --prefix ./frontend dev",
+    "test2": "sh ./backend_test_script.sh",
+    "compile_backend": "npx tsc --project ./backend/tsconfig.json"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Koopertrooper3/DeepSeek-CSE416-Project.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Koopertrooper3/DeepSeek-CSE416-Project/issues"
+  },
+  "homepage": "https://github.com/Koopertrooper3/DeepSeek-CSE416-Project#readme",
+  "devDependencies": {
+    "@istanbuljs/nyc-config-typescript": "^1.0.2",
+    "@playwright/test": "^1.51.1",
+    "@types/node": "^22.13.13",
+    "babel-plugin-istanbul": "^7.0.0",
+    "istanbul": "^0.4.5",
+    "playwright": "^1.51.1",
+    "playwright-test-coverage": "^1.2.12",
+    "pm2": "^6.0.5",
+    "source-map-support": "^0.5.21",
+    "ts-node": "^10.9.2"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "mongodb": "^6.15.0",
+    "node-worker-threads-pool": "^1.5.1",
+    "typescript": "^5.8.2",
+    "workerpool": "^9.2.0"
+  }
+}

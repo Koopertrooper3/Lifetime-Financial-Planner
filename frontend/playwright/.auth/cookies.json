@@ -1,0 +1,14 @@
+{
+    "cookies": [],
+    "origins": [
+      {
+        "origin": "https://mypage.com",
+        "localStorage": [
+          {
+            "name": "signedOut",
+            "value": "false"
+          }
+        ]
+      }
+    ]
+  }

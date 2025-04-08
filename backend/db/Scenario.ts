@@ -1,8 +1,8 @@
 import {Schema,model} from 'mongoose'
 import { fixedValueSchema,normalDistSchema,uniformDistSchema, FixedDistribution, NormalDistribution, UniformDistribution } from './DistributionSchemas';
 import {eventSchema} from './EventSchema'
+import { investmentTypeSchema, InvestmentType } from './InvestmentTypesSchema';
 import { Event } from './EventSchema';
-import InvestmentType from './InvestmentTypes';
 import {Investment, investmentSchema} from './InvestmentSchema';
 
 const options = {discriminatorKey: 'type'}
@@ -22,10 +22,11 @@ const senarioSchema = new Schema<Scenario>({
         type: [Number],
         validate: {
             validator: function(value: number[]){
-                if((this as Scenario).maritalStatus === 'couple'){
+                if((this as Scenario).maritalStatus === 'couple') {
                     return value.length == 2;
                 }
-                else if((this as Scenario).maritalStatus === 'individual'){
+                else if((this as Scenario).maritalStatus === 'individual')
+                {
                     return value.length === 1;
                 }
                 else{
@@ -55,9 +56,9 @@ const senarioSchema = new Schema<Scenario>({
         required: true,
     },
     investmentTypes: {
-        type: [Schema.Types.ObjectId],
-        ref: InvestmentType.modelName,
+        type: [investmentTypeSchema],
         required: true,
+        default: []
     },
     investments: {
         type: [investmentSchema],
@@ -69,7 +70,10 @@ const senarioSchema = new Schema<Scenario>({
         required: true,
         default: []
     },
-    inflationAssumption: distributionWrapper,
+    inflationAssumption: {
+        type: distributionWrapper,
+        required: true,
+    },
     afterTaxContributionLimit: {
         type: Number,
         required: true,
@@ -112,6 +116,7 @@ const senarioSchema = new Schema<Scenario>({
     }
     
 });
+
 const lifeExpectancyField = senarioSchema.path<Schema.Types.DocumentArray>('lifeExpectancy');
 
 lifeExpectancyField.discriminator('Fixed',fixedValueSchema);
@@ -129,10 +134,10 @@ export const scenarioModel = model('Scenario', senarioSchema);
 
 export interface Scenario {
     name: string,
-    maritalStatus: string,
+    maritalStatus: "couple" | "individual",
     birthYear: number[],
     lifeExpectancy: (FixedDistribution | NormalDistribution | UniformDistribution)[]
-    investmentTypes: Schema.Types.ObjectId[],
+    investmentTypes: InvestmentType[],
     investments: Investment[],
     eventSeries: Event[],
     inflationAssumption: FixedDistribution | NormalDistribution | UniformDistribution,

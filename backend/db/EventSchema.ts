@@ -48,7 +48,7 @@ const eventDataField = eventSchema.path<Schema.Types.DocumentArray>('event');
 //Income schema
 const incomeEventSchema = new Schema({
     initalAmount: Number,
-    changeAmountOrPecent : {
+    changeAmountOrPercent : {
         type: String,
         enum: ["amount","percent"]
     },

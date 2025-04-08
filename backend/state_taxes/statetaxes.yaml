@@ -93,8 +93,7 @@ NY:
       lower_threshold: 25000000
       upper_threshold: .inf
       flat_adjustment: 2478263
-  single_standard_flat_adjustment: 8000
-  married_standard_flat_adjustment: 16050
+
 NJ:
   year: 2024
   single_income_tax:
@@ -175,8 +174,7 @@ NJ:
       lower_threshold: 500000.00
       upper_threshold: 1000000.00
       flat_adjustment: -34842.50
-  single_standard_deduction: 1000
-  married_standard_deduction: 2000
+
 CT:
   year: 2024
   single_income_tax:

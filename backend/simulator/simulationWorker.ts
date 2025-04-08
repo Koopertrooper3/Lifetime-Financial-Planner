@@ -8,12 +8,9 @@ import {scenarioModel, Scenario} from "../db/Scenario"
 import { rnorm, rint } from "probability-distributions"
 import InvestmentType from "../db/InvestmentTypes"
 import { Investment } from "../db/InvestmentSchema"
-
-const databaseHost = process.env.DATABASE_HOST
-const databasePort = process.env.DATABASE_PORT
-const databaseName = process.env.DATABASE_NAME
-const databaseConnectionString = databaseHost + ':' + databasePort + '/' + databaseName
-
+import { FederalTax } from "../db/taxes"
+import {stateTax, stateTaxParser} from "../state_taxes/statetax_parser"
+import { worker } from 'workerpool'
 
 //String generator functions
 function simulationStartLogMessage(scenarioID: string){
@@ -21,6 +18,9 @@ function simulationStartLogMessage(scenarioID: string){
 }
 function lifeExpectancyLogMessage(lifeExpectancy: number){
     return `Life Expectancy: ${lifeExpectancy}`
+}
+function incomeEventLogMessage(year : number, eventName: string, amount : number){
+    return `[Income] Year: ${year}, Amount: ${amount}, Event name: ${eventName}`
 }
 function logMessage(threadNumber: string, message : string){
     return `[Thread ${threadNumber}] ` + message + "\n"
@@ -30,48 +30,58 @@ function pushToLog(logStream : WriteStream, message : string){
 }
 
 interface threadData {
+    username: string,
     scenarioID : string, 
     threadNumber: number
-    totalSimulations: number
+    simulationsPerThread: number,
+    scenario: Scenario,
+    federalTaxes : FederalTax,
+    stateTaxes: stateTax
 }
 
 interface Result{
-    success: number
-    failure: number
-}
-async function main(){
-    const test = await mongoose.connect(databaseConnectionString)
-    const logStream = createWriteStream(path.resolve(__dirname, 'simulator.log'), {flags: 'a'})
+    completed: number,
+    succeeded: number,
+    failed: number,
+  }
 
-    const threadData : threadData = workerData
+async function simulation(threadData : threadData){
+    const result : Result = {completed : 0, succeeded: 0, failed: 0}
+    
+ 
+    const startTime = new Date();
+    const dateTimeString = `${startTime.getMonth()}_${startTime.getDay()}_${startTime.getFullYear()}_${startTime.getHours()}:${startTime.getMinutes()}:${startTime.getSeconds()}`
+    const logStream = createWriteStream(path.resolve(__dirname, '..','..','logs',`${threadData.username}_${dateTimeString}.log`), {flags: 'a'})
 
     const scenarioID : string = threadData.scenarioID
     const threadNumber : string = threadData.threadNumber.toString()
-    const totalSimulations : number = threadData.totalSimulations
-
-    const scenario : Scenario | null = await scenarioModel.findById(scenarioID).lean();
+    const totalSimulations : number = threadData.simulationsPerThread
+    const scenario : Scenario = threadData.scenario
     
     if(scenario == null){
         //Error log message to be added
-        throw new Error("Scenario does not exist")
+        logStream.close()
+        parentPort?.postMessage(result)
+        return logStream
     }
 
-    pushToLog(logStream,logMessage(threadNumber,simulationStartLogMessage(scenarioID)))
+    //pushToLog(logStream,logMessage(threadNumber,simulationStartLogMessage(scenarioID)))
 
     const lifeExpectancy : number = calculateLifeExpectancy(scenario)
+    //pushToLog(logStream,logMessage(threadNumber,lifeExpectancyLogMessage(lifeExpectancy)))
 
-    pushToLog(logStream,logMessage(threadNumber,lifeExpectancyLogMessage(lifeExpectancy)))
-
-    const result : Result = {success: 0, failure: 0}
-
+    
+    console.log("Starting")
+    const startingYear = new Date().getFullYear();
     for(let simulation = 0; simulation < totalSimulations; simulation++){
+        let simulatedYear = new Date().getFullYear();
 
         let previousYearIncome = 0
-        for(let year = 0; year < lifeExpectancy; year++){
-
+    
+        for(let age = startingYear - scenario.birthYear[0]; age < lifeExpectancy; age++){
             let currentYearIncome = 0
             let currentYearSocialSecurityIncome = 0
-            let inflationRate = calculateInflation(scenario)
+            const inflationRate = calculateInflation(scenario)
 
 
             //TODO: Calculate brackets after inflation
@@ -85,11 +95,11 @@ async function main(){
             for(const incomeEvent of incomeEvents){
                 if(incomeEvent.event.type == "Income"){
 
-                    let eventIncome = incomeEvent.event.initalAmount
-
+                    const eventIncome = incomeEvent.event.initalAmount
 
                     cash.value += eventIncome
                     currentYearIncome += eventIncome
+                    pushToLog(logStream,logMessage(threadNumber,incomeEventLogMessage(simulatedYear,incomeEvent.name,eventIncome)))
 
                     if(incomeEvent.event.socialSecurity == true){
                         currentYearSocialSecurityIncome += incomeEvent.event.initalAmount
@@ -106,15 +116,16 @@ async function main(){
                 
             }
 
-            cash.value += currentYearIncome
-
+            simulatedYear += 1
+            previousYearIncome = currentYearIncome
         }
+        result['completed'] += 1
     }
 
     
-    logStream.close()
-    parentPort?.postMessage({result: result})
-    return logStream
+    logStream.end()
+    await finished(logStream)
+    return result
 }
 
 function calculateLifeExpectancy(scenario : Scenario){
@@ -138,8 +149,6 @@ function calculateInflation(scenario : Scenario){
     }
 }
 
-main().then(async () =>{
-    process.exit(0)
-}).catch(async (err) =>{
-    process.exit(1)
+worker({
+    simulation : simulation
 })

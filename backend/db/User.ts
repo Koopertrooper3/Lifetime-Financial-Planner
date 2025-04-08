@@ -3,21 +3,21 @@ import mongoose from 'mongoose'
 interface IUser {
     googleId: string;
     name: string;
-    ownedSenarios: mongoose.Types.ObjectId[];
-    sharedSenarios: mongoose.Types.ObjectId[];
+    ownedScenarios: mongoose.Types.ObjectId[];
+    sharedScenarios: mongoose.Types.ObjectId[];
 };
 
 const userSchema = new mongoose.Schema<IUser>({
     googleId: { type: String, required: true },
     name: { type: String, required: true },
-    ownedSenarios: [{
+    ownedScenarios: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Senario',
+        ref: 'Scenario',
         required: true
     }],
-    sharedSenarios: [{
+    sharedScenarios: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Senario',
+        ref: 'Scenario',
         required: true
     }]
 });

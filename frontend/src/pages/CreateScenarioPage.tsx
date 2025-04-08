@@ -9,19 +9,20 @@ export default function CreateScenarioPage() {
   return (
     <div className="create-scenario-container">
       {/*Title*/}
-      <h2>Create New Scenario</h2>
+      <h2 className="header">Create New Scenario</h2>
       {/*Description*/}
-      <p className="grayed-text">
+      <p className="scenario-description">
         A scenario is a personalized financial plan. It includes investments,
         income, expenses, life events, and retirement strategies
       </p>
 
       {/*Filing Status*/}
       <div className="filing-status-container">
-        <h3>FilingStatus</h3>
+        <h3 className="purple-title">Filing Status</h3>
         <div>
           <label>
             <input
+              className="status-option"
               type="radio"
               id="filingStatus"
               value="Single"
@@ -32,6 +33,7 @@ export default function CreateScenarioPage() {
           </label>
           <label>
             <input
+              className="status-option"
               type="radio"
               id="filingStatus"
               value="Filing Jointly"
@@ -46,7 +48,7 @@ export default function CreateScenarioPage() {
       {/*Birth Year*/}
       <div className="birth-container">
         <div className="first-birth-textbox">
-          <h3>Birth Year</h3>
+          <h3 className="purple-title">Birth Year</h3>
           <input
             className="textbox"
             type="text"
@@ -54,7 +56,7 @@ export default function CreateScenarioPage() {
           ></input>
         </div>
         <div>
-          <h3>Spouse Birth Year</h3>
+          <h3 className="purple-title">Spouse Birth Year</h3>
           <input
             className="textbox"
             type="text"
@@ -66,7 +68,7 @@ export default function CreateScenarioPage() {
 
       {/*State of Residence*/}
       <div className="residence-container">
-        <h3>State of Residence</h3>
+        <h3 className="purple-title">State of Residence</h3>
         <input
           className="textbox"
           type="text"
@@ -77,11 +79,16 @@ export default function CreateScenarioPage() {
       <div className="section-container">
         {/*Life Expectancy*/}
         <div className="life-expectancy-container">
-          <h3>Life Expectancy (How long you live)</h3>
-          <p>
-            Choose how to model your life expectancy. You can enter a fixed age
-            or use a normal distribution
-          </p>
+          <div className="title-with-info">
+            <h3 className="purple-title">Life Expectancy</h3>
+            <span className="grayed-text">How long you live</span>
+          </div>
+          <div>
+            <span>Choose how to model your life expectancy. </span>
+            <span className="grayed-text">
+              You can enter a fixed age or use a normal distribution
+            </span>
+          </div>
           <div>
             <label>
               <input
@@ -110,7 +117,10 @@ export default function CreateScenarioPage() {
 
         {/*Investment Types*/}
         <div className="investment-type-container">
-          <h3>Investment Types</h3>
+          <div className="title-with-info">
+            <h3 className="green-title">Investment Types</h3>
+            <span className="red-text">Required</span>
+          </div>
           <p>
             Expand below to view previously defined investment types or create a
             new one.
@@ -121,13 +131,54 @@ export default function CreateScenarioPage() {
 
         {/*Event Series*/}
         <div className="event-series-container">
-          <h3>Event Series</h3>
+          <div className="title-with-info">
+            <h3 className="green-title">Event Series</h3>
+            <span className="red-text">Required</span>
+          </div>
           <p>
             Expand below to view previously defined events or create a new one.
           </p>
           <a href="#">Click here to expand Event Series settings ▼</a>
         </div>
+
+        {/*Inflation & Contribution Limits*/}
+        <div className="inflation-container">
+          <div className="title-with-info">
+            <h3 className="green-title">Inflation & Contribution Limits</h3>
+            <span className="red-text">Required</span>
+          </div>
+          <p>
+            Expand below to adjust inflation assumptions and annual contribution
+            limits for retirement accounts.
+          </p>
+          <a href="#">
+            Click here to expand Inflation & Contribution Limits settings ▼
+          </a>
+        </div>
+
+        {/*Spending & Withdrawal*/}
+        <div className="spending-withdrawal-container">
+          <div className="title-with-info">
+            <h3 className="green-title">Spending & Withdrawal</h3>
+            <span className="red-text">Required</span>
+          </div>
+          <p>
+            Expand below to view and customize how income is spent, withdrawals
+            are handled, and retirement distributions are managed.
+          </p>
+          <a href="#">Click here to expand Spending & Withdrawal settings ▼</a>
+        </div>
+
+        {/*Sharing Settings*/}
+        <div className="sharing-container">
+          <div className="title-with-info">
+            <h3 className="red-title">Sharing Setings</h3>
+            <span className="grayed-text">Optional</span>
+          </div>
+          <p>Expand below to manage who can access or edit this scenario.</p>
+          <a href="#">Click here to expand Sharing settings ▼</a>
+        </div>
       </div>
     </div>
   );
-};
+}

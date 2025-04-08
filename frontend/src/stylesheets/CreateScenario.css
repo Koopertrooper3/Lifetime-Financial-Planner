@@ -1,3 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,100;0,400;1,400&family=Mulish:ital,wght@0,300;0,600;1,400&display=swap');
+
+
 .create-scenario-container {
   display: flex;
   flex-direction: column;
@@ -8,10 +11,64 @@
   border-radius: 10px;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
 } 
+  
+.header {
+  font-family: "Mulish", sans-serif;
+  font-weight: 900px;
+  font-size: 30px;
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+.scenario-description {
+  font-family: "Inter", sans-serif;
+  font-weight: 400px;
+  font-size: 16px;
+  line-height: 1;
+  letter-spacing: 0;
+  color: #C0C0C0;
+}
+
+.purple-title {
+  font-family: "Inter", sans-serif;
+  font-size: 20px;
+  line-height: 1;
+  letter-spacing: 0;
+  color: #4C49ED;
+  margin-right: 15px;
+}
+
+.green-title {
+  font-family: "Inter", sans-serif;
+  font-size: 20px;
+  line-height: 1;
+  letter-spacing: 0;
+  color: #24C849;
+}
+
+.red-title {
+  font-family: "Inter", sans-serif;
+  font-size: 20px;
+  line-height: 1;
+  letter-spacing: 0;
+  color: #ED4949;
+}
 
 .grayed-text {
-  font-size: 15px;
-  color: gray
+  color: #C0C0C0;
+}
+
+.red-text {
+  color: #ED4949;
+  margin-left: 15px;
+}
+
+.status-option {
+  font-family: "Inter", sans-serif;
+  font-weight: 600px;
+  font-size: 14px;
+  line-height: 1;
+  letter-spacing: 0;
 }
 
 .birth-container {
@@ -28,7 +85,7 @@
   padding-top: 10px;
   padding-bottom: 10px;
   padding-right: 30px;
-  border: 1px solid #ccc;
+  border: 1px solid #E5E7EB;
   border-radius: 5px;
 }
 
@@ -41,15 +98,24 @@
   margin: 0 auto;
 }
 
+.title-with-info {
+  display: flex;
+  align-items: center;
+  align-content: center;
+}
+
 .life-expectancy-container, 
 .investment-type-container, 
-.event-series-container {
+.event-series-container,
+.inflation-container,
+.spending-withdrawal-container,
+.sharing-container {
   padding-top: 5px;
   padding-bottom: 5px;
   padding-left: 30px;
   padding-right: 70px;
   border-radius: 10px;
-  background-color: rgb(189, 237, 252);
+  background-color: #F0F6FF;
   margin-bottom: 10px;
 }
 

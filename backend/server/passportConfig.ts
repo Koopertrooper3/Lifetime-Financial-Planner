@@ -4,14 +4,14 @@ import User from '../db/User';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import process from 'process';
-
-dotenv.config();
+import path from "path";
+dotenv.config({ path: path.resolve(__dirname,'..','..','..','.env') });
 
 interface IUser {
   googleId: string;
   name: string;
-  ownedSenarios: mongoose.Types.ObjectId[];
-  sharedSenarios: mongoose.Types.ObjectId[];
+  ownedScenarios: mongoose.Types.ObjectId[];
+  sharedScenarios: mongoose.Types.ObjectId[];
 }
 
 const backend_full_url = "http://" + process.env.BACKEND_IP + ":" + process.env.BACKEND_PORT;
@@ -28,7 +28,7 @@ passport.use(
       try{
         let user : IUser | null = await User.findOne<IUser>({ googleId: profile.id });
         if(!user){ // if no user exists, we will make an user entry
-          let newUser = new User({
+          const newUser = new User({
             googleId: profile.id,
             name: profile.displayName,
             ownedSenarios: [],

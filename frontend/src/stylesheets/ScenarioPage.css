@@ -1,0 +1,87 @@
+.scenario-container {
+  padding: 20px;
+  font-family: sans-serif;
+  max-width: 1000px;
+  margin: auto;
+}
+
+.card {
+  border: 1px solid #ddd;
+  background-color: #fafafa;
+  border-radius: 6px;
+  padding: 16px;
+  margin-bottom: 20px;
+  box-shadow: 1px 1px 5px rgba(0,0,0,0.05);
+}
+
+.header-card .grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px 20px;
+  font-size: 14px;
+}
+
+.tab-buttons {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.tab-button {
+  padding: 8px 16px;
+  border: none;
+  background: #eee;
+  cursor: pointer;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.tab-button.active {
+  background: #007bff;
+  color: white;
+}
+
+.tab-content {
+  min-height: 200px;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+}
+
+.mini-card {
+  border: 1px solid #ccc;
+  padding: 12px;
+  border-radius: 4px;
+  background-color: white;
+}
+
+.scroll-area {
+  max-height: 300px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.header-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.close-button {
+  background: transparent;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  color: #888;
+}
+
+.close-button:hover {
+  color: #333;
+}
+

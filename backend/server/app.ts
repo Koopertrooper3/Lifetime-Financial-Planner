@@ -5,8 +5,13 @@ import MongoStore from 'connect-mongo';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import process from 'process';
+import scenarioRouter from "./routers/scenarioRouter";
+import investmentTypeRouter from "./routers/investmentTypeRouter";
+import distributionRouter from "./routers/distribution";
+import path from "path";
 
-dotenv.config();
+console.log(path.resolve(__dirname,'..','..','..','.env'))
+dotenv.config({ path: path.resolve(__dirname,'..','..','..','.env')});
 const fullMongoUrl = (process.env.DATABASE_HOST + ":" + process.env.DATABASE_PORT + "/" + process.env.DATABASE_NAME) || 'mongodb://mongodb:127.0.0.1:27017/CSE416';
 const fullFrontendUrl = ("http://" + process.env.FRONTEND_IP + ":" + process.env.FRONTEND_PORT) || "http://localhost:5173";
 const app = express();
@@ -42,6 +47,9 @@ app.use((req, res, next) => { //debug middleware
 });
 
 // routes
+app.use("/scenarios", scenarioRouter);
+app.use("/investmentTypes", investmentTypeRouter);
+app.use("/distributions", distributionRouter);
 
 // this is the route called when user clicks login using google
 app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email']}));

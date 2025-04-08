@@ -2,3 +2,16 @@ node_modules
 .env
 out
 simulator.log
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+
+#Code coverage tooling
+.nyc_output
+frontend/coverage/*
+logs
+coverage
+*.txt
