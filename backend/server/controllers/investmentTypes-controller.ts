@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import InvestmentTypeModel from "../db/InvestmentTypes.js";
+import InvestmentTypeModel from "../../db/InvestmentTypes";
 
 const getInvestmentType = async (req : Request, res: Response) => {
   const { id } = req.params;
