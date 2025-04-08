@@ -19,11 +19,10 @@ const databaseConnectionString = databaseHost + ':' + databasePort + '/' + datab
 
 const connection = new IORedis({ maxRetriesPerRequest: null });
 const MAX_THREADS = Number(process.env.MAX_THREADS) || 1
-const TOTAL_NUMBER_OF_SIMULATIONS = Number(process.env.TOTAL_NUMBER_OF_SIMULATIONS) || 1
 
 const redisWorker = new Worker("simulatorQueue",simulationManager,{connection});
 const simulatorPool = pool(__dirname + '/simulationWorker.js',{
-  maxWorkers: 1
+  maxWorkers: MAX_THREADS
 });
 
 console.log("database connection string")
@@ -33,6 +32,7 @@ mongoose.connect(databaseConnectionString)
 interface queueData {
   userID: string,
   scenarioID : string;
+  totalSimulations: number;
 }
 
 interface Result {
@@ -45,8 +45,17 @@ interface Result {
 async function simulationManager(job: Job) {
   console.log("New Job")
   const jobData : queueData = job.data
-  const totalSimulations = TOTAL_NUMBER_OF_SIMULATIONS
+  const totalSimulations = jobData.totalSimulations
 
+  const batchSize = Math.floor(totalSimulations/MAX_THREADS)
+  let remainder = totalSimulations % MAX_THREADS
+  const simulatorBatches : number[] = [... new Array(MAX_THREADS)].map(() => batchSize)
+  let index = 0
+  while(remainder > 0){
+    simulatorBatches[index] += 1
+    index = (index+1) % MAX_THREADS
+    remainder--;
+  }
 
   const scenario : Scenario | null = await scenarioModel.findById(jobData.scenarioID).lean();
   //Collect tax information
@@ -55,13 +64,6 @@ async function simulationManager(job: Job) {
   const stateTaxes : stateTax[] = stateTaxParser()
   const user = await User.findById(jobData.userID);
 
-  const workerData = {
-        username: user?.name,
-        scenarioID : jobData.scenarioID, 
-        scenario: scenario,
-        federalTaxes : federalTax,
-        stateTaxes: stateTaxes
-      }
   const threadArray : Promise<Result>[] = []
   // for(let threads = 0; threads < MAX_THREADS; threads++){
   //   const workerData = {
@@ -95,18 +97,21 @@ async function simulationManager(job: Job) {
     
   // }
 
-  for(let jobs = 0; jobs < totalSimulations; jobs++){
-    const workerData = {
-          username: user?.name,
-          scenarioID : jobData.scenarioID, 
-          threadNumber: jobs, 
-          simulationsPerThread: totalSimulations,
-          scenario: scenario,
-          federalTaxes : federalTax,
-          stateTaxes: stateTaxes
-      }
+  for(const batch of simulatorBatches){
+    if(batch == 0){
+      continue
+    }else{
+      const workerData = {
+        username: user?.name,
+        scenarioID : jobData.scenarioID, 
+        threadNumber: batch, 
+        simulationsPerThread: totalSimulations,
+        scenario: scenario,
+        federalTaxes : federalTax,
+        stateTaxes: 0
+    }
 
-    threadArray.push(new Promise((resolve) => {
+    threadArray.push(new Promise((resolve,reject) => {
           
         simulatorPool.exec('simulation',[workerData]).then(
           (simulationResult : Result) =>{
@@ -115,10 +120,13 @@ async function simulationManager(job: Job) {
         ).catch(
           (error) =>{
             console.log(error)
+            reject(error)
           }
         )
     
-      }))
+    }))
+    }
+
     
   }
 

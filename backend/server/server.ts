@@ -120,11 +120,12 @@ app.post("/scenario/taxes/import", (req, res)=>{
 interface runSimulationBody{
     userID: string,
     scenarioID: string
+    totalSimulations: number
 }
 app.post("/scenario/runsimulation", jsonParser , async (req : Request, res : Response)=>{
     console.log("Job request")
     const requestBody : runSimulationBody = req.body
-    const job = await simulatorQueue.add("simulatorQueue", {userID: requestBody.userID, scenarioID : requestBody.scenarioID},{ removeOnComplete: true, removeOnFail: true })
+    const job = await simulatorQueue.add("simulatorQueue", {userID: requestBody.userID, scenarioID : requestBody.scenarioID, totalSimulations : requestBody.totalSimulations},{ removeOnComplete: true, removeOnFail: true })
 
     const result = await job.waitUntilFinished(queueEvents,1000*60*1)
     res.status(200).send(result)
