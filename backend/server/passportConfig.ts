@@ -31,8 +31,8 @@ passport.use(
           const newUser = new User({
             googleId: profile.id,
             name: profile.displayName,
-            ownedSenarios: [],
-            sharedSenarios: []
+            ownedScenarios: [],
+            sharedScenarios: []
           });
           user = (await newUser.save()) as IUser;
         }

@@ -9,7 +9,7 @@ const options = {discriminatorKey: 'type'}
 
 const distributionWrapper = new Schema({}, options)
 
-const senarioSchema = new Schema<Scenario>({
+const scenarioSchema = new Schema<Scenario>({
     name: {
         type: String,
         required: true
@@ -117,19 +117,19 @@ const senarioSchema = new Schema<Scenario>({
     
 });
 
-const lifeExpectancyField = senarioSchema.path<Schema.Types.DocumentArray>('lifeExpectancy');
+const lifeExpectancyField = scenarioSchema.path<Schema.Types.DocumentArray>('lifeExpectancy');
 
 lifeExpectancyField.discriminator('Fixed',fixedValueSchema);
 lifeExpectancyField.discriminator('Normal',normalDistSchema)
 lifeExpectancyField.discriminator('Uniform',uniformDistSchema)
 
-const inflationAssumptionField = senarioSchema.path<Schema.Types.DocumentArray>('inflationAssumption');
+const inflationAssumptionField = scenarioSchema.path<Schema.Types.DocumentArray>('inflationAssumption');
 
 inflationAssumptionField.discriminator('Fixed',fixedValueSchema);
 inflationAssumptionField.discriminator('Normal',normalDistSchema)
 inflationAssumptionField.discriminator('Uniform',uniformDistSchema)
 
-export const scenarioModel = model('Scenario', senarioSchema);
+export const scenarioModel = model('Scenario', scenarioSchema);
 
 
 export interface Scenario {

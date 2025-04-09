@@ -60,7 +60,7 @@ test('Create Scenario', async ({ request }) => {
       event: {
         type: "Income",
         initialAmount: 75000,
-        changeAmountOrPercent: "amount",
+        changeAmountOrPercent: "Amount",
         changeDistribution: {
           type: "Uniform",
           min: 500,

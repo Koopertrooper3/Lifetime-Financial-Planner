@@ -67,7 +67,7 @@ const [allInvestmentTypes, setAllInvestmentTypes] = useState<InvestmentType[] | 
 
   const fetchScenario = async (id: string) => {
     try {
-      const res = await fetch(`http://localhost:8000/scenarios/${id}`);
+      const res = await fetch(`http://localhost:8000/scenario/${id}`);
       const json = await res.json();
       return json.data;
     } catch (error) {
@@ -77,7 +77,7 @@ const [allInvestmentTypes, setAllInvestmentTypes] = useState<InvestmentType[] | 
 
   const fetchAllScenarios = async () => {
     try {
-      const res = await fetch(`http://localhost:8000/scenarios/`);
+      const res = await fetch(`http://localhost:8000/scenario/`);
       const json = await res.json();
       setAllScenarios(json.data);
     } catch (error) {
