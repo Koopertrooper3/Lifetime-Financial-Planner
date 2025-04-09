@@ -105,10 +105,10 @@ async function simulationManager(job: Job) {
         username: user?.name,
         scenarioID : jobData.scenarioID, 
         threadNumber: batch, 
-        simulationsPerThread: totalSimulations,
+        simulationsPerThread: batch,
         scenario: scenario,
         federalTaxes : federalTax,
-        stateTaxes: 0
+        stateTaxes: stateTaxes
     }
 
     threadArray.push(new Promise((resolve,reject) => {
