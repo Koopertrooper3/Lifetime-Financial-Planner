@@ -1,7 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import {Schema,model} from 'mongoose'
-import InvestmentTypes from './InvestmentTypes'
-import { fixedValueSchema,normalDistSchema,uniformDistSchema } from './DistributionSchemas';
+import { fixedValueSchema,normalDistSchema,uniformDistSchema } from '../DistributionSchemas';
 
 const options = {discriminatorKey: 'type'}
 

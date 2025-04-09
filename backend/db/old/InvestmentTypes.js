@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-import Distribution from './Distribution';
 
 const investmentTypeScehma = new mongoose.Schema({
     name: {

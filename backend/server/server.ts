@@ -11,8 +11,6 @@ import { Queue, QueueEvents } from 'bullmq';
 import bodyParser from 'body-parser';
 import app from './app';
 import path from 'node:path';
-import { Scenario,scenarioModel } from '../db/Scenario';
-import User from '../db/User';
 
 dotenv.config({ path: path.resolve(__dirname,'..','..','..','.env')});
 
@@ -124,11 +122,16 @@ interface runSimulationBody{
     totalSimulations: number
 }
 app.post("/scenario/runsimulation", jsonParser , async (req : Request, res : Response)=>{
-    console.log("Job request")
-    const requestBody : runSimulationBody = req.body
-    const job = await simulatorQueue.add("simulatorQueue", {userID: requestBody.userID, scenarioID : requestBody.scenarioID, totalSimulations : requestBody.totalSimulations},{ removeOnComplete: true, removeOnFail: true })
+    try{
+        console.log("Job request")
+        const requestBody : runSimulationBody = req.body
+        const job = await simulatorQueue.add("simulatorQueue", {userID: requestBody.userID, scenarioID : requestBody.scenarioID, totalSimulations : requestBody.totalSimulations},{ removeOnComplete: true, removeOnFail: true })
 
-    const result = await job.waitUntilFinished(queueEvents,1000*60*1)
-    res.status(200).send(result)
+        const result = await job.waitUntilFinished(queueEvents,1000*60*1)
+        res.status(200).send(result)
+    }catch(err){
+        console.log((err as Error))
+    }
+    
 });
 // async () => {scraper.federalIncomeTaxScraper()}
