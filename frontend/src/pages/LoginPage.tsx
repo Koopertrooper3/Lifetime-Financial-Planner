@@ -3,12 +3,16 @@ import "../stylesheets/LoginPage.css";
 
 const LoginPage = () => {
   const handleGoogleLogin = () => {
-    const fullBackendUrl = "http://" + import.meta.env.VITE_BACKEND_IP + ":" + import.meta.env.VITE_BACKEND_PORT;
+    const fullBackendUrl =
+      "http://" +
+      import.meta.env.VITE_BACKEND_IP +
+      ":" +
+      import.meta.env.VITE_BACKEND_PORT;
 
     console.log(fullBackendUrl);
 
     window.location.href = fullBackendUrl + "/auth/google";
-  }
+  };
 
   return (
     <div className="page">

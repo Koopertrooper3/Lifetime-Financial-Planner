@@ -8,3 +8,15 @@
   box-sizing: border-box;
   margin-bottom: 10px;
 }
+
+.grayed-text {
+  color: #C0C0C0;
+}
+
+.green-word {
+  color: #24C849;
+}
+
+.black-word {
+  color: black
+}

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import "../stylesheets/CreateScenario.css";
 import LifeExpectency from "../components/LifeExpectency";
+import { Link } from "react-router-dom";
 
 export default function CreateScenarioPage() {
   const [filingStatus, setFilingStatus] = useState("Single");
@@ -9,7 +10,12 @@ export default function CreateScenarioPage() {
   return (
     <div className="create-scenario-container">
       {/*Title*/}
-      <h2 className="header">Create New Scenario</h2>
+      <div className="header-line">
+        <h2 className="header">Create New Scenario</h2>
+        <Link to="/dashboard" className="back-link">
+          {"<<"}Back
+        </Link>
+      </div>
       {/*Description*/}
       <p className="scenario-description">
         A scenario is a personalized financial plan. It includes investments,
@@ -125,8 +131,9 @@ export default function CreateScenarioPage() {
             Expand below to view previously defined investment types or create a
             new one.
           </p>
-          {/*not sure how this works yet*/}
-          <a href="#">Click here to expand Investment Types settings ▼</a>
+          <Link to="/AddNewInvestmentType">
+            Click here to expand Investment Types settings ▼
+          </Link>
         </div>
 
         {/*Event Series*/}
@@ -138,7 +145,9 @@ export default function CreateScenarioPage() {
           <p>
             Expand below to view previously defined events or create a new one.
           </p>
-          <a href="#">Click here to expand Event Series settings ▼</a>
+          <Link to="/AddNewEventSeries">
+            Click here to expand Event Series settings ▼
+          </Link>
         </div>
 
         {/*Inflation & Contribution Limits*/}
