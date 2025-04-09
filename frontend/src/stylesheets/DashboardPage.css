@@ -1,3 +1,16 @@
+body {
+  font-family: "Segoe UI", sans-serif;
+}
+
+.dashboard-title {
+  font-size: 24px;
+  font-weight: 650;
+  margin: 0 0 16px 0;
+  color: #4C49ED;
+  gap: 24px;
+}
+
+
 .dashboard-container {
   position: absolute;
   top: 100px;
