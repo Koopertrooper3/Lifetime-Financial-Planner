@@ -66,7 +66,7 @@ incomeChangeDistributionField.discriminator('Uniform',uniformDistSchema)
 
 //Expense schema
 const expenseEventSchema = new Schema({
-    initalAmount: Number,
+    initialAmount: Number,
     changeAmountOrPecent : {
         type: String,
         enum: ["amount","percent"]
@@ -91,7 +91,6 @@ const investEventSchema = new Schema({
     glidePath: Boolean,
     assetAllocation2: [assetProportion],
     maxCash: Number,
-
 })
 
 //Rebalance schema
@@ -125,7 +124,7 @@ export interface incomeEvent{
 
 export interface expenseEvent{
     type: "Expense",
-    initalAmount: number,
+    initialAmount: number,
     changeAmountOrPercent: string,
     changeDistribution: distributionWrapperType,
     inflationAdjusted: boolean,

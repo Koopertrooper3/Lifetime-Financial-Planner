@@ -122,7 +122,7 @@ async function testScenario() {
         duration: {type: "Fixed", value: 200},
         event: {
             type: "Expense", 
-            initalAmount: 1200, 
+            initialAmount: 1200, 
             changeAmountOrPercent: "amount",
             changeDistribution: {type: "Fixed", value: 0},
             inflationAdjusted: true,
@@ -137,7 +137,7 @@ async function testScenario() {
         duration: {type: "Fixed", value: 200},
         event: {
             type: "Expense", 
-            initalAmount: 500, 
+            initialAmount: 500, 
             changeAmountOrPercent: "amount",
             changeDistribution: {type: "Fixed", value: 0},
             inflationAdjusted: true,

@@ -106,7 +106,9 @@ startUp().then(()=>{
 });
 })
 
-
+/**
+ * PLEASE DO NOT PUT ANY ROUTES FROM FRONTEND IN THIS FILE, WRITE THEM IN /routers and export to app.ts
+ */
 //sample GET
 app.get("/", (req, res)=>{
     res.send("yeah");
@@ -115,7 +117,6 @@ app.get("/", (req, res)=>{
 app.post("/scenario/taxes/import", (req, res)=>{
     res.send("yeah");
 });
-
 
 interface runSimulationBody{
     userID: string,
@@ -129,30 +130,5 @@ app.post("/scenario/runsimulation", jsonParser , async (req : Request, res : Res
 
     const result = await job.waitUntilFinished(queueEvents,1000*60*1)
     res.status(200).send(result)
-});
-
-
-interface createScenarioBody{
-    userID: string,
-    scenario: Scenario
-}
-
-//TP: Code below created with Github Copilot with the prompt 
-//"Create a express route that creates a scenario"
-app.post("/scenario/create", jsonParser, async (req: Request, res: Response) => {
-    const reqBody : createScenarioBody = req.body;
-
-    try {
-        const user = await User.findById(reqBody.userID)
-        const newScenario =  await scenarioModel.create(reqBody.scenario);
-        
-        user?.ownedScenarios.push(newScenario._id)
-        user?.save()
-
-        res.status(200).send({ message: "Scenario created successfully", scenarioID: newScenario._id });
-    } catch (error) {
-        console.error("Error creating scenario:", error);
-        res.status(500).send({ message: "Error creating scenario", error });
-    }
 });
 // async () => {scraper.federalIncomeTaxScraper()}
