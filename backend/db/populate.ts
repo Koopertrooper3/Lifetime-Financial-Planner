@@ -86,29 +86,29 @@ async function testScenario() {
         id: "S&P 500 after-tax"
     }
 
-    const salaryEvent = {
+    const salaryEvent : Event = {
         name: "salary",
         start: {type: "Fixed", value: 2025},
         duration: {type: "Fixed", value: 40},
         event: {
             type: "Income", 
-            initalAmount: 75000, 
-            changeAmountOrPecent: "amount",
-            changeDistribution: {type: "Uniform", lower: 500, upper: 2000},
+            initialAmount: 75000, 
+            changeAmountOrPercent: "amount",
+            changeDistribution: {type: "Uniform", min: 500, max: 2000},
             inflationAdjusted: false,
             userFraction: 1.0,
             socialSecurity: false
         }
     }
 
-    const foodEvent = {
+    const foodEvent : Event= {
         name: "food",
-        start: {type: "EventBased", withOrAfter: "with", event: "salary"},
+        start: {type: "EventBased", withOrAfter: "With", event: "salary"},
         duration: {type: "Fixed", value: 200},
         event: {
             type: "Expense", 
-            initalAmount: 5000, 
-            changeAmountOrPecent: "percent",
+            initialAmount: 5000, 
+            changeAmountOrPercent: "percent",
             changeDistribution: {type: "Normal", mean: 0.01, stdev: 0.01},
             inflationAdjusted: true,
             userFraction: 0.5,

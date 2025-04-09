@@ -17,15 +17,15 @@ const backendPort = process.env.BACKEND_PORT
 test('simulation Request', async ({ request }) => {
   const client = new MongoClient(databaseConnectionString);
   const userConnection = client.db(databaseName).collection("users")
-
+  const totalSimulations= 10
   const user = await userConnection.findOne({})
   const userScenarioID = user?.ownedScenarios[0].toString()
 
   const simulationRequest = await request.post(`http://${backendHost}:${backendPort}/scenario/runsimulation`, {
-    data: {"userID":user?._id.toString(),"scenarioID":userScenarioID}
+    data: {"userID":user?._id.toString(),"scenarioID":userScenarioID, "totalSimulations": totalSimulations}
   });
 
-  expect(await simulationRequest.json()).toEqual({completed : Number(process.env.TOTAL_NUMBER_OF_SIMULATIONS), succeeded: 0, failed: 0})
+  expect(await simulationRequest.json()).toEqual({completed :totalSimulations, succeeded: 0, failed: 0})
 
 });
 
@@ -36,8 +36,10 @@ interface createScenarioResponse{
 
 test('Create Scenario', async ({ request }) => {
   const client = new MongoClient(databaseConnectionString);
+
   const userConnection = client.db(databaseName).collection("users")
   let user = await userConnection.findOne({})
+  
   const originalSharedArray = user?.ownedScenarios
   const newScenario : Scenario = {
     name: "Marisa",
@@ -57,12 +59,12 @@ test('Create Scenario', async ({ request }) => {
       },
       event: {
         type: "Income",
-        initalAmount: 75000,
+        initialAmount: 75000,
         changeAmountOrPercent: "amount",
         changeDistribution: {
           type: "Uniform",
-          lower: 500,
-          upper: 2000,
+          min: 500,
+          max: 2000,
         },
         inflationAdjusted: false,
         userFraction: 1,

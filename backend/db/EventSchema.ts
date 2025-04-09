@@ -114,7 +114,7 @@ type distributionWrapperType = FixedDistribution | NormalDistribution | UniformD
 
 export interface incomeEvent{
     type: "Income",
-    initalAmount: number,
+    initialAmount: number,
     changeAmountOrPercent: string,
     changeDistribution: distributionWrapperType,
     inflationAdjusted: boolean
