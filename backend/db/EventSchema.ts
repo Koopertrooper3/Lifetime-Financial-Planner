@@ -25,7 +25,7 @@ const eventStartField = eventSchema.path<Schema.Types.DocumentArray>('start');
 const eventbasedStartSchema = new Schema({
     withOrAfter: {
         type: String,
-        enum: ["with", "after"]
+        enum: ["With", "After"]
     },
     event: String
 })
@@ -50,7 +50,7 @@ const incomeEventSchema = new Schema({
     initalAmount: Number,
     changeAmountOrPercent : {
         type: String,
-        enum: ["amount","percent"]
+        enum: ["Amount","Percent"]
     },
     changeDistribution: distributionWrapper,
     inflationAdjusted: Boolean,
@@ -66,10 +66,10 @@ incomeChangeDistributionField.discriminator('Uniform',uniformDistSchema)
 
 //Expense schema
 const expenseEventSchema = new Schema({
-    initalAmount: Number,
+    initialAmount: Number,
     changeAmountOrPecent : {
         type: String,
-        enum: ["amount","percent"]
+        enum: ["Amount","Percent"]
     },
     changeDistribution: distributionWrapper,
     inflationAdjusted: Boolean,
@@ -91,7 +91,6 @@ const investEventSchema = new Schema({
     glidePath: Boolean,
     assetAllocation2: [assetProportion],
     maxCash: Number,
-
 })
 
 //Rebalance schema
@@ -107,7 +106,7 @@ eventDataField.discriminator('Rebalance',rebalanceEventSchema);
 
 interface eventBased{
     type: "EventBased",
-    withOrAfter: "with" | "before",
+    withOrAfter: "With" | "After",
     event: string,
 }
 type eventStartType = FixedDistribution | NormalDistribution | UniformDistribution | eventBased
@@ -115,8 +114,8 @@ type distributionWrapperType = FixedDistribution | NormalDistribution | UniformD
 
 export interface incomeEvent{
     type: "Income",
-    initalAmount: number,
-    changeAmountOrPercent: string,
+    initialAmount: number,
+    changeAmountOrPercent: "Amount" | "Percent",
     changeDistribution: distributionWrapperType,
     inflationAdjusted: boolean
     userFraction: number,
@@ -125,8 +124,8 @@ export interface incomeEvent{
 
 export interface expenseEvent{
     type: "Expense",
-    initalAmount: number,
-    changeAmountOrPercent: string,
+    initialAmount: number,
+    changeAmountOrPercent: "Amount" | "Percent",
     changeDistribution: distributionWrapperType,
     inflationAdjusted: boolean,
     userFraction: number,

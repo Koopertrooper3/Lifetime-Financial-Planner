@@ -8,10 +8,10 @@ simulator.log
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+scraper-test-site
 
 #Code coverage tooling
 .nyc_output
-frontend/coverage/*
 logs
 coverage
 *.txt

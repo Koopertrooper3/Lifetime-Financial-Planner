@@ -11,19 +11,21 @@ const databasePort = process.env.DATABASE_PORT
 const databaseName = process.env.DATABASE_NAME
 const databaseConnectionString = databaseHost + ':' + databasePort
 
+const backendHost = process.env.BACKEND_IP
+const backendPort = process.env.BACKEND_PORT
 
 test('simulation Request', async ({ request }) => {
   const client = new MongoClient(databaseConnectionString);
   const userConnection = client.db(databaseName).collection("users")
-
+  const totalSimulations= 10
   const user = await userConnection.findOne({})
   const userScenarioID = user?.ownedScenarios[0].toString()
 
-  const simulationRequest = await request.post(`http://127.0.0.1:8000/scenario/runsimulation`, {
-    data: {"userID":user?._id.toString(),"scenarioID":userScenarioID}
+  const simulationRequest = await request.post(`http://${backendHost}:${backendPort}/scenario/runsimulation`, {
+    data: {"userID":user?._id.toString(),"scenarioID":userScenarioID, "totalSimulations": totalSimulations}
   });
 
-  expect(await simulationRequest.json()).toEqual({completed : Number(process.env.TOTAL_NUMBER_OF_SIMULATIONS), succeeded: 0, failed: 0})
+  expect(await simulationRequest.json()).toEqual({completed :totalSimulations, succeeded: 0, failed: 0})
 
 });
 
@@ -34,8 +36,10 @@ interface createScenarioResponse{
 
 test('Create Scenario', async ({ request }) => {
   const client = new MongoClient(databaseConnectionString);
+
   const userConnection = client.db(databaseName).collection("users")
   let user = await userConnection.findOne({})
+  
   const originalSharedArray = user?.ownedScenarios
   const newScenario : Scenario = {
     name: "Marisa",
@@ -43,7 +47,7 @@ test('Create Scenario', async ({ request }) => {
     birthYear: [1985],
     lifeExpectancy: [{type: "Fixed",value: 80}],
     investmentTypes: [],
-    investments: [{investmentType: "cash",value: 100,taxStatus: "non-retirement",id: "cash"}],
+    investments: [{investmentType: "cash",value: 100, taxStatus: "Non-retirement",id: "cash"}],
     eventSeries: [ {name: "salary",
       start: {
         type: "Fixed",
@@ -55,12 +59,12 @@ test('Create Scenario', async ({ request }) => {
       },
       event: {
         type: "Income",
-        initalAmount: 75000,
-        changeAmountOrPercent: "amount",
+        initialAmount: 75000,
+        changeAmountOrPercent: "Amount",
         changeDistribution: {
           type: "Uniform",
-          lower: 500,
-          upper: 2000,
+          min: 500,
+          max: 2000,
         },
         inflationAdjusted: false,
         userFraction: 1,
@@ -79,7 +83,7 @@ test('Create Scenario', async ({ request }) => {
     financialGoal: 10000,
     residenceState: "CT",
   }
-  const simulationRequest = await request.post(`http://127.0.0.1:8000/scenario/create`, {
+  const simulationRequest = await request.post(`http://${backendHost}:${backendPort}/scenario/create`, {
     data: {"userID": user?._id.toString(), "scenario" : newScenario}
   });
 

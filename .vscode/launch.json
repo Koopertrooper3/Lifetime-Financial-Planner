@@ -19,7 +19,6 @@
             "name": "Launch server",
             "program": "${workspaceFolder}/backend/server/server.ts",
             "preLaunchTask": "tsc: build - backend/tsconfig.json",
-            "outFiles": ["${workspaceFolder}/backend/out/server/*.js"],
           },
           {
             "type": "node",

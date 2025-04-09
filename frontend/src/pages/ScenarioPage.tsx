@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useHelperContext } from "../HelperContext";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
@@ -7,14 +8,14 @@ import { Link } from "react-router-dom";
 export default function ScenarioPage() {
   const { id } = useParams();
   const [scenario, setScenario] = useState<any>(null);
-  const { allInvestmentTypes, fetchDistribution, fetchScenario, allScenarios } =
+  const { allInvestmentTypes, fetchScenario, allScenarios } =
     useHelperContext();
 
   const [activeTab, setActiveTab] = useState("investments");
-  const [investmentTypes, setInvestmentTypes] = useState<any[]>([]);
-  const [distributionMap, setDistributionMap] = useState<Record<string, any>>(
-    {}
-  );
+  //const [investmentTypes, setInvestmentTypes] = useState<any[]>([]);
+  // const [distributionMap, setDistributionMap] = useState<Record<string, any>>(
+  //   {}
+  // );
 
   useEffect(() => {
     if (!id) return;
@@ -34,40 +35,41 @@ export default function ScenarioPage() {
   }, []);
 
   useEffect(() => {
-    if (!scenario || !allInvestmentTypes) return;
+    // if (!scenario || !allInvestmentTypes) return;
 
-    const filteredInvestmentTypes = allInvestmentTypes.filter((invType: any) =>
-      scenario.investmentTypes.includes(invType._id)
-    );
+    // const filteredInvestmentTypes = allInvestmentTypes.filter((invType: any) =>
+    //   scenario.investmentTypes.includes(invType._id)
+    // );
 
-    setInvestmentTypes(filteredInvestmentTypes);
+    // setInvestmentTypes(filteredInvestmentTypes);
   }, [scenario, allInvestmentTypes]);
 
   useEffect(() => {
-    const fetchDistributions = async () => {
-      const allDistIds = new Set<string>();
-      for (const invType of investmentTypes) {
-        if (invType.returnDistribution)
-          allDistIds.add(invType.returnDistribution);
-        if (invType.incomeDistribution)
-          allDistIds.add(invType.incomeDistribution);
-      }
+    // const fetchDistributions = async () => {
+    //   const allDistIds = new Set<string>();
+    //   for (const invType of investmentTypes) {
+    //     if (invType.returnDistribution)
+    //       allDistIds.add(invType.returnDistribution);
+    //     if (invType.incomeDistribution)
+    //       allDistIds.add(invType.incomeDistribution);
+    //   }
 
-      const results: Record<string, any> = {};
-      for (const id of allDistIds) {
-        const res = await fetchDistribution(id);
-        results[id] = res;
-      }
+    //   const results: Record<string, any> = {};
+    //   for (const id of allDistIds) {
+    //     const res = await fetchDistribution(id);
+    //     results[id] = res;
+    //   }
 
-      setDistributionMap(results);
-    };
+    //   setDistributionMap(results);
+    // };
 
-    if (investmentTypes.length > 0) fetchDistributions();
-  }, [investmentTypes]);
+    // if (investmentTypes.length > 0) fetchDistributions();
+  }, );
 
   if (!scenario) return <div>Loading....</div>;
 
   const investments = scenario.investments;
+  const investmentTypes = scenario.investmentTypes
   const eventSeries = scenario.eventSeries;
   const spendingStrategy = scenario.spendingStrategy;
   const expenseWithdrawalStrategy = scenario.expenseWithdrawalStrategy;
@@ -151,8 +153,8 @@ export default function ScenarioPage() {
         <div className="card tab-content">
           <div className="card-grid">
             {investmentTypes.map((invType: any) => {
-              const returnDist = distributionMap[invType.returnDistribution];
-              const incomeDist = distributionMap[invType.incomeDistribution];
+              // const returnDist = distributionMap[invType.returnDistribution];
+              // const incomeDist = distributionMap[invType.incomeDistribution];
 
               return (
                 <div className="mini-card" key={invType._id}>
@@ -161,23 +163,23 @@ export default function ScenarioPage() {
                   <div>Return Type: {invType.returnAmtOrPct}</div>
                   <div>
                     Return Distribution:{" "}
-                    {returnDist?.type === "fixed" &&
-                      `Fixed (${returnDist.value})`}
-                    {returnDist?.type === "percent" &&
-                      `Percent (mean = ${returnDist.mean}, stdev = ${returnDist.stdev})`}
-                    {returnDist?.type === "normal" &&
-                      `Normal (mean = ${returnDist.mean}, stdev = ${returnDist.stdev})`}
+                    {invType.returnDistribution?.type === "Fixed" &&
+                      `Fixed (${invType.returnDistribution?.value})`}
+                    {invType.returnDistribution?.type === "Percent" &&
+                      `Percent (mean = ${invType.returnDistribution?.mean}, stdev = ${invType.returnDistribution?.stdev})`}
+                    {invType.returnDistribution?.type === "Normal" &&
+                      `Normal (mean = ${invType.returnDistribution?.mean}, stdev = ${invType.returnDistribution?.stdev})`}
                   </div>
                   <div>Expense Ratio: {invType.expenseRatio}</div>
                   <div>Income Type: {invType.incomeAmtOrPct}</div>
                   <div>
                     Income Distribution:{" "}
-                    {incomeDist?.type === "fixed" &&
-                      `Fixed (${incomeDist.value})`}
-                    {incomeDist?.type === "percent" &&
-                      `Percent (mean = ${incomeDist.mean}, stdev = ${incomeDist.stdev})`}
-                    {incomeDist?.type === "normal" &&
-                      `Normal (mean = ${incomeDist.mean}, stdev = ${incomeDist.stdev})`}
+                    {invType.incomeDistribution?.type === "Fixed" &&
+                      `Fixed (${invType.incomeDistribution?.value})`}
+                    {invType.incomeDistribution?.type === "Percent" &&
+                      `Percent (mean = ${invType.incomeDistribution?.mean}, stdev = ${invType.incomeDistribution?.stdev})`}
+                    {invType.incomeDistribution?.type === "Normal" &&
+                      `Normal (mean = ${invType.incomeDistribution?.mean}, stdev = ${invType.incomeDistribution?.stdev})`}
                   </div>
                   <div>Taxable: {invType.taxability ? "Yes" : "No"}</div>
                 </div>

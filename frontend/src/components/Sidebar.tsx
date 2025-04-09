@@ -10,9 +10,9 @@ import HelpIcon from "@mui/icons-material/Help";
 const SideBar = () => {
   const upperIcons = [
     { name: "Dashboard", icon: DashboardIcon },
-    { name: "Wallets", icon: WalletIcon },
-    { name: "Post Reports", icon: SignalCellularAltIcon },
-    { name: "Transaction", icon: PaidIcon },
+    { name: "Event Series", icon: WalletIcon },
+    { name: "Reports", icon: SignalCellularAltIcon },
+    { name: "Investments", icon: PaidIcon },
   ];
 
   const lowerIcons = [

@@ -11,6 +11,7 @@ export default defineConfig({
       extension: [ '.js', '.ts','.tsx' ],
     })
   ]
-  
   ],
+  envDir: './..' // Uncomment this line to switch back to test.env
 })
+

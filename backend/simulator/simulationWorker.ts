@@ -6,9 +6,8 @@ import { finished } from "stream/promises"
 import { workerData, parentPort } from "worker_threads"
 import {scenarioModel, Scenario} from "../db/Scenario"
 import { rnorm, rint } from "probability-distributions"
-import InvestmentType from "../db/InvestmentTypes"
 import { Investment } from "../db/InvestmentSchema"
-import { taxType } from "../db/taxes"
+import { FederalTax } from "../db/taxes"
 import {stateTax, stateTaxParser} from "../state_taxes/statetax_parser"
 import { worker } from 'workerpool'
 
@@ -35,7 +34,7 @@ interface threadData {
     threadNumber: number
     simulationsPerThread: number,
     scenario: Scenario,
-    federalTaxes : taxType,
+    federalTaxes : FederalTax,
     stateTaxes: stateTax
 }
 
@@ -61,15 +60,14 @@ async function simulation(threadData : threadData){
     if(scenario == null){
         //Error log message to be added
         logStream.close()
-        parentPort?.postMessage(result)
-        return logStream
+        return result
     }
 
     //pushToLog(logStream,logMessage(threadNumber,simulationStartLogMessage(scenarioID)))
 
     const lifeExpectancy : number = calculateLifeExpectancy(scenario)
+    const userBirthyear = scenario.birthYear[0]
     //pushToLog(logStream,logMessage(threadNumber,lifeExpectancyLogMessage(lifeExpectancy)))
-
     
     console.log("Starting")
     const startingYear = new Date().getFullYear();
@@ -78,7 +76,7 @@ async function simulation(threadData : threadData){
 
         let previousYearIncome = 0
     
-        for(let age = startingYear - scenario.birthYear[0]; age < lifeExpectancy; age++){
+        for(let age = startingYear - userBirthyear; age < lifeExpectancy; age++){
             let currentYearIncome = 0
             let currentYearSocialSecurityIncome = 0
             const inflationRate = calculateInflation(scenario)
@@ -95,19 +93,19 @@ async function simulation(threadData : threadData){
             for(const incomeEvent of incomeEvents){
                 if(incomeEvent.event.type == "Income"){
 
-                    const eventIncome = incomeEvent.event.initalAmount
+                    const eventIncome = incomeEvent.event.initialAmount
 
                     cash.value += eventIncome
                     currentYearIncome += eventIncome
                     pushToLog(logStream,logMessage(threadNumber,incomeEventLogMessage(simulatedYear,incomeEvent.name,eventIncome)))
 
                     if(incomeEvent.event.socialSecurity == true){
-                        currentYearSocialSecurityIncome += incomeEvent.event.initalAmount
+                        currentYearSocialSecurityIncome += incomeEvent.event.initialAmount
                     }
 
                     //Inflation adjustment
                     if(incomeEvent.event.inflationAdjusted == true){
-                        incomeEvent.event.initalAmount += incomeEvent.event.initalAmount * inflationRate
+                        incomeEvent.event.initialAmount += incomeEvent.event.initialAmount * inflationRate
                     }
 
                     
@@ -135,7 +133,7 @@ function calculateLifeExpectancy(scenario : Scenario){
     }else if(userLifeExpectancy.type == "Normal"){
         return Math.round(rnorm(1,userLifeExpectancy.mean,userLifeExpectancy.stdev)[0])
     }else{
-        return rint(1,userLifeExpectancy.lower,userLifeExpectancy.upper, 1)[0]
+        return rint(1,userLifeExpectancy.min,userLifeExpectancy.max, 1)[0]
     }
 }
 function calculateInflation(scenario : Scenario){
@@ -145,7 +143,7 @@ function calculateInflation(scenario : Scenario){
     }else if(inflationAssumption.type == "Normal"){
         return rnorm(1,inflationAssumption.mean,inflationAssumption.stdev)[0]
     }else{
-        return rint(1,inflationAssumption.lower,inflationAssumption.upper, 1)[0]
+        return rint(1,inflationAssumption.min,inflationAssumption.max, 1)[0]
     }
 }
 

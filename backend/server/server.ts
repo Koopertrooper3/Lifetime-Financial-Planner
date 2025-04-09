@@ -11,8 +11,6 @@ import { Queue, QueueEvents } from 'bullmq';
 import bodyParser from 'body-parser';
 import app from './app';
 import path from 'node:path';
-import { Scenario,scenarioModel } from '../db/Scenario';
-import User from '../db/User';
 
 dotenv.config({ path: path.resolve(__dirname,'..','..','..','.env')});
 
@@ -106,7 +104,9 @@ startUp().then(()=>{
 });
 })
 
-
+/**
+ * PLEASE DO NOT PUT ANY ROUTES FROM FRONTEND IN THIS FILE, WRITE THEM IN /routers and export to app.ts
+ */
 //sample GET
 app.get("/", (req, res)=>{
     res.send("yeah");
@@ -116,42 +116,22 @@ app.post("/scenario/taxes/import", (req, res)=>{
     res.send("yeah");
 });
 
-
 interface runSimulationBody{
     userID: string,
     scenarioID: string
+    totalSimulations: number
 }
 app.post("/scenario/runsimulation", jsonParser , async (req : Request, res : Response)=>{
-    console.log("Job request")
-    const requestBody : runSimulationBody = req.body
-    const job = await simulatorQueue.add("simulatorQueue", {userID: requestBody.userID, scenarioID : requestBody.scenarioID},{ removeOnComplete: true, removeOnFail: true })
+    try{
+        console.log("Job request")
+        const requestBody : runSimulationBody = req.body
+        const job = await simulatorQueue.add("simulatorQueue", {userID: requestBody.userID, scenarioID : requestBody.scenarioID, totalSimulations : requestBody.totalSimulations},{ removeOnComplete: true, removeOnFail: true })
 
-    const result = await job.waitUntilFinished(queueEvents,1000*60*1)
-    res.status(200).send(result)
-});
-
-
-interface createScenarioBody{
-    userID: string,
-    scenario: Scenario
-}
-
-//TP: Code below created with Github Copilot with the prompt 
-//"Create a express route that creates a scenario"
-app.post("/scenario/create", jsonParser, async (req: Request, res: Response) => {
-    const reqBody : createScenarioBody = req.body;
-
-    try {
-        const user = await User.findById(reqBody.userID)
-        const newScenario =  await scenarioModel.create(reqBody.scenario);
-        
-        user?.ownedScenarios.push(newScenario._id)
-        user?.save()
-
-        res.status(200).send({ message: "Scenario created successfully", scenarioID: newScenario._id });
-    } catch (error) {
-        console.error("Error creating scenario:", error);
-        res.status(500).send({ message: "Error creating scenario", error });
+        const result = await job.waitUntilFinished(queueEvents,1000*60*1)
+        res.status(200).send(result)
+    }catch(err){
+        console.log((err as Error))
     }
+    
 });
 // async () => {scraper.federalIncomeTaxScraper()}
