@@ -17,7 +17,7 @@ const eventStartZod = z.discriminatedUnion("type", [
 const incomeEventZod = z.object({
     type: z.literal("Income"),
     initialAmount: z.number(),
-    changeAmountOrPercent: z.enum(["amount","percent"], {
+    changeAmountOrPercent: z.enum(["Amount","Percent"], {
         errorMap: () => ({ message: "must be either amount or percent"})
     }),
     changeDistribution: distributionZod,
@@ -29,7 +29,7 @@ const incomeEventZod = z.object({
 const expenseEventZod = z.object({
     type: z.literal("Expense"),
     initialAmount: z.number(),
-    changeAmountOrPercent: z.enum(["amount","percent"], {
+    changeAmountOrPercent: z.enum(["Amount","Percent"], {
         errorMap: () => ({ message: "must be either amount or percent"})
     }),
     changeDistribution: distributionZod,

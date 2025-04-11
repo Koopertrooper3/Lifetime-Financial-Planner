@@ -3,7 +3,7 @@ import {scenarioModel} from '../../db/Scenario';
 import scenarioZod from '../zod/scenarioZod';
 import User from '../../db/User';
 import z from "zod";
-const router = Router();
+export const router = Router();
 
 router.get('/', async (req : Request, res: Response) => {
     try {
@@ -85,4 +85,3 @@ router.post("/create", async (req, res) => {
 //     }
 // });
 
-export default router
