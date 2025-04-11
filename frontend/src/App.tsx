@@ -5,6 +5,9 @@ import DashboardPage from "./pages/DashboardPage";
 import CreateScenarioPage from "./pages/CreateScenarioPage";
 import { HelperContextProvider } from "./HelperContext";
 import ScenarioPage from "./pages/ScenarioPage";
+import ChartsPage from "./pages/ChartsPage";
+import AddNewInvestmentType from "./pages/AddNewInvestmentType";
+import AddNewEventSeries from "./pages/AddNewEventSeries";
 
 function App() {
   return (
@@ -12,10 +15,16 @@ function App() {
       <Router>
         <Routes>
           <Route path="/" element={<LoginPage />} />
+          <Route path="/" element={<LoginPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/createSenario" element={<CreateScenarioPage />} />
+          <Route path="/createScenario" element={<CreateScenarioPage />} />
           <Route path="/scenario/:id" element={<ScenarioPage />} />
-          <Route path="/" element={<CreateScenarioPage />} />
+          <Route path="/chartsPage/" element={<ChartsPage />} />
+          <Route
+            path="/AddNewInvestmentType"
+            element={<AddNewInvestmentType />}
+          />
+          <Route path="/AddNewEventSeries" element={<AddNewEventSeries />} />
         </Routes>
       </Router>
     </HelperContextProvider>

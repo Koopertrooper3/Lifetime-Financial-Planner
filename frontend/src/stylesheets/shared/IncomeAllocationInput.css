@@ -1,0 +1,15 @@
+.inflation-toggle-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.purple-title {
+  font-family: "Inter", sans-serif;
+  font-size: 16px;
+  font-weight: 500px;
+  margin-right: 50px;
+  color: #4C49ED;
+  line-height: 1;
+  letter-spacing: 0;
+}
