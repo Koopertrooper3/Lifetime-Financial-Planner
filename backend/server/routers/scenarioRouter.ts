@@ -1,16 +1,32 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import express from 'express';
-import { getScenario, getAllScenarios } from "./../controllers/scenario-controller";
-import {Scenario,scenarioModel} from '../../db/Scenario';
+import {Router, Request, Response} from 'express';
+import {scenarioModel} from '../../db/Scenario';
 import scenarioZod from '../zod/scenarioZod';
 import User from '../../db/User';
 import z from "zod";
-import { Request, Response } from 'express';
-export const router = express.Router();
+const router = Router();
 
-router.get('/', getAllScenarios);
+router.get('/', async (req : Request, res: Response) => {
+    try {
+      const scenarios = await scenarioModel.find({});
+      res.status(200).json({ data : scenarios });
+    }
+    catch (error: unknown) {
+      console.log(`Error in fetching scenarios: `, (error as Error).message);
+      res.status(500).json({ message: 'Server error' });
+    }
+  });
 
-router.get('/:id', getScenario);
+router.get('/:id', async (req : Request, res: Response) => {
+    const { id } = req.params;
+  
+    try {
+      const scenario = await scenarioModel.findById(id);
+      res.status(200).json({ data : scenario });
+    } catch (error: unknown) {
+      console.log(`Error in fetching scenario ${id}: `, (error as Error).message);
+      res.status(500).json({ message: 'Server error' });
+    }
+  });
 
 const createScenarioZod = z.object({
     userID: z.string(),
@@ -68,3 +84,5 @@ router.post("/create", async (req, res) => {
 //         res.status(500).send({ message: "Error creating scenario", error });
 //     }
 // });
+
+export default router

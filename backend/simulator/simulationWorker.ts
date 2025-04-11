@@ -87,10 +87,11 @@ async function simulation(threadData : threadData){
             //TODO: Calculate annual limits on retirement account contributions after inflation
 
             //Income events
-            const cash : Investment = scenario.investments.filter((investment) => investment.id == "cash")[0]
-            const incomeEvents = scenario.eventSeries.filter((object) => object.event.type == "Income")
+            //const cash : Investment = scenario.investments.filter((investment) => investment.id == "cash")[0]
+            const cash : Investment = scenario.investments["cash"]
 
-            for(const incomeEvent of incomeEvents){
+
+            for(const incomeEvent of Object.values(scenario.eventSeries)){
                 if(incomeEvent.event.type == "Income"){
 
                     const eventIncome = incomeEvent.event.initialAmount

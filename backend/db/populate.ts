@@ -101,7 +101,7 @@ async function testScenario() {
         }
     }
 
-    const foodEvent : Event= {
+    const foodEvent : Event = {
         name: "food",
         start: {type: "EventBased", withOrAfter: "With", event: "salary"},
         duration: {type: "Fixed", value: 200},
@@ -171,14 +171,14 @@ async function testScenario() {
     }
 
     try{
-        const exampleScenario = await scenarioModel.create({
+        const exampleScenario : Scenario = {
             name: "reimu",
             maritalStatus: "couple",
             birthYear : [1985,1987],
             lifeExpectancy : [ {type: "Fixed", value: 80} , {type: "Normal", mean: 82, stdev: 3} ],
-            investmentTypes: [cashInvestmentType,SNPInvestmentType,taxExemptBondsInvestmentType],
-            investments: [cashInvestment,snp500Investment,taxExemptBondsInvestment,snp500InvestmentPreTax,snp500InvestmentAfterTax],
-            eventSeries: [salaryEvent,foodEvent,vacationEvent,streamingEvent,investEvent,rebalanceEvent],
+            investmentTypes: {"cash" : cashInvestmentType ,"S&P 500" : SNPInvestmentType,"tax-exempt bonds": taxExemptBondsInvestmentType},
+            investments: {"cash" :cashInvestment, "S&P 500" :snp500Investment, "tax-exempt bonds": taxExemptBondsInvestment,"S&P 500 pre-tax": snp500InvestmentPreTax,"S&P 500 after-tax": snp500InvestmentAfterTax},
+            eventSeries: {"salary": salaryEvent, "food": foodEvent, "vacation": vacationEvent, "streaming services": streamingEvent,"my investments": investEvent, "rebalance": rebalanceEvent},
             inflationAssumption: {type: "Fixed", value: 80},
             afterTaxContributionLimit: 7000,
             spendingStrategy: ["vacation", "streaming services"],
@@ -190,13 +190,14 @@ async function testScenario() {
             RothConversionStrategy: ["S&P 500 pre-tax"],
             financialGoal: 10000,
             residenceState: "NY",
-        })
+        }
+        const scenarioResult = await scenarioModel.create(exampleScenario)
     
-
-        await User.findOneAndUpdate({ name: "Christian Yu" },{ ownedScenarios: [exampleScenario._id] })
-    }catch(error){
-        console.log(error)
+        await User.findOneAndUpdate({ name: "Christian Yu" },{ ownedScenarios: [scenarioResult._id] })
+    }catch(err){
+        console.log(err)
     }
+    
     return
 }
 
