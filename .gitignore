@@ -16,3 +16,4 @@ scraper-test-site
 logs
 coverage
 *.txt
+backend/simulator/simulation algorithm overview.pdf

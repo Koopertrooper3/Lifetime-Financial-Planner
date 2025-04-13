@@ -7,19 +7,19 @@ const stateTaxFile = path.resolve(__dirname,"..","..","state_taxes","statetaxes.
 export function stateTaxParser(){
     console.log(stateTaxFile)
     const file = readFileSync(stateTaxFile, 'utf8')
-    const parsedTaxes : stateTax[] = parse(file)
+    const parsedTaxes : StateTaxBracket[] = parse(file)
     return parsedTaxes
 }
 
-interface taxBracket{
+interface TaxBracket{
     rate: number
     lower_threshold: number
     upper_threshold: number
     flat_adjustment:number
 }
-export interface stateTax{
+export interface StateTaxBracket{
     state: string,
     year: number,
-    single_income_tax: taxBracket[]
-    married_income_tax: taxBracket[]
+    single_income_tax: TaxBracket[]
+    married_income_tax: TaxBracket[]
 }

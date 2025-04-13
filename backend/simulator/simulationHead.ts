@@ -1,11 +1,10 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import {Worker, Job} from 'bullmq'
 import IORedis from 'ioredis';
 import path from 'path';
 import mongoose from 'mongoose';
 import {Scenario, scenarioModel} from '../db/Scenario';
 import * as dotenv from 'dotenv';
-import { stateTax, stateTaxParser } from '../state_taxes/statetax_parser';
+import { StateTaxBracket, stateTaxParser } from '../state_taxes/statetax_parser';
 import { federalTaxModel } from '../db/taxes';
 import User from '../db/User';
 import { pool } from 'workerpool';
@@ -61,7 +60,7 @@ async function simulationManager(job: Job) {
   //Collect tax information
   const taxYear = new Date().getFullYear()-1;
   const federalTax = await federalTaxModel.findOne({year: taxYear}).lean()
-  const stateTaxes : stateTax[] = stateTaxParser()
+  const stateTaxes : StateTaxBracket[] = stateTaxParser()
   const user = await User.findById(jobData.userID);
 
   const threadArray : Promise<Result>[] = []
