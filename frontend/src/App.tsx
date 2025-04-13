@@ -12,8 +12,10 @@ function App() {
       <Router>
         <Routes>
           <Route path="/" element={<LoginPage />} />
-          <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/createSenario" element={<CreateScenarioPage />} />
+          <Route path="/dashboard" element={<DashboardPage />}>
+            <Route path="createScenario" element={<CreateScenarioPage />} />
+            {/* Nest more routes here */}
+          </Route>
           <Route path="/scenario/:id" element={<ScenarioPage />} />
           <Route path="/" element={<CreateScenarioPage />} />
         </Routes>
