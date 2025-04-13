@@ -1,2 +1,2 @@
-export const isDebug = true
+export const isDebug = false
 export const User = ""

@@ -16,9 +16,10 @@ function App() {
         <Routes>
           <Route path="/" element={<LoginPage />} />
           <Route path="/dashboard" element={<DashboardPage />}>
-            <Route path="createScenario" element={<CreateScenarioPage />} />
+            
             {/* NOTE: Nested routes go here */}
           </Route>
+          <Route path="createScenario" element={<CreateScenarioPage />} />
           <Route path="/scenario/:id" element={<ScenarioPage />} />
           <Route path="/chartsPage/" element={<ChartsPage />} />
           <Route
