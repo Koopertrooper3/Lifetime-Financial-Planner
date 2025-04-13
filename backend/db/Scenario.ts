@@ -9,7 +9,7 @@ const options = {discriminatorKey: 'type'}
 
 const distributionWrapper = new Schema({}, options)
 
-const senarioSchema = new Schema<Scenario>({
+const scenarioSchema = new Schema<Scenario>({
     name: {
         type: String,
         required: true
@@ -56,19 +56,18 @@ const senarioSchema = new Schema<Scenario>({
         required: true,
     },
     investmentTypes: {
-        type: [investmentTypeSchema],
+        type: Map,
+        of: investmentTypeSchema,
         required: true,
-        default: []
     },
     investments: {
-        type: [investmentSchema],
+        type: Map,
+        of: investmentSchema,
         required: true,
-        default: []
     },
     eventSeries: {
-        type: [eventSchema],
-        required: true,
-        default: []
+        type: Map,
+        of: eventSchema
     },
     inflationAssumption: {
         type: distributionWrapper,
@@ -117,19 +116,19 @@ const senarioSchema = new Schema<Scenario>({
     
 });
 
-const lifeExpectancyField = senarioSchema.path<Schema.Types.DocumentArray>('lifeExpectancy');
+const lifeExpectancyField = scenarioSchema.path<Schema.Types.DocumentArray>('lifeExpectancy');
 
 lifeExpectancyField.discriminator('Fixed',fixedValueSchema);
 lifeExpectancyField.discriminator('Normal',normalDistSchema)
 lifeExpectancyField.discriminator('Uniform',uniformDistSchema)
 
-const inflationAssumptionField = senarioSchema.path<Schema.Types.DocumentArray>('inflationAssumption');
+const inflationAssumptionField = scenarioSchema.path<Schema.Types.DocumentArray>('inflationAssumption');
 
 inflationAssumptionField.discriminator('Fixed',fixedValueSchema);
 inflationAssumptionField.discriminator('Normal',normalDistSchema)
 inflationAssumptionField.discriminator('Uniform',uniformDistSchema)
 
-export const scenarioModel = model('Scenario', senarioSchema);
+export const scenarioModel = model('Scenario', scenarioSchema);
 
 
 export interface Scenario {
@@ -137,9 +136,9 @@ export interface Scenario {
     maritalStatus: "couple" | "individual",
     birthYear: number[],
     lifeExpectancy: (FixedDistribution | NormalDistribution | UniformDistribution)[]
-    investmentTypes: InvestmentType[],
-    investments: Investment[],
-    eventSeries: Event[],
+    investmentTypes: Record<string,InvestmentType>,
+    investments: Record<string,Investment>,
+    eventSeries: Record<string,Event>,
     inflationAssumption: FixedDistribution | NormalDistribution | UniformDistribution,
     afterTaxContributionLimit: number,
     spendingStrategy: string[],

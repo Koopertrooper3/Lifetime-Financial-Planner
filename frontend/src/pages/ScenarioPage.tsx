@@ -7,7 +7,6 @@ import { Link } from "react-router-dom";
 
 export default function ScenarioPage() {
   const { id } = useParams();
-  console.log("useParams id:", id);
   const [scenario, setScenario] = useState<any>(null);
   const { allInvestmentTypes, fetchScenario, allScenarios } =
     useHelperContext();
@@ -120,7 +119,7 @@ export default function ScenarioPage() {
         </div>
       </div>
 
-      {/* Tabs */}
+      {/* Tab-Based Interface */}
       <div className="tab-buttons">
         {tabs.map((tab) => (
           <button

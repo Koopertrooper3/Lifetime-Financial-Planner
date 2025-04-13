@@ -2,12 +2,14 @@ node_modules
 .env
 out
 simulator.log
+scraper-test-site
 
 # Playwright
 /test-results/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+scraper-test-site
 
 #Code coverage tooling
 .nyc_output

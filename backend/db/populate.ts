@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+//* eslint-disable @typescript-eslint/no-unused-vars */
 import dotenv from "dotenv";
 dotenv.config();
 import mongoose from "mongoose";
@@ -93,7 +93,7 @@ async function testScenario() {
         event: {
             type: "Income", 
             initialAmount: 75000, 
-            changeAmountOrPercent: "amount",
+            changeAmountOrPercent: "Amount",
             changeDistribution: {type: "Uniform", min: 500, max: 2000},
             inflationAdjusted: false,
             userFraction: 1.0,
@@ -101,14 +101,14 @@ async function testScenario() {
         }
     }
 
-    const foodEvent : Event= {
+    const foodEvent : Event = {
         name: "food",
         start: {type: "EventBased", withOrAfter: "With", event: "salary"},
         duration: {type: "Fixed", value: 200},
         event: {
             type: "Expense", 
             initialAmount: 5000, 
-            changeAmountOrPercent: "percent",
+            changeAmountOrPercent: "Percent",
             changeDistribution: {type: "Normal", mean: 0.01, stdev: 0.01},
             inflationAdjusted: true,
             userFraction: 0.5,
@@ -123,7 +123,7 @@ async function testScenario() {
         event: {
             type: "Expense", 
             initialAmount: 1200, 
-            changeAmountOrPercent: "amount",
+            changeAmountOrPercent: "Amount",
             changeDistribution: {type: "Fixed", value: 0},
             inflationAdjusted: true,
             userFraction: 0.6,
@@ -138,7 +138,7 @@ async function testScenario() {
         event: {
             type: "Expense", 
             initialAmount: 500, 
-            changeAmountOrPercent: "amount",
+            changeAmountOrPercent: "Amount",
             changeDistribution: {type: "Fixed", value: 0},
             inflationAdjusted: true,
             userFraction: 1.0,
@@ -170,28 +170,34 @@ async function testScenario() {
         }
     }
 
-    const exampleScenario = await scenarioModel.create({
-        name: "reimu",
-        maritalStatus: "couple",
-        birthYear : [1985,1987],
-        lifeExpectancy : [ {type: "Fixed", value: 80} , {type: "Normal", mean: 82, stdev: 3} ],
-        investmentTypes: [cashInvestmentType,SNPInvestmentType,taxExemptBondsInvestmentType],
-        investments: [cashInvestment,snp500Investment,taxExemptBondsInvestment,snp500InvestmentPreTax,snp500InvestmentAfterTax],
-        eventSeries: [salaryEvent,foodEvent,vacationEvent,streamingEvent,investEvent,rebalanceEvent],
-        inflationAssumption: {type: "Fixed", value: 80},
-        afterTaxContributionLimit: 7000,
-        spendingStrategy: ["vacation", "streaming services"],
-        expenseWithdrawalStrategy: ["S&P 500 non-retirement", "tax-exempt bonds", "S&P 500 after-tax"],
-        RMDStrategy: ["S&P 500 pre-tax"],
-        RothConversionOpt: true,
-        RothConversionStart: 2050,
-        RothConversionEnd: 2060,
-        RothConversionStrategy: ["S&P 500 pre-tax"],
-        financialGoal: 10000,
-        residenceState: "NY",
-    })
-
-    await User.findOneAndUpdate({ name: "Christian Yu" },{ ownedScenarios: [exampleScenario._id] })
+    try{
+        const exampleScenario : Scenario = {
+            name: "reimu",
+            maritalStatus: "couple",
+            birthYear : [1985,1987],
+            lifeExpectancy : [ {type: "Fixed", value: 80} , {type: "Normal", mean: 82, stdev: 3} ],
+            investmentTypes: {"cash" : cashInvestmentType ,"S&P 500" : SNPInvestmentType,"tax-exempt bonds": taxExemptBondsInvestmentType},
+            investments: {"cash" :cashInvestment, "S&P 500" :snp500Investment, "tax-exempt bonds": taxExemptBondsInvestment,"S&P 500 pre-tax": snp500InvestmentPreTax,"S&P 500 after-tax": snp500InvestmentAfterTax},
+            eventSeries: {"salary": salaryEvent, "food": foodEvent, "vacation": vacationEvent, "streaming services": streamingEvent,"my investments": investEvent, "rebalance": rebalanceEvent},
+            inflationAssumption: {type: "Fixed", value: 80},
+            afterTaxContributionLimit: 7000,
+            spendingStrategy: ["vacation", "streaming services"],
+            expenseWithdrawalStrategy: ["S&P 500 non-retirement", "tax-exempt bonds", "S&P 500 after-tax"],
+            RMDStrategy: ["S&P 500 pre-tax"],
+            RothConversionOpt: true,
+            RothConversionStart: 2050,
+            RothConversionEnd: 2060,
+            RothConversionStrategy: ["S&P 500 pre-tax"],
+            financialGoal: 10000,
+            residenceState: "NY",
+        }
+        const scenarioResult = await scenarioModel.create(exampleScenario)
+    
+        await User.findOneAndUpdate({ name: "Christian Yu" },{ ownedScenarios: [scenarioResult._id] })
+    }catch(err){
+        console.log(err)
+    }
+    
     return
 }
 

@@ -25,7 +25,7 @@ const eventStartField = eventSchema.path<Schema.Types.DocumentArray>('start');
 const eventbasedStartSchema = new Schema({
     withOrAfter: {
         type: String,
-        enum: ["with", "after"]
+        enum: ["With", "After"]
     },
     event: String
 })
@@ -50,7 +50,7 @@ const incomeEventSchema = new Schema({
     initalAmount: Number,
     changeAmountOrPercent : {
         type: String,
-        enum: ["amount","percent"]
+        enum: ["Amount","Percent"]
     },
     changeDistribution: distributionWrapper,
     inflationAdjusted: Boolean,
@@ -69,7 +69,7 @@ const expenseEventSchema = new Schema({
     initialAmount: Number,
     changeAmountOrPecent : {
         type: String,
-        enum: ["amount","percent"]
+        enum: ["Amount","Percent"]
     },
     changeDistribution: distributionWrapper,
     inflationAdjusted: Boolean,
@@ -115,7 +115,7 @@ type distributionWrapperType = FixedDistribution | NormalDistribution | UniformD
 export interface incomeEvent{
     type: "Income",
     initialAmount: number,
-    changeAmountOrPercent: string,
+    changeAmountOrPercent: "Amount" | "Percent",
     changeDistribution: distributionWrapperType,
     inflationAdjusted: boolean
     userFraction: number,
@@ -125,7 +125,7 @@ export interface incomeEvent{
 export interface expenseEvent{
     type: "Expense",
     initialAmount: number,
-    changeAmountOrPercent: string,
+    changeAmountOrPercent: "Amount" | "Percent",
     changeDistribution: distributionWrapperType,
     inflationAdjusted: boolean,
     userFraction: number,

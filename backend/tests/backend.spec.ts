@@ -46,9 +46,11 @@ test('Create Scenario', async ({ request }) => {
     maritalStatus: "individual",
     birthYear: [1985],
     lifeExpectancy: [{type: "Fixed",value: 80}],
-    investmentTypes: [],
-    investments: [{investmentType: "cash",value: 100, taxStatus: "Non-retirement",id: "cash"}],
-    eventSeries: [ {name: "salary",
+    investmentTypes: {},
+    investments: { "cash" : {investmentType: "cash",value: 100,taxStatus: "Non-retirement",id: "cash"}},
+    eventSeries: {
+      
+      "cash": {name: "salary",
       start: {
         type: "Fixed",
         value: 2025,
@@ -60,7 +62,7 @@ test('Create Scenario', async ({ request }) => {
       event: {
         type: "Income",
         initialAmount: 75000,
-        changeAmountOrPercent: "amount",
+        changeAmountOrPercent: "Amount",
         changeDistribution: {
           type: "Uniform",
           min: 500,
@@ -70,7 +72,7 @@ test('Create Scenario', async ({ request }) => {
         userFraction: 1,
         socialSecurity: false,
       }
-    } ],
+    } },
     inflationAssumption: {type: "Fixed",value: 0.03},
     afterTaxContributionLimit: 10000,
     spendingStrategy: [],

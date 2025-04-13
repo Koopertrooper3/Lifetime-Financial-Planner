@@ -3,16 +3,20 @@ import "../stylesheets/LifeExpectancy.css";
 
 const LifeExpectancy = (lifeExpectancyType: string) => {
   const [useCustomValues, setUseCustomValues] = useState(false);
+  const [expectedAge, setExpectedAge] = useState("");
+  const [meanAge, setMeanAge] = useState("");
+  const [std, setStd] = useState("");
 
-  if (lifeExpectancyType === "normal") {
+  if (lifeExpectancyType === "Normal Distribution") {
     return (
       <div>
-        <p>The data will be pulled from SSA</p>
+        <p>The data will be pulled from SSA.</p>
         {/* Toggle Switch */}
         <div className="toggle-container">
-          <p>
-            Click the toggle on to enter custom values or off to pull values
-            from SSA.
+          <p className="grayed-text">
+            Click the toggle <span className="green-word">on</span> to enter
+            custom values or <span className="black-word">off</span> to pull
+            values from SSA.
           </p>
           {/* <span>Use custom values:</span>
           <label className="switch">
