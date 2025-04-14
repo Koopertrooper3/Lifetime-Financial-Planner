@@ -14,7 +14,22 @@ const databaseConnectionString = databaseHost + ':' + databasePort
 const backendHost = process.env.BACKEND_IP
 const backendPort = process.env.BACKEND_PORT
 
-test('simulation Request', async ({ request }) => {
+test('Single simulation Request', async ({ request }) => {
+  const client = new MongoClient(databaseConnectionString);
+  const userConnection = client.db(databaseName).collection("users")
+  const totalSimulations= 1
+  const user = await userConnection.findOne({})
+  const userScenarioID = user?.ownedScenarios[0].toString()
+
+  const simulationRequest = await request.post(`http://${backendHost}:${backendPort}/scenario/runsimulation`, {
+    data: {"userID":user?._id.toString(),"scenarioID":userScenarioID, "totalSimulations": totalSimulations}
+  });
+
+  expect(await simulationRequest.json()).toEqual({completed :totalSimulations, succeeded: 0, failed: 0})
+
+});
+
+test('Multiple simulation Request', async ({ request }) => {
   const client = new MongoClient(databaseConnectionString);
   const userConnection = client.db(databaseName).collection("users")
   const totalSimulations= 10

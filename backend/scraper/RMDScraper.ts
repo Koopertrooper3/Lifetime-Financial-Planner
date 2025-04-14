@@ -45,7 +45,3 @@ export async function RMDScraper(){
 
     return RMDTable
 }
-
-RMDScraper().then(() => {
-    console.log("Done")
-})
