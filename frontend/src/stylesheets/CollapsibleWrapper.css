@@ -1,5 +1,48 @@
-.description {
-  color: #499EED;
+.collapsible-container {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  overflow: hidden;
+  background-color: white;
+}
+
+.collapsible-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background-color: #f8f9fa;
   cursor: pointer;
-  text-decoration: underline;
+  user-select: none;
+}
+
+.collapsible-title {
+  margin: 0;
+  font-size: 16px;
+  color: #24C849;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.toggle-icon {
+  font-size: 14px;
+  transition: transform 0.3s ease;
+}
+
+.toggle-icon.open {
+  transform: rotate(180deg);
+}
+
+.collapsible-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+  padding: 0 16px;
+}
+
+.collapsible-content.open {
+  max-height: 1000000px;
+  padding: 16px;
+  border-top: 1px solid #e0e0e0;
 }

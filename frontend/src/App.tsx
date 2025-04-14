@@ -2,12 +2,14 @@ import "./stylesheets/App.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
-import CreateScenarioPage from "./pages/CreateScenarioPage";
+import ScenarioFormPage from "./pages/ScenarioFormPage";
 import { HelperContextProvider } from "./HelperContext";
 import ScenarioPage from "./pages/ScenarioPage";
 import ChartsPage from "./pages/ChartsPage";
-import AddNewInvestmentType from "./pages/AddNewInvestmentType";
-import AddNewEventSeries from "./pages/AddNewEventSeries";
+import InvestmentTypeForm from "./pages/InvestmentTypeForm";
+import AddNewEventSeries from "./pages/EventSeriesForm";
+import { LimitsInflationPage } from "./pages/LimitsInflationPage";
+import EditScenarioPage from "./pages/EditScenarioPage";
 import CreateSlideWrapper from "./CreateSlideWrapper";
 
 function App() {
@@ -23,8 +25,8 @@ function App() {
               element={
                 <CreateSlideWrapper
                   routes={[
-                    <Route path="/" element={<CreateScenarioPage />} />,
-                    <Route path="addNewInvestmentType" element={<AddNewInvestmentType />} />,
+                    <Route path="/" element={<ScenarioFormPage />} />,
+                    <Route path="addNewInvestmentType" element={<InvestmentTypeForm />} />,
                     <Route path="addNewEventSeries" element={<AddNewEventSeries />} />
                   ]}
                 />
@@ -34,9 +36,13 @@ function App() {
         
           <Route path="/scenario/:id" element={<ScenarioPage />} />
           <Route path="/chartsPage/" element={<ChartsPage />} />
+          <Route path="/InvestmentTypeForm" element={<InvestmentTypeForm />} />
+          <Route path="/AddNewEventSeries" element={<AddNewEventSeries />} />
+          <Route path="/scenarios/:id/edit" element={<EditScenarioPage />} />
+
           {/* <Route
-            path="/AddNewInvestmentType"
-            element={<AddNewInvestmentType />}
+            path="Limits&ContributionLimits"
+            element={<LimitsInflationPage />}
           />
 
           <Route path="/AddNewEventSeries" element={<AddNewEventSeries />} /> */}

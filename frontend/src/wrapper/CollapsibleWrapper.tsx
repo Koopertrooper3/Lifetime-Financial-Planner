@@ -1,30 +1,31 @@
-import React from "react";
 import { useState } from "react";
 import "../stylesheets/CollapsibleWrapper.css";
 
 interface CollapsibleWrapperProps {
-  description: string;
+  title: string;
   children: React.ReactNode;
+  initiallyOpen?: boolean;
 }
 
-const CollapsibleWrapper: React.FC<CollapsibleWrapperProps> = ({
-  description,
+export default function CollapsibleWrapper({
+  title,
   children,
-}) => {
-  const [isExpanded, setIsExpanded] = useState(false);
-
-  const handleExpand = () => {
-    setIsExpanded(!isExpanded);
-  };
+  initiallyOpen = false,
+}: CollapsibleWrapperProps) {
+  const [isOpen, setIsOpen] = useState(initiallyOpen);
 
   return (
-    <div>
-      <div className="description" onClick={handleExpand}>
-        {description} {isExpanded ? "▲" : "▼"}
+    <div className="collapsible-container">
+      <div className="collapsible-header" onClick={() => setIsOpen(!isOpen)}>
+        <h3 className="collapsible-title">{title}</h3>
+        <span className={`toggle-icon ${isOpen ? "open" : ""}`}>
+          {isOpen ? "▲" : "▼"}
+        </span>
       </div>
-      {isExpanded && children}
+
+      <div className={`collapsible-content ${isOpen ? "open" : ""}`}>
+        {children}
+      </div>
     </div>
   );
-};
-
-export default CollapsibleWrapper;
+}

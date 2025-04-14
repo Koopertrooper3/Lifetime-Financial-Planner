@@ -9,7 +9,8 @@ import axios from "axios";
 export default function ScenarioPage() {
   const { id } = useParams();
   const [scenario, setScenario] = useState<any>(null);
-  const { allInvestmentTypes, fetchScenario, allScenarios, userID } =
+  const [isEditing, setIsEditing] = useState(false);
+  const { allInvestmentTypes, fetchScenario, allScenarios, userID, setEditScenario } =
     useHelperContext();
 
   const [activeTab, setActiveTab] = useState("investments");
@@ -38,11 +39,9 @@ export default function ScenarioPage() {
 
   useEffect(() => {
     // if (!scenario || !allInvestmentTypes) return;
-
     // const filteredInvestmentTypes = allInvestmentTypes.filter((invType: any) =>
     //   scenario.investmentTypes.includes(invType._id)
     // );
-
     // setInvestmentTypes(filteredInvestmentTypes);
   }, [scenario, allInvestmentTypes]);
 
@@ -55,23 +54,20 @@ export default function ScenarioPage() {
     //     if (invType.incomeDistribution)
     //       allDistIds.add(invType.incomeDistribution);
     //   }
-
     //   const results: Record<string, any> = {};
     //   for (const id of allDistIds) {
     //     const res = await fetchDistribution(id);
     //     results[id] = res;
     //   }
-
     //   setDistributionMap(results);
     // };
-
     // if (investmentTypes.length > 0) fetchDistributions();
-  }, );
+  });
 
   if (!scenario) return <div>Loading....</div>;
 
   const investments = scenario.investments;
-  const investmentTypes = scenario.investmentTypes
+  const investmentTypes = scenario.investmentTypes;
   const eventSeries = scenario.eventSeries;
   const spendingStrategy = scenario.spendingStrategy;
   const expenseWithdrawalStrategy = scenario.expenseWithdrawalStrategy;
@@ -96,11 +92,19 @@ export default function ScenarioPage() {
     })
   }
 
+  function handleEditClick() {
+    setEditScenario(scenario); // Store the scenario in context
+  }
+
   return (
     <div className="scenario-container">
       <div className="card header-card">
         <div className="header-line">
           <h2>Scenario: {scenario.name}</h2>
+          <button className="edit-link" onClick={handleEditClick}>
+            <Link to={`/scenarios/${id}/edit`}>Edit</Link>
+          </button>
+
           <Link to="/dashboard" className="close-link">
             Close
           </Link>

@@ -1,18 +1,19 @@
 import ToggleSwitch from "./ToggleSwitch";
 import "../../stylesheets/InvestmentType/ExpectedInput.css";
-import { ExpectedInputProps } from "../../InvestmentType/ExpectedInput";
+import { ExpectedInputProps } from "../../interfaces/InvestmentType/ExpectedInput";
+import ValidationTextFields from "./ValidationTextFields";
 
 const ExpectedInput = ({
   inputType,
   valueType,
   isFixedAmount,
-  onToggleFixedAmount,
+  setToggle,
   fixedValue,
-  onFixedValueChange,
+  setFixedValue,
   mean = "",
-  onMeanChange = () => {},
+  setMean = () => {},
   stdDev = "",
-  onStdDevChange = () => {},
+  setStdDev = () => {},
 }: ExpectedInputProps) => {
   const labels = {
     return: {
@@ -30,13 +31,13 @@ const ExpectedInput = ({
   };
 
   const handleToggleSwitch = () => {
-    onToggleFixedAmount(!isFixedAmount);
+    setToggle?.(!isFixedAmount);
   };
 
   if (valueType == "Fixed Amount/Percentage") {
     return (
       <div className="expected-input-container">
-        <p>{labels[inputType].description}</p>
+        <p>{inputType && labels[inputType].description}</p>
         <div className="toggle-container">
           <div className="grayed-text">
             Click the toggle <span className="green-word">on</span> to enter the
@@ -51,7 +52,7 @@ const ExpectedInput = ({
             </span>
           </div>
         </div>
-        <input
+        {/* <input
           className="textbox"
           value={fixedValue}
           onChange={(e) => onFixedValueChange(e.target.value)}
@@ -60,6 +61,19 @@ const ExpectedInput = ({
               ? "a dollar amount (e.g. $50)"
               : "a percentage amount (e.g. 0.4%)"
           }`}
+        /> */}
+        <ValidationTextFields
+          value={fixedValue}
+          placeholder={`Enter ${
+            isFixedAmount
+              ? "a dollar amount (e.g. $50)"
+              : "a percentage amount (e.g. 0.4%)"
+          }`}
+          setInput={setFixedValue}
+          inputType="number"
+          width="100%"
+          height="1.4375em"
+          disabled={false}
         />
       </div>
     );
@@ -68,11 +82,11 @@ const ExpectedInput = ({
   if (valueType == "Normal Distribution") {
     return (
       <div className="expected-input-container">
-        <p>{labels[inputType].descriptionND}</p>
+        <p>{inputType && labels[inputType].descriptionND}</p>
         <div className="toggle-container">
           <p className="grayed-text">
             Click the toggle <span className="green-word">on</span> to enter the
-            {labels[inputType].meanLabel} and standard deviation as a fixed
+            {inputType && labels[inputType].meanLabel} and standard deviation as a fixed
             amount (eg. $50) and <span className="black-word">off</span> to
             enter as a percentage (e.g. 2%){" "}
             <span>
@@ -86,31 +100,37 @@ const ExpectedInput = ({
         <div>
           <div className="input-container">
             <p className="textbox-title">
-              Enter the {labels[inputType].meanLabel}
+              Enter the {inputType && labels[inputType].meanLabel}
             </p>
-            <input
-              className="textbox"
+            <ValidationTextFields
               value={mean}
-              onChange={(e) => onMeanChange(e.target.value)}
               placeholder={`Enter ${
                 isFixedAmount
                   ? "a dollar amount (e.g. $50)"
                   : "a percentage amount (e.g. 2%)"
               }`}
+              setInput={setMean}
+              inputType="number"
+              width="100%"
+              height="1.4375em"
+              disabled={false}
             />
           </div>
 
           <div className="input-container">
             <p>Enter the standard deviation</p>
-            <input
-              className="textbox"
+            <ValidationTextFields
               value={stdDev}
-              onChange={(e) => onStdDevChange(e.target.value)}
               placeholder={`Enter ${
                 isFixedAmount
                   ? "a dollar amount (e.g. $50)"
                   : "a percentage amount (e.g. 2%)"
               }`}
+              setInput={setStdDev}
+              inputType="number"
+              width="100%"
+              height="1.4375em"
+              disabled={false}
             />
           </div>
         </div>

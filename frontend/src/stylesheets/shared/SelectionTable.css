@@ -1,0 +1,33 @@
+.selection-type-container {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid #ccc;
+}
+
+.selection-type-container th,
+.selection-type-container td {
+  border: 1px solid #ccc; /* row + column lines */
+  text-align: center;
+  padding: 12px;  
+}
+
+.purple-title {
+  color: #4C49ED;
+}
+
+.edit-button {
+  margin-right: 10px;
+  font-size: 15px;
+  border: none;
+  color: #94A3B8;
+  background-color: white;
+  cursor: pointer;
+}
+
+.delete-button {
+  font-size: 15px;
+  border: none;
+  color: #ED4949;
+  background-color: white;
+  cursor: pointer;
+}
