@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 import CenteredFormWrapper from "../wrapper/CenteredFormWrapper";
 import EventSeriesIncome from "../components/EventSeries/Income";
 import EventSeriesExpense from "../components/EventSeries/Expense";
@@ -87,11 +88,18 @@ export default function AddNewEventSeries() {
   const [maxCashHoldings, setMaxCashHoldings] = useState("");
 
   return (
+    <motion.div
+      initial={{ x: window.innerWidth }}
+      animate={{ x: 0 }}
+      exit={{ x: 0 }}
+      transition={{ duration: 0.3 }}
+      
+    >
     <CenteredFormWrapper>
       {/*Title*/}
       <div className="header-line">
         <h2 className="header">Add New Event Series</h2>
-        <Link to="/createScenario" className="back-link">
+        <Link to="/dashboard/createScenario" className="back-link">
           {"<<"}Back
         </Link>
       </div>
@@ -412,5 +420,6 @@ export default function AddNewEventSeries() {
         )}
       </div>
     </CenteredFormWrapper>
+    </motion.div>
   );
 }
