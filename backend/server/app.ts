@@ -6,12 +6,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import process from 'process';
 import {router as scenarioRouter} from "./routers/scenarioRouter";
-<<<<<<< Updated upstream
-=======
 import userRouter from './routers/userRouter';
-import investmentTypeRouter from "./routers/investmentTypeRouter";
-import distributionRouter from "./routers/distribution";
->>>>>>> Stashed changes
 import path from "path";
 
 console.log(path.resolve(__dirname,'..','..','..','.env'))
@@ -52,12 +47,7 @@ app.use((req, res, next) => { //debug middleware
 
 // routes
 app.use("/scenario", scenarioRouter);
-<<<<<<< Updated upstream
-=======
-app.use("/investmentTypes", investmentTypeRouter);
-app.use("/distributions", distributionRouter);
 app.use("/user", userRouter);
->>>>>>> Stashed changes
 
 // this is the route called when user clicks login using google
 app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email']}));
