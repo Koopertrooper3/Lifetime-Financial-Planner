@@ -1,10 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { isDebug } from "./debug";
+import { isDebug,User } from "./debug";
 
 interface HelperContextType {
   fetchScenario: (id: string) => Promise<any>;
   fetchAllScenarios: () => Promise<any>;
+  setGlobalUserID : (userId: string) => void
+  userID: any,
   allInvestmentTypes: any[] | null;
   allScenarios: any[] | null;
 }
@@ -12,6 +14,8 @@ interface HelperContextType {
 const HelperContext = createContext<HelperContextType>({
   fetchScenario: async () => null,
   fetchAllScenarios: async () => null,
+  setGlobalUserID: async() => null,
+  userID: "",
   allInvestmentTypes: null,
   allScenarios: null,
 });
@@ -34,8 +38,9 @@ export const HelperContextProvider: React.FC<{ children: React.ReactNode }> = ({
     [key: string]: any; //for scaling
   };
 
- const [allScenarios, setAllScenarios] = useState<Scenario[] | null>(null);
-const [allInvestmentTypes, setAllInvestmentTypes] = useState<InvestmentType[] | null>(null);
+  const [allScenarios, setAllScenarios] = useState<Scenario[] | null>(null);
+  const [allInvestmentTypes, setAllInvestmentTypes] = useState<InvestmentType[] | null>(null);
+  const [userID, setUserID] = useState<User | null>(null);
 
   const mockScenarios = [
     { _id: "1", name: "Mock Retirement Plan" },
@@ -85,6 +90,9 @@ const [allInvestmentTypes, setAllInvestmentTypes] = useState<InvestmentType[] | 
     }
   };
 
+  const setGlobalUserID = (userID : any) =>{
+    setUserID(userID)
+  }
   // const fetchInvestmentType = async (id: string) => {
   //   try {
   //     const res = await fetch(`http://localhost:8000/investmentTypes/${id}`);
@@ -123,12 +131,16 @@ const [allInvestmentTypes, setAllInvestmentTypes] = useState<InvestmentType[] | 
               fetchScenario: async (id: string) =>
                 mockScenarios.find((s) => s._id === id),
               fetchAllScenarios: async () => mockScenarios,
+              setGlobalUserID,
+              userID,
               allInvestmentTypes: mockInvestmentTypes,
               allScenarios: mockScenarios,
             }
           : {
               fetchScenario,
               fetchAllScenarios,
+              setGlobalUserID,
+              userID,
               allInvestmentTypes,
               allScenarios,
             }

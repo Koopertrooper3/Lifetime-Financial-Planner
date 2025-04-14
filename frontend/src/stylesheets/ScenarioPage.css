@@ -84,4 +84,23 @@
 .close-button:hover {
   color: #333;
 }
+.card-grid-simulator {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+}
 
+.simulator-run-input {
+  height:20px;
+}
+
+.simulator-button {
+  height: 50px;
+  width: 100%;
+  padding-top: 15px;
+  padding-bottom: 15px;
+  color: white;
+  background-color: #4C49ED;
+  border: none;
+  border-radius: 5px;
+}

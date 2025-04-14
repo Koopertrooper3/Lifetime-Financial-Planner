@@ -27,7 +27,7 @@ console.log("backend url test:", import.meta.env.VITE_BACKEND_IP, import.meta.en
 console.log("isDebug:", isDebug);
 
 function DashboardPage() {
-  const { allScenarios } = useHelperContext();
+  const { allScenarios, setGlobalUserID } = useHelperContext();
   const [userData, setUserData] = useState<User | null>(null);
   const location = useLocation();
   const isCreatePage = location.pathname.includes("createScenario"); 
@@ -73,6 +73,7 @@ function DashboardPage() {
         });
         console.log(response.data);
         setUserData(response.data);
+        setGlobalUserID(response.data)
       } catch (err) {
         console.error("error fetching user data", err);
       }
