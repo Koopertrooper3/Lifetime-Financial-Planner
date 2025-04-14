@@ -1,0 +1,77 @@
+.header {
+  font-family: "Mulish", sans-serif;
+  font-weight: 600px;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: 0;
+  margin-bottom: 32px;
+}
+
+.purple-title {
+  font-family: "Inter", sans-serif;
+  font-size: 16px;
+  font-weight: 500px;
+  margin-right: 50px;
+  color: #4C49ED;
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+.grayed-text {
+  color: #C0C0C0;
+}
+
+.green-word {
+  color: #24C849;
+}
+
+.black-word {
+  color: #5E5F60;
+}
+
+.textbox {
+  width: 100%;
+  border: 1px solid #E5E7EB;
+  border-radius: 5px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 12px 12px; /* Consistent padding on all sides */
+  box-sizing: border-box; /* Include padding in width calculation */
+}
+
+.event-series-description-container {
+  margin-bottom: 20px;
+}
+
+.event-series-description-textbox {
+  resize: none;
+  height: 125px;
+  overflow-y: scroll;
+}
+
+.expected-start-year-container,
+.duration-container {
+  background-color: #F0F6FF;
+  padding: 25px;
+  border-radius: 20px;
+  margin-bottom: 25px;
+}
+
+.title-with-info {
+  display: flex;
+  align-items: center;
+  align-content: center;
+}
+
+.start-year-description-container {
+  font-family: "Inter", sans-serif;
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+.type-container {
+  margin-bottom: 25px;
+}
+
+.input-label {
+  margin-bottom: 100px;
+}

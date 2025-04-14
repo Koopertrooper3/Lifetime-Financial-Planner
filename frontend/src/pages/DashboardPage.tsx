@@ -8,6 +8,8 @@ import axios from "axios";
 import { useHelperContext } from "../HelperContext";
 import { Link } from "react-router-dom";
 import { isDebug, User } from "../debug"; 
+import { useLocation, Outlet } from "react-router-dom";
+
 // NOTE: To use debug, create an .env file with this line:
 // export const isDebug = import.meta.env.VITE_DEBUG_MODE === "true";
 // VITE_DEBUG_MODE=true
@@ -25,6 +27,9 @@ console.log("isDebug:", isDebug);
 function DashboardPage() {
   const { allScenarios } = useHelperContext();
   const [userData, setUserData] = useState<User | null>(null);
+  const location = useLocation();
+  const isCreatePage = location.pathname.includes("createScenario"); 
+
 
   const fullBackendUrl =
     "http://" +
@@ -40,7 +45,7 @@ function DashboardPage() {
           _id: "guest-id-123",
           name: "Guest",
           email: "guest@example.com",
-          ownedScenarios: [], // Or include mock scenario IDs
+          ownedScenarios: [], // NOTE: include mock scenario IDs
         });
         console.log("DEBUG MODE: Mock user data set.");
         return;
@@ -74,17 +79,34 @@ function DashboardPage() {
     <div>
       <Banner />
       <SideBar />
-      <div className="dashboard-container">
-        <AddPlan />
-          {allScenarios?.map((scenario) => (
-            <Link key={scenario._id} to={`/scenario/${scenario._id}`} className="scenario-card">
-              {scenario.name}
-            </Link>
-          ))}
-
+      <div style={{ marginLeft: "320px", padding: "24px" }}>
+      <div className="dashboard-title">
+  Dashboard{isCreatePage && " > Create Scenario"}
+</div>
+        
+        {!isCreatePage && (
+          <>
+            {/* <div className="dashboard-title">Dashboard </div> */}
+            <div className="dashboard-container">
+              <AddPlan />
+              {allScenarios?.map((scenario) => (
+                <Link
+                  key={scenario._id}
+                  to={`/scenario/${scenario._id}`}
+                  className="scenario-card"
+                >
+                  {scenario.name}
+                </Link>
+              ))}
+            </div>
+          </>
+        )}
+  
+        <Outlet />
       </div>
     </div>
   );
+  
 }
 
 export default DashboardPage;

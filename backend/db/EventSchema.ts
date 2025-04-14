@@ -110,13 +110,13 @@ interface eventBased{
     event: string,
 }
 type eventStartType = FixedDistribution | NormalDistribution | UniformDistribution | eventBased
-type distributionWrapperType = FixedDistribution | NormalDistribution | UniformDistribution
+export type EventDistribution = FixedDistribution | NormalDistribution | UniformDistribution
 
 export interface incomeEvent{
     type: "Income",
     initialAmount: number,
     changeAmountOrPercent: "Amount" | "Percent",
-    changeDistribution: distributionWrapperType,
+    changeDistribution: EventDistribution,
     inflationAdjusted: boolean
     userFraction: number,
     socialSecurity: boolean
@@ -126,7 +126,7 @@ export interface expenseEvent{
     type: "Expense",
     initialAmount: number,
     changeAmountOrPercent: "Amount" | "Percent",
-    changeDistribution: distributionWrapperType,
+    changeDistribution: EventDistribution,
     inflationAdjusted: boolean,
     userFraction: number,
     discretionary: boolean
@@ -155,6 +155,6 @@ type eventData = incomeEvent | expenseEvent | investEvent | rebalanceEvent
 export interface Event{
     name: string,
     start: eventStartType,
-    duration: distributionWrapperType,
+    duration: EventDistribution,
     event: eventData
 }

@@ -53,13 +53,16 @@ incomeDistributionField.discriminator('Fixed',fixedValueSchema);
 incomeDistributionField.discriminator('Normal',normalDistSchema)
 incomeDistributionField.discriminator('Uniform',uniformDistSchema)
 
+export type ReturnDistribution = FixedDistribution | NormalDistribution | UniformDistribution
+export type IncomeDistribution = FixedDistribution | NormalDistribution | UniformDistribution
+
 export interface InvestmentType {
     name: string,
     description: string,
     returnAmtOrPct: "Amount" | "Percent",
-    returnDistribution: FixedDistribution | NormalDistribution | UniformDistribution,
+    returnDistribution: ReturnDistribution,
     expenseRatio: number,
-    incomeAmtOrPct: string,
-    incomeDistribution: FixedDistribution | NormalDistribution | UniformDistribution,
+    incomeAmtOrPct: "Amount" | "Percent",
+    incomeDistribution: IncomeDistribution,
     taxability: boolean
 }

@@ -1,4 +1,4 @@
-import "react";
+import React, { useState } from "react";
 import "../stylesheets/Sidebar.css";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import WalletIcon from "@mui/icons-material/Wallet";
@@ -6,8 +6,13 @@ import SignalCellularAltIcon from "@mui/icons-material/SignalCellularAlt";
 import PaidIcon from "@mui/icons-material/Paid";
 import SettingsIcon from "@mui/icons-material/Settings";
 import HelpIcon from "@mui/icons-material/Help";
+import MenuIcon from "@mui/icons-material/Menu"; 
 
 const SideBar = () => {
+  const [collapsed, setCollapsed] = useState(false);
+
+  const toggleSidebar = () => setCollapsed(!collapsed);
+
   const upperIcons = [
     { name: "Dashboard", icon: DashboardIcon },
     { name: "Event Series", icon: WalletIcon },
@@ -22,22 +27,30 @@ const SideBar = () => {
 
   return (
     <aside>
-      <div className="side-bar">
-        {upperIcons.map((item) => (
-          <button className="sidebar-button" key={item.name}>
-            <item.icon></item.icon>
-            {item.name}
-          </button>
-        ))}
+      <div className={`side-bar ${collapsed ? "collapsed" : ""}`}>
+        <button className="hamburger" onClick={toggleSidebar}>
+          <MenuIcon />
+        </button>
+
+        <div className="sidebar-section">
+          {upperIcons.map((item) => (
+            <button className="sidebar-button" key={item.name}>
+              <item.icon />
+              {!collapsed && <span>{item.name}</span>}
+            </button>
+          ))}
+        </div>
 
         <hr className="delimiter" />
 
-        {lowerIcons.map((item) => (
-          <button className="sidebar-button" key={item.name}>
-            <item.icon></item.icon>
-            {item.name}
-          </button>
-        ))}
+        <div className="sidebar-section">
+          {lowerIcons.map((item) => (
+            <button className="sidebar-button" key={item.name}>
+              <item.icon />
+              {!collapsed && <span>{item.name}</span>}
+            </button>
+          ))}
+        </div>
       </div>
     </aside>
   );

@@ -46,11 +46,9 @@ function ChartsPage() {
             </div>
           ))}
         </div>
-        
       </div>
     </div>
   );
 }
 
 export default ChartsPage;
-

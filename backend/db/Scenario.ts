@@ -56,19 +56,18 @@ const scenarioSchema = new Schema<Scenario>({
         required: true,
     },
     investmentTypes: {
-        type: [investmentTypeSchema],
+        type: Map,
+        of: investmentTypeSchema,
         required: true,
-        default: []
     },
     investments: {
-        type: [investmentSchema],
+        type: Map,
+        of: investmentSchema,
         required: true,
-        default: []
     },
     eventSeries: {
-        type: [eventSchema],
-        required: true,
-        default: []
+        type: Map,
+        of: eventSchema
     },
     inflationAssumption: {
         type: distributionWrapper,
@@ -137,9 +136,9 @@ export interface Scenario {
     maritalStatus: "couple" | "individual",
     birthYear: number[],
     lifeExpectancy: (FixedDistribution | NormalDistribution | UniformDistribution)[]
-    investmentTypes: InvestmentType[],
-    investments: Investment[],
-    eventSeries: Event[],
+    investmentTypes: Record<string,InvestmentType>,
+    investments: Record<string,Investment>,
+    eventSeries: Record<string,Event>,
     inflationAssumption: FixedDistribution | NormalDistribution | UniformDistribution,
     afterTaxContributionLimit: number,
     spendingStrategy: string[],
