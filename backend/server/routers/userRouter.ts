@@ -17,7 +17,8 @@ router.post("/create", async (req, res) => {
             googleId: req.body.googleId,
             name: req.body.name,
             ownedScenarios: [],
-            sharedScenarios: []
+            sharedScenarios: [],
+            stateTaxes: {}
         });
 
         await newUser.save();

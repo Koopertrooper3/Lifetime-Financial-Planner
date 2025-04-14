@@ -9,7 +9,7 @@ const AddPlan = () => {
 
   const handleClick = () => {
     setAddPlan(true); 
-    navigate("/createScenario");
+    navigate("createScenario");
   };
 
   return (

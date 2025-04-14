@@ -8,6 +8,7 @@ import ScenarioPage from "./pages/ScenarioPage";
 import ChartsPage from "./pages/ChartsPage";
 import AddNewInvestmentType from "./pages/AddNewInvestmentType";
 import AddNewEventSeries from "./pages/AddNewEventSeries";
+import CreateSlideWrapper from "./CreateSlideWrapper";
 
 function App() {
   return (
@@ -15,18 +16,30 @@ function App() {
       <Router>
         <Routes>
           <Route path="/" element={<LoginPage />} />
+
           <Route path="/dashboard" element={<DashboardPage />}>
-            
-            {/* NOTE: Nested routes go here */}
+            <Route
+              path="createScenario/*"
+              element={
+                <CreateSlideWrapper
+                  routes={[
+                    <Route path="/" element={<CreateScenarioPage />} />,
+                    <Route path="addNewInvestmentType" element={<AddNewInvestmentType />} />,
+                    <Route path="addNewEventSeries" element={<AddNewEventSeries />} />
+                  ]}
+                />
+              }
+            />
           </Route>
-          <Route path="createScenario" element={<CreateScenarioPage />} />
+        
           <Route path="/scenario/:id" element={<ScenarioPage />} />
           <Route path="/chartsPage/" element={<ChartsPage />} />
-          <Route
+          {/* <Route
             path="/AddNewInvestmentType"
             element={<AddNewInvestmentType />}
           />
-          <Route path="/AddNewEventSeries" element={<AddNewEventSeries />} />
+
+          <Route path="/AddNewEventSeries" element={<AddNewEventSeries />} /> */}
         </Routes>
       </Router>
     </HelperContextProvider>
