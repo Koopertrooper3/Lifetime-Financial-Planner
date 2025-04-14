@@ -190,8 +190,11 @@ async function testScenario() {
             residenceState: "NY",
         }
         const scenarioResult = await scenarioModel.create(exampleScenario)
-    
-        await User.findOneAndUpdate({ name: "Christian Yu" },{ ownedScenarios: [scenarioResult._id] })
+        const anyUser = await User.findOne({})
+        if(anyUser == null){
+            throw new Error("No users")
+        }
+        await User.findOneAndUpdate({ _id: anyUser._id },{ ownedScenarios: [scenarioResult._id] })
     }catch(err){
         console.log(err)
     }
