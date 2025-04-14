@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
       
-        {
+          {
             "type": "node",
             "request": "launch",
             "name": "Launch tax scraper",
@@ -35,6 +35,14 @@
             "program": "${workspaceFolder}/backend/db/populate.ts",
             "preLaunchTask": "tsc: build - backend/tsconfig.json",
             "outFiles": ["${workspaceFolder}/backend/out/**/*.js"],
+          },
+          {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch RMD scraper",
+            "program": "${workspaceFolder}/backend/scraper/RMDScraper.ts",
+            "preLaunchTask": "tsc: build - backend/tsconfig.json",
+            "outFiles": ["${workspaceFolder}/backend/out/scraper/*.js"],
           }
     ]
   }

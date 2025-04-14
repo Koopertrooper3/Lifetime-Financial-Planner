@@ -34,12 +34,12 @@ function App() {
         
           <Route path="/scenario/:id" element={<ScenarioPage />} />
           <Route path="/chartsPage/" element={<ChartsPage />} />
-          <Route
+          {/* <Route
             path="/AddNewInvestmentType"
             element={<AddNewInvestmentType />}
           />
 
-          <Route path="/AddNewEventSeries" element={<AddNewEventSeries />} />
+          <Route path="/AddNewEventSeries" element={<AddNewEventSeries />} /> */}
         </Routes>
       </Router>
     </HelperContextProvider>

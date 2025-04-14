@@ -145,7 +145,7 @@ export default function CreateScenarioPage() {
             Expand below to view previously defined investment types or create a
             new one.
           </p>
-          <Link to="AddNewInvestmentType">
+          <Link to="addNewInvestmentType">
             Click here to expand Investment Types settings ▼
           </Link>
         </div>
@@ -159,7 +159,7 @@ export default function CreateScenarioPage() {
           <p>
             Expand below to view previously defined events or create a new one.
           </p>
-          <Link to="AddNewEventSeries">
+          <Link to="addNewEventSeries">
             Click here to expand Event Series settings ▼
           </Link>
         </div>

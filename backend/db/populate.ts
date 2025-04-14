@@ -4,10 +4,8 @@ dotenv.config();
 import mongoose from "mongoose";
 import {Scenario, scenarioModel} from "./Scenario"
 import { InvestmentType } from "./InvestmentTypesSchema";
-import Distribution from "./Distribution";
-import {Investment, investmentSchema} from "./InvestmentSchema"
+import {Investment} from "./InvestmentSchema"
 import { Event } from "./EventSchema";
-import { fixedValueSchema,normalDistSchema,uniformDistSchema } from './DistributionSchemas';
 import User from "./User"
 
 const databaseHost = process.env.DATABASE_HOST
@@ -177,7 +175,7 @@ async function testScenario() {
             birthYear : [1985,1987],
             lifeExpectancy : [ {type: "Fixed", value: 80} , {type: "Normal", mean: 82, stdev: 3} ],
             investmentTypes: {"cash" : cashInvestmentType ,"S&P 500" : SNPInvestmentType,"tax-exempt bonds": taxExemptBondsInvestmentType},
-            investments: {"cash" :cashInvestment, "S&P 500" :snp500Investment, "tax-exempt bonds": taxExemptBondsInvestment,"S&P 500 pre-tax": snp500InvestmentPreTax,"S&P 500 after-tax": snp500InvestmentAfterTax},
+            investments: {"cash" :cashInvestment, "S&P 500 non-retirement" :snp500Investment, "tax-exempt bonds": taxExemptBondsInvestment,"S&P 500 pre-tax": snp500InvestmentPreTax,"S&P 500 after-tax": snp500InvestmentAfterTax},
             eventSeries: {"salary": salaryEvent, "food": foodEvent, "vacation": vacationEvent, "streaming services": streamingEvent,"my investments": investEvent, "rebalance": rebalanceEvent},
             inflationAssumption: {type: "Fixed", value: 80},
             afterTaxContributionLimit: 7000,

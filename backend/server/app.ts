@@ -6,6 +6,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import process from 'process';
 import {router as scenarioRouter} from "./routers/scenarioRouter";
+import userRouter from './routers/userRouter';
 import path from "path";
 
 console.log(path.resolve(__dirname,'..','..','..','.env'))
@@ -46,6 +47,7 @@ app.use((req, res, next) => { //debug middleware
 
 // routes
 app.use("/scenario", scenarioRouter);
+app.use("/user", userRouter);
 
 // this is the route called when user clicks login using google
 app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email']}));
