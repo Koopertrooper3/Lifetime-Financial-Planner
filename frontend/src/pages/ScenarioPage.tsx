@@ -136,7 +136,7 @@ export default function ScenarioPage() {
       {activeTab === "investments" && (
         <div className="card tab-content">
           <div className="card-grid">
-            {investments.map((inv: any) => (
+            {Object.values(investments).map((inv: any) => (
               <div className="mini-card" key={inv._id}>
                 <strong>{inv.investmentType}</strong>
                 <div>Value: {inv.value}</div>
@@ -152,7 +152,7 @@ export default function ScenarioPage() {
       {activeTab === "investmentTypes" && (
         <div className="card tab-content">
           <div className="card-grid">
-            {investmentTypes.map((invType: any) => {
+            {Object.values(investmentTypes).map((invType: any) => {
               // const returnDist = distributionMap[invType.returnDistribution];
               // const incomeDist = distributionMap[invType.incomeDistribution];
 
@@ -192,7 +192,7 @@ export default function ScenarioPage() {
       {/* Events */}
       {activeTab === "events" && (
         <div className="card tab-content">
-          {eventSeries.map((event: any) => (
+          {Object.values(eventSeries).map((event: any) => (
             <div className="mini-card" key={event._id}>
               <strong>{event.name}</strong>
               <div>
@@ -211,8 +211,8 @@ export default function ScenarioPage() {
                 {event.event.changeDistribution?.type === "Uniform" && (
                   <>
                     {" "}
-                    ({event.event.changeDistribution.lower} –{" "}
-                    {event.event.changeDistribution.upper})
+                    ({event.event.changeDistribution.min} –{" "}
+                    {event.event.changeDistribution.max})
                   </>
                 )}
               </div>
