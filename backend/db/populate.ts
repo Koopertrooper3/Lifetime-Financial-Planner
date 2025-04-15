@@ -6,7 +6,7 @@ import {Scenario, scenarioModel} from "./Scenario"
 import { InvestmentType } from "./InvestmentTypesSchema";
 import {Investment} from "./InvestmentSchema"
 import { Event } from "./EventSchema";
-import User from "./User"
+import {User} from "./User"
 
 const databaseHost = process.env.DATABASE_HOST
 const databasePort = process.env.DATABASE_PORT
@@ -33,7 +33,7 @@ async function testScenario() {
         description: "S&P 500 index fund",
         returnAmtOrPct: "Percent",
         returnDistribution: {type: "Normal", mean: 0.06, stdev: 0.02},
-        expenseRatio: 0,
+        expenseRatio: 0.001,
         incomeAmtOrPct: "Amount",
         incomeDistribution: {type: "Normal", mean: 0.01, stdev: 0.005},
         taxability: true

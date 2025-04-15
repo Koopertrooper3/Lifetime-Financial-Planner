@@ -2,6 +2,7 @@ import { test, expect } from 'playwright-test-coverage';
 import { MongoClient,ObjectId } from "mongodb";
 import dotenv from 'dotenv';
 import path from 'path';
+import { SharedScenario } from '../db/User';
 
 import {Scenario} from "../db/Scenario"
 dotenv.config({ path: path.resolve(__dirname, '..', '..','.env') });
@@ -117,7 +118,49 @@ test('Create Scenario', async ({ request }) => {
   await scenarioConnection.findOneAndDelete({_id: new ObjectId(newScenarioID)})
 
 });
+test('Share Scenario', async ({ request }) => {
+  const client = new MongoClient(databaseConnectionString);
+  const userConnection = client.db(databaseName).collection("users")
+  const users = await userConnection.find({}).limit(2).toArray()
+  let scenarioID;
+  let owner
+  let target;
+  let originalSharedArray
+  if(users[0] == null || users[1] == null){
+    throw new Error("Need two users for this test")
+  }
+  if(users[0].ownedScenarios.length > users[1].ownedScenarios){
+    owner = users[0]._id
+    target = users[1]._id
+    scenarioID = users[0].ownedScenarios[0]
+    originalSharedArray = users[1].sharedScenarios
+  }else{
+    owner = users[1]._id
+    target = users[0]._id
+    scenarioID = users[1].ownedScenarios[0]
+    originalSharedArray = users[1].sharedScenarios
+  }
 
+  const shareRequest = await request.post(`http://${backendHost}:${backendPort}/user/shareScenario`, {
+    data: {
+      "access": "read-only",
+      "scenarioID" : scenarioID.toString(),
+      "owner": owner.toString(),
+      "shareWith": target.toString(),
+  }
+  });
+
+  expect(await shareRequest.json()).toEqual({ message: "Scenario created shared!" })
+
+  const ownerUser = await userConnection.findOne({_id: owner})
+  const databaseResult = ownerUser?.sharedScenario.some((sharedScenarioObject : SharedScenario) =>{
+    return sharedScenarioObject.scenarioID.equals(scenarioID) && sharedScenarioObject.permission == "read-only"
+  })
+
+  expect(databaseResult).toBeTruthy()
+  const cleanupResult = await userConnection.findOneAndUpdate({_id: target},{$set: {"ownedScenarios": originalSharedArray}})
+
+});
 // test('get started link', async ({ page }) => {
 //   await page.goto('https://playwright.dev/');
 

@@ -11,6 +11,7 @@ import AddNewEventSeries from "./pages/EventSeriesForm";
 import { LimitsInflationPage } from "./pages/LimitsInflationPage";
 import EditScenarioPage from "./pages/EditScenarioPage";
 import CreateSlideWrapper from "./CreateSlideWrapper";
+import UserProfilePage from "./pages/UserProfilePage";
 
 function App() {
   return (
@@ -36,6 +37,7 @@ function App() {
         
           <Route path="/scenario/:id" element={<ScenarioPage />} />
           <Route path="/chartsPage/" element={<ChartsPage />} />
+          <Route path="/user-profile" element={<UserProfilePage />} />
           <Route path="/InvestmentTypeForm" element={<InvestmentTypeForm />} />
           <Route path="/AddNewEventSeries" element={<AddNewEventSeries />} />
           <Route path="/scenarios/:id/edit" element={<EditScenarioPage />} />

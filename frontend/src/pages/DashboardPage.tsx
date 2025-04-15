@@ -102,6 +102,7 @@ function DashboardPage() {
       <Banner />
       <SideBar />
       <div style={{ marginLeft: "320px", padding: "24px" }}>
+
       <div className="dashboard-title">
         <motion.span
           initial={{ opacity: 0, x: -10 }}

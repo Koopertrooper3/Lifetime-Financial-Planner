@@ -1,7 +1,7 @@
 import {Router, Request, Response} from 'express';
 import {scenarioModel} from '../../db/Scenario';
 import scenarioZod from '../zod/scenarioZod';
-import User from '../../db/User';
+import {User} from '../../db/User';
 import z from "zod";
 export const router = Router();
 

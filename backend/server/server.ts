@@ -33,25 +33,6 @@ async function startUp(){
     //Open a connection to mongodb
     await mongoose.connect(databaseConnectionString);
     //Query if we have the current tax year, if we do not run the scraper
-    //TP: Code below created with Github Copilot with the prompt 
-    //"Create a mongoose query that queries the federalTaxModel to check if the current tax year's information is in the database."
-    //Code was outdated and replaced with the code below
-    // const currentTaxYear = new Date().getFullYear()-1;
-
-    // federalTaxModel.findOne({ year: currentTaxYear }, (err: unknown, taxData: unknown) => {
-    //     if (err) {
-    //         console.error('Error querying the database:', err);
-    //         return;
-    //     }
-    //     if (!taxData) {
-    //         console.log(`Tax data for the year ${currentTaxYear} not found. Running the scraper...`);
-    //         // Call the scraper function here
-    //         federalTaxScraper();
-    //     } else {
-    //         console.log(`Tax data for the year ${currentTaxYear} is already in the database.`);
-    //     }
-    // });
-
 
     const currentTaxYear = new Date().getFullYear()-1;
 
