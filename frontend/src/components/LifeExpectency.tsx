@@ -1,4 +1,3 @@
-import { useState } from "react";
 import ValidationTextFields from "./shared/ValidationTextFields";
 import "../stylesheets/LifeExpectancy.css";
 
@@ -21,7 +20,7 @@ const LifeExpectancy = ({
   std,
   setStd,
 }: LifeExpectancyProps) => {
-  if (lifeExpectancyType === "Normal Distribution") {
+  if (lifeExpectancyType === "Normal") {
     return (
       <div>
         <p>The data will be pulled from SSA.</p>

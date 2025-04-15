@@ -8,13 +8,18 @@ import EventSeriesInvest from "../components/EventSeries/Invest";
 import "../stylesheets/EventSeries/AddNewEventSeries.css";
 import EventSeriesRebalance from "../components/EventSeries/Rebalance";
 import ValidationTextFields from "../components/shared/ValidationTextFields";
-
-type Investment = {
-  id: string;
-  name: string;
-  initialAllocation?: number;
-  finalAllocation?: number;
-};
+import {
+  useScenarioContext,
+  EventSeries,
+  eventStartType,
+  EventSeriesDistribution,
+  IncomeEvent,
+  ExpenseEvent,
+  InvestEvent,
+  RebalanceEvent,
+  assetProportion,
+} from "../useScenarioContext";
+import { useEventSeriesFormHooks } from "../hooks/useEventSeriesFormHooks";
 
 const defaultInvestments = [
   { id: "1", name: "S&P 500 ETF", initialAllocation: 0, finalAllocation: 0 },
@@ -32,100 +37,253 @@ const defaultInvestments = [
   },
 ];
 
-interface EventSeriesFormProps {
-  isEditMode?: boolean;
-  eventSeries?: any;
-}
+export default function EventSeriesForm() {
+  const { eventSeriesFormHooks } = useEventSeriesFormHooks();
+  const { eventSeries, setEventSeries } = useScenarioContext();
+  // const [localAllocatedInvestments, setLocalAllocatedInvestments] = useState<
+  //   assetProportion[]
+  // >([]);
+  // const [localAllocated2Investments, setLocalAllocated2Investments] = useState<
+  //   assetProportion[]
+  // >([]);
+  // const [
+  //   localRebalanceAllocatedInvestments,
+  //   setLocalRebalanceAllocatedInvestments,
+  // ] = useState<assetProportion[]>([]);
 
-export default function EventSeriesForm({
-  isEditMode,
-  eventSeries,
-}: EventSeriesFormProps) {
-  const [eventSeriesName, setEventSeriesName] = useState<string | number>("");
-  const [eventSeriesDescription, setEventSeriesDescription] = useState<
-    string | number
-  >("");
+  const handleSaveEventSeries = () => {
+    if (!eventSeriesFormHooks) {
+      return;
+    }
 
-  // Year
-  const [startYearModel, setStartYearModel] = useState("Fixed Value");
-  const [startYear, setStartYear] = useState<string | number>("");
-  const [meanYear, setMeanYear] = useState<string | number>("");
-  const [stdDevYear, setStdDevYear] = useState<string | number>("");
-  const [lowerBoundYear, setLowerBoundYear] = useState<string | number>("");
-  const [upperBoundYear, setUpperBoundYear] = useState<string | number>("");
+    const {
+      eventSeriesName,
+      eventSeriesDescription,
 
-  // Duration
-  const [durationType, setDurationType] = useState("Fixed Value");
-  const [duration, setDuration] = useState<string | number>("");
-  const [meanDuration, setMeanDuration] = useState<string | number>("");
-  const [stdDuration, setStdDuration] = useState<string | number>("");
-  const [lowerBoundDuration, setLowerBoundDuration] = useState<string | number>(
-    ""
-  );
-  const [upperBoundDuration, setUpperBoundDuration] = useState<string | number>(
-    ""
-  );
+      // Year
+      startYearModel,
+      startYear,
+      meanYear,
+      stdDevYear,
+      lowerBoundYear,
+      upperBoundYear,
+      withOrAfter,
+      selectedEvent,
 
-  const [eventType, setEventType] = useState("Income");
+      // Duration
+      durationType,
+      durationValue,
+      meanDuration,
+      stdDuration,
+      lowerBoundDuration,
+      upperBoundDuration,
 
-  // Income-specific states
-  const [incomeType, setIncomeType] = useState<"Social Security" | "Wages">(
-    "Social Security"
-  );
-  const [incomeInitialValue, setIncomeInitialValue] = useState<string | number>(
-    ""
-  );
-  const [incomeDistributionType, setIncomeDistributionType] = useState<
-    "Fixed Value/Percentage" | "Normal Distribution" | "Uniform Distribution"
-  >("Fixed Value/Percentage");
-  const [isFixedIncomeAmount, setIsFixedIncomeAmount] = useState(false);
-  const [fixedIncomeValue, setFixedIncomeValue] = useState<string | number>("");
-  const [incomeMean, setIncomeMean] = useState<string | number>("");
-  const [incomeStdDev, setIncomeStdDev] = useState<string | number>("");
-  const [incomeLowerBound, setIncomeLowerBound] = useState<string | number>("");
-  const [incomeUpperBound, setIncomeUpperBound] = useState<string | number>("");
-  const [applyInflation, setApplyInflation] = useState(true);
-  const [userPercentage, setUserPercentage] = useState(100);
-  const [spousePercentage, setSpousePercentage] = useState(0);
+      // Event Type
+      eventType,
 
-  // Expense-specific states
-  const [isDiscretionary, setIsDiscretionary] = useState(false);
-  const [expenseInitialAmount, setExpenseInitialAmount] = useState<
-    string | number
-  >("");
-  const [expenseDistributionType, setExpenseDistributionType] = useState<
-    "Fixed Value/Percentage" | "Normal Distribution" | "Uniform Distribution"
-  >("Fixed Value/Percentage");
-  const [isExpenseAmount, setIsExpenseAmount] = useState(false);
-  const [expenseFixedValue, setExpenseFixedValue] = useState<string | number>(
-    ""
-  );
-  const [expenseMean, setExpenseMean] = useState<string | number>("");
-  const [expenseStdDev, setExpenseStdDev] = useState<string | number>("");
-  const [expenseLowerBound, setExpenseLowerBound] = useState<string | number>(
-    ""
-  );
-  const [expenseUpperBound, setExpenseUpperBound] = useState<string | number>(
-    ""
-  );
+      // Income
+      incomeType,
+      incomeInitialValue,
+      incomeDistributionType,
+      isFixedIncomeAmount,
+      fixedIncomeValue,
+      incomeMean,
+      incomeStdDev,
+      incomeLowerBound,
+      incomeUpperBound,
+      applyInflation,
+      userPercentage,
 
-  // Invest specific states
-  const [investAllocationType, setInvestAllocationType] = useState<
-    "Fixed" | "Glide Path"
-  >("Fixed");
-  const [investments, setInvestments] =
-    useState<Investment[]>(defaultInvestments);
-  const [investStartYear, setInvestStartYear] = useState("");
-  const [investEndYear, setInvestEndYear] = useState("");
-  const [investMaxCashHoldings, setInvestMaxCashHoldings] = useState("");
+      // Expense
+      isDiscretionary,
+      expenseInitialAmount,
+      expenseDistributionType,
+      isExpenseAmount,
+      expenseFixedValue,
+      expenseMean,
+      expenseStdDev,
+      expenseLowerBound,
+      expenseUpperBound,
 
-  // Rebalance specific states
-  const [allocationType, setAllocationType] = useState<"Fixed" | "Glide Path">(
-    "Fixed"
-  );
-  const [rebalanceStartYear, setRebalanceStartYear] = useState("");
-  const [rebalanceEndYear, setRebalanceEndYear] = useState("");
-  const [rebalanceMaxCashHoldings, setRebalanceMaxCashHoldings] = useState("");
+      // Invest
+      investAllocationType,
+      allocatedInvestments,
+      allocated2Investments,
+      investStartYear,
+      investEndYear,
+      investMaxCashHoldings,
+
+      // Rebalance
+      allocationType,
+      rebalanceStartYear,
+      rebalanceEndYear,
+      allocatedRebalanceInvestments,
+      rebalanceMaxCashHoldings,
+    } = eventSeriesFormHooks;
+
+    // =========== Start =============
+    let start: eventStartType;
+
+    if (startYearModel === "Fixed Value") {
+      start = {
+        type: "Fixed",
+        value: Number(startYear),
+      };
+    } else if (startYearModel === "Normal Distribution") {
+      start = {
+        type: "Normal",
+        mean: Number(meanYear),
+        stdev: Number(stdDevYear),
+      };
+    } else if (startYearModel === "Uniform Distribution") {
+      start = {
+        type: "Uniform",
+        min: Number(lowerBoundYear),
+        max: Number(upperBoundYear),
+      };
+    } else if (startYearModel === "EventBased") {
+      start = {
+        type: "EventBased",
+        withOrAfter: withOrAfter,
+        event: selectedEvent,
+      };
+    } else {
+      throw new Error("Invalid start year model selected");
+    }
+
+    // ========== Duration ===========
+    let duration: EventSeriesDistribution;
+
+    if (durationType === "Fixed Value") {
+      duration = {
+        type: "Fixed",
+        value: Number(durationValue),
+      };
+    } else if (durationType === "Normal Distribution") {
+      duration = {
+        type: "Normal",
+        mean: Number(meanDuration),
+        stdev: Number(stdDuration),
+      };
+    } else if (durationType === "Uniform Distribution") {
+      duration = {
+        type: "Uniform",
+        min: Number(lowerBoundDuration),
+        max: Number(upperBoundDuration),
+      };
+    } else {
+      throw new Error("Invalid duration type selected");
+    }
+
+    // ============= Event ===============
+    let event: IncomeEvent | ExpenseEvent | InvestEvent | RebalanceEvent;
+    if (eventType === "Income") {
+      const incomeChangeDistribution: EventSeriesDistribution =
+        incomeDistributionType === "Fixed Value/Percentage"
+          ? { type: "Fixed", value: Number(fixedIncomeValue) }
+          : incomeDistributionType === "Normal Distribution"
+          ? {
+              type: "Normal",
+              mean: Number(incomeMean),
+              stdev: Number(incomeStdDev),
+            }
+          : {
+              type: "Uniform",
+              min: Number(incomeLowerBound),
+              max: Number(incomeUpperBound),
+            };
+
+      event = {
+        type: "Income",
+        initialAmount: Number(incomeInitialValue),
+        changeAmountOrPercent: isFixedIncomeAmount ? "Amount" : "Percent",
+        changeDistribution: incomeChangeDistribution,
+        inflationAdjusted: applyInflation,
+        userFraction: userPercentage / 100,
+        socialSecurity: incomeType === "Social Security",
+      };
+    } else if (eventType === "Expense") {
+      const expenseChangeDistribution: EventSeriesDistribution =
+        expenseDistributionType === "Fixed Value/Percentage"
+          ? { type: "Fixed", value: Number(expenseFixedValue) }
+          : expenseDistributionType === "Normal Distribution"
+          ? {
+              type: "Normal",
+              mean: Number(expenseMean),
+              stdev: Number(expenseStdDev),
+            }
+          : {
+              type: "Uniform",
+              min: Number(expenseLowerBound),
+              max: Number(expenseUpperBound),
+            };
+
+      event = {
+        type: "Expense",
+        initialAmount: Number(expenseInitialAmount),
+        changeAmountOrPercent: isExpenseAmount ? "Amount" : "Percent",
+        changeDistribution: expenseChangeDistribution,
+        inflationAdjusted: applyInflation,
+        userFraction: userPercentage / 100,
+        discretionary: isDiscretionary,
+      };
+    } else if (eventType === "Invest") {
+      const allocation: assetProportion[] = allocatedInvestments.map(
+        (inv: any) => ({
+          asset: inv.asset,
+          proportion: Number(inv.proportion) / 100,
+        })
+      );
+      console.log(`inside handleSubmit`, { allocatedInvestments });
+
+      let allocation2: assetProportion[] | undefined;
+      if (investAllocationType === "Glide Path") {
+        allocation2 = allocated2Investments.map((inv: any) => ({
+          asset: inv.asset,
+          proportion: Number(inv.proportion),
+        }));
+      }
+
+      event = {
+        type: "Invest",
+        assetAllocation: allocation,
+        glidePath: investAllocationType === "Glide Path",
+        assetAllocation2:
+          investAllocationType === "Glide Path" ? allocation2 : [],
+        maxCash: Number(investMaxCashHoldings),
+      };
+    } else if (eventType === "Rebalance") {
+      const allocation: assetProportion[] = allocatedRebalanceInvestments.map(
+        (inv: any) => ({
+          asset: inv.asset,
+          proportion: Number(inv.proportion),
+        })
+      );
+
+      event = {
+        type: "Rebalance",
+        assetAllocation: allocation,
+      };
+    } else {
+      throw new Error("Event Reformatting Issue");
+    }
+
+    // ============ Event Series ============
+    const newEventSeries: EventSeries = {
+      name: String(eventSeriesName),
+      start,
+      duration,
+      event,
+    };
+
+    // Store in map or record
+    setEventSeries({
+      ...eventSeries,
+      [newEventSeries.name]: newEventSeries,
+    });
+
+    console.log(`New Event Series`, { newEventSeries });
+  };
 
   return (
     <motion.div
@@ -138,7 +296,7 @@ export default function EventSeriesForm({
         {/*Title*/}
         <div className="header-line">
           <h2 className="header">Add New Event Series</h2>
-          <Link to="/scenarioFormPage" className="back-link">
+          <Link to="/dashboard/createScenario" className="back-link">
             {"<<"}Back
           </Link>
         </div>
@@ -147,8 +305,9 @@ export default function EventSeriesForm({
         <div className="event-series-name-container">
           <h3 className="purple-title">Event Series Name</h3>
           <ValidationTextFields
+            value={eventSeriesFormHooks.eventSeriesName}
             placeholder="e.g., Retirement Income, Child's College Fund, S&P 500 ETF"
-            setInput={setEventSeriesName}
+            setInput={eventSeriesFormHooks.setEventSeriesName}
             inputType="string"
             width="100%"
             height="1.4375em"
@@ -160,8 +319,9 @@ export default function EventSeriesForm({
         <div className="event-series-description-container">
           <h3 className="purple-title">Description</h3>
           <ValidationTextFields
+            value={eventSeriesFormHooks.eventSeriesDescription}
             placeholder="Describe your event series, e.g. Provides fixed annual income until age 65"
-            setInput={setEventSeriesDescription}
+            setInput={eventSeriesFormHooks.setEventSeriesDescription}
             inputType="string"
             width="100%"
             height="150px"
@@ -197,11 +357,13 @@ export default function EventSeriesForm({
                   type="radio"
                   id="startYearModel"
                   value="Fixed Value"
-                  onChange={() => {
-                    setStartYearModel("Fixed Value");
-                  }}
-                  checked={startYearModel == "Fixed Value"}
-                ></input>
+                  onChange={() =>
+                    eventSeriesFormHooks.setStartYearModel("Fixed Value")
+                  }
+                  checked={
+                    eventSeriesFormHooks.startYearModel === "Fixed Value"
+                  }
+                />
                 Fixed Value
               </label>
               <label className="option">
@@ -210,9 +372,13 @@ export default function EventSeriesForm({
                   id="startYearModel"
                   value="Normal Distribution"
                   onChange={() => {
-                    setStartYearModel("Normal Distribution");
+                    eventSeriesFormHooks.setStartYearModel(
+                      "Normal Distribution"
+                    );
                   }}
-                  checked={startYearModel == "Normal Distribution"}
+                  checked={
+                    eventSeriesFormHooks.startYearModel == "Normal Distribution"
+                  }
                 ></input>
                 Normal Distribution
               </label>
@@ -222,9 +388,14 @@ export default function EventSeriesForm({
                   id="startYearModel"
                   value="Uniform Distribution"
                   onChange={() => {
-                    setStartYearModel("Uniform Distribution");
+                    eventSeriesFormHooks.setStartYearModel(
+                      "Uniform Distribution"
+                    );
                   }}
-                  checked={startYearModel == "Uniform Distribution"}
+                  checked={
+                    eventSeriesFormHooks.startYearModel ==
+                    "Uniform Distribution"
+                  }
                 ></input>
                 Uniform Distribution
               </label>
@@ -232,23 +403,24 @@ export default function EventSeriesForm({
                 <input
                   type="radio"
                   id="startYearModel"
-                  value="Advanced"
+                  value="eventBased"
                   onChange={() => {
-                    setStartYearModel("Advanced");
+                    eventSeriesFormHooks.setStartYearModel("eventBased");
                   }}
-                  checked={startYearModel == "Advanced"}
+                  checked={eventSeriesFormHooks.startYearModel == "eventBased"}
                 ></input>
-                Advanced
+                eventBased
               </label>
             </div>
           </div>
 
-          {startYearModel === "Fixed Value" && (
+          {eventSeriesFormHooks.startYearModel === "Fixed Value" && (
             <div className="input-group">
               <div className="input-label">Enter the Start Year</div>
               <ValidationTextFields
+                value={eventSeriesFormHooks.startYear}
                 placeholder="Enter a fixed year (e.g. 2024)"
-                setInput={setStartYear}
+                setInput={eventSeriesFormHooks.setStartYear}
                 inputType="number"
                 width="100%"
                 height="1.4375em"
@@ -257,13 +429,14 @@ export default function EventSeriesForm({
             </div>
           )}
 
-          {startYearModel === "Normal Distribution" && (
+          {eventSeriesFormHooks.startYearModel === "Normal Distribution" && (
             <div>
               <div className="input-container">
                 <div className="input-label">Enter Mean Year</div>
                 <ValidationTextFields
+                  value={eventSeriesFormHooks.meanYear}
                   placeholder="Enter year (e.g., 2024)"
-                  setInput={setMeanYear}
+                  setInput={eventSeriesFormHooks.setMeanYear}
                   inputType="number"
                   width="100%"
                   height="1.4375em"
@@ -274,8 +447,9 @@ export default function EventSeriesForm({
               <div className="input-container">
                 <div className="input-label">Enter Standard Deviation</div>
                 <ValidationTextFields
+                  value={eventSeriesFormHooks.stdDevYear}
                   placeholder="Enter standard deviation (e.g., 2)"
-                  setInput={setStdDevYear}
+                  setInput={eventSeriesFormHooks.setStdDevYear}
                   inputType="number"
                   width="100%"
                   height="1.4375em"
@@ -285,13 +459,14 @@ export default function EventSeriesForm({
             </div>
           )}
 
-          {startYearModel === "Uniform Distribution" && (
+          {eventSeriesFormHooks.startYearModel === "Uniform Distribution" && (
             <div>
               <div className="input-container">
                 <div className="input-label">Enter Lower Bound Year</div>
                 <ValidationTextFields
+                  value={eventSeriesFormHooks.lowerBoundYear}
                   placeholder="Enter year (e.g., 2024)"
-                  setInput={setLowerBoundYear}
+                  setInput={eventSeriesFormHooks.setLowerBoundYear}
                   inputType="number"
                   width="100%"
                   height="1.4375em"
@@ -302,9 +477,55 @@ export default function EventSeriesForm({
               <div className="input-container">
                 <div className="input-label">Enter Upper Bound Year</div>
                 <ValidationTextFields
+                  value={eventSeriesFormHooks.upperBoundYear}
                   placeholder="Enter year (e.g., 2025)"
-                  setInput={setUpperBoundYear}
+                  setInput={eventSeriesFormHooks.setUpperBoundYear}
                   inputType="number"
+                  width="100%"
+                  height="1.4375em"
+                  disabled={false}
+                />
+              </div>
+            </div>
+          )}
+
+          {eventSeriesFormHooks.startYearModel === "eventBased" && (
+            <div className="event-based-container">
+              {/* Radio Buttons */}
+              <div className="radio-options">
+                <div className="input-label">When should this event start?</div>
+                <label>
+                  <input
+                    type="radio"
+                    name="eventStart"
+                    value="With"
+                    onChange={() => eventSeriesFormHooks.setWithOrAfter("With")}
+                    checked={eventSeriesFormHooks.withOrAfter === "With"}
+                  />
+                  With
+                </label>
+                <label>
+                  <input
+                    type="radio"
+                    name="eventStart"
+                    value="After"
+                    onChange={() =>
+                      eventSeriesFormHooks.setWithOrAfter("After")
+                    }
+                    checked={eventSeriesFormHooks.withOrAfter === "After"}
+                  />
+                  After
+                </label>
+              </div>
+
+              {/* Textbox for Event Name */}
+              <div className="event-name-input">
+                <div className="input-label">Related Event Name</div>
+                <ValidationTextFields
+                  value={eventSeriesFormHooks.eventSeriesName}
+                  placeholder="Enter event name"
+                  setInput={eventSeriesFormHooks.setEventSeriesName}
+                  inputType="string"
                   width="100%"
                   height="1.4375em"
                   disabled={false}
@@ -337,11 +558,11 @@ export default function EventSeriesForm({
                 type="radio"
                 id="durationType"
                 value="Fixed Value"
-                onChange={() => {
-                  setDurationType("Fixed Value");
-                }}
-                checked={durationType == "Fixed Value"}
-              ></input>
+                onChange={() =>
+                  eventSeriesFormHooks.setDurationType("Fixed Value")
+                }
+                checked={eventSeriesFormHooks.durationType === "Fixed Value"}
+              />
               Fixed Value
             </label>
             <label className="option">
@@ -349,11 +570,13 @@ export default function EventSeriesForm({
                 type="radio"
                 id="durationType"
                 value="Normal Distribution"
-                onChange={() => {
-                  setDurationType("Normal Distribution");
-                }}
-                checked={durationType == "Normal Distribution"}
-              ></input>
+                onChange={() =>
+                  eventSeriesFormHooks.setDurationType("Normal Distribution")
+                }
+                checked={
+                  eventSeriesFormHooks.durationType === "Normal Distribution"
+                }
+              />
               Normal Distribution
             </label>
             <label className="option">
@@ -362,15 +585,17 @@ export default function EventSeriesForm({
                 id="durationType"
                 value="Uniform Distribution"
                 onChange={() => {
-                  setDurationType("Uniform Distribution");
+                  eventSeriesFormHooks.setDurationType("Uniform Distribution");
                 }}
-                checked={durationType == "Uniform Distribution"}
+                checked={
+                  eventSeriesFormHooks.durationType == "Uniform Distribution"
+                }
               ></input>
               Uniform Distribution
             </label>
           </div>
 
-          {durationType === "Fixed Value" && (
+          {eventSeriesFormHooks.durationType === "Fixed Value" && (
             <div className="input-group">
               <div className="input-label">Enter the Duration</div>
               {/* <input
@@ -379,8 +604,9 @@ export default function EventSeriesForm({
               onChange={(e) => setDurationFixedValue(e.target.value)}
             /> */}
               <ValidationTextFields
+                value={eventSeriesFormHooks.durationValue}
                 placeholder="Enter a number of year (e.g. 10)"
-                setInput={setDuration}
+                setInput={eventSeriesFormHooks.setDurationValue}
                 inputType="number"
                 width="100%"
                 height="1.4375em"
@@ -389,13 +615,14 @@ export default function EventSeriesForm({
             </div>
           )}
 
-          {durationType === "Normal Distribution" && (
+          {eventSeriesFormHooks.durationType === "Normal Distribution" && (
             <div>
               <div className="input-container">
                 <div className="input-label">Enter Mean Year</div>
                 <ValidationTextFields
+                  value={eventSeriesFormHooks.meanDuration}
                   placeholder="Enter a number of year (e.g. 10)"
-                  setInput={setMeanDuration}
+                  setInput={eventSeriesFormHooks.setMeanDuration}
                   inputType="number"
                   width="100%"
                   height="1.4375em"
@@ -406,8 +633,9 @@ export default function EventSeriesForm({
               <div className="input-container">
                 <div className="input-label">Enter Standard Deviation</div>
                 <ValidationTextFields
+                  value={eventSeriesFormHooks.stdDuration}
                   placeholder="Enter standard deviation (e.g., 2)"
-                  setInput={setStdDuration}
+                  setInput={eventSeriesFormHooks.setStdDuration}
                   inputType="number"
                   width="100%"
                   height="1.4375em"
@@ -417,13 +645,14 @@ export default function EventSeriesForm({
             </div>
           )}
 
-          {durationType === "Uniform Distribution" && (
+          {eventSeriesFormHooks.durationType === "Uniform Distribution" && (
             <div>
               <div className="input-container">
                 <div className="input-label">Enter Duration Lower Bound</div>
                 <ValidationTextFields
-                  placeholder="Enter year (e.g., 5)"
-                  setInput={setLowerBoundDuration}
+                  value={eventSeriesFormHooks.stdDuration}
+                  placeholder="Enter standard deviation (e.g., 2)"
+                  setInput={eventSeriesFormHooks.setStdDuration}
                   inputType="number"
                   width="100%"
                   height="1.4375em"
@@ -434,8 +663,9 @@ export default function EventSeriesForm({
               <div className="input-container">
                 <div className="input-label">Enter Duration Upper Bound</div>
                 <ValidationTextFields
+                  value={eventSeriesFormHooks.upperBoundDuration}
                   placeholder="Enter year (e.g., 10)"
-                  setInput={setUpperBoundDuration}
+                  setInput={eventSeriesFormHooks.setUpperBoundDuration}
                   inputType="number"
                   width="100%"
                   height="1.4375em"
@@ -456,11 +686,9 @@ export default function EventSeriesForm({
                   type="radio"
                   id="eventSeriesType"
                   value="Income"
-                  onChange={() => {
-                    setEventType("Income");
-                  }}
-                  checked={eventType == "Income"}
-                ></input>
+                  onChange={() => eventSeriesFormHooks.setEventType("Income")}
+                  checked={eventSeriesFormHooks.eventType === "Income"}
+                />
                 Income
               </label>
               <label className="option">
@@ -468,11 +696,9 @@ export default function EventSeriesForm({
                   type="radio"
                   id="eventSeriesType"
                   value="Expense"
-                  onChange={() => {
-                    setEventType("Expense");
-                  }}
-                  checked={eventType == "Expense"}
-                ></input>
+                  onChange={() => eventSeriesFormHooks.setEventType("Expense")}
+                  checked={eventSeriesFormHooks.eventType === "Expense"}
+                />
                 Expense
               </label>
               <label className="option">
@@ -480,11 +706,9 @@ export default function EventSeriesForm({
                   type="radio"
                   id="eventSeriesType"
                   value="Invest"
-                  onChange={() => {
-                    setEventType("Invest");
-                  }}
-                  checked={eventType == "Invest"}
-                ></input>
+                  onChange={() => eventSeriesFormHooks.setEventType("Invest")}
+                  checked={eventSeriesFormHooks.eventType === "Invest"}
+                />
                 Invest
               </label>
               <label className="option">
@@ -492,107 +716,132 @@ export default function EventSeriesForm({
                   type="radio"
                   id="eventSeriesType"
                   value="Rebalance"
-                  onChange={() => {
-                    setEventType("Rebalance");
-                  }}
-                  checked={eventType == "Rebalance"}
-                ></input>
+                  onChange={() =>
+                    eventSeriesFormHooks.setEventType("Rebalance")
+                  }
+                  checked={eventSeriesFormHooks.eventType === "Rebalance"}
+                />
                 Rebalance
               </label>
             </div>
           </div>
 
-          {eventType === "Income" && (
+          {eventSeriesFormHooks.eventType === "Income" && (
             <EventSeriesIncome
-              incomeType={incomeType}
-              setIncomeType={setIncomeType}
-              initialAmount={incomeInitialValue}
-              setInitialAmount={setIncomeInitialValue}
-              distributionType={incomeDistributionType}
-              setDistributionType={setIncomeDistributionType}
-              isFixedAmount={isFixedIncomeAmount}
-              setIsFixedAmount={setIsFixedIncomeAmount}
-              fixedValue={fixedIncomeValue}
-              setFixedValue={setFixedIncomeValue}
-              mean={incomeMean}
-              setMean={setIncomeMean}
-              stdDev={incomeStdDev}
-              setStdDev={setIncomeStdDev}
-              lowerBound={incomeLowerBound}
-              setLowerBound={setIncomeLowerBound}
-              upperBound={incomeUpperBound}
-              setUpperBound={setIncomeUpperBound}
-              applyInflation={applyInflation}
-              setToggleInflation={setApplyInflation}
-              userPercentage={userPercentage}
-              setUserPercentage={setUserPercentage}
-              spousePercentage={spousePercentage}
-              setSpousePercentage={setSpousePercentage}
-            ></EventSeriesIncome>
+              incomeType={eventSeriesFormHooks.incomeType}
+              setIncomeType={eventSeriesFormHooks.setIncomeType}
+              initialAmount={eventSeriesFormHooks.incomeInitialValue}
+              setInitialAmount={eventSeriesFormHooks.setIncomeInitialValue}
+              distributionType={eventSeriesFormHooks.incomeDistributionType}
+              setDistributionType={
+                eventSeriesFormHooks.setIncomeDistributionType
+              }
+              isFixedAmount={eventSeriesFormHooks.isFixedIncomeAmount}
+              setIsFixedAmount={eventSeriesFormHooks.setIsFixedIncomeAmount}
+              fixedValue={eventSeriesFormHooks.fixedIncomeValue}
+              setFixedValue={eventSeriesFormHooks.setFixedIncomeValue}
+              mean={eventSeriesFormHooks.incomeMean}
+              setMean={eventSeriesFormHooks.setIncomeMean}
+              stdDev={eventSeriesFormHooks.incomeStdDev}
+              setStdDev={eventSeriesFormHooks.setIncomeStdDev}
+              lowerBound={eventSeriesFormHooks.incomeLowerBound}
+              setLowerBound={eventSeriesFormHooks.setIncomeLowerBound}
+              upperBound={eventSeriesFormHooks.incomeUpperBound}
+              setUpperBound={eventSeriesFormHooks.setIncomeUpperBound}
+              applyInflation={eventSeriesFormHooks.applyInflation}
+              setToggleInflation={eventSeriesFormHooks.setApplyInflation}
+              userPercentage={eventSeriesFormHooks.userPercentage}
+              setUserPercentage={eventSeriesFormHooks.setUserPercentage}
+              spousePercentage={eventSeriesFormHooks.spousePercentage}
+              setSpousePercentage={eventSeriesFormHooks.setSpousePercentage}
+            />
           )}
 
-          {eventType === "Expense" && (
+          {eventSeriesFormHooks.eventType === "Expense" && (
             <EventSeriesExpense
-              isDiscretionary={isDiscretionary}
-              setIsDiscretionary={setIsDiscretionary}
-              expenseInitialAmount={expenseInitialAmount}
-              setExpenseInitialAmount={setExpenseInitialAmount}
-              expenseDistributionType={expenseDistributionType}
-              setExpenseDistributionType={setExpenseDistributionType}
-              isExpenseAmount={isExpenseAmount}
-              setIsExpenseAmount={setIsExpenseAmount}
-              expenseFixedValue={expenseFixedValue}
-              setExpenseFixedValue={setExpenseFixedValue}
-              expenseMean={expenseMean}
-              setExpenseMean={setExpenseMean}
-              expenseStdDev={expenseStdDev}
-              setExpenseStdDev={setExpenseStdDev}
-              expenseLowerBound={expenseLowerBound}
-              setExpenseLowerBound={setExpenseLowerBound}
-              expenseUpperBound={expenseUpperBound}
-              setExpenseUpperBound={setExpenseUpperBound}
-              applyInflation={applyInflation}
-              setInflation={setApplyInflation}
-              userPercentage={userPercentage}
-              setUserPercentage={setUserPercentage}
-              spousePercentage={spousePercentage}
-              setSpousePercentage={setSpousePercentage}
-            ></EventSeriesExpense>
+              isDiscretionary={eventSeriesFormHooks.isDiscretionary}
+              setIsDiscretionary={eventSeriesFormHooks.setIsDiscretionary}
+              expenseInitialAmount={eventSeriesFormHooks.expenseInitialAmount}
+              setExpenseInitialAmount={
+                eventSeriesFormHooks.setExpenseInitialAmount
+              }
+              expenseDistributionType={
+                eventSeriesFormHooks.expenseDistributionType
+              }
+              setExpenseDistributionType={
+                eventSeriesFormHooks.setExpenseDistributionType
+              }
+              isExpenseAmount={eventSeriesFormHooks.isExpenseAmount}
+              setIsExpenseAmount={eventSeriesFormHooks.setIsExpenseAmount}
+              expenseFixedValue={eventSeriesFormHooks.expenseFixedValue}
+              setExpenseFixedValue={eventSeriesFormHooks.setExpenseFixedValue}
+              expenseMean={eventSeriesFormHooks.expenseMean}
+              setExpenseMean={eventSeriesFormHooks.setExpenseMean}
+              expenseStdDev={eventSeriesFormHooks.expenseStdDev}
+              setExpenseStdDev={eventSeriesFormHooks.setExpenseStdDev}
+              expenseLowerBound={eventSeriesFormHooks.expenseLowerBound}
+              setExpenseLowerBound={eventSeriesFormHooks.setExpenseLowerBound}
+              expenseUpperBound={eventSeriesFormHooks.expenseUpperBound}
+              setExpenseUpperBound={eventSeriesFormHooks.setExpenseUpperBound}
+              applyInflation={eventSeriesFormHooks.applyInflation}
+              setInflation={eventSeriesFormHooks.setApplyInflation}
+              userPercentage={eventSeriesFormHooks.userPercentage}
+              setUserPercentage={eventSeriesFormHooks.setUserPercentage}
+              spousePercentage={eventSeriesFormHooks.spousePercentage}
+              setSpousePercentage={eventSeriesFormHooks.setSpousePercentage}
+            />
           )}
 
-          {eventType === "Invest" && (
+          {eventSeriesFormHooks.eventType === "Invest" && (
             <EventSeriesInvest
-              allocationType={allocationType}
-              setAllocationType={setAllocationType}
-              investments={investments}
-              setInvestments={setInvestments}
-              startYear={investStartYear}
-              setStartYear={setInvestStartYear}
-              endYear={investEndYear}
-              setEndYear={setInvestEndYear}
-              maxCashHoldings={investMaxCashHoldings}
-              setMaxCashHoldings={setInvestMaxCashHoldings}
-            ></EventSeriesInvest>
+              allocationType={eventSeriesFormHooks.investAllocationType}
+              setAllocationType={eventSeriesFormHooks.setInvestAllocationType}
+              allocatedInvestments={eventSeriesFormHooks?.allocatedInvestments}
+              setAllocatedInvestments={
+                eventSeriesFormHooks?.setAllocatedInvestments
+              }
+              allocated2Investments={
+                eventSeriesFormHooks?.allocated2Investments
+              }
+              setAllocated2Investments={
+                eventSeriesFormHooks?.setAllocated2Investments
+              }
+              startYear={eventSeriesFormHooks.investStartYear}
+              setStartYear={eventSeriesFormHooks.setInvestStartYear}
+              endYear={eventSeriesFormHooks.investEndYear}
+              setEndYear={eventSeriesFormHooks.setInvestEndYear}
+              maxCashHoldings={eventSeriesFormHooks.investMaxCashHoldings}
+              setMaxCashHoldings={eventSeriesFormHooks.setInvestMaxCashHoldings}
+            />
           )}
 
-          {eventType === "Rebalance" && (
+          {eventSeriesFormHooks.eventType === "Rebalance" && (
             <EventSeriesRebalance
-              allocationType={allocationType}
-              setAllocationType={setAllocationType}
-              investments={investments}
-              setInvestments={setInvestments}
-              startYear={rebalanceStartYear}
-              setStartYear={setRebalanceStartYear}
-              endYear={rebalanceEndYear}
-              setEndYear={setRebalanceEndYear}
-              maxCashHoldings={rebalanceMaxCashHoldings}
-              setMaxCashHoldings={setRebalanceMaxCashHoldings}
-            ></EventSeriesRebalance>
+              allocationType={eventSeriesFormHooks.allocationType}
+              setAllocationType={eventSeriesFormHooks.setAllocationType}
+              allocatedInvestments={
+                eventSeriesFormHooks?.allocatedRebalanceInvestments
+              }
+              setAllocatedInvestments={
+                eventSeriesFormHooks?.setAllocatedRebalanceInvestments
+              }
+              startYear={eventSeriesFormHooks.rebalanceStartYear}
+              setStartYear={eventSeriesFormHooks.setRebalanceStartYear}
+              endYear={eventSeriesFormHooks.rebalanceEndYear}
+              setEndYear={eventSeriesFormHooks.setRebalanceEndYear}
+              maxCashHoldings={eventSeriesFormHooks.rebalanceMaxCashHoldings}
+              setMaxCashHoldings={
+                eventSeriesFormHooks.setRebalanceMaxCashHoldings
+              }
+            />
           )}
         </div>
 
         <div className="save-event-series-container">
-          <button className="save-event-series-button">
+          <button
+            className="save-event-series-button"
+            onClick={handleSaveEventSeries}
+          >
             Save Event Series
           </button>
         </div>

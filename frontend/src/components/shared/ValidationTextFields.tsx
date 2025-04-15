@@ -35,10 +35,7 @@ export default function ValidationTextFields({
     }
 
     // For string, no conversion is needed
-    if (
-      (inputType === "string" && typeof value !== "string") ||
-      value.length == 0
-    ) {
+    if (inputType === "string" && typeof value !== "string") {
       setIsError(true);
       return;
     }
@@ -62,14 +59,14 @@ export default function ValidationTextFields({
         "& .MuiOutlinedInput-root": {
           backgroundColor: "white",
           borderRadius: "5px",
-          minHeight: height, // ✅ controls the overall height
+          minHeight: height, // controls the overall height
           alignItems: "flex-start",
           padding: 0,
         },
         "& input": {
           fontSize: "14px",
-          padding: "12px 16px", // ✅ vertical + horizontal padding
-          height: "auto", // ✅ allow it to grow with padding
+          padding: "12px 16px", // vertical + horizontal padding
+          height: "auto", // allow it to grow with padding
         },
         "& label": {
           fontSize: "14px",

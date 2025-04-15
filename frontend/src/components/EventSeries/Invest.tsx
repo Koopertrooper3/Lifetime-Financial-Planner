@@ -2,19 +2,15 @@ import { useState } from "react";
 import AllocationTable from "../shared/AllocationTable";
 import AllocationTypeSelector from "../shared/AllocationTypeSelector";
 import "../../stylesheets/EventSeries/Invest.css";
-
-type Investment = {
-  id: string;
-  name: string;
-  initialAllocation?: number;
-  finalAllocation?: number;
-};
+import { Investment, assetProportion } from "../../useScenarioContext";
 
 interface EventSeriesInvestProps {
   allocationType: "Fixed" | "Glide Path";
   setAllocationType: (type: "Fixed" | "Glide Path") => void;
-  investments: Investment[];
-  setInvestments: (investments: Investment[]) => void;
+  allocatedInvestments: assetProportion[];
+  setAllocatedInvestments: (allocated2Investments: assetProportion[]) => void;
+  allocated2Investments: assetProportion[];
+  setAllocated2Investments: (allocated2Investments: assetProportion[]) => void;
   startYear: string;
   setStartYear: (year: string) => void;
   endYear: string;
@@ -26,8 +22,10 @@ interface EventSeriesInvestProps {
 const EventSeriesInvest = ({
   allocationType,
   setAllocationType,
-  investments,
-  setInvestments,
+  allocatedInvestments,
+  setAllocatedInvestments,
+  allocated2Investments,
+  setAllocated2Investments,
   startYear,
   setStartYear,
   endYear,
@@ -75,7 +73,10 @@ const EventSeriesInvest = ({
 
       <div className="table-container">
         <AllocationTable
-          investments={investments}
+          allocatedInvestments={allocatedInvestments}
+          setAllocatedInvestments={setAllocatedInvestments}
+          allocated2Investments={allocated2Investments}
+          setAllocated2Investments={setAllocated2Investments}
           allocationType={allocationType}
         ></AllocationTable>
       </div>

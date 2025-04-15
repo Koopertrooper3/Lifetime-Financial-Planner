@@ -2,19 +2,13 @@ import { useState } from "react";
 import AllocationTable from "../shared/AllocationTable";
 import AllocationTypeSelector from "../shared/AllocationTypeSelector";
 import "../../stylesheets/EventSeries/Rebalance.css";
-
-type Investment = {
-  id: string;
-  name: string;
-  initialAllocation?: number;
-  finalAllocation?: number;
-};
+import { Investment, assetProportion } from "../../useScenarioContext";
 
 interface EventSeriesRebalanceProps {
   allocationType: "Fixed" | "Glide Path";
   setAllocationType: (type: "Fixed" | "Glide Path") => void;
-  investments: Investment[];
-  setInvestments: (investments: Investment[]) => void;
+  allocatedInvestments: assetProportion[];
+  setAllocatedInvestments: (allocatedInvestments: assetProportion[]) => void;
   startYear: string;
   setStartYear: (year: string) => void;
   endYear: string;
@@ -26,8 +20,8 @@ interface EventSeriesRebalanceProps {
 const EventSeriesRebalance = ({
   allocationType,
   setAllocationType,
-  investments,
-  setInvestments,
+  allocatedInvestments,
+  setAllocatedInvestments,
   startYear,
   setStartYear,
   endYear,
@@ -77,12 +71,15 @@ const EventSeriesRebalance = ({
 
       <div className="table-container">
         <AllocationTable
-          investments={investments}
+          allocatedInvestments={allocatedInvestments}
+          setAllocatedInvestments={setAllocatedInvestments}
+          allocated2Investments={undefined}
+          setAllocated2Investments={() => {}}
           allocationType={allocationType}
         ></AllocationTable>
       </div>
 
-      <div className="max-holdings-container">
+      {/* <div className="max-holdings-container">
         <p>Maximum Cash Holdings</p>
         <p className="grayed-text">
           Enter the maximum cash balance to maintain. Extra cash will be
@@ -95,7 +92,7 @@ const EventSeriesRebalance = ({
           onChange={(e) => setMaxCashHoldings(e.target.value)}
           placeholder="Enter a dollar amount (eg. $50)"
         ></input>
-      </div>
+      </div> */}
     </div>
   );
 };

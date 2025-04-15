@@ -1,14 +1,12 @@
-import { useState } from "react";
 import CollapsibleWrapper from "../../wrapper/CollapsibleWrapper";
-import InvestmentTypeForm from "../../pages/InvestmentTypeForm";
-import EventSeriesForm from "../../pages/EventSeriesForm";
-import { Link } from "react-router-dom";
+import { useScenarioContext } from "../../useScenarioContext";
+import { useNavigate } from "react-router-dom";
 import "../../stylesheets/shared/SelectionTable.css";
 
 interface SelectionTableProps {
   title: string;
   description: string;
-  data: any[] | null;
+  data: Record<string, any>;
   emptyMessage?: string;
   category: string;
   renderAttribute: (item: any) => React.ReactNode;
@@ -22,16 +20,23 @@ export default function SelectionTable({
   category,
   renderAttribute,
 }: SelectionTableProps) {
-  const [investmentType, setInvestmentType] = useState<any>(null);
-  const [eventSeries, setEventSeries] = useState<any>(null);
+  const navigate = useNavigate();
+  const {
+    editInvestmentType,
+    setEditInvestmentType,
+    editEventSeries,
+    setEditEventSeries,
+  } = useScenarioContext();
 
   const handleClick = (title: string, type: any) => {
-    setInvestmentType(null);
-    setEventSeries(null);
+    setEditInvestmentType(null);
+    setEditEventSeries(null);
     if (title === "Investment Types") {
-      setInvestmentType(type);
+      setEditInvestmentType(type);
+      navigate("/InvestmentTypeForm");
     } else {
-      setEventSeries(type);
+      setEditEventSeries(type);
+      navigate("/EventSeriesForm");
     }
   };
 
@@ -52,8 +57,8 @@ export default function SelectionTable({
               </tr>
             </thead>
             <tbody>
-              {data?.map((type, index) => (
-                <tr key={index} className="selection-type-item">
+              {Object.entries(data)?.map(([key, type]) => (
+                <tr key={key} className="selection-type-item">
                   <td className="purple-title">{type.name}</td>
                   <td className="category">{renderAttribute(type)}</td>
                   <td className="right-align-td">
@@ -69,20 +74,6 @@ export default function SelectionTable({
               ))}
             </tbody>
           </table>
-
-          {investmentType && (
-            <div className="investment-form-wrapper">
-              <InvestmentTypeForm
-                isEditMode={true}
-                investmentType={investmentType}
-              />
-            </div>
-          )}
-          {eventSeries && (
-            <div className="investment-form-wrapper">
-              <EventSeriesForm isEditMode={true} eventSeries={eventSeries} />
-            </div>
-          )}
         </>
       )}
     </CollapsibleWrapper>

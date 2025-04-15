@@ -1,9 +1,10 @@
-import "./stylesheets/App.css"; 
+import "./stylesheets/App.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
 import ScenarioFormPage from "./pages/ScenarioFormPage";
 import { HelperContextProvider } from "./HelperContext";
+import { ScenarioProvider } from "./useScenarioContext";
 import ScenarioPage from "./pages/ScenarioPage";
 import ChartsPage from "./pages/ChartsPage";
 import InvestmentTypeForm from "./pages/InvestmentTypeForm";
@@ -15,10 +16,11 @@ import UserProfilePage from "./pages/UserProfilePage";
 
 function App() {
   return (
-    <HelperContextProvider>
-      <Router>
-        <Routes>
-          <Route path="/" element={<LoginPage />} />
+    <ScenarioProvider>
+      <HelperContextProvider>
+        <Router>
+          <Routes>
+            <Route path="/" element={<LoginPage />} />
 
           <Route path="/dashboard" element={<DashboardPage />}>
             <Route
@@ -42,15 +44,16 @@ function App() {
           <Route path="/AddNewEventSeries" element={<AddNewEventSeries />} />
           <Route path="/scenarios/:id/edit" element={<EditScenarioPage />} />
 
-          {/* <Route
+            {/* <Route
             path="Limits&ContributionLimits"
             element={<LimitsInflationPage />}
           />
 
           <Route path="/AddNewEventSeries" element={<AddNewEventSeries />} /> */}
-        </Routes>
-      </Router>
-    </HelperContextProvider>
+          </Routes>
+        </Router>
+      </HelperContextProvider>
+    </ScenarioProvider>
   );
 }
 

@@ -1,89 +1,171 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import ExpectedInput from "../components/shared/InvestmentTypeExpectedInput";
 import CenteredFormWrapper from "../wrapper/CenteredFormWrapper";
 import "../stylesheets/InvestmentType/AddNewInvestmentType.css";
 import ValidationTextFields from "../components/shared/ValidationTextFields";
-import { useHelperContext } from "../HelperContext";
+import { useInvestmentTypeHooks } from "../hooks/useInvestmentTypeHooks";
+import { useScenarioContext } from "../useScenarioContext";
+import {
+  InvestmentType,
+  InvestmentTypeDistribution,
+} from "../useScenarioContext";
 
 type ValueType = "Fixed Amount/Percentage" | "Normal Distribution";
 const isValueType = (val: any): val is ValueType =>
   val === "Fixed Amount/Percentage" || val === "Normal Distribution";
 
-interface InvestmentTypeFormProps {
-  isEditMode?: boolean;
-  investmentType?: any;
-}
-
-export default function InvestmentTypeForm({
-  isEditMode,
-  investmentType,
-}: InvestmentTypeFormProps) {
-  const { fetchDistribution, investmentTypeHooks } = useHelperContext();
-  const [returnDist, setReturnDist] = useState<any>(null);
-  const [incomeDist, setIncomeDist] = useState<any>(null);
+export default function InvestmentTypeForm() {
+  const navigate = useNavigate();
+  const [shouldNavigate, setShouldNavigate] = useState(false);
+  const { investmentTypeHooks } = useInvestmentTypeHooks();
+  const {
+    editInvestmentType,
+    setEditInvestmentType,
+    investmentTypes,
+    setInvestmentTypes,
+  } = useScenarioContext();
 
   useEffect(() => {
-    const fetchDistributions = async () => {
-      try {
-        const returnData = await fetchDistribution(
-          investmentType?.returnDistribution
+    if (shouldNavigate) {
+      navigate("/dashboard/createScenario");
+      setShouldNavigate(false);
+    }
+  }, [shouldNavigate]);
+
+  useEffect(() => {
+    if (editInvestmentType) {
+      const {
+        setInvestmentTypeName,
+        setInvestmentTypeDescription,
+        setExpectedRatio,
+        setIsTaxable,
+        setIsFixedReturnAmount,
+        setReturnFixedValue,
+        setReturnMean,
+        setReturnStdDev,
+        setIsFixedIncomeAmount,
+        setIncomeFixedValue,
+        setIncomeMean,
+        setIncomeStdDev,
+      } = investmentTypeHooks;
+
+      setInvestmentTypeName(editInvestmentType.name || "");
+      setInvestmentTypeDescription(editInvestmentType.description || "");
+      setExpectedRatio(editInvestmentType.expenseRatio || "");
+      setIsTaxable(editInvestmentType.taxability ?? true); // fallback to true
+
+      // Return Distribution
+      setIsFixedReturnAmount(editInvestmentType.returnAmtOrPct === "Amount");
+      if (editInvestmentType.returnDistribution.type === "Fixed") {
+        investmentTypeHooks?.setReturnDistributionType(
+          "Fixed Amount/Percentage"
         );
-        const incomeData = await fetchDistribution(
-          investmentType?.incomeDistribution
-        );
-        setReturnDist(returnData);
-        setIncomeDist(incomeData);
-      } catch (error) {
-        console.error("Error fetching distributions:", error);
+        setReturnFixedValue(editInvestmentType.returnDistribution.value);
+      } else if (editInvestmentType.returnDistribution.type === "Normal") {
+        investmentTypeHooks?.setReturnDistributionType("Normal Distribution");
+        setReturnMean(editInvestmentType.returnDistribution.mean);
+        setReturnStdDev(editInvestmentType.returnDistribution.stdev);
       }
+
+      // Income Distribution
+      setIsFixedIncomeAmount(editInvestmentType.incomeAmtOrPct === "Amount");
+      if (editInvestmentType.incomeDistribution.type === "Fixed") {
+        investmentTypeHooks?.setIncomeDistributionType(
+          "Fixed Amount/Percentage"
+        );
+        setIncomeFixedValue(editInvestmentType.incomeDistribution.value);
+      } else if (editInvestmentType.incomeDistribution.type === "Normal") {
+        investmentTypeHooks?.setIncomeDistributionType("Normal Distribution");
+        setIncomeMean(editInvestmentType.incomeDistribution.mean);
+        setIncomeStdDev(editInvestmentType.incomeDistribution.stdev);
+      }
+    }
+  }, [editInvestmentType]);
+
+  function mapDistributionType(distributionType: string): "Fixed" | "Normal" {
+    if (distributionType === "Fixed Amount/Percentage") return "Fixed";
+    if (distributionType === "Normal Distribution") return "Normal";
+    throw new Error("Invalid distribution type");
+  }
+
+  const handleSaveInvestmentType = async () => {
+    if (!investmentTypeHooks) return;
+
+    const {
+      investmentTypeName,
+      investmentTypeDescription,
+      expectedRatio,
+      taxable,
+      isFixedReturnAmount,
+      returnFixedValue,
+      returnMean,
+      returnStdDev,
+      isFixedIncomeAmount,
+      incomeFixedValue,
+      incomeMean,
+      incomeStdDev,
+    } = investmentTypeHooks;
+
+    const returnDistributionTypeMapped = mapDistributionType(
+      investmentTypeHooks?.returnDistributionType
+    );
+    const incomeDistributionTypeMapped = mapDistributionType(
+      investmentTypeHooks?.incomeDistributionType
+    );
+
+    const returnDistribution: InvestmentTypeDistribution =
+      returnDistributionTypeMapped === "Fixed"
+        ? { type: "Fixed", value: Number(returnFixedValue) }
+        : {
+            type: "Normal",
+            mean: Number(returnMean),
+            stdev: Number(returnStdDev),
+          };
+
+    const incomeDistribution: InvestmentTypeDistribution =
+      incomeDistributionTypeMapped === "Fixed"
+        ? { type: "Fixed", value: Number(incomeFixedValue) }
+        : {
+            type: "Normal",
+            mean: Number(incomeMean),
+            stdev: Number(incomeStdDev),
+          };
+
+    const newInvestmentType: InvestmentType = {
+      name: String(investmentTypeName),
+      description: String(investmentTypeDescription),
+      returnAmtOrPct: isFixedReturnAmount ? "Amount" : "Percent",
+      returnDistribution,
+      expenseRatio: Number(expectedRatio),
+      incomeAmtOrPct: isFixedIncomeAmount ? "Amount" : "Percent",
+      incomeDistribution,
+      taxability: taxable,
     };
 
+    const updatedInvestmentTypes = { ...investmentTypes };
+
+    // Remove old investment type if the name was changed
     if (
-      investmentType?.returnDistribution &&
-      investmentType?.incomeDistribution
+      editInvestmentType &&
+      editInvestmentType.name !== newInvestmentType.name
     ) {
-      fetchDistributions();
+      delete updatedInvestmentTypes[editInvestmentType.name];
     }
-  }, [investmentType, fetchDistribution]);
 
-  useEffect(() => {
-    if (!investmentType) return;
+    console.log("New Investment Type:", newInvestmentType);
+    console.log("Updated Investment Types:", updatedInvestmentTypes);
 
-    investmentTypeHooks?.setInvestmentTypeName(investmentType.name ?? "");
-    investmentTypeHooks?.setInvestmentTypeDescription(
-      investmentType.description ?? ""
-    );
-    investmentTypeHooks?.setExpectedRatio(investmentType.expenseRatio ?? "");
+    // Add or replace with new investment type
+    updatedInvestmentTypes[newInvestmentType.name] = newInvestmentType;
 
-    investmentTypeHooks?.setIsFixedReturnAmount(
-      investmentType.returnAmtOrPct === "amount"
-    );
-    investmentTypeHooks?.setIsFixedIncomeAmount(
-      investmentType.incomeAmtOrPct === "amount"
-    );
+    setInvestmentTypes(updatedInvestmentTypes);
+    // Force a state update before navigation
+    await new Promise((resolve) => setTimeout(resolve, 0));
 
-    investmentTypeHooks?.setIsTaxable(investmentType.taxability ?? true);
-
-    investmentTypeHooks?.setReturnDistributionType(
-      returnDist?.type === "fixed"
-        ? "Fixed Amount/Percentage"
-        : "Normal Distribution"
-    );
-    investmentTypeHooks?.setReturnFixedValue(returnDist?.value ?? "");
-    investmentTypeHooks?.setReturnMean(returnDist?.mean ?? "");
-    investmentTypeHooks?.setReturnStdDev(returnDist?.stdev ?? "");
-
-    investmentTypeHooks?.setIncomeDistributionType(
-      incomeDist?.type === "fixed"
-        ? "Fixed Amount/Percentage"
-        : "Normal Distribution"
-    );
-    investmentTypeHooks?.setIncomeFixedValue(incomeDist?.value ?? "");
-    investmentTypeHooks?.setIncomeMean(incomeDist?.mean ?? "");
-    investmentTypeHooks?.setIncomeStdDev(incomeDist?.stdev ?? "");
-  }, [returnDist, incomeDist]);
+    setShouldNavigate(true);
+  };
 
   return (
     <motion.div
@@ -95,10 +177,8 @@ export default function InvestmentTypeForm({
       <CenteredFormWrapper>
         {/*Title*/}
         <div className="header-line">
-          <h2 className="header">
-            {!isEditMode ? "Add New Investment Type" : "Update Investment Type"}
-          </h2>
-          <Link to="/scenarioFormPage" className="back-link">
+          <h2 className="header">{"Add New Investment Type"}</h2>
+          <Link to="/dashboard/createScenario" className="back-link">
             {"<<"}Back
           </Link>
         </div>
@@ -339,9 +419,13 @@ export default function InvestmentTypeForm({
         </div>
 
         <div className="save-investment-type-container">
-          <button className="save-investment-type-button">
+          <Link
+            to="/dashboard/createScenario"
+            className="save-investment-type-button"
+            onClick={handleSaveInvestmentType}
+          >
             Save Investment Type
-          </button>
+          </Link>
         </div>
       </CenteredFormWrapper>
     </motion.div>

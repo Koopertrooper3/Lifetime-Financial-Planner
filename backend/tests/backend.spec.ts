@@ -65,7 +65,6 @@ test('Create Scenario', async ({ request }) => {
     investmentTypes: {},
     investments: { "cash" : {investmentType: "cash",value: 100,taxStatus: "Non-retirement",id: "cash"}},
     eventSeries: {
-      
       "cash": {name: "salary",
       start: {
         type: "Fixed",

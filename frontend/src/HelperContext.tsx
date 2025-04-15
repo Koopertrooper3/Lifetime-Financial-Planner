@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { isDebug,User } from "./debug";
+import { isDebug, User } from "./debug";
+import { Investment } from "./useScenarioContext";
 
 type ValueType = "Fixed Amount/Percentage" | "Normal Distribution";
 
@@ -42,65 +43,144 @@ interface InvestmentTypeHooks {
   setIncomeStdDev: (value: string | number) => void;
 }
 
+interface EventSeriesFormHooks {
+  eventSeriesName: string | number;
+  setEventSeriesName: (value: string | number) => void;
+  eventSeriesDescription: string | number;
+  setEventSeriesDescription: (value: string | number) => void;
+
+  // Year
+  startYearModel: string;
+  setStartYearModel: (value: string) => void;
+  startYear: string | number;
+  setStartYear: (value: string | number) => void;
+  meanYear: string | number;
+  setMeanYear: (value: string | number) => void;
+  stdDevYear: string | number;
+  setStdDevYear: (value: string | number) => void;
+  lowerBoundYear: string | number;
+  setLowerBoundYear: (value: string | number) => void;
+  upperBoundYear: string | number;
+  setUpperBoundYear: (value: string | number) => void;
+
+  // Duration
+  durationType: string;
+  setDurationType: (value: string) => void;
+  duration: string | number;
+  setDuration: (value: string | number) => void;
+  meanDuration: string | number;
+  setMeanDuration: (value: string | number) => void;
+  stdDuration: string | number;
+  setStdDuration: (value: string | number) => void;
+  lowerBoundDuration: string | number;
+  setLowerBoundDuration: (value: string | number) => void;
+  upperBoundDuration: string | number;
+  setUpperBoundDuration: (value: string | number) => void;
+
+  eventType: string;
+  setEventType: (value: string) => void;
+
+  // Income
+  incomeType: "Social Security" | "Wages";
+  setIncomeType: (value: "Social Security" | "Wages") => void;
+  incomeInitialValue: string | number;
+  setIncomeInitialValue: (value: string | number) => void;
+  incomeDistributionType:
+    | "Fixed Value/Percentage"
+    | "Normal Distribution"
+    | "Uniform Distribution";
+  setIncomeDistributionType: (
+    value:
+      | "Fixed Value/Percentage"
+      | "Normal Distribution"
+      | "Uniform Distribution"
+  ) => void;
+  isFixedIncomeAmount: boolean;
+  setIsFixedIncomeAmount: (value: boolean) => void;
+  fixedIncomeValue: string | number;
+  setFixedIncomeValue: (value: string | number) => void;
+  incomeMean: string | number;
+  setIncomeMean: (value: string | number) => void;
+  incomeStdDev: string | number;
+  setIncomeStdDev: (value: string | number) => void;
+  incomeLowerBound: string | number;
+  setIncomeLowerBound: (value: string | number) => void;
+  incomeUpperBound: string | number;
+  setIncomeUpperBound: (value: string | number) => void;
+  applyInflation: boolean;
+  setApplyInflation: (value: boolean) => void;
+  userPercentage: number;
+  setUserPercentage: (value: number) => void;
+  spousePercentage: number;
+  setSpousePercentage: (value: number) => void;
+
+  // Expense
+  isDiscretionary: boolean;
+  setIsDiscretionary: (value: boolean) => void;
+  expenseInitialAmount: string | number;
+  setExpenseInitialAmount: (value: string | number) => void;
+  expenseDistributionType:
+    | "Fixed Value/Percentage"
+    | "Normal Distribution"
+    | "Uniform Distribution";
+  setExpenseDistributionType: (
+    value:
+      | "Fixed Value/Percentage"
+      | "Normal Distribution"
+      | "Uniform Distribution"
+  ) => void;
+  isExpenseAmount: boolean;
+  setIsExpenseAmount: (value: boolean) => void;
+  expenseFixedValue: string | number;
+  setExpenseFixedValue: (value: string | number) => void;
+  expenseMean: string | number;
+  setExpenseMean: (value: string | number) => void;
+  expenseStdDev: string | number;
+  setExpenseStdDev: (value: string | number) => void;
+  expenseLowerBound: string | number;
+  setExpenseLowerBound: (value: string | number) => void;
+  expenseUpperBound: string | number;
+  setExpenseUpperBound: (value: string | number) => void;
+
+  // Invest
+  investAllocationType: "Fixed" | "Glide Path";
+  setInvestAllocationType: (value: "Fixed" | "Glide Path") => void;
+  investments: Investment[];
+  setInvestments: (value: Investment[]) => void;
+  investStartYear: string;
+  setInvestStartYear: (value: string) => void;
+  investEndYear: string;
+  setInvestEndYear: (value: string) => void;
+  investMaxCashHoldings: string;
+  setInvestMaxCashHoldings: (value: string) => void;
+
+  // Rebalance
+  allocationType: "Fixed" | "Glide Path";
+  setAllocationType: (value: "Fixed" | "Glide Path") => void;
+  rebalanceStartYear: string;
+  setRebalanceStartYear: (value: string) => void;
+  rebalanceEndYear: string;
+  setRebalanceEndYear: (value: string) => void;
+  rebalanceMaxCashHoldings: string;
+  setRebalanceMaxCashHoldings: (value: string) => void;
+}
+
 interface HelperContextType {
   fetchScenario: (id: string) => Promise<any>;
   fetchAllScenarios: () => Promise<any>;
-  setGlobalUserID : (userId: string) => void
-  userID: any,
+  setGlobalUserID: (userId: string) => void;
+  userID: any;
   allInvestmentTypes: any[] | null;
   allScenarios: any[] | null;
-  editScenario: any;
-  setEditScenario: (scenario: any) => void;
-  fetchDistribution: (id: string) => Promise<any>;
-
-  investmentTypeHooks: InvestmentTypeHooks;
 }
 
 const HelperContext = createContext<HelperContextType>({
   fetchScenario: async () => null,
   fetchAllScenarios: async () => null,
-  setGlobalUserID: async() => null,
+  setGlobalUserID: async () => null,
   userID: "",
   allInvestmentTypes: null,
   allScenarios: null,
-  editScenario: null,
-  setEditScenario: () => {},
-  fetchDistribution: async () => null,
-
-  investmentTypeHooks: {
-    investmentTypeName: "",
-    setInvestmentTypeName: () => {},
-    investmentTypeDescription: "",
-    setInvestmentTypeDescription: () => {},
-    expectedRatio: "",
-    setExpectedRatio: () => {},
-
-    returnDistributionType: "Fixed Amount/Percentage",
-    setReturnDistributionType: () => {},
-    incomeDistributionType: "Fixed Amount/Percentage",
-    setIncomeDistributionType: () => {},
-
-    taxable: true,
-    setIsTaxable: () => {},
-
-    isFixedReturnAmount: true,
-    setIsFixedReturnAmount: () => {},
-    returnFixedValue: "",
-    setReturnFixedValue: () => {},
-    returnMean: "",
-    setReturnMean: () => {},
-    returnStdDev: "",
-    setReturnStdDev: () => {},
-
-    isFixedIncomeAmount: true,
-    setIsFixedIncomeAmount: () => {},
-    incomeFixedValue: "",
-    setIncomeFixedValue: () => {},
-    incomeMean: "",
-    setIncomeMean: () => {},
-    incomeStdDev: "",
-    setIncomeStdDev: () => {},
-  },
 });
 
 export const useHelperContext = () => useContext(HelperContext);
@@ -120,43 +200,11 @@ export const HelperContextProvider: React.FC<{ children: React.ReactNode }> = ({
     [key: string]: any; //for scaling
   };
 
-   const [allScenarios, setAllScenarios] = useState<Scenario[] | null>(null);
-    const [allInvestmentTypes, setAllInvestmentTypes] = useState<
+  const [allScenarios, setAllScenarios] = useState<Scenario[] | null>(null);
+  const [allInvestmentTypes, setAllInvestmentTypes] = useState<
     InvestmentType[] | null
   >(null);
-  const [editScenario, setEditScenario] = useState(null);
-  // Investment Type Form
-  const [investmentTypeName, setInvestmentTypeName] = useState<string | number>(
-    ""
-  );
-  const [investmentTypeDescription, setInvestmentTypeDescription] = useState<
-    string | number
-  >("");
-  const [expectedRatio, setExpectedRatio] = useState<string | number>("");
 
-  // Type definitions for distribution options
-  type ValueType = "Fixed Amount/Percentage" | "Normal Distribution";
-
-  // returnType and incomeType are used to differentiate between fixed amount/percentage and normal distribution
-  const [returnDistributionType, setReturnDistributionType] =
-    useState<ValueType>("Fixed Amount/Percentage");
-  const [incomeDistributionType, setIncomeDistributionType] =
-    useState<ValueType>("Fixed Amount/Percentage");
-
-  const [taxable, setIsTaxable] = useState(true);
-
-  // useStates for expected annual return
-  // isFixedReturnAmount is used to differentiate between whether the value is in percentage or dollar
-  const [isFixedReturnAmount, setIsFixedReturnAmount] = useState(true);
-  const [returnFixedValue, setReturnFixedValue] = useState<string | number>("");
-  const [returnMean, setReturnMean] = useState<string | number>("");
-  const [returnStdDev, setReturnStdDev] = useState<string | number>("");
-
-  // useStates for expected annual income
-  const [isFixedIncomeAmount, setIsFixedIncomeAmount] = useState(true);
-  const [incomeFixedValue, setIncomeFixedValue] = useState<string | number>("");
-  const [incomeMean, setIncomeMean] = useState<string | number>("");
-  const [incomeStdDev, setIncomeStdDev] = useState<string | number>("");
   const [userID, setUserID] = useState<User | null>(null);
 
   const mockScenarios = [
@@ -182,7 +230,6 @@ export const HelperContextProvider: React.FC<{ children: React.ReactNode }> = ({
   // ------ WITHOUT DEBUG ------
 
   useEffect(() => {
-    fetchAllInvestmentTypes();
     fetchAllScenarios();
   }, []);
 
@@ -210,9 +257,9 @@ export const HelperContextProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  const setGlobalUserID = (userID : any) =>{
-    setUserID(userID)
-  }
+  const setGlobalUserID = (userID: any) => {
+    setUserID(userID);
+  };
   // const fetchInvestmentType = async (id: string) => {
   //   try {
   //     const res = await fetch(`http://localhost:8000/investmentTypes/${id}`);
@@ -222,27 +269,6 @@ export const HelperContextProvider: React.FC<{ children: React.ReactNode }> = ({
   //     console.error("Error fetching investment type:", error);
   //   }
   // };
-
-  const fetchAllInvestmentTypes = async () => {
-    try {
-      const res = await fetch(`http://localhost:8000/investmentTypes/`);
-      const json = await res.json();
-      console.log("Raw JSON from /investmentTypes:", json);
-      setAllInvestmentTypes(json.data);
-    } catch (error) {
-      console.error("Error fetching investment type:", error);
-    }
-  };
-
-  const fetchDistribution = async (id: string) => {
-    try {
-      const res = await fetch(`http://localhost:8000/distributions/${id}`);
-      const json = await res.json();
-      return json.data;
-    } catch (error) {
-      console.error("Error fetching distribution:", error);
-    }
-  };
 
   return (
     <HelperContext.Provider
@@ -256,43 +282,6 @@ export const HelperContextProvider: React.FC<{ children: React.ReactNode }> = ({
               userID,
               allInvestmentTypes: mockInvestmentTypes,
               allScenarios: mockScenarios,
-              editScenario,
-              setEditScenario,
-              fetchDistribution,
-              investmentTypeHooks: {
-                investmentTypeName,
-                setInvestmentTypeName,
-                investmentTypeDescription,
-                setInvestmentTypeDescription,
-                expectedRatio,
-                setExpectedRatio,
-
-                returnDistributionType,
-                setReturnDistributionType,
-                incomeDistributionType,
-                setIncomeDistributionType,
-
-                taxable,
-                setIsTaxable,
-
-                isFixedReturnAmount,
-                setIsFixedReturnAmount,
-                returnFixedValue,
-                setReturnFixedValue,
-                returnMean,
-                setReturnMean,
-                returnStdDev,
-                setReturnStdDev,
-
-                isFixedIncomeAmount,
-                setIsFixedIncomeAmount,
-                incomeFixedValue,
-                setIncomeFixedValue,
-                incomeMean,
-                setIncomeMean,
-                incomeStdDev,
-                setIncomeStdDev,
-              },
             }
           : {
               fetchScenario,
@@ -301,43 +290,6 @@ export const HelperContextProvider: React.FC<{ children: React.ReactNode }> = ({
               userID,
               allInvestmentTypes,
               allScenarios,
-              editScenario,
-              setEditScenario,
-              fetchDistribution,
-              investmentTypeHooks: {
-                investmentTypeName,
-                setInvestmentTypeName,
-                investmentTypeDescription,
-                setInvestmentTypeDescription,
-                expectedRatio,
-                setExpectedRatio,
-
-                returnDistributionType,
-                setReturnDistributionType,
-                incomeDistributionType,
-                setIncomeDistributionType,
-
-                taxable,
-                setIsTaxable,
-
-                isFixedReturnAmount,
-                setIsFixedReturnAmount,
-                returnFixedValue,
-                setReturnFixedValue,
-                returnMean,
-                setReturnMean,
-                returnStdDev,
-                setReturnStdDev,
-
-                isFixedIncomeAmount,
-                setIsFixedIncomeAmount,
-                incomeFixedValue,
-                setIncomeFixedValue,
-                incomeMean,
-                setIncomeMean,
-                incomeStdDev,
-                setIncomeStdDev,
-              },
             }
       }
     >

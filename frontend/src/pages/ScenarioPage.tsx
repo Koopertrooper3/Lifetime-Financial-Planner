@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useHelperContext } from "../HelperContext";
+import { useScenarioContext } from "../useScenarioContext";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import "../stylesheets/ScenarioPage.css";
@@ -9,12 +10,11 @@ import axios from "axios";
 export default function ScenarioPage() {
   const { id } = useParams();
   const [scenario, setScenario] = useState<any>(null);
-  const [isEditing, setIsEditing] = useState(false);
-  const { allInvestmentTypes, fetchScenario, allScenarios, userID, setEditScenario } =
+  const { allInvestmentTypes, fetchScenario, allScenarios, userID } =
     useHelperContext();
-
+  const { setEditScenario } = useScenarioContext();
   const [activeTab, setActiveTab] = useState("investments");
-  const [numberOfSimulations, setNumberOfSimulations] = useState(1)
+  const [numberOfSimulations, setNumberOfSimulations] = useState(1);
   //const [investmentTypes, setInvestmentTypes] = useState<any[]>([]);
   // const [distributionMap, setDistributionMap] = useState<Record<string, any>>(
   //   {}
@@ -79,21 +79,21 @@ export default function ScenarioPage() {
     { id: "investmentTypes", label: "Investment Types" },
     { id: "events", label: "Events" },
     { id: "strategies", label: "Strategies" },
-    { id: "simulation", label: "Simulation"}
+    { id: "simulation", label: "Simulation" },
   ];
-  const sendSimulatorRequest = async () =>{
-    if(userID == null){
-      throw new Error("Undefined user")
+  const sendSimulatorRequest = async () => {
+    if (userID == null) {
+      throw new Error("Undefined user");
     }
-    await axios.post("http://localhost:8000/scenario/runsimulation",{
-      "userID": userID._id,
-      "scenarioID":id, 
-      "totalSimulations": numberOfSimulations
-    })
-  }
+    await axios.post("http://localhost:8000/scenario/runsimulation", {
+      userID: userID._id,
+      scenarioID: id,
+      totalSimulations: numberOfSimulations,
+    });
+  };
 
   function handleEditClick() {
-    setEditScenario(scenario); // Store the scenario in context
+    setEditScenario(scenario); // Store the scenario
   }
 
   return (
@@ -102,7 +102,7 @@ export default function ScenarioPage() {
         <div className="header-line">
           <h2>Scenario: {scenario.name}</h2>
           <button className="edit-link" onClick={handleEditClick}>
-            <Link to={`/scenarios/${id}/edit`}>Edit</Link>
+            <Link to={"/dashboard/createScenario/"}>Edit</Link>
           </button>
 
           <Link to="/dashboard" className="close-link">
@@ -299,9 +299,19 @@ export default function ScenarioPage() {
       {activeTab === "simulation" && (
         <div className="card tab-content">
           <div className="card-grid-simulator">
-            <button className="simulator-button" onClick={sendSimulatorRequest}>Run Simulation</button>
-            <p style={ {textAlign:"right"}}>Number of simulations</p>
-            <input className="simulatior-run-input" type="text" onChange={(elem)=>{setNumberOfSimulations(Number(elem.target.value.replace(/\D/,'')))}}></input>
+            <button className="simulator-button" onClick={sendSimulatorRequest}>
+              Run Simulation
+            </button>
+            <p style={{ textAlign: "right" }}>Number of simulations</p>
+            <input
+              className="simulatior-run-input"
+              type="text"
+              onChange={(elem) => {
+                setNumberOfSimulations(
+                  Number(elem.target.value.replace(/\D/, ""))
+                );
+              }}
+            ></input>
           </div>
         </div>
       )}
