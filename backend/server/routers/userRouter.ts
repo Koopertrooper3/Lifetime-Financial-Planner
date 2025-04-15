@@ -1,6 +1,8 @@
 import express from 'express';
-import User from '../../db/User';
+import {User} from '../../db/User';
 import z from "zod";
+import mongoose from 'mongoose';
+import { SharedScenario } from '../../db/User';
 import { stateTaxZod } from '../zod/taxesZod';
 
 const router = express.Router();
@@ -59,6 +61,48 @@ router.post("/edit", async (req, res)=>{
     catch(err){
         console.error("Error editing user:", err);
         res.status(400).send({ message: "Error editing user", err });
+    }
+})
+
+
+interface shareScenarioRequest {
+    access: "read-only" | "read-write"
+    scenarioID : string
+    owner: string
+    shareWith: string
+}
+router.post("/shareScenario", async (req, res) => {
+    try{
+        const shareScenarioRequest : shareScenarioRequest = req.body
+        const owner = await User.findById(shareScenarioRequest.owner).lean()
+        const shareWithUser = await User.findById(shareScenarioRequest.shareWith)
+
+        if(shareWithUser == null){
+            throw new Error("User does not exist")
+        }
+
+        if(owner == null){
+            throw new Error("Owner does not exist")
+        }
+        const ownerScenarioCheck = owner.ownedScenarios.some(function (scenarioID) {
+            return scenarioID.equals(scenarioID);
+        });
+
+        if(ownerScenarioCheck == false){
+            throw new Error("Owner does not own claimed scenario")
+        }
+        const sharedScenarioObject : SharedScenario = {
+            permission: shareScenarioRequest.access,
+            scenarioID: new mongoose.Types.ObjectId(shareScenarioRequest.scenarioID)
+        }
+        shareWithUser.sharedScenarios.push(sharedScenarioObject)
+        await shareWithUser.save();
+
+        res.status(200).send({ message: "Scenario created shared!" });
+    }
+    catch(err){
+        console.error("Error creating user:", err);
+        res.status(400).send({ message: "Error creating user", err });
     }
 })
 

@@ -6,7 +6,7 @@ import {Scenario, scenarioModel} from "./Scenario"
 import { InvestmentType } from "./InvestmentTypesSchema";
 import {Investment} from "./InvestmentSchema"
 import { Event } from "./EventSchema";
-import User from "./User"
+import {User} from "./User"
 
 const databaseHost = process.env.DATABASE_HOST
 const databasePort = process.env.DATABASE_PORT
@@ -33,7 +33,7 @@ async function testScenario() {
         description: "S&P 500 index fund",
         returnAmtOrPct: "Percent",
         returnDistribution: {type: "Normal", mean: 0.06, stdev: 0.02},
-        expenseRatio: 0,
+        expenseRatio: 0.001,
         incomeAmtOrPct: "Amount",
         incomeDistribution: {type: "Normal", mean: 0.01, stdev: 0.005},
         taxability: true
@@ -177,7 +177,7 @@ async function testScenario() {
             investmentTypes: {"cash" : cashInvestmentType ,"S&P 500" : SNPInvestmentType,"tax-exempt bonds": taxExemptBondsInvestmentType},
             investments: {"cash" :cashInvestment, "S&P 500 non-retirement" :snp500Investment, "tax-exempt bonds": taxExemptBondsInvestment,"S&P 500 pre-tax": snp500InvestmentPreTax,"S&P 500 after-tax": snp500InvestmentAfterTax},
             eventSeries: {"salary": salaryEvent, "food": foodEvent, "vacation": vacationEvent, "streaming services": streamingEvent,"my investments": investEvent, "rebalance": rebalanceEvent},
-            inflationAssumption: {type: "Fixed", value: 80},
+            inflationAssumption: {type: "Fixed", value: 0.03},
             afterTaxContributionLimit: 7000,
             spendingStrategy: ["vacation", "streaming services"],
             expenseWithdrawalStrategy: ["S&P 500 non-retirement", "tax-exempt bonds", "S&P 500 after-tax"],
@@ -190,8 +190,11 @@ async function testScenario() {
             residenceState: "NY",
         }
         const scenarioResult = await scenarioModel.create(exampleScenario)
-    
-        await User.findOneAndUpdate({ name: "Christian Yu" },{ ownedScenarios: [scenarioResult._id] })
+        const anyUser = await User.findOne({})
+        if(anyUser == null){
+            throw new Error("No users")
+        }
+        await User.findOneAndUpdate({ _id: anyUser._id },{ ownedScenarios: [scenarioResult._id] })
     }catch(err){
         console.log(err)
     }

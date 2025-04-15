@@ -4,14 +4,16 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import "../stylesheets/ScenarioPage.css";
 import { Link } from "react-router-dom";
+import axios from "axios";
 
 export default function ScenarioPage() {
   const { id } = useParams();
   const [scenario, setScenario] = useState<any>(null);
-  const { allInvestmentTypes, fetchScenario, allScenarios } =
+  const { allInvestmentTypes, fetchScenario, allScenarios, userID } =
     useHelperContext();
 
   const [activeTab, setActiveTab] = useState("investments");
+  const [numberOfSimulations, setNumberOfSimulations] = useState(1)
   //const [investmentTypes, setInvestmentTypes] = useState<any[]>([]);
   // const [distributionMap, setDistributionMap] = useState<Record<string, any>>(
   //   {}
@@ -81,7 +83,18 @@ export default function ScenarioPage() {
     { id: "investmentTypes", label: "Investment Types" },
     { id: "events", label: "Events" },
     { id: "strategies", label: "Strategies" },
+    { id: "simulation", label: "Simulation"}
   ];
+  const sendSimulatorRequest = async () =>{
+    if(userID == null){
+      throw new Error("Undefined user")
+    }
+    await axios.post("http://localhost:8000/scenario/runsimulation",{
+      "userID": userID._id,
+      "scenarioID":id, 
+      "totalSimulations": numberOfSimulations
+    })
+  }
 
   return (
     <div className="scenario-container">
@@ -136,7 +149,7 @@ export default function ScenarioPage() {
       {activeTab === "investments" && (
         <div className="card tab-content">
           <div className="card-grid">
-            {investments.map((inv: any) => (
+            {Object.values(investments).map((inv: any) => (
               <div className="mini-card" key={inv._id}>
                 <strong>{inv.investmentType}</strong>
                 <div>Value: {inv.value}</div>
@@ -152,7 +165,7 @@ export default function ScenarioPage() {
       {activeTab === "investmentTypes" && (
         <div className="card tab-content">
           <div className="card-grid">
-            {investmentTypes.map((invType: any) => {
+            {Object.values(investmentTypes).map((invType: any) => {
               // const returnDist = distributionMap[invType.returnDistribution];
               // const incomeDist = distributionMap[invType.incomeDistribution];
 
@@ -192,7 +205,7 @@ export default function ScenarioPage() {
       {/* Events */}
       {activeTab === "events" && (
         <div className="card tab-content">
-          {eventSeries.map((event: any) => (
+          {Object.values(eventSeries).map((event: any) => (
             <div className="mini-card" key={event._id}>
               <strong>{event.name}</strong>
               <div>
@@ -211,8 +224,8 @@ export default function ScenarioPage() {
                 {event.event.changeDistribution?.type === "Uniform" && (
                   <>
                     {" "}
-                    ({event.event.changeDistribution.lower} –{" "}
-                    {event.event.changeDistribution.upper})
+                    ({event.event.changeDistribution.min} –{" "}
+                    {event.event.changeDistribution.max})
                   </>
                 )}
               </div>
@@ -274,6 +287,17 @@ export default function ScenarioPage() {
                 ))}
               </ul>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Investments */}
+      {activeTab === "simulation" && (
+        <div className="card tab-content">
+          <div className="card-grid-simulator">
+            <button className="simulator-button" onClick={sendSimulatorRequest}>Run Simulation</button>
+            <p style={ {textAlign:"right"}}>Number of simulations</p>
+            <input className="simulatior-run-input" type="text" onChange={(elem)=>{setNumberOfSimulations(Number(elem.target.value.replace(/\D/,'')))}}></input>
           </div>
         </div>
       )}

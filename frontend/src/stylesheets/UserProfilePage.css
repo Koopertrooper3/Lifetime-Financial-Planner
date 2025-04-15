@@ -1,0 +1,49 @@
+.profile-container {
+    padding: 24px;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.expected-container {
+    background-color: #F0F6FF;
+    padding: 25px;
+    border-radius: 20px;
+    margin-bottom: 25px;
+    margin-top: 32px;
+}
+  
+  
+.profile-section {
+    margin-top: 32px;
+}
+  
+.yaml-upload-section {
+    margin-top: 32px;
+}
+  
+.yaml-upload-section .black-word {
+    margin-top: 12px;
+}
+  
+.confirm-upload-button {
+    margin-top: 12px;
+}
+  
+.profile-section {
+    margin-top: 24px;
+  }
+  
+  .yaml-upload-section {
+    margin-top: 32px;
+  }
+
+  .purple-title {
+    font-family: "Inter", sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    color: #4C49ED;
+    line-height: 1.4;
+    display: block; 
+    margin-bottom: 8px; 
+  }
+    

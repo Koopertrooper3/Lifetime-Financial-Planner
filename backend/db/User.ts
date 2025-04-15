@@ -1,13 +1,28 @@
 import mongoose from 'mongoose'
 import { stateTaxSchema, StateTax } from './taxes';
 
-interface IUser {
+export interface IUser {
     googleId: string;
     name: string;
     ownedScenarios: mongoose.Types.ObjectId[];
-    sharedScenarios: mongoose.Types.ObjectId[];
+    sharedScenarios: SharedScenario[];
     stateTaxes: StateTax,
 };
+export interface SharedScenario{
+    permission : "read-only" | "read-write"
+    scenarioID: mongoose.Types.ObjectId
+}
+
+const SharedScenarioSchema = new mongoose.Schema<SharedScenario>({
+    permission: {
+        type: String,
+        enum: ["read-only", "write-only"]
+    },
+    scenarioID: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Scenario'
+    }
+})
 
 const userSchema = new mongoose.Schema<IUser>({
     googleId: { type: String, required: true },
@@ -18,13 +33,10 @@ const userSchema = new mongoose.Schema<IUser>({
         required: true
     }],
     sharedScenarios: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Scenario',
-        required: true
+        type: SharedScenarioSchema
     }],
     stateTaxes: stateTaxSchema
 });
 
-const User = mongoose.model('User', userSchema);
+export const User = mongoose.model('User', userSchema);
 
-export default User;

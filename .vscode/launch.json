@@ -26,7 +26,6 @@
             "name": "Launch simulator",
             "program": "${workspaceFolder}/backend/simulator/simulationHead.ts",
             "preLaunchTask": "tsc: build - backend/tsconfig.json",
-            "outFiles": ["${workspaceFolder}/backend/out/simulator/*.js"],
           },
           {
             "type": "node",
@@ -43,6 +42,14 @@
             "program": "${workspaceFolder}/backend/scraper/RMDScraper.ts",
             "preLaunchTask": "tsc: build - backend/tsconfig.json",
             "outFiles": ["${workspaceFolder}/backend/out/scraper/*.js"],
+          },
+          {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch state tax parser",
+            "program": "${workspaceFolder}/backend/state_taxes/statetax_parser.ts",
+            "preLaunchTask": "tsc: build - backend/tsconfig.json",
+            "outFiles": ["${workspaceFolder}/backend/out/state_taxes/*.js"],
           }
     ]
   }

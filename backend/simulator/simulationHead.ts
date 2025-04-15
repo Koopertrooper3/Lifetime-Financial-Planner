@@ -6,7 +6,7 @@ import {Scenario, scenarioModel} from '../db/Scenario';
 import * as dotenv from 'dotenv';
 import { StateTaxBracket, stateTaxParser } from '../state_taxes/statetax_parser';
 import { federalTaxModel } from '../db/taxes';
-import User from '../db/User';
+import {User} from '../db/User';
 import { pool } from 'workerpool';
 
 dotenv.config({ path: path.resolve(__dirname,'..','..','..','.env')});
@@ -57,44 +57,22 @@ async function simulationManager(job: Job) {
   }
 
   const scenario : Scenario | null = await scenarioModel.findById(jobData.scenarioID).lean();
+  if(scenario == null){
+    throw new Error("Scenario of id does not exist")
+  }
   //Collect tax information
   const taxYear = new Date().getFullYear()-1;
   const federalTax = await federalTaxModel.findOne({year: taxYear}).lean()
-  const stateTaxes : StateTaxBracket[] = stateTaxParser()
+  // eslint-disable-next-line prefer-const
+  let stateTaxes : StateTaxBracket = stateTaxParser()[scenario.residenceState]
   const user = await User.findById(jobData.userID);
 
+
+  if(stateTaxes == null){
+    throw new Error("Implement custom state taxes later")
+  }
+  
   const threadArray : Promise<Result>[] = []
-  // for(let threads = 0; threads < MAX_THREADS; threads++){
-  //   const workerData = {
-  //     username: user?.name,
-  //     scenarioID : jobData.scenarioID, 
-  //     threadNumber: threads, 
-  //     simulationsPerThread: simulationsPerThread,
-  //     scenario: scenario,
-  //     federalTaxes : federalTax,
-  //     stateTaxes: stateTaxes
-  //   }
-
-  //   threadArray.push(new Promise((resolve) => {
-  //     const workerThread = new WorkerThreads.Worker(path.resolve(__dirname, './simulationWorker.js'),{workerData : workerData})
-  //     workerThread.on('message',(message : Result)=>{
-  //       console.log("resolved")
-  //       resolve(message)
-  //     })
-  //     workerThread.on('error',(err)=>{
-  //       console.log("error")
-  //       console.log(err)
-  //       resolve({completed : 0, succeeded: 0, failed: 0})
-  //     })
-  //     workerThread.on('exit',(exitcode)=>{
-  //       if(exitcode == 1){
-  //         resolve({completed : 0, succeeded: 0, failed: 0})
-  //       }
-  //     })
-
-  //   }))
-    
-  // }
 
   for(const batch of simulatorBatches){
     if(batch == 0){
