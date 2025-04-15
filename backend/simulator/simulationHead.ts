@@ -6,7 +6,7 @@ import {Scenario, scenarioModel} from '../db/Scenario';
 import * as dotenv from 'dotenv';
 import { StateTaxBracket, stateTaxParser } from '../state_taxes/statetax_parser';
 import { federalTaxModel } from '../db/taxes';
-import User from '../db/User';
+import {User} from '../db/User';
 import { pool } from 'workerpool';
 
 dotenv.config({ path: path.resolve(__dirname,'..','..','..','.env')});

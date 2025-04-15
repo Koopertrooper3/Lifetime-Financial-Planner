@@ -32,16 +32,16 @@ const SOCIAL_SECURITY_PROPORTION = 0.85
  * @returns {string} 
  */
 function incomeEventLogMessage(year : number, eventName: string, amount : number){
-    return `[Income] Year: ${year}, Amount: ${amount}, Event name: ${eventName}`
+    return `[Income] Year: ${year}, Amount: ${amount}, Event name: ${eventName}\n`
 }
 function RMDLogMessage(year: number, amount : number, investmentType : string){
-    return `[RMD] Year: ${year}, Amount: ${amount}, Investment Type: ${investmentType}`
+    return `[RMD] Year: ${year}, Amount: ${amount}, Investment Type: ${investmentType}\n`
 }
 function ExpenseLogMessage(year: number, amount : number, expense : string){
-    return `[Expense]: Year: ${year}, Amount: ${amount}, Expense: ${expense}`
+    return `[Expense]: Year: ${year}, Amount: ${amount}, Expense: ${expense}\n`
 }
 function RothConversionLogMessage(year: number, amount : number, investmentType : string){
-    return `[Roth Conversion]: Year: ${year}, Amount ${amount}, Investment Type: ${investmentType}`
+    return `[Roth Conversion]: Year: ${year}, Amount ${amount}, Investment Type: ${investmentType}\n`
 }
 
 function pushToLog(logStream : WriteStream, message : string){
@@ -403,7 +403,7 @@ function resolveEventDurations(scenarioEvents : Record<string,ScenarioEvent>){
         
     }
 
-    for(const resolvedEvent of Object.values(scenarioEvents)){
+    for(const resolvedEvent of Object.values(resolvedEventSeries)){
         assert(resolvedEvent.start.type != "Fixed", "NOT ALL EVENTS RESOVLED")
     }
 
@@ -756,7 +756,9 @@ function calculateFederalIncomeTax(taxBrackets : FederalTax, income : number,fil
         }
     }
     taxBurden -= standardDeduction
-
+    if(taxBurden < 0){
+        taxBurden = 0
+    }
     return taxBurden;
 }
 

@@ -1,18 +1,11 @@
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
-import User from '../db/User';
+import {User, IUser} from '../db/User';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import process from 'process';
 import path from "path";
 dotenv.config({ path: path.resolve(__dirname,'..','..','..','.env') });
-
-interface IUser {
-  googleId: string;
-  name: string;
-  ownedScenarios: mongoose.Types.ObjectId[];
-  sharedScenarios: mongoose.Types.ObjectId[];
-}
 
 const backend_full_url = "http://" + process.env.BACKEND_IP + ":" + process.env.BACKEND_PORT;
 
@@ -32,7 +25,7 @@ passport.use(
             googleId: profile.id,
             name: profile.displayName,
             ownedScenarios: [],
-            sharedScenarios: []
+            sharedScenarios: [],
           });
           user = (await newUser.save()) as IUser;
         }
