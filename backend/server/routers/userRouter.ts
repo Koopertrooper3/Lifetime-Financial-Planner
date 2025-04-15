@@ -11,12 +11,12 @@ const userZod = z.object({
     name: z.string().min(1, "name must not be empty")
 }).strict();
 
-router.post("/create", async (req, res) => {
+router.post("/createGuest", async (req, res) => {
     try{
         userZod.parse(req.body);
         
         const newUser = await User.create({
-            googleId: req.body.googleId,
+            googleId: "none",
             name: req.body.name,
             ownedScenarios: [],
             sharedScenarios: [],
@@ -75,4 +75,14 @@ router.post("/shareScenario", async (req, res) => {
     }
 })
 
+
+router.post("/uploadTaxes", async (req, res) => {
+    try{
+        throw new Error("not implemented")
+    }
+    catch(err){
+        console.error("Error creating user:", err);
+        res.status(400).send({ message: "Error uploading taxes", err });
+    }
+})
 export default router;
