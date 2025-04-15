@@ -14,6 +14,8 @@ import { assert } from "console"
 import { EventDistribution } from "../db/EventSchema"
 import { RMDScraper } from "../scraper/RMDScraper"
 import { InvestmentType, IncomeDistribution, ReturnDistribution } from "../db/InvestmentTypesSchema"
+import { initalizeCSVLog,writeCSVlog,closeCSVlog } from "./logging"
+
 const USER = 0
 const SPOUSE = 1
 
@@ -95,6 +97,7 @@ async function simulation(threadData : threadData){
     const startTime = new Date();
     const dateTimeString = `${startTime.getMonth()}_${startTime.getDay()}_${startTime.getFullYear()}_${startTime.getHours()}:${startTime.getMinutes()}:${startTime.getSeconds()}`
     logStream = createWriteStream(path.resolve(__dirname, '..','..','logs',`${threadData.username}_${dateTimeString}.log`), {flags: 'a'})
+    let csvStream : WriteStream = initalizeCSVLog(threadData.username,dateTimeString)
 
     const threadNumber : string = threadData.threadNumber.toString()
     const totalSimulations : number = threadData.simulationsPerThread
@@ -222,6 +225,7 @@ async function simulation(threadData : threadData){
             previousYearTaxBrackets = currentYearTaxBrackets
             previousYearCapitalGains = currentYearCapitalGains
             previousYearEarlyWithdrawals = currentYearEarlyWithdrawals
+            writeCSVlog(scenario.investments,csvStream,simulatedYear)
         }
 
         if(solvent == true){
@@ -235,6 +239,7 @@ async function simulation(threadData : threadData){
     
     logStream.end()
     await finished(logStream)
+    await closeCSVlog(csvStream)
     return result
 }
 
@@ -404,7 +409,7 @@ function resolveEventDurations(scenarioEvents : Record<string,ScenarioEvent>){
     }
 
     for(const resolvedEvent of Object.values(resolvedEventSeries)){
-        assert(resolvedEvent.start.type != "Fixed", "NOT ALL EVENTS RESOVLED")
+        assert(resolvedEvent.start.type == "Fixed", "NOT ALL EVENTS RESOVLED")
     }
 
     return resolvedEventSeries
@@ -744,16 +749,13 @@ function calculateFederalIncomeTax(taxBrackets : FederalTax, income : number,fil
 
     // Iterate through the tax brackets to calculate the tax burden
     for (const bracket of incomeTaxBracket) {
-        if (income >= bracket.lowerThreshold) {
-            const taxableIncome = Math.min(income, bracket.upperThreshold) - bracket.lowerThreshold;
-            taxBurden += taxableIncome * bracket.rate;
+        const taxableIncome = Math.min(income, bracket.upperThreshold) - bracket.lowerThreshold;
+        taxBurden += taxableIncome * bracket.rate;
 
-            if (income <= bracket.upperThreshold) {
-                break;
-            }
-        }else{
-            throw new Error("Income tax bracket higher than income")
+        if (income <= bracket.upperThreshold) {
+            break;
         }
+        
     }
     taxBurden -= standardDeduction
     if(taxBurden < 0){
@@ -806,16 +808,13 @@ function calculateStateIncomeTax(taxBrackets : StateTaxBracket, income : number,
 
     // Iterate through the tax brackets to calculate the tax burden
     for (const bracket of incomeTaxBracket) {
-        if (income >= bracket.lowerThreshold) {
-            const taxableIncome = Math.min(income, bracket.upperThreshold) - bracket.lowerThreshold;
-            taxBurden += taxableIncome * bracket.rate + bracket.flatAdjustment;
+        const taxableIncome = Math.min(income, bracket.upperThreshold) - bracket.lowerThreshold;
+        taxBurden += taxableIncome * bracket.rate + bracket.flatAdjustment;
 
-            if (income <= bracket.upperThreshold) {
-                break;
-            }
-        }else{
-            throw new Error("Income tax bracket higher than income")
+        if (income <= bracket.upperThreshold) {
+            break;
         }
+        
     }
 
     return taxBurden;
