@@ -9,6 +9,7 @@ import ChartsPage from "./pages/ChartsPage";
 import AddNewInvestmentType from "./pages/AddNewInvestmentType";
 import AddNewEventSeries from "./pages/AddNewEventSeries";
 import CreateSlideWrapper from "./CreateSlideWrapper";
+import UserProfilePage from "./pages/UserProfilePage";
 
 function App() {
   return (
@@ -34,6 +35,7 @@ function App() {
         
           <Route path="/scenario/:id" element={<ScenarioPage />} />
           <Route path="/chartsPage/" element={<ChartsPage />} />
+          <Route path="/user-profile" element={<UserProfilePage />} />
           {/* <Route
             path="/AddNewInvestmentType"
             element={<AddNewInvestmentType />}
