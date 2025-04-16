@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import CenteredFormWrapper from "../wrapper/CenteredFormWrapper";
 import EventSeriesIncome from "../components/EventSeries/Income";
@@ -38,18 +38,176 @@ const defaultInvestments = [
 ];
 
 export default function EventSeriesForm() {
+  const navigate = useNavigate();
   const { eventSeriesFormHooks } = useEventSeriesFormHooks();
-  const { eventSeries, setEventSeries } = useScenarioContext();
-  // const [localAllocatedInvestments, setLocalAllocatedInvestments] = useState<
-  //   assetProportion[]
-  // >([]);
-  // const [localAllocated2Investments, setLocalAllocated2Investments] = useState<
-  //   assetProportion[]
-  // >([]);
-  // const [
-  //   localRebalanceAllocatedInvestments,
-  //   setLocalRebalanceAllocatedInvestments,
-  // ] = useState<assetProportion[]>([]);
+  const { eventSeries, setEventSeries, editEventSeries, setEditEventSeries } =
+    useScenarioContext();
+
+  useEffect(() => {
+    if (editEventSeries) {
+      const {
+        setEventSeriesName,
+
+        // Year
+        setStartYearModel,
+        setStartYear,
+        setMeanYear,
+        setStdDevYear,
+        setLowerBoundYear,
+        setUpperBoundYear,
+        setWithOrAfter,
+        setSelectedEvent,
+
+        // Duration
+        setDurationType,
+        setDurationValue,
+        setMeanDuration,
+        setStdDuration,
+        setLowerBoundDuration,
+        setUpperBoundDuration,
+
+        // Event Type
+        setEventType,
+
+        // Income
+        setIncomeType,
+        setIncomeInitialValue,
+        setIncomeDistributionType,
+        setIsFixedIncomeAmount,
+        setFixedIncomeValue,
+        setIncomeMean,
+        setIncomeStdDev,
+        setIncomeLowerBound,
+        setIncomeUpperBound,
+        setApplyInflation,
+        setUserPercentage,
+
+        // Expense
+        setIsDiscretionary,
+        setExpenseInitialAmount,
+        setExpenseDistributionType,
+        setIsExpenseAmount,
+        setExpenseFixedValue,
+        setExpenseMean,
+        setExpenseStdDev,
+        setExpenseLowerBound,
+        setExpenseUpperBound,
+
+        // Invest
+        setInvestAllocationType,
+        setAllocatedInvestments,
+        setAllocated2Investments,
+        setInvestMaxCashHoldings,
+
+        // Rebalance
+        setAllocationType,
+        setAllocatedRebalanceInvestments,
+        setTaxStatus,
+      } = eventSeriesFormHooks;
+
+      // Name
+      setEventSeriesName(editEventSeries.name || "");
+
+      // Start Year
+      setStartYearModel(editEventSeries.start?.type || "");
+      setStartYear(editEventSeries.start?.value || "");
+      setMeanYear(editEventSeries.start?.mean || "");
+      setStdDevYear(editEventSeries.start?.stdev || "");
+      setLowerBoundYear(editEventSeries.start?.min || "");
+      setUpperBoundYear(editEventSeries.start?.max || "");
+      setWithOrAfter(editEventSeries.start?.withOrAfter || "");
+      setSelectedEvent(editEventSeries.start?.event || "");
+
+      // Duration
+      setDurationType(editEventSeries.duration?.type || "");
+      setDurationValue(editEventSeries.duration?.value || "");
+      setMeanDuration(editEventSeries.duration?.mean || "");
+      setStdDuration(editEventSeries.duration?.stdev || "");
+      setLowerBoundDuration(editEventSeries.duration?.min || "");
+      setUpperBoundDuration(editEventSeries.duration?.max || "");
+
+      // Event Type
+      setEventType(editEventSeries.event?.type || "");
+
+      const mapDistributionTypeToLabel = (type: string) => {
+        if (type === "Normal") return "Normal Distribution";
+        if (type === "Fixed") return "Fixed Amount/Percentage";
+        if (type === "Uniform") return "Uniform Distribution";
+      };
+
+      // Handle based on Event Type
+      if (editEventSeries.event?.type === "Income") {
+        setIncomeType(
+          editEventSeries.event.socialSecurity === true
+            ? "Social Security"
+            : "Wages"
+        );
+        setIncomeInitialValue(editEventSeries.event.initialAmount || 0);
+        setIncomeDistributionType(
+          // mapDistributionTypeToLabel(
+          editEventSeries.event.changeDistribution.type
+          // )
+        );
+        setIsFixedIncomeAmount(
+          editEventSeries.event.changeAmountOrPercent?.type === "Amount"
+        );
+        setFixedIncomeValue(
+          editEventSeries.event.changeDistribution?.value || ""
+        );
+        setIncomeMean(editEventSeries.event.changeDistribution?.mean || "");
+        setIncomeStdDev(editEventSeries.event.changeDistribution?.stdev || "");
+        setIncomeLowerBound(
+          editEventSeries.event.changeDistribution?.min || ""
+        );
+        setIncomeUpperBound(
+          editEventSeries.event.changeDistribution?.max || ""
+        );
+        setApplyInflation(editEventSeries.event.inflationAdjusted || false);
+        setUserPercentage(editEventSeries.event.userFraction * 100 || 100);
+      }
+
+      if (editEventSeries.event?.type === "Expense") {
+        setIsDiscretionary(editEventSeries.event.discretionary || false);
+        setExpenseInitialAmount(editEventSeries.event.initialAmount || 0);
+        setExpenseDistributionType(
+          editEventSeries.event.changeDistribution?.type || ""
+        );
+        setIsExpenseAmount(
+          editEventSeries.event.changeDistribution?.type === "Fixed"
+        );
+        setExpenseFixedValue(
+          editEventSeries.event.changeDistribution?.value || ""
+        );
+        setExpenseMean(editEventSeries.event.changeDistribution?.mean || "");
+        setExpenseStdDev(editEventSeries.event.changeDistribution?.stdev || "");
+        setExpenseLowerBound(
+          editEventSeries.event.changeDistribution?.lower || ""
+        );
+        setExpenseUpperBound(
+          editEventSeries.event.changeDistribution?.upper || ""
+        );
+        setApplyInflation(editEventSeries.event.inflationAdjusted || false);
+        setUserPercentage(editEventSeries.event.userFraction || 0);
+      }
+
+      if (editEventSeries.event?.type === "Invest") {
+        setInvestAllocationType(
+          editEventSeries.event.glidePath ? "Glide Path" : "Fixed"
+        );
+        setAllocatedInvestments(editEventSeries.event.assetAllocation || []);
+        setAllocated2Investments(editEventSeries.event.assetAllocation2 || []);
+        setInvestMaxCashHoldings(editEventSeries.event.maxCash || 0);
+      }
+
+      if (editEventSeries.event?.type === "Rebalance") {
+        setAllocationType(editEventSeries.event.allocatedType);
+        setAllocatedRebalanceInvestments(
+          editEventSeries.event.assetAllocation || []
+        );
+        setTaxStatus(editEventSeries.event.taxStatus);
+      }
+    }
+  });
 
   const handleSaveEventSeries = () => {
     if (!eventSeriesFormHooks) {
@@ -118,6 +276,8 @@ export default function EventSeriesForm() {
       rebalanceStartYear,
       rebalanceEndYear,
       allocatedRebalanceInvestments,
+      allocatedRebalance2Investments,
+      taxStatus,
       rebalanceMaxCashHoldings,
     } = eventSeriesFormHooks;
 
@@ -231,7 +391,7 @@ export default function EventSeriesForm() {
       const allocation: assetProportion[] = allocatedInvestments.map(
         (inv: any) => ({
           asset: inv.asset,
-          proportion: Number(inv.proportion) / 100,
+          proportion: Number(inv.proportion),
         })
       );
       console.log(`inside handleSubmit`, { allocatedInvestments });
@@ -260,9 +420,20 @@ export default function EventSeriesForm() {
         })
       );
 
+      let allocation2: assetProportion[] | undefined;
+      if (allocationType === "Glide Path") {
+        allocation2 = allocatedRebalance2Investments.map((inv: any) => ({
+          asset: inv.asset,
+          proportion: Number(inv.proportion),
+        }));
+      }
+
       event = {
         type: "Rebalance",
+        taxStatus: taxStatus,
         assetAllocation: allocation,
+        glidePath: allocationType === "Glide Path",
+        assetAllocation2: allocationType === "Glide Path" ? allocation2 : [],
       };
     } else {
       throw new Error("Event Reformatting Issue");
@@ -283,6 +454,8 @@ export default function EventSeriesForm() {
     });
 
     console.log(`New Event Series`, { newEventSeries });
+
+    navigate("/dashboard/createScenario");
   };
 
   return (
@@ -518,9 +691,9 @@ export default function EventSeriesForm() {
                 </label>
               </div>
 
-              {/* Textbox for Event Name */}
-              <div className="event-name-input">
-                <div className="input-label">Related Event Name</div>
+              {/* Textbox for Investment Name */}
+              {/* <div className="event-name-input">
+                <div className="input-label">Related Investment Name</div>
                 <ValidationTextFields
                   value={eventSeriesFormHooks.eventSeriesName}
                   placeholder="Enter event name"
@@ -530,7 +703,7 @@ export default function EventSeriesForm() {
                   height="1.4375em"
                   disabled={false}
                 />
-              </div>
+              </div> */}
             </div>
           )}
         </div>
@@ -825,6 +998,12 @@ export default function EventSeriesForm() {
               setAllocatedInvestments={
                 eventSeriesFormHooks?.setAllocatedRebalanceInvestments
               }
+              allocated2Investments={
+                eventSeriesFormHooks?.allocatedRebalance2Investments
+              }
+              setAllocated2Investments={
+                eventSeriesFormHooks?.setAllocatedRebalance2Investments
+              }
               startYear={eventSeriesFormHooks.rebalanceStartYear}
               setStartYear={eventSeriesFormHooks.setRebalanceStartYear}
               endYear={eventSeriesFormHooks.rebalanceEndYear}
@@ -833,6 +1012,8 @@ export default function EventSeriesForm() {
               setMaxCashHoldings={
                 eventSeriesFormHooks.setRebalanceMaxCashHoldings
               }
+              taxStatus={eventSeriesFormHooks.taxStatus}
+              setTaxStatus={eventSeriesFormHooks.setTaxStatus}
             />
           )}
         </div>

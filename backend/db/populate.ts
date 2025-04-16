@@ -164,7 +164,9 @@ async function testScenario() {
         event: {
             type: "Rebalance", 
             assetAllocation: [{asset: "S&P 500 non-retirement", proportion: 0.7},{asset: "S&P 500 non-retirement", proportion: 0.3}],
-
+            glidePath: true,
+            assetAllocation2: [{asset: "S&P 500 non-retirement", proportion: 0.8},{asset: "S&P 500 non-retirement", proportion: 0.2}],
+            taxStatus: "Non-Retirement"
         }
     }
 

@@ -5,8 +5,8 @@ import { useState, useEffect } from "react";
 
 interface AllocationTableProps {
   allocatedInvestments: assetProportion[];
-  setAllocatedInvestments: (allocated2Investments: assetProportion[]) => void;
-  allocated2Investments: assetProportion[] | undefined;
+  setAllocatedInvestments: (allocatedInvestments: assetProportion[]) => void;
+  allocated2Investments: assetProportion[];
   setAllocated2Investments: (allocated2Investments: assetProportion[]) => void;
   allocationType: "Fixed" | "Glide Path";
 }

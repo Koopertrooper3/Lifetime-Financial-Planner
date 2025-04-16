@@ -96,9 +96,13 @@ export interface InvestEvent {
   maxCash: number;
 }
 
+type TaxStatus = "Pre-Tax" | "After-Tax" | "Non-Retirement";
 export interface RebalanceEvent {
   type: "Rebalance";
+  taxStatus: TaxStatus;
   assetAllocation: assetProportion[];
+  glidePath: boolean;
+  assetAllocation2?: assetProportion[];
 }
 
 export interface ScenarioInterface {

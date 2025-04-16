@@ -370,7 +370,7 @@ export default function ScenarioFormPage() {
             setInput={(val) =>
               setBirthYear((prev) => {
                 const updated = [...prev];
-                updated[0] = Number(val); // or 1 for spouse
+                updated[0] = Number(val);
                 return updated;
               })
             }
@@ -611,7 +611,7 @@ export default function ScenarioFormPage() {
           ></SelectionTable>
           {editScenario === null && (
             <Link
-              to="/InvestmentTypeForm"
+              to="/dashboard/createScenario/addNewInvestmentType"
               className="add-investment-type-container"
             >
               Add New Investment Type
@@ -636,9 +636,14 @@ export default function ScenarioFormPage() {
             category="Type"
             renderAttribute={(eventSeries) => eventSeries.type}
           ></SelectionTable>
-          <Link to="/AddNewEventSeries">
-            Click here to expand Event Series settings ▼
-          </Link>
+          {editScenario === null && (
+            <Link
+              to="/dashboard/createScenario/addNewEventSeries"
+              className="add-event-series-container"
+            >
+              Add New Event Series
+            </Link>
+          )}
         </div>
 
         {/*Inflation & Contribution Limits*/}
@@ -679,7 +684,11 @@ export default function ScenarioFormPage() {
           <a href="#">Click here to expand Sharing settings ▼</a>
         </div>
 
-        <button onClick={handleSubmit}>Save Scenario</button>
+        <div className="save-button-container">
+          <button onClick={handleSubmit} className="save-button">
+            Save Scenario
+          </button>
+        </div>
       </div>
     </div>
   );

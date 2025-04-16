@@ -12,7 +12,7 @@ const AddPlan = () => {
   const handleClick = () => {
     setEditScenario(null);
     setAddPlan(true);
-    navigate("createScenario");
+    navigate("/dashboard/createScenario");
   };
 
   return (

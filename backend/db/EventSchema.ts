@@ -145,9 +145,13 @@ export interface investEvent{
     maxCash: number
 }
 
+type TaxStatus = "Pre-Tax" | "After-Tax" | "Non-Retirement"
 export interface rebalanceEvent{
-    type: "Rebalance"
-    assetAllocation: assetProportion[]
+    type: "Rebalance",
+    taxStatus: TaxStatus,
+    assetAllocation: assetProportion[],
+    glidePath: boolean,
+    assetAllocation2: assetProportion[],
 }
 
 type eventData = incomeEvent | expenseEvent | investEvent | rebalanceEvent

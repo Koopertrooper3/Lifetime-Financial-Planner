@@ -40,8 +40,6 @@ function App() {
           <Route path="/scenario/:id" element={<ScenarioPage />} />
           <Route path="/chartsPage/" element={<ChartsPage />} />
           <Route path="/user-profile" element={<UserProfilePage />} />
-          <Route path="/InvestmentTypeForm" element={<InvestmentTypeForm />} />
-          <Route path="/AddNewEventSeries" element={<AddNewEventSeries />} />
           <Route path="/scenarios/:id/edit" element={<EditScenarioPage />} />
 
             {/* <Route

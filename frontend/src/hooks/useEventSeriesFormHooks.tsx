@@ -90,6 +90,11 @@ export function useEventSeriesFormHooks() {
   >([]);
   const [allocatedRebalanceInvestments, setAllocatedRebalanceInvestments] =
     useState<assetProportion[]>([]);
+  const [allocatedRebalance2Investments, setAllocatedRebalance2Investments] =
+    useState<assetProportion[]>([]);
+  const [taxStatus, setTaxStatus] = useState<
+    "Pre-Tax" | "After-Tax" | "Non-Retirement"
+  >("Pre-Tax");
   const [rebalanceMaxCashHoldings, setRebalanceMaxCashHoldings] = useState("");
 
   const [withOrAfter, setWithOrAfter] = useState<"With" | "After">("With");
@@ -193,6 +198,10 @@ export function useEventSeriesFormHooks() {
       setRebalanceInvestments,
       allocatedRebalanceInvestments,
       setAllocatedRebalanceInvestments,
+      allocatedRebalance2Investments,
+      setAllocatedRebalance2Investments,
+      taxStatus,
+      setTaxStatus,
       rebalanceMaxCashHoldings,
       setRebalanceMaxCashHoldings,
       withOrAfter,

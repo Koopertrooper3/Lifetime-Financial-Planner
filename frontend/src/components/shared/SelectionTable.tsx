@@ -33,10 +33,10 @@ export default function SelectionTable({
     setEditEventSeries(null);
     if (title === "Investment Types") {
       setEditInvestmentType(type);
-      navigate("/InvestmentTypeForm");
+      navigate("/dashboard/createScenario/addNewInvestmentType");
     } else {
       setEditEventSeries(type);
-      navigate("/EventSeriesForm");
+      navigate("/dashboard/createScenario/addNewEventSeries");
     }
   };
 
