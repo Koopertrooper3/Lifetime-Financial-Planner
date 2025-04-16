@@ -7,6 +7,7 @@ import { useHelperContext } from "../HelperContext";
 import { useScenarioContext, ScenarioInterface } from "../useScenarioContext";
 import SelectionTable from "../components/shared/SelectionTable";
 import axios from "axios";
+import ImportScenario from '../components/ImportScenario';
 
 interface ScenarioFormPageProps {
   isEditMode?: boolean;
@@ -88,6 +89,28 @@ export default function ScenarioFormPage() {
     resetScenario();
     navigate("/dashboard");
   };
+
+  const handleFileParsed = async function(data:unknown){
+    // grabs user info
+    const userInfo = await axios.get("http://localhost:8000/user", {
+      withCredentials: true,
+    });
+
+    // create correct json object for backend scenario creation
+    const requestBody = {
+      userID: userInfo.data.googleId,
+      scenario: data
+    }
+
+    //attempts to create the scenario
+    try{
+      const response = await axios.post("http://localhost:8000/scenario/create", requestBody);
+      console.log(response);
+    }
+    catch(err){
+      console.log(err);
+    }
+  }
 
   useEffect(() => {
     if (editScenario && !hasInitialized.current) {
@@ -265,6 +288,12 @@ export default function ScenarioFormPage() {
             {"<<"}Back
           </button>
         )}
+      </div>
+      <div>
+        <p>
+          You can choose to import a yaml file here instead
+        </p>
+        <ImportScenario onFileParsed={handleFileParsed}/>
       </div>
       {/*Scenario Name*/}
       <div className="scenario-name-container">

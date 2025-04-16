@@ -3,7 +3,6 @@ import "../stylesheets/CreateScenario.css";
 import LifeExpectency from "../components/LifeExpectency";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import ImportScenario from '../components/ImportScenario';
 import axios from 'axios';
 
 // import { Outlet } from "react-router-dom";
@@ -11,28 +10,6 @@ import axios from 'axios';
 export default function CreateScenarioPage() {
   const [filingStatus, setFilingStatus] = useState("Single");
   const [lifeExpectancyType, setLifeExpectancyType] = useState("Fixed Age");
-
-  const handleFileParsed = async function(data:unknown){
-    // grabs user info
-    const userInfo = await axios.get("http://localhost:8000/user", {
-      withCredentials: true,
-    });
-
-    // create correct json object for backend scenario creation
-    const requestBody = {
-      userID: userInfo.data.googleId,
-      scenario: data
-    }
-
-    //attempts to create the scenario
-    try{
-      const response = await axios.post("http://localhost:8000/scenario/create", requestBody);
-      console.log(response);
-    }
-    catch(err){
-      console.log(err);
-    }
-  }
 
   return (
     <motion.div
@@ -49,12 +26,6 @@ export default function CreateScenarioPage() {
         <Link to="/dashboard" className="back-link">
           {"<<"}Back
         </Link>
-      </div>
-      <div>
-        <p>
-          You can choose to import a yaml file here instead
-        </p>
-        <ImportScenario onFileParsed={handleFileParsed}/>
       </div>
       {/*Description*/}
       <p className="scenario-description">
