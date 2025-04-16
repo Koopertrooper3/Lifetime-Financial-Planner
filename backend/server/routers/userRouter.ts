@@ -23,7 +23,7 @@ router.post("/create", async (req, res) => {
         userCreateZod.parse(req.body);
         
         const newUser = await User.create({
-            googleId: req.body.googleId,
+            googleId: "none",
             name: req.body.name,
             ownedScenarios: [],
             sharedScenarios: [],
@@ -106,4 +106,14 @@ router.post("/shareScenario", async (req, res) => {
     }
 })
 
+
+router.post("/uploadTaxes", async (req, res) => {
+    try{
+        throw new Error("not implemented")
+    }
+    catch(err){
+        console.error("Error creating user:", err);
+        res.status(400).send({ message: "Error uploading taxes", err });
+    }
+})
 export default router;

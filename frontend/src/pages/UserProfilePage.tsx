@@ -11,7 +11,7 @@ const UserProfilePage = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:8000/api/user-profile", {
+      .get("http://localhost:8000/user", {
         withCredentials: true,
       })
       .then((res) => {

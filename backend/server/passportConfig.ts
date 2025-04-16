@@ -1,7 +1,6 @@
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import {User, IUser} from '../db/User';
-import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import process from 'process';
 import path from "path";
@@ -26,6 +25,7 @@ passport.use(
             name: profile.displayName,
             ownedScenarios: [],
             sharedScenarios: [],
+            stateTaxes: {}
           });
           user = (await newUser.save()) as IUser;
         }
