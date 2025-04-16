@@ -136,4 +136,20 @@
   margin-bottom: 10px;
 }
 
+.add-investment-type-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  font-size: 15px;
+  border: none;
+  border-radius: 5px;
+  background-color: #24C849;
+  padding: 10px;
+  color: white;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+
 

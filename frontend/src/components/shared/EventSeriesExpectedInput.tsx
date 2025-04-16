@@ -1,27 +1,7 @@
 import ToggleSwitch from "./ToggleSwitch";
 import "../../stylesheets/InvestmentType/ExpectedInput.css";
-
-type DistributionType =
-  | "Fixed Value/Percentage"
-  | "Normal Distribution"
-  | "Uniform Distribution";
-
-interface EventSeriesExpectedInputProps {
-  distributionType: DistributionType;
-  setDistributionType: (type: DistributionType) => void;
-  isFixedAmount: boolean;
-  setIsFixedAmount: (isAmount: boolean) => void;
-  fixedValue?: string;
-  setFixedValue?: (value: string) => void;
-  mean?: string;
-  setMean?: (value: string) => void;
-  stdDev?: string;
-  setStdDev?: (value: string) => void;
-  lowerBound?: string;
-  setLowerBound?: (value: string) => void;
-  upperBound?: string;
-  setUpperBound?: (value: string) => void;
-}
+import ValidationTextFields from "./ValidationTextFields";
+import { ExpectedInput } from "../../interfaces/EventSeries/ExpectedInput";
 
 const EventSeriesExpectedInput = ({
   distributionType,
@@ -37,7 +17,7 @@ const EventSeriesExpectedInput = ({
   setLowerBound = () => {},
   upperBound = "",
   setUpperBound = () => {},
-}: EventSeriesExpectedInputProps) => {
+}: ExpectedInput) => {
   const handleToggleSwitch = () => {
     setIsFixedAmount(!isFixedAmount);
   };
@@ -60,15 +40,17 @@ const EventSeriesExpectedInput = ({
             </span>
           </div>
         </div>
-        <input
-          className="textbox"
-          value={fixedValue}
-          onChange={(e) => setFixedValue(e.target.value)}
+        <ValidationTextFields
           placeholder={`Enter ${
             isFixedAmount
               ? "a dollar amount (e.g. $50)"
               : "a percentage amount (e.g. 0.4%)"
           }`}
+          setInput={setFixedValue}
+          inputType="number"
+          width="100%"
+          height="1.4375em"
+          disabled={false}
         />
       </div>
     );
@@ -99,29 +81,33 @@ const EventSeriesExpectedInput = ({
         <div>
           <div className="input-container">
             <p className="textbox-title">Enter the mean</p>
-            <input
-              className="textbox"
-              value={mean}
-              onChange={(e) => setMean(e.target.value)}
+            <ValidationTextFields
               placeholder={`Enter ${
                 isFixedAmount
                   ? "a dollar amount (e.g. $50)"
                   : "a percentage amount (e.g. 2%)"
               }`}
+              setInput={setMean}
+              inputType="number"
+              width="100%"
+              height="1.4375em"
+              disabled={false}
             />
           </div>
 
           <div className="input-container">
             <p>Enter the standard deviation</p>
-            <input
-              className="textbox"
-              value={stdDev}
-              onChange={(e) => setStdDev(e.target.value)}
+            <ValidationTextFields
               placeholder={`Enter ${
                 isFixedAmount
                   ? "a dollar amount (e.g. $50)"
                   : "a percentage amount (e.g. 2%)"
               }`}
+              setInput={setStdDev}
+              inputType="number"
+              width="100%"
+              height="1.4375em"
+              disabled={false}
             />
           </div>
         </div>
@@ -154,29 +140,33 @@ const EventSeriesExpectedInput = ({
         <div>
           <div className="input-container">
             <p className="textbox-title">Enter the lower bound</p>
-            <input
-              className="textbox"
-              value={lowerBound}
-              onChange={(e) => setLowerBound(e.target.value)}
+            <ValidationTextFields
               placeholder={`Enter ${
                 isFixedAmount
                   ? "a dollar amount (e.g. $50)"
                   : "a percentage amount (e.g. 2%)"
               }`}
+              setInput={setLowerBound}
+              inputType="number"
+              width="100%"
+              height="1.4375em"
+              disabled={false}
             />
           </div>
 
           <div className="input-container">
             <p>Enter the upper bound</p>
-            <input
-              className="textbox"
-              value={upperBound}
-              onChange={(e) => setUpperBound(e.target.value)}
+            <ValidationTextFields
               placeholder={`Enter ${
                 isFixedAmount
                   ? "a dollar amount (e.g. $50)"
                   : "a percentage amount (e.g. 2%)"
               }`}
+              setInput={setUpperBound}
+              inputType="number"
+              width="100%"
+              height="1.4375em"
+              disabled={false}
             />
           </div>
         </div>

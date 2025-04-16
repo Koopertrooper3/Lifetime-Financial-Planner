@@ -45,15 +45,15 @@ const assetProportionZod = z.object({
 
 const investEventZod = z.object({
     type: z.literal("Invest"),
-    assetAllocation: assetProportionZod,
+    assetAllocation: z.array(assetProportionZod),
     glidePath: z.boolean(),
-    assetAllocation2: assetProportionZod,
+    assetAllocation2: z.array(assetProportionZod),
     maxCash: z.number()
 }).strict();
 
 const rebalanceEventZod = z.object({
     type: z.literal("Rebalance"),
-    assetAllocation: assetProportionZod
+    assetAllocation: z.array(assetProportionZod)
 }).strict();
 
 const eventDataZod = z.discriminatedUnion("type", [

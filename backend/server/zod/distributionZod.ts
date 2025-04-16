@@ -12,7 +12,7 @@ const fixedDistribution = baseDistribution.extend({
 const normalDistribution = baseDistribution.extend({
     type: z.literal("Normal"),
     mean: z.number(),
-    stdDev: z.number()
+    stdev: z.number()
 });
   
 const uniformDistribution = baseDistribution.extend({

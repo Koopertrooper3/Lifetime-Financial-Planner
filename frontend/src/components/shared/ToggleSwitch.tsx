@@ -5,7 +5,7 @@ import React from "react";
 // Defines the props that the ToggleSwitch componenet accepts and needs
 // It extends MUI's SwitchProps but overrides the onChange to use a simpler onChange prop
 interface ToggleSwitchProps extends Omit<SwitchProps, "onChange"> {
-  checked: boolean;
+  checked?: boolean;
   onChange: (checked: boolean) => void;
 }
 

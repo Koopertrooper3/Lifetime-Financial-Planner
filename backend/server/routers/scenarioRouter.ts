@@ -35,8 +35,10 @@ const createScenarioZod = z.object({
 
 // when creating a scenario, the route expects two main fields: userID and scenario
 router.post("/create", async (req, res) => {
+    console.log("/scenario/create endpoint hit");
 
     try {
+        console.log("Incoming body:", req.body);
         // first check to see if the request body is valid using zod validation, failure will throw error and be caught
         createScenarioZod.parse(req.body);
 
@@ -59,6 +61,40 @@ router.post("/create", async (req, res) => {
         console.error("Error creating scenario:", error);
         res.status(400).send({ message: "Error creating scenario", error });
     }
+});
+
+// when editing a scenario, the route expects two main fields: userID, scenario._id, and scenario
+router.post("/edit", async (req, res) => {
+  console.log("/scenario/edit hit");
+
+  try {
+      console.log("Incoming body:", req.body);
+      // first check to see if the request body is valid using zod validation, failure will throw error and be caught
+      createScenarioZod.parse(req.body);
+
+      // now check to see if the user with userID exists, failure will throw error
+      const user = await User.findById(req.body.userID);
+      
+      if(user == null){
+          throw new Error("User does not exist")
+      }
+      
+      // Replace the scenario by ID
+      const updatedScenario = await scenarioModel.findOneAndReplace(
+        { _id: req.body.scenarioID },
+        req.body.scenario,
+        { new: true } // Return the updated document
+      );
+
+      if (!updatedScenario) {
+        throw new Error("Scenario was not found");
+      }
+
+      res.status(200).send({ message: "Scenario updated successfully", scenarioID: updatedScenario._id });
+  } catch (error) {
+      console.error("Error updating scenario:", error);
+      res.status(400).send({ message: "Error updating scenario", error });
+  }
 });
 
 // interface createScenarioBody{

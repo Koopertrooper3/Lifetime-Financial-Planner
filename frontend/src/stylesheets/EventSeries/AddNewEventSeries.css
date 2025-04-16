@@ -36,6 +36,7 @@
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   padding: 12px 12px; /* Consistent padding on all sides */
   box-sizing: border-box; /* Include padding in width calculation */
+  margin-top: -5px;
 }
 
 .event-series-description-container {
@@ -72,6 +73,26 @@
   margin-bottom: 25px;
 }
 
+.input-container {
+  margin-bottom: 10px;
+}
+
 .input-label {
-  margin-bottom: 100px;
+  margin-bottom: 15px;
+}
+
+.save-event-series-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.save-event-series-button {
+  width: 100%;
+  padding-top: 15px;
+  padding-bottom: 15px;
+  color: white;
+  background-color: #4C49ED;
+  border: none;
+  border-radius: 5px;
 }
