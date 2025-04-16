@@ -4,7 +4,7 @@ rm -rf ./.nyc_output/*
 npx tsc &&
 
 
-(trap 'kill 0' EXIT; npx nyc --silent npm run _server & npx nyc --silent npm run _simulator & sleep 10; npx playwright test);
+(trap 'kill 0' EXIT; npx nyc --silent npm run _server & npx nyc --silent npm run _simulator & sleep 10; npx playwright test; sleep 60);
 
 # "_test": "node ./backend/out/simulator/simulationHead.js & node ./backend/out/server/server.js & npx playwright test",
 # "test": "npx nyc npm run _test",

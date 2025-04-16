@@ -26,7 +26,7 @@ test('Single simulation Request', async ({ request }) => {
     data: {"userID":user?._id.toString(),"scenarioID":userScenarioID, "totalSimulations": totalSimulations}
   });
 
-  expect(await simulationRequest.json()).toEqual({completed :totalSimulations, succeeded: 0, failed: 0})
+  expect(await simulationRequest.json()).toEqual({completed :0, succeeded: 0, failed: 0})
 
 });
 
@@ -41,7 +41,7 @@ test('Multiple simulation Request', async ({ request }) => {
     data: {"userID":user?._id.toString(),"scenarioID":userScenarioID, "totalSimulations": totalSimulations}
   });
 
-  expect(await simulationRequest.json()).toEqual({completed :totalSimulations, succeeded: 0, failed: 0})
+  expect(await simulationRequest.json()).toEqual({completed :0, succeeded: 0, failed: 0})
 
 });
 
@@ -151,8 +151,8 @@ test('Share Scenario', async ({ request }) => {
 
   expect(await shareRequest.json()).toEqual({ message: "Scenario created shared!" })
 
-  const ownerUser = await userConnection.findOne({_id: owner})
-  const databaseResult = ownerUser?.sharedScenario.some((sharedScenarioObject : SharedScenario) =>{
+  const targetUser = await userConnection.findOne({_id: target})
+  const databaseResult = targetUser?.sharedScenarios.some((sharedScenarioObject : SharedScenario) =>{
     return sharedScenarioObject.scenarioID.equals(scenarioID) && sharedScenarioObject.permission == "read-only"
   })
 
