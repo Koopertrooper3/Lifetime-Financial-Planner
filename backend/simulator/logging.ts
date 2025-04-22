@@ -23,3 +23,22 @@ export async function closeCSVlog(writeStream : WriteStream){
     writeStream.end()
     await finished(writeStream)
 }
+
+//.log file logging functions
+
+export function incomeEventLogMessage(year : number, eventName: string, amount : number){
+    return `[Income] Year: ${year}, Amount: ${amount}, Event name: ${eventName}\n`
+}
+export function RMDLogMessage(year: number, amount : number, investmentType : string){
+    return `[RMD] Year: ${year}, Amount: ${amount}, Investment Type: ${investmentType}\n`
+}
+export function ExpenseLogMessage(year: number, amount : number, expense : string){
+    return `[Expense]: Year: ${year}, Amount: ${amount}, Expense: ${expense}\n`
+}
+export function RothConversionLogMessage(year: number, amount : number, investmentType : string){
+    return `[Roth Conversion]: Year: ${year}, Amount ${amount}, Investment Type: ${investmentType}\n`
+}
+
+export function pushToLog(logStream : WriteStream, message : string){
+    logStream.write(message)
+}
