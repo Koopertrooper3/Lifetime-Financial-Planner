@@ -4,8 +4,8 @@ import path from 'path';
 import mongoose from 'mongoose';
 import {Scenario, scenarioModel} from '../db/Scenario';
 import * as dotenv from 'dotenv';
-import { stateTaxParser } from '../state_taxes/statetax_parser';
-import { federalTaxModel,StateTaxBracket } from '../db/taxes';
+import { StateTaxBracket, stateTaxParser } from '../state_taxes/statetax_parser';
+import { federalTaxModel } from '../db/taxes';
 import {User} from '../db/User';
 import { pool } from 'workerpool';
 

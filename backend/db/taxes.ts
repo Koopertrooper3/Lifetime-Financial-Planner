@@ -3,16 +3,19 @@ import { Schema, model } from 'mongoose';
 export interface taxBracketType {
     rate : number,
     lowerThreshold : number,
+    upperThreshold : number
 }
-export interface StateTaxBracket{
+export interface stateTaxBracket{
     rate: number,
-    lowerThreshold: number,
-    flatAdjustment:number
+    lower_threshold: number,
+    upper_threshold: number,
+    flat_adjustment:number
 }
 export interface StateTax{
+    state: string,
     year: number,
-    singleIncomeTax: StateTaxBracket[],
-    marriedIncomeTax: StateTaxBracket[]
+    single_income_tax: stateTaxBracket[],
+    married_income_tax: stateTaxBracket[]
 }
 export interface FederalTax {
     year: number
@@ -28,6 +31,7 @@ export interface FederalTax {
 export const taxBracketSchema = new Schema<taxBracketType>({
     rate : Number,
     lowerThreshold : Number,
+    upperThreshold : Number
 })
 
 export const federalTaxSchema = new Schema<FederalTax>({
@@ -43,16 +47,18 @@ export const federalTaxSchema = new Schema<FederalTax>({
     marriedcapitalGainsTaxBrackets : [taxBracketSchema]
 })
 
-export const stateTaxBracketSchema = new Schema<StateTaxBracket>({
+export const stateTaxBracketSchema = new Schema<stateTaxBracket>({
     rate: Number,
-    lowerThreshold: Number,
-    flatAdjustment: Number
+    lower_threshold: Number,
+    upper_threshold: Number,
+    flat_adjustment: Number
 })
 
 export const stateTaxSchema = new Schema<StateTax>({
+    state: String,
     year: Number,
-    singleIncomeTax: [stateTaxBracketSchema],
-    marriedIncomeTax: [stateTaxBracketSchema]
+    single_income_tax: [stateTaxBracketSchema],
+    married_income_tax: [stateTaxBracketSchema]
 })
 
 export const federalTaxModel = model('taxModel',federalTaxSchema);
