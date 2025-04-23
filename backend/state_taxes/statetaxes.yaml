@@ -3,77 +3,59 @@ NY:
   singleIncomeTax:
     - rate: 0.04
       lowerThreshold: 0.00
-      upperThreshold: 8500.00
       flatAdjustment: 0.00
     - rate: 0.045
-      lowerThreshold: 8500.01
-      upperThreshold: 11700.00
+      lowerThreshold: 8501
       flatAdjustment: 340.00
     - rate: 0.0525
-      lowerThreshold: 11700.01 
-      upperThreshold: 13900.00
+      lowerThreshold: 11701
       flatAdjustment: 484.00
     - rate: 0.055
-      lowerThreshold: 13900.01 
-      upperThreshold: 80650.00
+      lowerThreshold: 13901 
       flatAdjustment: 600.00
     - rate: 0.06
-      lowerThreshold: 80650.01 
-      upperThreshold: 215400.00
+      lowerThreshold: 80651 
       flatAdjustment: 4271.00
     - rate: 0.0685
-      lowerThreshold: 215400.01 
-      upperThreshold: 1077550.00
+      lowerThreshold: 215401 
       flatAdjustment: 12356.00
     - rate: 0.0965
-      lowerThreshold: 1077550.01
-      upperThreshold: 5000000.00
+      lowerThreshold: 1077551
       flatAdjustment: 71413.00
-    - rate: 0.0103
-      lowerThreshold: 5000000.01 
-      upperThreshold: 25000000.00
+    - rate: 0.109
+      lowerThreshold: 5000001 
       flatAdjustment: 449929.00
     - rate: 0.103
-      lowerThreshold: 
-      upperThreshold: 
+      lowerThreshold: 25000001
       flatAdjustment: 2509929.00
     
   marriedIncomeTax:
     - rate: 0.04
       lowerThreshold: 0.00
-      upperThreshold: 17150.00
       flatAdjustment: 0.00
     - rate: 0.045
-      lowerThreshold: 17150.01
-      upperThreshold: 23600.00
+      lowerThreshold: 17151
       flatAdjustment: 686.00
     - rate: 0.0525
-      lowerThreshold: 23600.01
-      upperThreshold: 27900.00
+      lowerThreshold: 23601
       flatAdjustment: 976.00
     - rate: 0.055
-      lowerThreshold: 27900.01
-      upperThreshold: 161550.00
+      lowerThreshold: 27901
       flatAdjustment: 1202.00
     - rate: 0.06
-      lowerThreshold: 161550.01
-      upperThreshold: 323200.00
+      lowerThreshold: 161551
       flatAdjustment: 8553.00
     - rate: 0.0685
-      lowerThreshold: 323200.01
-      upperThreshold: 2155350.00
+      lowerThreshold: 323201
       flatAdjustment: 18252.00
     - rate: 0.0965
-      lowerThreshold: 2155350.01
-      upperThreshold: 5000000.00
+      lowerThreshold: 2155351
       flatAdjustment: 143754.00
     - rate: 0.0103
-      lowerThreshold: 5000000.01
-      upperThreshold: 25000000
+      lowerThreshold: 5000001
       flatAdjustment: 418263.00
     - rate: 0.0103
-      lowerThreshold: 25000000
-      upperThreshold: .inf
+      lowerThreshold: 25000001
       flatAdjustment: 2478263
 
 NJ:
@@ -81,65 +63,50 @@ NJ:
   singleIncomeTax:
     - rate: 0.014
       lowerThreshold: 0.00
-      upperThreshold: 20000.00
       flatAdjustment: 0
     - rate: 0.0175
-      lowerThreshold: 20000.01
-      upperThreshold: 35000.00
+      lowerThreshold: 20001
       flatAdjustment: -70.00
     - rate: 0.035
-      lowerThreshold: 35000.01
-      upperThreshold: 40000.00
+      lowerThreshold: 35001
       flatAdjustment: -682.50
     - rate: 0.05525
-      lowerThreshold: 40000.01
-      upperThreshold: 75000.00
+      lowerThreshold: 40001
       flatAdjustment: -1492.50
     - rate: 0.0637
-      lowerThreshold: 75000.01
-      upperThreshold: 500000.00
+      lowerThreshold: 75001
       flatAdjustment: -2126.25
     - rate: 0.0897
-      lowerThreshold: 500000.01
-      upperThreshold: 1000000.00
+      lowerThreshold: 500001
       flatAdjustment: -15126.25
     - rate: 0.1075
-      lowerThreshold: 1000000.01
-      upperThreshold: .inf
+      lowerThreshold: 1000001
       flatAdjustment: -32926.25
 
   marriedIncomeTax:
     - rate: 0.014
       lowerThreshold: 0.00
-      upperThreshold: 20000.00
       flatAdjustment: 0
     - rate: 0.0175
-      lowerThreshold: 20000.01
-      upperThreshold: 50000.00
+      lowerThreshold: 20001
       flatAdjustment: -70.00
     - rate: 0.0245
-      lowerThreshold: 50000.01
-      upperThreshold: 70000.00
+      lowerThreshold: 50001
       flatAdjustment: -420.00
     - rate: 0.035
-      lowerThreshold: 70000.01
-      upperThreshold: 80000.00
+      lowerThreshold: 70001
       flatAdjustment: -1154.50
     - rate: 0.05525
-      lowerThreshold: 80000.01
-      upperThreshold: 150000.00
+      lowerThreshold: 80001
       flatAdjustment: -2775.00
     - rate: 0.0637
-      lowerThreshold: 150000.01
-      upperThreshold: 500000.00
+      lowerThreshold: 150001
       flatAdjustment: -4042.50
     - rate: 0.897
-      lowerThreshold: 500000.00
-      upperThreshold: 1000000.00
+      lowerThreshold: 500001
       flatAdjustment: -17042.50
     - rate: 0.1075
-      lowerThreshold: 500000.00
-      upperThreshold: 1000000.00
+      lowerThreshold: 1000001
       flatAdjustment: -34842.50
 
 CT:
@@ -147,59 +114,45 @@ CT:
   singleIncomeTax:
     - rate: 0.02
       lowerThreshold: 0.00
-      upperThreshold: 10000.00
       flatAdjustment: 0.00
     - rate: 0.045
-      lowerThreshold: 10000.01 
-      upperThreshold: 50000.00
+      lowerThreshold: 10001
       flatAdjustment: 200.00
     - rate: 0.055
-      lowerThreshold: 50000.01
-      upperThreshold: 100000.00
+      lowerThreshold: 50001
       flatAdjustment: 2000.00
     - rate: 0.060
-      lowerThreshold: 100000.01
-      upperThreshold: 200000.00
+      lowerThreshold: 100001
       flatAdjustment: 4750.00
     - rate: 0.065
-      lowerThreshold: 200000.01
-      upperThreshold: 250000.00
+      lowerThreshold: 200001
       flatAdjustment: 10750.00
     - rate: 0.069
-      lowerThreshold: 250000.01
-      upperThreshold: 500000.00
+      lowerThreshold: 250001
       flatAdjustment: 14250.00
     - rate: 0.0699
-      lowerThreshold: 500000.01
-      upperThreshold: .inf
+      lowerThreshold: 500001
       flatAdjustment: 31250.00
     
   marriedIncomeTax:
     - rate: 0.02
       lowerThreshold: 0.00
-      upperThreshold: 20000.00
       flatAdjustment: 0.00
     - rate: 0.045
-      lowerThreshold: 20000.01
-      upperThreshold: 100000.00
+      lowerThreshold: 20001
       flatAdjustment: 400.00
     - rate: 0.055
-      lowerThreshold: 100000.01
-      upperThreshold: 200000.00
+      lowerThreshold: 100001
       flatAdjustment: 4000.00
     - rate: 0.060
-      lowerThreshold: 200000.01
-      upperThreshold: 400000.00
+      lowerThreshold: 200001
       flatAdjustment: 9500.00
     - rate: 0.065
-      lowerThreshold: 400000.01
-      upperThreshold: 500000.00
+      lowerThreshold: 400001
       flatAdjustment: 21500.00
     - rate: 0.069
-      lowerThreshold: 500000.01
-      upperThreshold: 1000000.00
+      lowerThreshold: 500001
       flatAdjustment: 28500.00
     - rate: 0.0699
-      lowerThreshold: 1000000.01
-      upperThreshold: .inf
+      lowerThreshold: 1000001
       flatAdjustment: 62500.00
