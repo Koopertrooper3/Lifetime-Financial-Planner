@@ -1,4 +1,3 @@
-/* eslint-disable prefer-const */
 /* eslint-disable @typescript-eslint/no-empty-function */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { createWriteStream, WriteStream } from "fs"
@@ -14,7 +13,7 @@ import { assert } from "console"
 import { EventDistribution } from "../db/EventSchema"
 import { RMDScraper } from "../scraper/RMDScraper"
 import { InvestmentType, IncomeDistribution, ReturnDistribution } from "../db/InvestmentTypesSchema"
-import { initalizeCSVLog,writeCSVlog,closeCSVlog, pushToLog as pushToRealLog, incomeEventLogMessage, RMDLogMessage, RothConversionLogMessage, ExpenseLogMessage } from "./logging"
+import { initalizeCSVLog,writeCSVlog,closeCSVlog } from "./logging"
 
 const USER = 0
 const SPOUSE = 1
@@ -33,6 +32,22 @@ const SOCIAL_SECURITY_PROPORTION = 0.85
  * @param {number} amount 
  * @returns {string} 
  */
+function incomeEventLogMessage(year : number, eventName: string, amount : number){
+    return `[Income] Year: ${year}, Amount: ${amount}, Event name: ${eventName}\n`
+}
+function RMDLogMessage(year: number, amount : number, investmentType : string){
+    return `[RMD] Year: ${year}, Amount: ${amount}, Investment Type: ${investmentType}\n`
+}
+function ExpenseLogMessage(year: number, amount : number, expense : string){
+    return `[Expense]: Year: ${year}, Amount: ${amount}, Expense: ${expense}\n`
+}
+function RothConversionLogMessage(year: number, amount : number, investmentType : string){
+    return `[Roth Conversion]: Year: ${year}, Amount ${amount}, Investment Type: ${investmentType}\n`
+}
+
+function pushToLog(logStream : WriteStream, message : string){
+    logStream.write(message)
+}
 
 type TaxType = "Federal Income" | "State Income" | "Capital Gains" | "Early Withdrawal Penalty"
 /**
@@ -72,6 +87,7 @@ interface TaxBracketContainer {
  * @returns {unknown} 
  */
 
+let logStream : WriteStream;
 
 async function simulation(threadData : threadData){
     const result : Result = {completed : 0, succeeded: 0, failed: 0}
@@ -79,8 +95,8 @@ async function simulation(threadData : threadData){
  
     const startTime = new Date();
     const dateTimeString = `${startTime.getMonth()}_${startTime.getDay()}_${startTime.getFullYear()}_${startTime.getHours()}:${startTime.getMinutes()}:${startTime.getSeconds()}`
-    const logStream = createWriteStream(path.resolve(__dirname, '..','..','logs',`${threadData.username}_${dateTimeString}.log`), {flags: 'a'})
-    const csvStream : WriteStream = initalizeCSVLog(threadData.username,dateTimeString)
+    logStream = createWriteStream(path.resolve(__dirname, '..','..','logs',`${threadData.username}_${dateTimeString}.log`), {flags: 'a'})
+    let csvStream : WriteStream = initalizeCSVLog(threadData.username,dateTimeString)
 
     const threadNumber : string = threadData.threadNumber.toString()
     const totalSimulations : number = threadData.simulationsPerThread
@@ -148,13 +164,12 @@ async function simulation(threadData : threadData){
             //TODO: Calculate annual limits on retirement account contributions after inflation
 
             //Income events
-            const {totalEventIncome,totalSocialSecurityIncome, adjustedEvents,incomeLogMessages} = 
+            const {totalEventIncome,totalSocialSecurityIncome, adjustedEvents} = 
             processIncome(scenario.eventSeries,inflationRate,spousalStatus,simulatedYear)
 
             scenario.investments["cash"].value += totalEventIncome
             currentYearTotalIncome += totalEventIncome
             scenario.eventSeries = adjustedEvents
-            pushToRealLog(logStream,incomeLogMessages.join("\n"))
 
             //Perform RMD
             if(age >= 74 && Object.values(scenario.investments).some((investment) => investment.taxStatus == "Pre-tax")){
@@ -180,7 +195,7 @@ async function simulation(threadData : threadData){
             }
 
             //Determine and pay taxes and non-discretionary expenses
-            const {nonDiscretionaryExpenses,NDExpenseLogMessages} = determineNonDiscretionaryExpenses(scenario.eventSeries,previousYearTaxBrackets,previousYearEarlyWithdrawals,
+            const nonDiscretionaryExpenses = determineNonDiscretionaryExpenses(scenario.eventSeries,previousYearTaxBrackets,previousYearEarlyWithdrawals,
                 previousYearIncome,previousYearCapitalGains,filingStatus,spousalStatus,logStream,simulatedYear)
 
 
@@ -460,7 +475,6 @@ function processIncome(scenarioEvents : Record<string,ScenarioEvent>, inflationR
     let totalEventIncome = 0.0
     let totalSocialSecurityIncome = 0.0
     const adjustedEvents : Record<string,ScenarioEvent> = {} 
-    const incomeLogMessages : string[] = []
 
     for(const currentEventEntry of Object.entries(scenarioEvents)){
         const currentEventKey = currentEventEntry[0]
@@ -512,13 +526,13 @@ function processIncome(scenarioEvents : Record<string,ScenarioEvent>, inflationR
             }else{
                 totalEventIncome += eventIncome
             }
-            incomeLogMessages.push(incomeEventLogMessage(currentYear,modifiedEvent.name,eventIncome))
+            pushToLog(logStream, incomeEventLogMessage(currentYear,modifiedEvent.name,eventIncome))
         }else{
             adjustedEvents[currentEventKey] = structuredClone(currentEvent)
         }
     }
 
-    return {totalEventIncome,totalSocialSecurityIncome,adjustedEvents,incomeLogMessages}
+    return {totalEventIncome,totalSocialSecurityIncome,adjustedEvents}
 }
 
 /** 
@@ -536,7 +550,6 @@ function performRMD(investments : Record<string,Investment>, RMDStrategy : strin
     const adjustedAccounts = structuredClone(investments)
     const preTaxAccounts = Object.values(adjustedAccounts).filter((investment) => investment.taxStatus == "Pre-tax")
     const nonRetirementTaxAccounts = Object.values(adjustedAccounts).filter((investment) => investment.taxStatus == "Non-retirement")
-    const logMessages : string[] = [];
 
     let RMDIndex = 0
 
@@ -576,7 +589,7 @@ function performRMD(investments : Record<string,Investment>, RMDStrategy : strin
 
         receivingAccount.value += withdrawnAmount
         requiredDistribution--
-        logMessages.push(RMDLogMessage(year, withdrawnAmount, withdrawingAccount.investmentType))
+        pushToLog(logStream,RMDLogMessage(year, withdrawnAmount, withdrawingAccount.investmentType))
     }
 
     RMDIncome += requiredDistribution
@@ -649,8 +662,7 @@ function rothConversionOptimizer(rothConversionStrategy : string[], accounts : R
 
     let incomeTaxBracket : taxBracketType[];
     const adjustedAccounts : Record<string,Investment> = structuredClone(accounts)
-    const logMessages : string[] = [];
-    
+
     if(filingStatus > 0){
         incomeTaxBracket = federalTaxBracket.marriedIncomeTaxBrackets
     }else{
@@ -702,7 +714,7 @@ function rothConversionOptimizer(rothConversionStrategy : string[], accounts : R
         receivingAccount.value += withdrawnAmount
         rothConversionAmount--
         
-        logMessages.push(RothConversionLogMessage(year,withdrawnAmount,withdrawingInvestmentType))
+        pushToLog(logStream,RothConversionLogMessage(year,withdrawnAmount,withdrawingInvestmentType))
 
     }
 
@@ -810,23 +822,17 @@ function determineNonDiscretionaryExpenses(events : Record<string,ScenarioEvent>
     const federalCapitalGainsTaxBurden = calculateFederalCapitalGainsTax(taxBrackets.Federal,previousYearIncome,previousYearCapitalGains,filingStatus)
     const earlyWithdrawalTax = calculateWithdrawalTax(previousYearEarlyWithdrawals)
     const stateTaxBurden = calculateStateIncomeTax(taxBrackets.State,previousYearIncome,filingStatus)
-    const NDExpenseLogMessages : string[] = [];
-
-    NDExpenseLogMessages.push(ExpenseLogMessage(year,federalIncomeTaxBurden,"Federal Income"))
-    NDExpenseLogMessages.push(ExpenseLogMessage(year,stateTaxBurden,"State Income"))
-    NDExpenseLogMessages.push(ExpenseLogMessage(year,federalCapitalGainsTaxBurden,"Federal Income"))
-    NDExpenseLogMessages.push(ExpenseLogMessage(year,earlyWithdrawalTax,"Federal Income"))
     
-    const eventNonDiscretionaryExpenses = Object.values(events).reduce((accumulatedExpenses, event)=> {
+    const nonDiscretionaryExpenses = Object.values(events).reduce((accumulatedExpenses, event)=> {
         if(event.event.type == "Expense" && event.event.discretionary == false){
             let expenseAmount : number;
             if(spousalStatus == true){
                 expenseAmount = event.event.initialAmount
-                NDExpenseLogMessages.push(ExpenseLogMessage(year,expenseAmount,event.name))
+                pushToLog(logStream,ExpenseLogMessage(year,expenseAmount,event.name))
                 return accumulatedExpenses += expenseAmount
             }else{
                 expenseAmount = event.event.initialAmount*event.event.userFraction
-                NDExpenseLogMessages.push(ExpenseLogMessage(year,expenseAmount,event.name))
+                pushToLog(logStream,ExpenseLogMessage(year,expenseAmount,event.name))
                 return accumulatedExpenses += expenseAmount
             }
         }else{
@@ -834,10 +840,13 @@ function determineNonDiscretionaryExpenses(events : Record<string,ScenarioEvent>
         }
     },0.0)
 
+    pushToLog(logStream,ExpenseLogMessage(year,federalIncomeTaxBurden,"Federal Income"))
+    pushToLog(logStream,ExpenseLogMessage(year,stateTaxBurden,"State Income"))
+    pushToLog(logStream,ExpenseLogMessage(year,federalCapitalGainsTaxBurden,"Federal Income"))
+    pushToLog(logStream,ExpenseLogMessage(year,earlyWithdrawalTax,"Federal Income"))
 
-
-    const nonDiscretionaryExpenses = federalIncomeTaxBurden + federalCapitalGainsTaxBurden + stateTaxBurden + earlyWithdrawalTax + eventNonDiscretionaryExpenses
-    return {nonDiscretionaryExpenses,NDExpenseLogMessages}
+    const totalExpenses = federalIncomeTaxBurden + federalCapitalGainsTaxBurden + stateTaxBurden + earlyWithdrawalTax + nonDiscretionaryExpenses
+    return totalExpenses
 }
 
 function determineTaxableCapitalGain(purchaseLedger : number[], withdrawalAmount : number, investmentValue : number){
