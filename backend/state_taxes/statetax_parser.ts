@@ -1,14 +1,14 @@
 import { parse } from 'yaml'
 import path from 'path'
 import { readFileSync } from 'fs'
-
+import { StateTax, StateTaxBracket } from '../db/taxes'
 const stateTaxFile = path.resolve(__dirname,"..","..","state_taxes","statetaxes.yaml")
 
 export function stateTaxParser(){
     console.log(stateTaxFile)
     const file = readFileSync(stateTaxFile, 'utf8')
     const parsedTaxes = parse(file)
-    const wellFormedTaxes : Record<string,StateTaxBracket> = {}
+    const wellFormedTaxes : Record<string,StateTax> = {}
     Object.entries(parsedTaxes).forEach((value)=>{
         wellFormedTaxes[value[0]] = {
             state : value[0],
@@ -22,18 +22,6 @@ export function stateTaxParser(){
 
 interface YAMLInterface{
     year: number,
-    singleIncomeTax: TaxBracket[]
-    marriedIncomeTax: TaxBracket[]
-}
-export interface TaxBracket{
-    rate: number
-    lowerThreshold: number
-    upperThreshold: number
-    flatAdjustment:number
-}
-export interface StateTaxBracket{
-    state: string,
-    year: number,
-    singleIncomeTax: TaxBracket[]
-    marriedIncomeTax: TaxBracket[]
+    singleIncomeTax: StateTaxBracket[],
+    marriedIncomeTax: StateTaxBracket[]
 }

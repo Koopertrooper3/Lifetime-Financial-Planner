@@ -6,8 +6,8 @@ import { finished } from "stream/promises"
 import {scenarioModel, Scenario} from "../db/Scenario"
 import PB from "probability-distributions"
 import { Investment } from "../db/InvestmentSchema"
-import { FederalTax, taxBracketType } from "../db/taxes"
-import {StateTaxBracket, stateTaxParser, TaxBracket} from "../state_taxes/statetax_parser"
+import { FederalTax, taxBracketType, StateTaxBracket, StateTax } from "../db/taxes"
+import {stateTaxParser} from "../state_taxes/statetax_parser"
 import { worker } from 'workerpool'
 import { Event as ScenarioEvent } from "../db/EventSchema"
 import { assert } from "console"
@@ -62,7 +62,7 @@ interface threadData {
     simulationsPerThread: number,
     scenario: Scenario,
     federalTaxes : FederalTax,
-    stateTaxes: StateTaxBracket
+    stateTaxes: StateTax
 }
 
 /**
@@ -78,7 +78,7 @@ interface Result{
 type TaxBracketLevel = "Federal" | "State"
 interface TaxBracketContainer {
     "Federal" : FederalTax,
-    "State" : StateTaxBracket
+    "State" : StateTax
 }
 /**
  * Description placeholder
@@ -97,7 +97,7 @@ async function simulation(threadData : threadData){
     const startTime = new Date();
     const dateTimeString = `${startTime.getMonth()}_${startTime.getDay()}_${startTime.getFullYear()}_${startTime.getHours()}:${startTime.getMinutes()}:${startTime.getSeconds()}`
     logStream = createWriteStream(path.resolve(__dirname, '..','..','logs',`${threadData.username}_${dateTimeString}.log`), {flags: 'a'})
-    let csvStream : WriteStream = initalizeCSVLog(threadData.username,dateTimeString)
+    const csvStream : WriteStream = initalizeCSVLog(threadData.username,dateTimeString)
 
     const threadNumber : string = threadData.threadNumber.toString()
     const totalSimulations : number = threadData.simulationsPerThread
@@ -431,22 +431,18 @@ function adjustTaxBracketsForInflation(taxBrackets: TaxBracketContainer, inflati
     //Update federal brackets
     const federalBrackets = adjustedTaxBrackets.Federal
     federalBrackets.singleIncomeTaxBrackets.forEach((taxBracket) => {
-        taxBracket.lowerThreshold += taxBracket.lowerThreshold*inflationRate
         taxBracket.upperThreshold += taxBracket.upperThreshold*inflationRate
     })
 
     federalBrackets.marriedIncomeTaxBrackets.forEach((taxBracket) => {
-        taxBracket.lowerThreshold += taxBracket.lowerThreshold*inflationRate
         taxBracket.upperThreshold += taxBracket.upperThreshold*inflationRate
     })
 
     federalBrackets.singleCapitalGainsTaxBrackets.forEach((taxBracket) => {
-        taxBracket.lowerThreshold += taxBracket.lowerThreshold*inflationRate
         taxBracket.upperThreshold += taxBracket.upperThreshold*inflationRate
     })
 
     federalBrackets.marriedIncomeTaxBrackets.forEach((taxBracket) => {
-        taxBracket.lowerThreshold += taxBracket.lowerThreshold*inflationRate
         taxBracket.upperThreshold += taxBracket.upperThreshold*inflationRate
     })
 
@@ -458,13 +454,11 @@ function adjustTaxBracketsForInflation(taxBrackets: TaxBracketContainer, inflati
     const stateBrackets = adjustedTaxBrackets.State
 
     stateBrackets.singleIncomeTax.forEach((taxBracket) =>{
-        taxBracket.lowerThreshold += taxBracket.lowerThreshold*inflationRate
         taxBracket.upperThreshold += taxBracket.upperThreshold*inflationRate
         taxBracket.flatAdjustment += taxBracket.flatAdjustment*inflationRate
     })
 
     stateBrackets.marriedIncomeTax.forEach((taxBracket) =>{
-        taxBracket.lowerThreshold += taxBracket.lowerThreshold*inflationRate
         taxBracket.upperThreshold += taxBracket.upperThreshold*inflationRate
         taxBracket.flatAdjustment += taxBracket.flatAdjustment*inflationRate
     })
@@ -678,7 +672,13 @@ function rothConversionOptimizer(rothConversionStrategy : string[], accounts : R
         incomeTaxBracket = federalTaxBracket.singleIncomeTaxBrackets
     }
 
-    const currentBracket = incomeTaxBracket.find((bracket) => currentYearIncome >= bracket.lowerThreshold && currentYearIncome <= bracket.upperThreshold)
+    const currentBracket = incomeTaxBracket.find((bracket,index,taxBrackets) => {
+        if(index+1 > taxBrackets.length){
+            return true
+        }else{
+            return taxBrackets[index+1].upperThreshold >= currentYearIncome
+        }
+    });
 
     if(currentBracket == undefined){
         throw new Error(`Tax bracket does not exist for income ${currentYearIncome}`)
@@ -747,17 +747,15 @@ function calculateFederalIncomeTax(taxBrackets : FederalTax, income : number,fil
 
     }
 
+    income -= standardDeduction;
+    let previousBracket = 0
     // Iterate through the tax brackets to calculate the tax burden
     for (const bracket of incomeTaxBracket) {
-        const taxableIncome = Math.min(income, bracket.upperThreshold) - bracket.lowerThreshold;
+        const taxableIncome = Math.min(income, bracket.upperThreshold)-previousBracket;
         taxBurden += taxableIncome * bracket.rate;
-
-        if (income <= bracket.upperThreshold) {
-            break;
-        }
-        
+        previousBracket = bracket.upperThreshold
     }
-    taxBurden -= standardDeduction
+
     if(taxBurden < 0){
         taxBurden = 0
     }
@@ -778,7 +776,13 @@ function calculateFederalCapitalGainsTax(taxBrackets : FederalTax, income : numb
         capitalGainsTaxBracket = taxBrackets.singleCapitalGainsTaxBrackets
     }
 
-    const capitalGainsRate = capitalGainsTaxBracket.find((bracket) => income >= bracket.lowerThreshold && income <= bracket.upperThreshold)?.rate
+    const capitalGainsRate = capitalGainsTaxBracket.find((bracket,index,taxBrackets) => {
+        if(index+1 > taxBrackets.length){
+            return true
+        }else{
+            return taxBrackets[index+1].upperThreshold >= income
+        }
+    })?.rate
     
     if(capitalGainsRate == undefined){
         throw new Error("Unable to find capital gains tax rate")
@@ -791,13 +795,13 @@ function calculateWithdrawalTax(previousYearEarlyWithdrawals : number){
     return previousYearEarlyWithdrawals*EARLY_WITHDRAWAL_PENALTY
 }
 
-function calculateStateIncomeTax(taxBrackets : StateTaxBracket, income : number,filingStatus : number){
+function calculateStateIncomeTax(taxBrackets : StateTax, income : number,filingStatus : number){
 
     //TP: Generated by Github Copilot with the prompt
     //"create an algorithm that calculates how much I have to pay in US federal taxes given my annual income"
 
     let taxBurden = 0.0;
-    let incomeTaxBracket : TaxBracket[];
+    let incomeTaxBracket : StateTaxBracket[];
 
     // Determine the applicable tax brackets based on filing status
     if(filingStatus > 0){
@@ -805,10 +809,10 @@ function calculateStateIncomeTax(taxBrackets : StateTaxBracket, income : number,
     }else{
         incomeTaxBracket = taxBrackets.singleIncomeTax
     }
-
+    
     // Iterate through the tax brackets to calculate the tax burden
     for (const bracket of incomeTaxBracket) {
-        const taxableIncome = Math.min(income, bracket.upperThreshold) - bracket.lowerThreshold;
+        const taxableIncome = Math.min(income, bracket.upperThreshold);
         taxBurden += taxableIncome * bracket.rate + bracket.flatAdjustment;
 
         if (income <= bracket.upperThreshold) {
@@ -1016,18 +1020,11 @@ function payDiscretionaryExpenses(accounts : Record<string,Investment>, investme
     let allExpensesPaid = false
     let expenseWithdrawalStrategyIndex = 0
 
-   for(const expenseID in spendingStrategy){
-        const currentExpense = expenses[expenseID]
-
-        if(currentExpense.event.type != "Expense"){
-            throw new Error("not an expense")
+   while(expendableValue >= 0){
+        for(let expenseID in expenseWithdrawalStrategy){
+            console.log("need");
         }
 
-        const expenseAmount = currentExpense.event.initialAmount
-        const withdrawingAccountID = expenseWithdrawalStrategy[expenseWithdrawalStrategyIndex]
-        const withdrawingAccount = adjustedAccounts[withdrawingAccountID]
-        
-        
    }
     
     
