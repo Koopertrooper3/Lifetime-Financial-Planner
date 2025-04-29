@@ -3,6 +3,9 @@ export interface ExpectedInput {
   | "Fixed Value/Percentage"
   | "Normal Distribution"
   | "Uniform Distribution";
+  setDistributionType: (value: "Fixed Value/Percentage"
+  | "Normal Distribution"
+  | "Uniform Distribution") => void;
   isFixedAmount: boolean;
   setIsFixedAmount: (value: boolean) => void;
   fixedValue?: string | number;

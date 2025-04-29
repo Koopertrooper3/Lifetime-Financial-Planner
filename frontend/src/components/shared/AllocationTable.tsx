@@ -18,6 +18,14 @@ const AllocationTable = ({
   setAllocated2Investments,
   allocationType,
 }: AllocationTableProps) => {
+  const { editEventSeries } = useScenarioContext();
+
+  useEffect(() => {
+    setAllocatedInvestments(editEventSeries.event.assetAllocation || []);
+    setAllocated2Investments(editEventSeries.event.assetAllocation2 || []);
+  }, [editEventSeries])
+
+
   useEffect(() => {
     console.log(`allocatedInvestments`, allocatedInvestments);
   }, [allocatedInvestments]);

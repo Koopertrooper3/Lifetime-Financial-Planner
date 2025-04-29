@@ -70,33 +70,78 @@ router.post("/edit", async (req, res) => {
 
   try {
       console.log("Incoming body:", req.body);
-      // first check to see if the request body is valid using zod validation, failure will throw error and be caught
-      createScenarioZod.parse(req.body);
+      
+      createScenarioZod.partial().parse(req.body); // Allows partial updates
 
       // now check to see if the user with userID exists, failure will throw error
       const user = await User.findById(req.body.userID);
-      
-      if(user == null){
-          throw new Error("User does not exist")
+      if (!user) {
+          throw new Error("User does not exist");
       }
-      
-      // Replace the scenario by ID
-      const updatedScenario = await scenarioModel.findOneAndReplace(
-        { _id: req.body.scenarioID },
-        req.body.scenario,
-        { new: true } // Return the updated document
+
+      // Update ONLY the specified fields using `$set`
+      const updatedScenario = await scenarioModel.findOneAndUpdate(
+          { _id: req.body.scenarioID, user: req.body.userID }, // Ensure user owns the scenario
+          { $set: req.body.updatedFields }, // Only updates provided fields
+          { new: true } // Return the updated document
       );
 
       if (!updatedScenario) {
-        throw new Error("Scenario was not found");
+          throw new Error("Scenario not found or user mismatch");
       }
 
-      res.status(200).send({ message: "Scenario updated successfully", scenarioID: updatedScenario._id });
+      res.status(200).json({ 
+          message: "Scenario updated successfully", 
+          data: updatedScenario 
+      });
   } catch (error) {
-      console.error("Error updating scenario:", error);
-      res.status(400).send({ message: "Error updating scenario", error });
+    if (error instanceof Error) {
+      console.error("Error updating scenario:", error.message);
+      res.status(400).json({ 
+        message: "Error updating scenario", 
+        error: error.message 
+      });
+    } else {
+      console.error("Unexpected error:", error);
+      res.status(500).json({ 
+        message: "An unknown error occurred" 
+      });
+    }
   }
 });
+
+// router.post("/edit", async (req, res) => {
+//   console.log("/scenario/edit hit");
+
+//   try {
+//       console.log("Incoming body:", req.body);
+//       // first check to see if the request body is valid using zod validation, failure will throw error and be caught
+//       createScenarioZod.parse(req.body);
+
+//       // now check to see if the user with userID exists, failure will throw error
+//       const user = await User.findById(req.body.userID);
+      
+//       if(user == null){
+//           throw new Error("User does not exist")
+//       }
+      
+//       // Replace the scenario by ID
+//       const updatedScenario = await scenarioModel.findOneAndReplace(
+//         { _id: req.body.scenarioID },
+//         req.body.scenario,
+//         { new: true } // Return the updated document
+//       );
+
+//       if (!updatedScenario) {
+//         throw new Error("Scenario was not found");
+//       }
+
+//       res.status(200).send({ message: "Scenario updated successfully", scenarioID: updatedScenario._id });
+//   } catch (error) {
+//       console.error("Error updating scenario:", error);
+//       res.status(400).send({ message: "Error updating scenario", error });
+//   }
+// });
 
 // interface createScenarioBody{
 //     userID: string,

@@ -106,4 +106,7 @@
   background-color: #4C49ED;
   border: none;
   border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }

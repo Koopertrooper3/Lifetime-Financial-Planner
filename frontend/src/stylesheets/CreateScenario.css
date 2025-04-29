@@ -137,7 +137,8 @@
 }
 
 .add-investment-type-container,
-.add-event-series-container {
+.add-event-series-container,
+.limits-and-contribution-container {
   display: flex;
   justify-content: center;
   align-items: center;

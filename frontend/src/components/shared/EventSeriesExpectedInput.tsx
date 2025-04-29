@@ -2,9 +2,12 @@ import ToggleSwitch from "./ToggleSwitch";
 import "../../stylesheets/InvestmentType/ExpectedInput.css";
 import ValidationTextFields from "./ValidationTextFields";
 import { ExpectedInput } from "../../interfaces/EventSeries/ExpectedInput";
+import { useEffect } from "react";
+import { useScenarioContext } from "../../useScenarioContext";
 
 const EventSeriesExpectedInput = ({
   distributionType,
+  setDistributionType,
   isFixedAmount,
   setIsFixedAmount,
   fixedValue = "",
@@ -18,6 +21,33 @@ const EventSeriesExpectedInput = ({
   upperBound = "",
   setUpperBound = () => {},
 }: ExpectedInput) => {
+  const { editEventSeries } = useScenarioContext();
+
+  useEffect(() => {
+    const mapDistributionTypeToLabel = (type: string) => {
+      if (type === "Normal") return "Normal Distribution";
+      if (type === "Fixed") return "Fixed Value";
+      if (type === "Uniform") return "Uniform Distribution";
+    };
+
+    setDistributionType(
+      mapDistributionTypeToLabel(
+        editEventSeries?.event?.changeDistribution?.type
+      ) as
+        | "Fixed Value/Percentage"
+        | "Normal Distribution"
+        | "Uniform Distribution"
+    );
+    setIsFixedAmount(
+      editEventSeries?.event.changeAmountOrPercent?.type === "Amount"
+    );
+    setFixedValue(editEventSeries?.event?.changeDistribution?.value || "");
+    setMean(editEventSeries?.event?.changeDistribution?.mean || "");
+    setStdDev(editEventSeries?.event?.changeDistribution?.stdev || "");
+    setLowerBound(editEventSeries?.event?.changeDistribution?.min || "");
+    setUpperBound(editEventSeries?.event?.changeDistribution?.max || "");
+  }, [editEventSeries]);
+
   const handleToggleSwitch = () => {
     setIsFixedAmount(!isFixedAmount);
   };
@@ -41,6 +71,7 @@ const EventSeriesExpectedInput = ({
           </div>
         </div>
         <ValidationTextFields
+          value={fixedValue}
           placeholder={`Enter ${
             isFixedAmount
               ? "a dollar amount (e.g. $50)"
@@ -82,6 +113,7 @@ const EventSeriesExpectedInput = ({
           <div className="input-container">
             <p className="textbox-title">Enter the mean</p>
             <ValidationTextFields
+              value={mean}
               placeholder={`Enter ${
                 isFixedAmount
                   ? "a dollar amount (e.g. $50)"
@@ -98,6 +130,7 @@ const EventSeriesExpectedInput = ({
           <div className="input-container">
             <p>Enter the standard deviation</p>
             <ValidationTextFields
+              value={stdDev}
               placeholder={`Enter ${
                 isFixedAmount
                   ? "a dollar amount (e.g. $50)"
@@ -141,6 +174,7 @@ const EventSeriesExpectedInput = ({
           <div className="input-container">
             <p className="textbox-title">Enter the lower bound</p>
             <ValidationTextFields
+              value={lowerBound}
               placeholder={`Enter ${
                 isFixedAmount
                   ? "a dollar amount (e.g. $50)"
@@ -157,6 +191,7 @@ const EventSeriesExpectedInput = ({
           <div className="input-container">
             <p>Enter the upper bound</p>
             <ValidationTextFields
+              value={upperBound}
               placeholder={`Enter ${
                 isFixedAmount
                   ? "a dollar amount (e.g. $50)"

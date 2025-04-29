@@ -11,6 +11,7 @@ import {
   InvestmentType,
   InvestmentTypeDistribution,
 } from "../useScenarioContext";
+import { useHelperContext } from "../HelperContext";
 
 type ValueType = "Fixed Amount/Percentage" | "Normal Distribution";
 const isValueType = (val: any): val is ValueType =>
@@ -18,21 +19,14 @@ const isValueType = (val: any): val is ValueType =>
 
 export default function InvestmentTypeForm() {
   const navigate = useNavigate();
-  const [shouldNavigate, setShouldNavigate] = useState(false);
   const { investmentTypeHooks } = useInvestmentTypeHooks();
   const {
     editInvestmentType,
-    setEditInvestmentType,
     investmentTypes,
-    setInvestmentTypes,
+    editScenario,
+    setEditScenario
   } = useScenarioContext();
-
-  useEffect(() => {
-    if (shouldNavigate) {
-      navigate("/dashboard/createScenario");
-      setShouldNavigate(false);
-    }
-  }, [shouldNavigate]);
+  const { handleEditScenario } = useHelperContext();
 
   useEffect(() => {
     if (editInvestmentType) {
@@ -53,7 +47,11 @@ export default function InvestmentTypeForm() {
 
       setInvestmentTypeName(editInvestmentType.name || "");
       setInvestmentTypeDescription(editInvestmentType.description || "");
-      setExpectedRatio(editInvestmentType.expenseRatio || "");
+      setExpectedRatio(
+        editInvestmentType.expenseRatio !== null
+          ? editInvestmentType.expenseRatio
+          : ""
+      );
       setIsTaxable(editInvestmentType.taxability ?? true); // fallback to true
 
       // Return Distribution
@@ -62,7 +60,7 @@ export default function InvestmentTypeForm() {
         investmentTypeHooks?.setReturnDistributionType(
           "Fixed Amount/Percentage"
         );
-        setReturnFixedValue(editInvestmentType.returnDistribution.value);
+        setReturnFixedValue(editInvestmentType.returnDistribution.value || "");
       } else if (editInvestmentType.returnDistribution.type === "Normal") {
         investmentTypeHooks?.setReturnDistributionType("Normal Distribution");
         setReturnMean(editInvestmentType.returnDistribution.mean);
@@ -75,7 +73,7 @@ export default function InvestmentTypeForm() {
         investmentTypeHooks?.setIncomeDistributionType(
           "Fixed Amount/Percentage"
         );
-        setIncomeFixedValue(editInvestmentType.incomeDistribution.value);
+        setIncomeFixedValue(editInvestmentType.incomeDistribution.value || "");
       } else if (editInvestmentType.incomeDistribution.type === "Normal") {
         investmentTypeHooks?.setIncomeDistributionType("Normal Distribution");
         setIncomeMean(editInvestmentType.incomeDistribution.mean);
@@ -154,17 +152,24 @@ export default function InvestmentTypeForm() {
       delete updatedInvestmentTypes[editInvestmentType.name];
     }
 
-    console.log("New Investment Type:", newInvestmentType);
-    console.log("Updated Investment Types:", updatedInvestmentTypes);
-
-    // Add or replace with new investment type
+    // Replace with new investment type
     updatedInvestmentTypes[newInvestmentType.name] = newInvestmentType;
 
-    setInvestmentTypes(updatedInvestmentTypes);
-    // Force a state update before navigation
-    await new Promise((resolve) => setTimeout(resolve, 0));
-
-    setShouldNavigate(true);
+    const userID = await (async () => {
+      const res = await fetch("http://localhost:8000/user", {
+        credentials: "include", // ensures session cookie is sent
+      });
+      const user = await res.json();
+      return user._id;
+    })();
+    const scenarioID = editScenario._id;
+    const updatedField = {
+      investmentTypes: updatedInvestmentTypes
+    };
+    const data = await handleEditScenario(userID, scenarioID, updatedField)
+    setEditScenario(data);
+    
+    navigate("/dashboard/createScenario");
   };
 
   return (

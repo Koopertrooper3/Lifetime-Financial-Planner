@@ -26,25 +26,35 @@ function App() {
           <Routes>
             <Route path="/" element={<LoginPage />} />
 
-          <Route path="/dashboard" element={<DashboardPage />}>
-            <Route
-              path="createScenario/*"
-              element={
-                <CreateSlideWrapper
-                  routes={[
-                    <Route path="/" element={<ScenarioFormPage />} />,
-                    <Route path="addNewInvestmentType" element={<InvestmentTypeForm />} />,
-                    <Route path="addNewEventSeries" element={<AddNewEventSeries />} />
-                  ]}
-                />
-              }
-            />
-          </Route>
-        
-          <Route path="/scenario/:id" element={<ScenarioPage />} />
-          <Route path="/chartsPage/" element={<ChartsPage />} />
-          <Route path="/user-profile" element={<UserProfilePage />} />
-          <Route path="/scenarios/:id/edit" element={<EditScenarioPage />} />
+            <Route path="/dashboard" element={<DashboardPage />}>
+              <Route
+                path="createScenario/*"
+                element={
+                  <CreateSlideWrapper
+                    routes={[
+                      <Route path="/" element={<ScenarioFormPage />} />,
+                      <Route
+                        path="addNewInvestmentType"
+                        element={<InvestmentTypeForm />}
+                      />,
+                      <Route
+                        path="addNewEventSeries"
+                        element={<AddNewEventSeries />}
+                      />,
+                      <Route
+                        path="Limits&ContributionLimits"
+                        element={<LimitsInflationPage />}
+                      />,
+                    ]}
+                  />
+                }
+              />
+            </Route>
+
+            <Route path="/scenario/:id" element={<ScenarioPage />} />
+            <Route path="/chartsPage/" element={<ChartsPage />} />
+            <Route path="/user-profile" element={<UserProfilePage />} />
+            <Route path="/scenarios/:id/edit" element={<EditScenarioPage />} />
 
             {/* <Route
             path="Limits&ContributionLimits"

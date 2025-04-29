@@ -20,28 +20,14 @@ import {
   assetProportion,
 } from "../useScenarioContext";
 import { useEventSeriesFormHooks } from "../hooks/useEventSeriesFormHooks";
-
-const defaultInvestments = [
-  { id: "1", name: "S&P 500 ETF", initialAllocation: 0, finalAllocation: 0 },
-  {
-    id: "2",
-    name: "Corporate Bonds",
-    initialAllocation: 0,
-    finalAllocation: 0,
-  },
-  {
-    id: "3",
-    name: "Real Estate Fund",
-    initalAllocation: 0,
-    finalAllocation: 0,
-  },
-];
+import { useHelperContext } from "../HelperContext";
 
 export default function EventSeriesForm() {
   const navigate = useNavigate();
   const { eventSeriesFormHooks } = useEventSeriesFormHooks();
-  const { eventSeries, setEventSeries, editEventSeries, setEditEventSeries } =
+  const { eventSeries, editEventSeries, editScenario, setEditScenario } =
     useScenarioContext();
+  const { handleEditScenario } = useHelperContext();
 
   useEffect(() => {
     if (editEventSeries) {
@@ -68,48 +54,22 @@ export default function EventSeriesForm() {
 
         // Event Type
         setEventType,
-
-        // Income
-        setIncomeType,
-        setIncomeInitialValue,
-        setIncomeDistributionType,
-        setIsFixedIncomeAmount,
-        setFixedIncomeValue,
-        setIncomeMean,
-        setIncomeStdDev,
-        setIncomeLowerBound,
-        setIncomeUpperBound,
-        setApplyInflation,
-        setUserPercentage,
-
-        // Expense
-        setIsDiscretionary,
-        setExpenseInitialAmount,
-        setExpenseDistributionType,
-        setIsExpenseAmount,
-        setExpenseFixedValue,
-        setExpenseMean,
-        setExpenseStdDev,
-        setExpenseLowerBound,
-        setExpenseUpperBound,
-
-        // Invest
-        setInvestAllocationType,
-        setAllocatedInvestments,
-        setAllocated2Investments,
-        setInvestMaxCashHoldings,
-
-        // Rebalance
-        setAllocationType,
-        setAllocatedRebalanceInvestments,
-        setTaxStatus,
       } = eventSeriesFormHooks;
+
+      const mapDistributionTypeToLabel = (type: string) => {
+        if (type === "Normal") return "Normal Distribution";
+        if (type === "Fixed") return "Fixed Value";
+        if (type === "Uniform") return "Uniform Distribution";
+        if (type === "EventBased") return "Event Based";
+      };
 
       // Name
       setEventSeriesName(editEventSeries.name || "");
 
       // Start Year
-      setStartYearModel(editEventSeries.start?.type || "");
+      setStartYearModel(
+        mapDistributionTypeToLabel(editEventSeries.start?.type) || ""
+      );
       setStartYear(editEventSeries.start?.value || "");
       setMeanYear(editEventSeries.start?.mean || "");
       setStdDevYear(editEventSeries.start?.stdev || "");
@@ -119,7 +79,9 @@ export default function EventSeriesForm() {
       setSelectedEvent(editEventSeries.start?.event || "");
 
       // Duration
-      setDurationType(editEventSeries.duration?.type || "");
+      setDurationType(
+        mapDistributionTypeToLabel(editEventSeries.duration?.type) || ""
+      );
       setDurationValue(editEventSeries.duration?.value || "");
       setMeanDuration(editEventSeries.duration?.mean || "");
       setStdDuration(editEventSeries.duration?.stdev || "");
@@ -128,88 +90,10 @@ export default function EventSeriesForm() {
 
       // Event Type
       setEventType(editEventSeries.event?.type || "");
-
-      const mapDistributionTypeToLabel = (type: string) => {
-        if (type === "Normal") return "Normal Distribution";
-        if (type === "Fixed") return "Fixed Amount/Percentage";
-        if (type === "Uniform") return "Uniform Distribution";
-      };
-
-      // Handle based on Event Type
-      if (editEventSeries.event?.type === "Income") {
-        setIncomeType(
-          editEventSeries.event.socialSecurity === true
-            ? "Social Security"
-            : "Wages"
-        );
-        setIncomeInitialValue(editEventSeries.event.initialAmount || 0);
-        setIncomeDistributionType(
-          // mapDistributionTypeToLabel(
-          editEventSeries.event.changeDistribution.type
-          // )
-        );
-        setIsFixedIncomeAmount(
-          editEventSeries.event.changeAmountOrPercent?.type === "Amount"
-        );
-        setFixedIncomeValue(
-          editEventSeries.event.changeDistribution?.value || ""
-        );
-        setIncomeMean(editEventSeries.event.changeDistribution?.mean || "");
-        setIncomeStdDev(editEventSeries.event.changeDistribution?.stdev || "");
-        setIncomeLowerBound(
-          editEventSeries.event.changeDistribution?.min || ""
-        );
-        setIncomeUpperBound(
-          editEventSeries.event.changeDistribution?.max || ""
-        );
-        setApplyInflation(editEventSeries.event.inflationAdjusted || false);
-        setUserPercentage(editEventSeries.event.userFraction * 100 || 100);
-      }
-
-      if (editEventSeries.event?.type === "Expense") {
-        setIsDiscretionary(editEventSeries.event.discretionary || false);
-        setExpenseInitialAmount(editEventSeries.event.initialAmount || 0);
-        setExpenseDistributionType(
-          editEventSeries.event.changeDistribution?.type || ""
-        );
-        setIsExpenseAmount(
-          editEventSeries.event.changeDistribution?.type === "Fixed"
-        );
-        setExpenseFixedValue(
-          editEventSeries.event.changeDistribution?.value || ""
-        );
-        setExpenseMean(editEventSeries.event.changeDistribution?.mean || "");
-        setExpenseStdDev(editEventSeries.event.changeDistribution?.stdev || "");
-        setExpenseLowerBound(
-          editEventSeries.event.changeDistribution?.lower || ""
-        );
-        setExpenseUpperBound(
-          editEventSeries.event.changeDistribution?.upper || ""
-        );
-        setApplyInflation(editEventSeries.event.inflationAdjusted || false);
-        setUserPercentage(editEventSeries.event.userFraction || 0);
-      }
-
-      if (editEventSeries.event?.type === "Invest") {
-        setInvestAllocationType(
-          editEventSeries.event.glidePath ? "Glide Path" : "Fixed"
-        );
-        setAllocatedInvestments(editEventSeries.event.assetAllocation || []);
-        setAllocated2Investments(editEventSeries.event.assetAllocation2 || []);
-        setInvestMaxCashHoldings(editEventSeries.event.maxCash || 0);
-      }
-
-      if (editEventSeries.event?.type === "Rebalance") {
-        setAllocationType(editEventSeries.event.allocatedType);
-        setAllocatedRebalanceInvestments(
-          editEventSeries.event.assetAllocation || []
-        );
-        setTaxStatus(editEventSeries.event.taxStatus);
-      }
     }
-  });
+  }, [editEventSeries]);
 
-  const handleSaveEventSeries = () => {
+  const handleSaveEventSeries = async () => {
     if (!eventSeriesFormHooks) {
       return;
     }
@@ -394,7 +278,6 @@ export default function EventSeriesForm() {
           proportion: Number(inv.proportion),
         })
       );
-      console.log(`inside handleSubmit`, { allocatedInvestments });
 
       let allocation2: assetProportion[] | undefined;
       if (investAllocationType === "Glide Path") {
@@ -447,13 +330,28 @@ export default function EventSeriesForm() {
       event,
     };
 
-    // Store in map or record
-    setEventSeries({
-      ...eventSeries,
-      [newEventSeries.name]: newEventSeries,
-    });
+    const updatedEventSeries = { ...eventSeries };
+    // Remove old event series if the name was changed
+    if (editEventSeries && editEventSeries.name !== newEventSeries.name) {
+      delete updatedEventSeries[editEventSeries.name];
+    }
 
-    console.log(`New Event Series`, { newEventSeries });
+    // Replace with new investment type
+    updatedEventSeries[newEventSeries.name] = newEventSeries;
+
+    const userID = await (async () => {
+      const res = await fetch("http://localhost:8000/user", {
+        credentials: "include", // ensures session cookie is sent
+      });
+      const user = await res.json();
+      return user._id;
+    })();
+    const scenarioID = editScenario._id;
+    const updatedField = {
+      eventSeries: updatedEventSeries,
+    };
+    const data = await handleEditScenario(userID, scenarioID, updatedField);
+    setEditScenario(data);
 
     navigate("/dashboard/createScenario");
   };
@@ -576,13 +474,13 @@ export default function EventSeriesForm() {
                 <input
                   type="radio"
                   id="startYearModel"
-                  value="eventBased"
+                  value="Event Based"
                   onChange={() => {
-                    eventSeriesFormHooks.setStartYearModel("eventBased");
+                    eventSeriesFormHooks.setStartYearModel("Event Based");
                   }}
-                  checked={eventSeriesFormHooks.startYearModel == "eventBased"}
+                  checked={eventSeriesFormHooks.startYearModel == "Event Based"}
                 ></input>
-                eventBased
+                Event Based
               </label>
             </div>
           </div>
@@ -662,7 +560,7 @@ export default function EventSeriesForm() {
             </div>
           )}
 
-          {eventSeriesFormHooks.startYearModel === "eventBased" && (
+          {eventSeriesFormHooks.startYearModel === "Event Based" && (
             <div className="event-based-container">
               {/* Radio Buttons */}
               <div className="radio-options">
@@ -771,11 +669,6 @@ export default function EventSeriesForm() {
           {eventSeriesFormHooks.durationType === "Fixed Value" && (
             <div className="input-group">
               <div className="input-label">Enter the Duration</div>
-              {/* <input
-              className="textbox"
-              placeholder="Enter a number of year (e.g. 10)"
-              onChange={(e) => setDurationFixedValue(e.target.value)}
-            /> */}
               <ValidationTextFields
                 value={eventSeriesFormHooks.durationValue}
                 placeholder="Enter a number of year (e.g. 10)"
@@ -922,7 +815,7 @@ export default function EventSeriesForm() {
               upperBound={eventSeriesFormHooks.incomeUpperBound}
               setUpperBound={eventSeriesFormHooks.setIncomeUpperBound}
               applyInflation={eventSeriesFormHooks.applyInflation}
-              setToggleInflation={eventSeriesFormHooks.setApplyInflation}
+              setApplyInflation={eventSeriesFormHooks.setApplyInflation}
               userPercentage={eventSeriesFormHooks.userPercentage}
               setUserPercentage={eventSeriesFormHooks.setUserPercentage}
               spousePercentage={eventSeriesFormHooks.spousePercentage}

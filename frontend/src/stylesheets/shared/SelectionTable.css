@@ -1,16 +1,25 @@
+/* Update your existing CSS with these changes: */
+
 .selection-type-container {
   width: 100%;
   border-collapse: collapse;
-  border: 1px solid #ccc;
 }
 
-.selection-type-container th,
-.selection-type-container td {
-  border: 1px solid #ccc; /* row + column lines */
+.header-container th {
+  border: none;
+  padding: 12px;
   text-align: center;
-  padding: 12px;  
+  background-color: #f8fafc;
 }
 
+/* Keep borders for data rows */
+.selection-type-item td {
+  border: 1px solid #ccc;
+  padding: 12px;
+  text-align: center;
+}
+
+/* Keep your other existing styles */
 .purple-title {
   color: #4C49ED;
 }

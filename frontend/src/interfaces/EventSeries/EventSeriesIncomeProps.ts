@@ -35,7 +35,7 @@ export interface EventSeriesIncomeProps {
   setUpperBound: (value: string | number) => void;
 
   applyInflation: boolean;
-  setToggleInflation: (apply: boolean) => void;
+  setApplyInflation: (apply: boolean) => void;
 
   userPercentage: number;
   setUserPercentage: (value: number) => void;
