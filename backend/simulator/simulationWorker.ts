@@ -94,7 +94,7 @@ async function simulation(threadData : threadData){
     }
 
 
-    const userBirthYear = baseScenario.birthYear[0]
+    const userBirthYear = baseScenario.birthYears[0]
     const baseTaxBrackets : TaxBracketContainer = {"Federal": threadData.federalTaxes, "State": threadData.stateTaxes}
     let RMDTable : Record<number,number> = {}
 
@@ -135,7 +135,7 @@ async function simulation(threadData : threadData){
             const inflationRate = calculateInflation(scenario)
             let spousalStatus : boolean;
             if(scenario.maritalStatus == "couple"){
-                spousalStatus = determineSpousalStatus(scenario.birthYear[SPOUSE],spouseLifeExpectancy,simulatedYear)
+                spousalStatus = determineSpousalStatus(scenario.birthYears[SPOUSE],spouseLifeExpectancy,simulatedYear)
                 if(spousalStatus == false && filingStatus > 0){
                     filingStatus--
                 }

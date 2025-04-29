@@ -43,7 +43,7 @@ router.post("/create", async (req, res) => {
         createScenarioZod.parse(req.body);
 
         // now check to see if the user with userID exists, failure will throw error
-        const user = await User.findById(req.body.userID);
+        const user = await User.findOne({googleId: req.body.userID});
         
         if(user == null){
             throw new Error("User does not exist")
@@ -56,6 +56,7 @@ router.post("/create", async (req, res) => {
 
         await user?.save()
 
+        console.log(`scenario added to user ${user.name}, ownedScenario: ${user.ownedScenarios}`)
         res.status(200).send({ message: "Scenario created successfully", scenarioID: newScenario._id });
     } catch (error) {
         console.error("Error creating scenario:", error);

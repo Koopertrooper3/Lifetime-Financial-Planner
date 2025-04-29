@@ -9,11 +9,11 @@ export default z.object({
     maritalStatus: z.enum(["couple", "individual"], {
         errorMap: () => ({ message: "Marital status must be either 'couple' or 'individual'" }),
     }),
-    birthYear: z.array(z.number().min(0, "birthYear can't be negative")),
+    birthYears: z.array(z.number().min(0, "birthYears can't be negative")),
     lifeExpectancy: z.array(distributionZod),
-    investmentTypes: z.record(z.string(), investmentTypeZod),
-    investments: z.record(z.string(), investmentZod),
-    eventSeries: z.record(z.string(), eventZod),
+    investmentTypes: z.array(investmentTypeZod),
+    investments: z.array(investmentZod),
+    eventSeries: z.array(eventZod),
     inflationAssumption: distributionZod,
     afterTaxContributionLimit: z.number(),
     spendingStrategy: z.array(z.string()),
@@ -29,7 +29,7 @@ export default z.object({
 .strict()
 .superRefine((val, ctx) => {
     if(val.maritalStatus === 'individual'){
-        if(val.birthYear.length !== 1){
+        if(val.birthYears.length !== 1){
             ctx.addIssue({
                 code: z.ZodIssueCode.custom,
                 message: "individual must have only one birthYear"
@@ -44,7 +44,7 @@ export default z.object({
     }
 
     if(val.maritalStatus === 'couple'){
-        if(val.birthYear.length !== 2){
+        if(val.birthYears.length !== 2){
             ctx.addIssue({
                 code: z.ZodIssueCode.custom,
                 message: "couple must have two birthYear"

@@ -60,7 +60,7 @@ test('Create Scenario', async ({ request }) => {
   const newScenario : Scenario = {
     name: "Marisa",
     maritalStatus: "individual",
-    birthYear: [1985],
+    birthYears: [1985],
     lifeExpectancy: [{type: "Fixed",value: 80}],
     investmentTypes: {},
     investments: { "cash" : {investmentType: "cash",value: 100,taxStatus: "Non-retirement",id: "cash"}},

@@ -174,7 +174,7 @@ async function testScenario() {
         const exampleScenario : Scenario = {
             name: "reimu",
             maritalStatus: "couple",
-            birthYear : [1985,1987],
+            birthYears : [1985,1987],
             lifeExpectancy : [ {type: "Fixed", value: 80} , {type: "Normal", mean: 82, stdev: 3} ],
             investmentTypes: {"cash" : cashInvestmentType ,"S&P 500" : SNPInvestmentType,"tax-exempt bonds": taxExemptBondsInvestmentType},
             investments: {"cash" :cashInvestment, "S&P 500 non-retirement" :snp500Investment, "tax-exempt bonds": taxExemptBondsInvestment,"S&P 500 pre-tax": snp500InvestmentPreTax,"S&P 500 after-tax": snp500InvestmentAfterTax},
