@@ -1,30 +1,42 @@
 import ToggleSwitch from "./ToggleSwitch";
 import "../../stylesheets/shared/IncomeAllocationInput.css";
+import { useScenarioContext } from "../../useScenarioContext";
+import { useEffect } from "react";
 
 interface IncomeAllocationInputProps {
   applyInflation: boolean;
-  onToggleInflation: (apply: boolean) => void;
+  setApplyInflation: (apply: boolean) => void;
   userPercentage: number;
-  onUserPercentageChange: (value: number) => void;
+  setUserPercentage: (value: number) => void;
   spousePercentage: number;
-  onSpousePercentageChange: (value: number) => void;
+  setSpousePercentage: (value: number) => void;
 }
 
 const IncomeAllocationInput = ({
   applyInflation,
-  onToggleInflation,
+  setApplyInflation,
   userPercentage,
-  onUserPercentageChange,
+  setUserPercentage,
   spousePercentage,
-  onSpousePercentageChange,
+  setSpousePercentage,
 }: IncomeAllocationInputProps) => {
+  const { editEventSeries, maritalStatus } = useScenarioContext();
+
+  useEffect(() => {
+    setApplyInflation(editEventSeries?.event?.inflationAdjusted || false);
+    setUserPercentage(editEventSeries?.event?.userFraction * 100 || 100);
+    if (maritalStatus === "couple") {
+      setSpousePercentage(editEventSeries?.event?.spouseFraction * 100);
+    }
+  }, [editEventSeries]);
+
   return (
     <div className="income-allocation-container">
       {/* Inflation */}
       <div className="inflation-container">
         <div className="inflation-toggle-container">
           <h3 className="purple-title">Inflation adjustment?</h3>
-          <ToggleSwitch checked={applyInflation} onChange={onToggleInflation} />
+          <ToggleSwitch checked={applyInflation} onChange={setApplyInflation} />
         </div>
         <div className="grayed-text">
           Click the toggle <span className="green-word">on</span> to apply
@@ -55,7 +67,7 @@ const IncomeAllocationInput = ({
               min="0"
               max="100"
               value={userPercentage}
-              onChange={(e) => onUserPercentageChange(Number(e.target.value))}
+              onChange={(e) => setUserPercentage(Number(e.target.value))}
               placeholder="e.g., 100%"
             />
           </div>
@@ -67,7 +79,7 @@ const IncomeAllocationInput = ({
               min="0"
               max="100"
               value={spousePercentage}
-              onChange={(e) => onSpousePercentageChange(Number(e.target.value))}
+              onChange={(e) => setSpousePercentage(Number(e.target.value))}
               placeholder="e.g., 0%"
             />
           </div>

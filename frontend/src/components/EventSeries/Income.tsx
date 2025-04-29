@@ -1,8 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import EventSeriesExpectedInput from "../shared/EventSeriesExpectedInput";
 import IncomeAllocationInput from "../shared/IncomeAllocationInput";
 import "../../stylesheets/EventSeries/Income.css";
 import { EventSeriesIncomeProps } from "../../interfaces/EventSeries/EventSeriesIncomeProps";
+import { useEventSeriesFormHooks } from "../../hooks/useEventSeriesFormHooks";
+import { useScenarioContext } from "../../useScenarioContext";
+import ValidationTextFields from "../shared/ValidationTextFields";
 
 export default function EventSeriesIncome({
   incomeType,
@@ -24,12 +27,25 @@ export default function EventSeriesIncome({
   upperBound,
   setUpperBound,
   applyInflation,
-  setToggleInflation,
+  setApplyInflation,
   userPercentage,
   setUserPercentage,
   spousePercentage,
-  setSpousePercentage,
+  setSpousePercentage
 }: EventSeriesIncomeProps) {
+  const { editEventSeries } = useScenarioContext();
+
+  useEffect(() => {
+    if (editEventSeries) {
+      setIncomeType(
+        editEventSeries.event.socialSecurity === true
+          ? "Social Security"
+          : "Wages"
+      );
+      setInitialAmount(editEventSeries.event.initialAmount || 0);
+    }
+  }, [editEventSeries]);
+
   return (
     <div className="event-series-income-container">
       <div className="title-with-info">
@@ -63,10 +79,15 @@ export default function EventSeriesIncome({
 
       <div>
         <p>Enter the Initial Amount</p>
-        <input
-          className="textbox"
+        <ValidationTextFields
+          value={initialAmount}
           placeholder="Enter a dollar amount (eg. $50)"
-        />
+          setInput={setInitialAmount}
+          inputType="number"
+          width="100%"
+          height="1.4375em"
+          disabled={false}
+        ></ValidationTextFields>
       </div>
 
       <div>
@@ -122,6 +143,7 @@ export default function EventSeriesIncome({
         {
           <EventSeriesExpectedInput
             distributionType={distributionType}
+            setDistributionType={setDistributionType}
             isFixedAmount={isFixedAmount}
             setIsFixedAmount={setIsFixedAmount}
             fixedValue={fixedValue}
@@ -139,11 +161,11 @@ export default function EventSeriesIncome({
 
         <IncomeAllocationInput
           applyInflation={applyInflation}
-          onToggleInflation={setToggleInflation}
+          setApplyInflation={setApplyInflation}
           userPercentage={userPercentage}
-          onUserPercentageChange={setUserPercentage}
+          setUserPercentage={setUserPercentage}
           spousePercentage={spousePercentage}
-          onSpousePercentageChange={setSpousePercentage}
+          setSpousePercentage={setSpousePercentage}
         />
       </div>
     </div>

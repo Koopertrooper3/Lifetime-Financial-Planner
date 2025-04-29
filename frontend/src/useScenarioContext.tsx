@@ -1,130 +1,13 @@
 import React, { createContext, useContext, useState } from "react";
-
-interface LifeExpectancyModel {
-  type: "Fixed" | "Normal";
-  value?: number;
-  mean?: number;
-  stdev?: number;
-}
-
-export interface InvestmentType {
-  name: string;
-  description: string;
-  returnAmtOrPct: "Amount" | "Percent";
-  returnDistribution: InvestmentTypeDistribution;
-  expenseRatio: number;
-  incomeAmtOrPct: "Amount" | "Percent";
-  incomeDistribution: InvestmentTypeDistribution;
-  taxability: boolean;
-}
-
-export interface Investment {
-  investmentType: string;
-  value: number;
-  taxStatus: "Non-retirement" | "Pre-tax" | "After-tax";
-  id: string;
-}
-
-interface eventBased {
-  type: "EventBased";
-  withOrAfter: "With" | "After";
-  event: string;
-}
-export type eventStartType = EventSeriesDistribution | eventBased;
-
-export interface EventSeries {
-  name: string;
-  start: eventStartType;
-  duration: EventSeriesDistribution;
-  event: IncomeEvent | ExpenseEvent | InvestEvent | RebalanceEvent;
-}
-
-export interface FixedDistribution {
-  type: "Fixed";
-  value: number;
-}
-
-export interface NormalDistribution {
-  type: "Normal";
-  mean: number;
-  stdev: number;
-}
-
-export interface UniformDistribution {
-  type: "Uniform";
-  min: number;
-  max: number;
-}
-
-export type InvestmentTypeDistribution = FixedDistribution | NormalDistribution;
-
-export type EventSeriesDistribution =
-  | FixedDistribution
-  | NormalDistribution
-  | UniformDistribution;
-
-export interface IncomeEvent {
-  type: "Income";
-  initialAmount: number;
-  changeAmountOrPercent: "Amount" | "Percent";
-  changeDistribution: EventSeriesDistribution;
-  inflationAdjusted: boolean;
-  userFraction: number;
-  socialSecurity: boolean;
-}
-
-export interface ExpenseEvent {
-  type: "Expense";
-  initialAmount: number;
-  changeAmountOrPercent: "Amount" | "Percent";
-  changeDistribution: EventSeriesDistribution;
-  inflationAdjusted: boolean;
-  userFraction: number;
-  discretionary: boolean;
-}
-
-export interface assetProportion {
-  asset: string;
-  proportion: number;
-}
-
-export interface InvestEvent {
-  type: "Invest";
-  assetAllocation: assetProportion[];
-  glidePath: boolean;
-  assetAllocation2?: assetProportion[];
-  maxCash: number;
-}
-
-type TaxStatus = "Pre-Tax" | "After-Tax" | "Non-Retirement";
-export interface RebalanceEvent {
-  type: "Rebalance";
-  taxStatus: TaxStatus;
-  assetAllocation: assetProportion[];
-  glidePath: boolean;
-  assetAllocation2?: assetProportion[];
-}
-
-export interface ScenarioInterface {
-  name: string;
-  maritalStatus: "individual" | "couple";
-  birthYear: number[];
-  lifeExpectancy: LifeExpectancyModel[];
-  investmentTypes: Record<string, InvestmentType>;
-  investments: Record<string, Investment>;
-  eventSeries: Record<string, EventSeries>;
-  inflationAssumption: { type: string; value: number };
-  afterTaxContributionLimit: number;
-  spendingStrategy: string[];
-  expenseWithdrawalStrategy: string[];
-  RMDStrategy: string[];
-  RothConversionOpt: boolean;
-  RothConversionStart: number;
-  RothConversionEnd: number;
-  RothConversionStrategy: string[];
-  financialGoal: number;
-  residenceState: string;
-}
+import {
+  FixedDistribution,
+  NormalDistribution,
+  UniformDistribution,
+} from "../../backend/db/DistributionSchemas.ts";
+import { InvestmentType } from "../../backend/db/InvestmentTypesSchema";
+import { Investment } from "../../backend/db/InvestmentSchema";
+import { Event } from "../../backend/db/EventSchema";
+import { Scenario } from "../../backend/db/Scenario.ts";
 
 // Context Type
 interface ScenarioContextType {
@@ -134,11 +17,17 @@ interface ScenarioContextType {
   setMaritalStatus: React.Dispatch<
     React.SetStateAction<"individual" | "couple">
   >;
-  birthYear: number[];
-  setBirthYear: React.Dispatch<React.SetStateAction<number[]>>;
-  lifeExpectancy: LifeExpectancyModel[];
+  birthYears: number[];
+  setBirthYears: React.Dispatch<React.SetStateAction<number[]>>;
+  lifeExpectancy: (
+    | FixedDistribution
+    | NormalDistribution
+    | UniformDistribution
+  )[];
   setLifeExpectancy: React.Dispatch<
-    React.SetStateAction<LifeExpectancyModel[]>
+    React.SetStateAction<
+      (FixedDistribution | NormalDistribution | UniformDistribution)[]
+    >
   >;
   investmentTypes: Record<string, InvestmentType>;
   setInvestmentTypes: React.Dispatch<
@@ -148,13 +37,16 @@ interface ScenarioContextType {
   setInvestments: React.Dispatch<
     React.SetStateAction<Record<string, Investment>>
   >;
-  eventSeries: Record<string, EventSeries>;
-  setEventSeries: React.Dispatch<
-    React.SetStateAction<Record<string, EventSeries>>
-  >;
-  inflationAssumption: { type: string; value: number };
+  eventSeries: Record<string, Event>;
+  setEventSeries: React.Dispatch<React.SetStateAction<Record<string, Event>>>;
+  inflationAssumption:
+    | FixedDistribution
+    | NormalDistribution
+    | UniformDistribution;
   setInflationAssumption: React.Dispatch<
-    React.SetStateAction<{ type: string; value: number }>
+    React.SetStateAction<
+      FixedDistribution | NormalDistribution | UniformDistribution
+    >
   >;
   afterTaxContributionLimit: number;
   setAfterTaxContributionLimit: React.Dispatch<React.SetStateAction<number>>;
@@ -182,6 +74,8 @@ interface ScenarioContextType {
   setEditInvestmentType: React.Dispatch<React.SetStateAction<any>>;
   editEventSeries: any;
   setEditEventSeries: React.Dispatch<React.SetStateAction<any>>;
+  editInflationAssumption: any;
+  setEditInflationAssumption: React.Dispatch<React.SetStateAction<any>>;
 }
 
 // Create Context
@@ -199,34 +93,32 @@ export const ScenarioProvider: React.FC<{ children: React.ReactNode }> = ({
   const [maritalStatus, setMaritalStatus] = useState<"individual" | "couple">(
     "individual"
   );
-  const [birthYear, setBirthYear] = useState<number[]>([1985]);
+  const [birthYears, setBirthYears] = useState<number[]>([1985]);
 
-  // Life Expectancy (e.g. [{ type: "Fixed", value: 80 }])
   const [lifeExpectancy, setLifeExpectancy] = useState<
-    {
-      type: "Fixed" | "Normal";
-      value?: number;
-      mean?: number;
-      stdev?: number;
-    }[]
+    (FixedDistribution | NormalDistribution | UniformDistribution)[]
   >([{ type: "Fixed", value: 80 }]);
 
-  // Investment Types and Investments (use Record<string, any> for now, or define types later)
-  const [investmentTypes, setInvestmentTypes] = useState<Record<string, any>>(
-    {}
-  );
-  const [investments, setInvestments] = useState<Record<string, any>>({});
-
-  // Event Series
-  const [eventSeries, setEventSeries] = useState<Record<string, any>>({});
+  // Changed from arrays to Record<string, T> to match schema
+  const [investmentTypes, setInvestmentTypes] = useState<
+    Record<string, InvestmentType>
+  >({});
+  const [investments, setInvestments] = useState<Record<string, Investment>>({
+    cash: {
+      investmentType: "cash",
+      value: 0,
+      taxStatus: "Non-retirement",
+      id: "cash",
+    },
+  });
+  const [eventSeries, setEventSeries] = useState<Record<string, Event>>({});
 
   // Inflation assumption
-  const [inflationAssumption, setInflationAssumption] = useState<{
-    type: string;
-    value: number;
-  }>({
+  const [inflationAssumption, setInflationAssumption] = useState<
+    FixedDistribution | NormalDistribution | UniformDistribution
+  >({
     type: "Fixed",
-    value: 0,
+    value: 0.03,
   });
 
   // Strategy-related fields
@@ -254,6 +146,7 @@ export const ScenarioProvider: React.FC<{ children: React.ReactNode }> = ({
   const [editScenario, setEditScenario] = useState(null);
   const [editInvestmentType, setEditInvestmentType] = useState(null);
   const [editEventSeries, setEditEventSeries] = useState(null);
+  const [editInflationAssumption, setEditInflationAssumption] = useState(null);
 
   return (
     <ScenarioContext.Provider
@@ -262,8 +155,8 @@ export const ScenarioProvider: React.FC<{ children: React.ReactNode }> = ({
         setName,
         maritalStatus,
         setMaritalStatus,
-        birthYear,
-        setBirthYear,
+        birthYears,
+        setBirthYears,
         lifeExpectancy,
         setLifeExpectancy,
         investmentTypes,
@@ -300,6 +193,8 @@ export const ScenarioProvider: React.FC<{ children: React.ReactNode }> = ({
         setEditInvestmentType,
         editEventSeries,
         setEditEventSeries,
+        editInflationAssumption,
+        setEditInflationAssumption,
       }}
     >
       {children}

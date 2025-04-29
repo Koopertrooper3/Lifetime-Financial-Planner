@@ -1,99 +1,41 @@
-/* General Table Styling */
 .allocation-table {
   width: 100%;
   border-collapse: collapse;
   margin: 1rem 0;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
+  display: table; /* Changed from flex to table */
 }
 
-.allocation-table input[type="number"] {
-  width: 150px; /* Increased from 80px */
-  min-width: 150px; /* Ensures minimum width */
-  padding: 8px 12px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 0.9rem;
-  transition: border-color 0.3s, box-shadow 0.3s;
-}
-
-/* Header Styling */
-.allocation-table thead {
-  background-color: #4C49ED;
-  color: white;
+/* Header row - now using flexbox */
+.allocation-table thead tr {
+  display: flex;
+  width: 100%;
 }
 
 .allocation-table th {
+  flex: 1;
   padding: 12px 15px;
   text-align: left;
-  font-weight: 600;
-  text-transform: uppercase;
-  font-size: 0.85rem;
-  letter-spacing: 0.5px;
+  /* Keep other styles */
 }
 
-/* Body Styling */
+/* Body rows - adjust to match header */
 .allocation-table tbody tr {
+  display: flex;
+  width: 100%;
   border-bottom: 1px solid #e0e0e0;
-  transition: background-color 0.2s;
-}
-
-.allocation-table tbody tr:last-child {
-  border-bottom: none;
-}
-
-.allocation-table tbody tr:hover {
-  background-color: #f5f7fa;
 }
 
 .allocation-table td {
+  flex: 1;
   padding: 12px 15px;
-  vertical-align: middle;
+  /* Keep other styles */
 }
 
-/* Input Styling */
+/* Input fields - adjust width */
 .allocation-table input[type="number"] {
-  width: 80px;
-  padding: 8px 12px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 0.9rem;
-  transition: border-color 0.3s, box-shadow 0.3s;
-}
-
-.allocation-table input[type="number"]:focus {
-  outline: none;
-  border-color: #4a6fa5;
-  box-shadow: 0 0 0 2px rgba(74, 111, 165, 0.2);
-}
-
-.allocation-table input[type="number"]::placeholder {
-  color: #aaa;
-}
-
-/* Responsive Adjustments */
-@media (max-width: 768px) {
-  .allocation-table {
-    display: block;
-    overflow-x: auto;
-  }
-  
-  .allocation-table th,
-  .allocation-table td {
-    padding: 8px 10px;
-    font-size: 0.8rem;
-  }
-  
-  .allocation-table input[type="number"] {
-    width: 70px;
-    padding: 6px 8px;
-  }
-}
-
-.allocation-table tbody tr:nth-child(even) {
-  background-color: #f9f9f9;
-}
-
-.allocation-table tbody tr:nth-child(even):hover {
-  background-color: #f0f3f7;
+  width: 100%;
+  max-width: 150px;
+  /* Keep other styles */
 }

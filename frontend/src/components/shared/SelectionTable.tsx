@@ -8,7 +8,6 @@ interface SelectionTableProps {
   description: string;
   data: Record<string, any>;
   emptyMessage?: string;
-  category: string;
   renderAttribute: (item: any) => React.ReactNode;
 }
 
@@ -17,16 +16,10 @@ export default function SelectionTable({
   description,
   data,
   emptyMessage,
-  category,
   renderAttribute,
 }: SelectionTableProps) {
   const navigate = useNavigate();
-  const {
-    editInvestmentType,
-    setEditInvestmentType,
-    editEventSeries,
-    setEditEventSeries,
-  } = useScenarioContext();
+  const { setEditInvestmentType, setEditEventSeries } = useScenarioContext();
 
   const handleClick = (title: string, type: any) => {
     setEditInvestmentType(null);
@@ -49,17 +42,10 @@ export default function SelectionTable({
       ) : (
         <>
           <table className="selection-type-container">
-            <thead className="header-container">
-              <tr>
-                <th className="purple-title">{title}</th>
-                <th className="purple-title">{category}</th>
-                <th className="purple-title">Actions</th>
-              </tr>
-            </thead>
             <tbody>
               {Object.entries(data)?.map(([key, type]) => (
                 <tr key={key} className="selection-type-item">
-                  <td className="purple-title">{type.name}</td>
+                  <td>{type.name}</td>
                   <td className="category">{renderAttribute(type)}</td>
                   <td className="right-align-td">
                     <button

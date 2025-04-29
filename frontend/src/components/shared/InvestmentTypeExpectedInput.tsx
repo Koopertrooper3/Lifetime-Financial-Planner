@@ -52,18 +52,8 @@ const ExpectedInput = ({
             </span>
           </div>
         </div>
-        {/* <input
-          className="textbox"
-          value={fixedValue}
-          onChange={(e) => onFixedValueChange(e.target.value)}
-          placeholder={`Enter ${
-            isFixedAmount
-              ? "a dollar amount (e.g. $50)"
-              : "a percentage amount (e.g. 0.4%)"
-          }`}
-        /> */}
         <ValidationTextFields
-          value={fixedValue}
+          value={fixedValue ?? ""}
           placeholder={`Enter ${
             isFixedAmount
               ? "a dollar amount (e.g. $50)"

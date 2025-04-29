@@ -4,48 +4,22 @@ import LifeExpectency from "../components/LifeExpectency";
 import { Link, useNavigate } from "react-router-dom";
 import ValidationTextFields from "../components/shared/ValidationTextFields";
 import { useHelperContext } from "../HelperContext";
-import { useScenarioContext, ScenarioInterface } from "../useScenarioContext";
+import { useScenarioContext } from "../useScenarioContext";
+import { Scenario } from "../../../backend/db/Scenario";
 import SelectionTable from "../components/shared/SelectionTable";
 import axios from "axios";
-import ImportScenario from '../components/ImportScenario';
-
-interface ScenarioFormPageProps {
-  isEditMode?: boolean;
-  scenarioData?: {
-    financialGoal: string | number;
-    name: string;
-    description: string;
-    filingStatus: "Single" | "Filing Jointly";
-    birthYear: string | number;
-    spouseBirthYear: string | number;
-    stateOfResidence: string | number;
-    // Life Expectancy
-    lifeExpectancyType: string;
-    expectedAge: string | number;
-    meanAge: string | number;
-    std: string | number;
-    // Spouse Life Expectancy
-    spouseLifeExpectancyType?: string;
-    spouseExpectedAge?: string | number;
-    spouseMeanAge?: string | number;
-    spouseStd?: string | number;
-    scenario: any;
-  };
-}
+import ImportScenario from "../components/ImportScenario";
 
 export default function ScenarioFormPage() {
-  // Used to track if editScenario is already set
-  const hasInitialized = useRef(false);
   const navigate = useNavigate();
-  const { allInvestmentTypes } = useHelperContext();
-  const [allEventSeries, setAllEventSeries] = useState(null);
+  const { handleEditScenario } = useHelperContext();
   const {
     name,
     setName,
     maritalStatus,
     setMaritalStatus,
-    birthYear,
-    setBirthYear,
+    birthYears,
+    setBirthYears,
     lifeExpectancy,
     setLifeExpectancy,
     financialGoal,
@@ -54,43 +28,26 @@ export default function ScenarioFormPage() {
     setResidenceState,
     investmentTypes,
     setInvestmentTypes,
-    investments,
     setInvestments,
     eventSeries,
     setEventSeries,
-    inflationAssumption,
     setInflationAssumption,
-    afterTaxContributionLimit,
     setAfterTaxContributionLimit,
-    spendingStrategy,
     setSpendingStrategy,
-    expenseWithdrawalStrategy,
     setExpenseWithdrawalStrategy,
-    RMDStrategy,
     setRMDStrategy,
-    RothConversionOpt,
     setRothConversionOpt,
-    RothConversionStart,
     setRothConversionStart,
-    RothConversionEnd,
     setRothConversionEnd,
-    RothConversionStrategy,
     setRothConversionStrategy,
     editScenario,
-    setEditScenario,
   } = useScenarioContext();
 
   const handleCancel = () => {
-    resetScenario();
     navigate(`/scenario/${editScenario._id}`);
   };
 
-  const handleBack = () => {
-    resetScenario();
-    navigate("/dashboard");
-  };
-
-  const handleFileParsed = async function(data:unknown){
+  const handleFileParsed = async function (data: unknown) {
     // grabs user info
     const userInfo = await axios.get("http://localhost:8000/user", {
       withCredentials: true,
@@ -99,29 +56,28 @@ export default function ScenarioFormPage() {
     // create correct json object for backend scenario creation
     const requestBody = {
       userID: userInfo.data.googleId,
-      scenario: data
-    }
+      scenario: data,
+    };
 
     //attempts to create the scenario
-    try{
-      const response = await axios.post("http://localhost:8000/scenario/create", requestBody);
+    try {
+      const response = await axios.post(
+        "http://localhost:8000/scenario/create",
+        requestBody
+      );
       console.log(response);
-    }
-    catch(err){
+    } catch (err) {
       console.log(err);
     }
-  }
+  };
 
   useEffect(() => {
-    if (editScenario && !hasInitialized.current) {
+    if (editScenario) {
       setName(editScenario.name);
       setMaritalStatus(editScenario.maritalStatus);
-      setBirthYear(editScenario.birthYear);
+      setBirthYears(editScenario.birthYears);
       setLifeExpectancy(editScenario.lifeExpectancy);
-      // Only set investmentTypes if they're empty (prevent overwrite)
-      if (Object.keys(investmentTypes).length === 0) {
-        setInvestmentTypes(editScenario.investmentTypes);
-      }
+      setInvestmentTypes(editScenario.investmentTypes);
       setInvestments(editScenario.investments);
       setEventSeries(editScenario.eventSeries);
       setInflationAssumption(editScenario.inflationAssumption);
@@ -135,141 +91,26 @@ export default function ScenarioFormPage() {
       setRothConversionStrategy(editScenario.RothConversionStrategy);
       setFinancialGoal(editScenario.financialGoal);
       setResidenceState(editScenario.residenceState);
-      hasInitialized.current = true;
     }
   }, [editScenario]);
-
-  useEffect(() => {
-    console.log("Updated investmentTypes:", investmentTypes);
-  }, [investmentTypes]);
-
-  useEffect(() => {
-    console.log("EditScenario changed:", editScenario);
-  }, [editScenario]);
-
-  const getId = async () => {
-    const res = await fetch("http://localhost:8000/user", {
-      credentials: "include", // ensures session cookie is sent
-    });
-    const user = await res.json();
-    return user._id;
-  };
-
-  function removeIds(obj: any): any {
-    if (Array.isArray(obj)) {
-      return obj.map(removeIds);
-    } else if (obj !== null && typeof obj === "object") {
-      const { _id, ...rest } = obj;
-      return Object.fromEntries(
-        Object.entries(rest).map(([key, value]) => [key, removeIds(value)])
-      );
-    }
-    return obj;
-  }
 
   const handleSubmit = async () => {
-    console.log("handleSubmit triggered");
-    const currentUserId = await getId();
-
-    // Use the context values declared above in the same component scope
-    const latestScenario: ScenarioInterface = {
-      name,
-      maritalStatus,
-      birthYear,
-      lifeExpectancy,
-      investmentTypes,
-      investments,
-      eventSeries,
-      inflationAssumption,
-      afterTaxContributionLimit,
-      spendingStrategy,
-      expenseWithdrawalStrategy,
-      RMDStrategy,
-      RothConversionOpt,
-      RothConversionStart,
-      RothConversionEnd,
-      RothConversionStrategy,
-      financialGoal,
-      residenceState,
+    const userID = await (async () => {
+      const res = await fetch("http://localhost:8000/user", {
+        credentials: "include", // ensures session cookie is sent
+      });
+      const user = await res.json();
+      return user._id;
+    })();
+    const scenarioID = editScenario._id;
+    const updatedFields = {
+      name: name,
+      maritalStatus: maritalStatus,
+      birthYears: birthYears,
+      lifeExpectancy: lifeExpectancy,
     };
-
-    const cleanedScenario = removeIds(latestScenario);
-
-    if (editScenario !== null) {
-      console.log(`cleanedScenario:`, cleanedScenario.investmentTypes);
-      await handleEditScenario(
-        currentUserId,
-        editScenario._id,
-        cleanedScenario
-      );
-    } else {
-      await handleSaveScenario(currentUserId, cleanedScenario);
-    }
-  };
-
-  const resetScenario = () => {
-    setName("sup");
-    setMaritalStatus("individual");
-    setBirthYear([1985]);
-    setLifeExpectancy([{ type: "Fixed", value: 80 }]);
-    setInvestmentTypes({});
-    setInvestments({});
-    setEventSeries({});
-    setInflationAssumption({ type: "Fixed", value: 0 });
-    setAfterTaxContributionLimit(0);
-    setSpendingStrategy([]);
-    setExpenseWithdrawalStrategy([]);
-    setRMDStrategy([]);
-    setRothConversionOpt(false);
-    setRothConversionStart(0);
-    setRothConversionEnd(0);
-    setRothConversionStrategy([]);
-    setFinancialGoal(0);
-    setResidenceState("NY");
-    setEditScenario(null);
-  };
-
-  const handleSaveScenario = async (
-    userID: string,
-    scenario: ScenarioInterface
-  ) => {
-    console.log("Sending scenario:", scenario);
-    try {
-      const res = await axios.post("http://localhost:8000/scenario/create", {
-        userID,
-        scenario,
-      });
-
-      console.log("Scenario created successfully:", res.data);
-      resetScenario();
-      navigate("/dashboard");
-      // You can redirect or show success UI here
-    } catch (error) {
-      console.error("Error saving scenario:", error);
-      // Optionally show an error message to the user
-    }
-  };
-
-  const handleEditScenario = async (
-    userID: string,
-    scenarioID: string,
-    scenario: ScenarioInterface
-  ) => {
-    console.log("Sending scenario:", scenario);
-    try {
-      const res = await axios.post("http://localhost:8000/scenario/edit", {
-        userID,
-        scenarioID,
-        scenario,
-      });
-
-      console.log("Scenario updated successfully:", res.data);
-      resetScenario();
-      navigate(`/scenario/${scenarioID}`);
-      // You can redirect or show success UI here
-    } catch (error) {
-      console.error("Error updating scenario:", error);
-    }
+    await handleEditScenario(userID, scenarioID, updatedFields);
+    navigate(`/scenario/${scenarioID}`);
   };
 
   return (
@@ -279,21 +120,13 @@ export default function ScenarioFormPage() {
         <h2 className="header">
           {editScenario !== null ? "Update Scenario" : "Create Scenario"}
         </h2>
-        {editScenario !== null ? (
-          <button className="back-link" onClick={handleCancel}>
-            Cancel
-          </button>
-        ) : (
-          <button className="back-link" onClick={handleBack}>
-            {"<<"}Back
-          </button>
-        )}
+        <button className="back-link" onClick={handleCancel}>
+          Cancel
+        </button>
       </div>
       <div>
-        <p>
-          You can choose to import a yaml file here instead
-        </p>
-        <ImportScenario onFileParsed={handleFileParsed}/>
+        <p>You can choose to import a yaml file here instead</p>
+        <ImportScenario onFileParsed={handleFileParsed} />
       </div>
       {/*Scenario Name*/}
       <div className="scenario-name-container">
@@ -365,10 +198,10 @@ export default function ScenarioFormPage() {
         <div className="first-birth-textbox">
           <h3 className="purple-title">Birth Year</h3>
           <ValidationTextFields
-            value={birthYear?.[0] || ""}
+            value={birthYears?.[0] || ""}
             placeholder="Enter a year (e.g., 2003)"
             setInput={(val) =>
-              setBirthYear((prev) => {
+              setBirthYears((prev) => {
                 const updated = [...prev];
                 updated[0] = Number(val);
                 return updated;
@@ -383,10 +216,10 @@ export default function ScenarioFormPage() {
         <div>
           <h3 className="purple-title">Spouse Birth Year</h3>
           <ValidationTextFields
-            value={birthYear?.[1] || ""}
+            value={birthYears?.[1] || ""}
             placeholder="Enter a year (e.g., 2003)"
             setInput={(val) =>
-              setBirthYear((prev) => {
+              setBirthYears((prev) => {
                 const updated = [...prev];
                 updated[1] = Number(val);
                 return updated;
@@ -435,7 +268,10 @@ export default function ScenarioFormPage() {
                 value="Fixed Age"
                 onChange={() =>
                   setLifeExpectancy((prev) => [
-                    { type: "Fixed", value: prev?.[0]?.value || 80 },
+                    {
+                      type: "Fixed",
+                      value: prev[0]?.type === "Fixed" ? prev[0].value : 80,
+                    },
                     ...(prev.length > 1 ? [prev[1]] : []),
                   ])
                 }
@@ -452,8 +288,8 @@ export default function ScenarioFormPage() {
                   setLifeExpectancy((prev) => [
                     {
                       type: "Normal",
-                      mean: prev?.[0]?.mean || 82,
-                      stdev: prev?.[0]?.stdev || 3,
+                      mean: prev[0]?.type === "Normal" ? prev[0].mean : 82,
+                      stdev: prev[0]?.type === "Normal" ? prev[0].stdev : 3,
                     },
                     ...(prev.length > 1 ? [prev[1]] : []),
                   ])
@@ -465,33 +301,54 @@ export default function ScenarioFormPage() {
 
             <LifeExpectency
               lifeExpectancyType={lifeExpectancy[0]?.type}
-              expectedAge={lifeExpectancy[0]?.value ?? ""}
+              expectedAge={
+                lifeExpectancy[0]?.type === "Fixed"
+                  ? lifeExpectancy[0].value.toString()
+                  : ""
+              }
               setExpectedAge={(val) =>
                 setLifeExpectancy((prev) => {
                   const updated = [...prev];
-                  updated[0] = { type: "Fixed", value: Number(val) };
-                  return updated;
-                })
-              }
-              meanAge={lifeExpectancy[0]?.mean ?? ""}
-              setMeanAge={(val) =>
-                setLifeExpectancy((prev) => {
-                  const updated = [...prev];
                   updated[0] = {
-                    type: "Normal",
-                    mean: Number(val),
-                    stdev: lifeExpectancy[0]?.stdev ?? 0,
+                    type: "Fixed",
+                    value: Number(val),
                   };
                   return updated;
                 })
               }
-              std={lifeExpectancy[0]?.stdev ?? ""}
+              meanAge={
+                lifeExpectancy[0]?.type === "Normal"
+                  ? lifeExpectancy[0].mean.toString()
+                  : ""
+              }
+              setMeanAge={(val) =>
+                setLifeExpectancy((prev) => {
+                  const updated = [...prev];
+                  // Preserve the existing stdev if it's already Normal
+                  const currentStdev =
+                    prev[0]?.type === "Normal" ? prev[0].stdev : 3;
+                  updated[0] = {
+                    type: "Normal",
+                    mean: Number(val),
+                    stdev: currentStdev,
+                  };
+                  return updated;
+                })
+              }
+              std={
+                lifeExpectancy[0]?.type === "Normal"
+                  ? lifeExpectancy[0].stdev.toString()
+                  : ""
+              }
               setStd={(val) =>
                 setLifeExpectancy((prev) => {
                   const updated = [...prev];
+                  // Preserve the existing mean if it's already Normal
+                  const currentMean =
+                    prev[0]?.type === "Normal" ? prev[0].mean : 82;
                   updated[0] = {
                     type: "Normal",
-                    mean: lifeExpectancy[0]?.mean ?? 0,
+                    mean: currentMean,
                     stdev: Number(val),
                   };
                   return updated;
@@ -505,10 +362,10 @@ export default function ScenarioFormPage() {
           <div className="life-expectancy-container">
             <div className="title-with-info">
               <h3 className="purple-title">Spouse's Life Expectancy</h3>
-              <span className="grayed-text">How long you live</span>
+              <span className="grayed-text">How long your spouse lives</span>
             </div>
             <div>
-              <span>Choose how to model your life expectancy. </span>
+              <span>Choose how to model your spouse's life expectancy. </span>
               <span className="grayed-text">
                 You can enter a fixed age or use a normal distribution
               </span>
@@ -522,7 +379,10 @@ export default function ScenarioFormPage() {
                   onChange={() =>
                     setLifeExpectancy((prev) => [
                       prev[0],
-                      { type: "Fixed", value: prev?.[1]?.value || 80 },
+                      {
+                        type: "Fixed",
+                        value: prev[1]?.type === "Fixed" ? prev[1].value : 80,
+                      },
                     ])
                   }
                   checked={lifeExpectancy[1]?.type === "Fixed"}
@@ -539,8 +399,8 @@ export default function ScenarioFormPage() {
                       prev[0],
                       {
                         type: "Normal",
-                        mean: prev?.[1]?.mean || 82,
-                        stdev: prev?.[1]?.stdev || 3,
+                        mean: prev[1]?.type === "Normal" ? prev[1].mean : 82,
+                        stdev: prev[1]?.type === "Normal" ? prev[1].stdev : 3,
                       },
                     ])
                   }
@@ -551,33 +411,52 @@ export default function ScenarioFormPage() {
 
               <LifeExpectency
                 lifeExpectancyType={lifeExpectancy[1]?.type}
-                expectedAge={lifeExpectancy[1]?.value ?? ""}
+                expectedAge={
+                  lifeExpectancy[1]?.type === "Fixed"
+                    ? lifeExpectancy[1].value.toString()
+                    : ""
+                }
                 setExpectedAge={(val) =>
                   setLifeExpectancy((prev) => {
                     const updated = [...prev];
-                    updated[1] = { type: "Fixed", value: Number(val) };
-                    return updated;
-                  })
-                }
-                meanAge={lifeExpectancy[1]?.mean ?? ""}
-                setMeanAge={(val) =>
-                  setLifeExpectancy((prev) => {
-                    const updated = [...prev];
                     updated[1] = {
-                      type: "Normal",
-                      mean: Number(val),
-                      stdev: lifeExpectancy[1]?.stdev ?? 0,
+                      type: "Fixed",
+                      value: Number(val),
                     };
                     return updated;
                   })
                 }
-                std={lifeExpectancy[1]?.stdev ?? ""}
+                meanAge={
+                  lifeExpectancy[1]?.type === "Normal"
+                    ? lifeExpectancy[1].mean.toString()
+                    : ""
+                }
+                setMeanAge={(val) =>
+                  setLifeExpectancy((prev) => {
+                    const updated = [...prev];
+                    const currentStdev =
+                      prev[1]?.type === "Normal" ? prev[1].stdev : 3;
+                    updated[1] = {
+                      type: "Normal",
+                      mean: Number(val),
+                      stdev: currentStdev,
+                    };
+                    return updated;
+                  })
+                }
+                std={
+                  lifeExpectancy[1]?.type === "Normal"
+                    ? lifeExpectancy[1].stdev.toString()
+                    : ""
+                }
                 setStd={(val) =>
                   setLifeExpectancy((prev) => {
                     const updated = [...prev];
+                    const currentMean =
+                      prev[1]?.type === "Normal" ? prev[1].mean : 82;
                     updated[1] = {
                       type: "Normal",
-                      mean: lifeExpectancy[1]?.mean ?? 0,
+                      mean: currentMean,
                       stdev: Number(val),
                     };
                     return updated;
@@ -604,7 +483,6 @@ export default function ScenarioFormPage() {
           preserve assets."
             data={investmentTypes}
             emptyMessage="This plan does not contain any new investment types."
-            category="Tax Status"
             renderAttribute={(investmentType) =>
               investmentType.taxability ? "Taxable" : "Tax-exempt"
             }
@@ -633,8 +511,7 @@ export default function ScenarioFormPage() {
             description="An event series represents recurring income, expenses, or investment activity over time."
             data={eventSeries}
             emptyMessage="This plan does not contain any new event series."
-            category="Type"
-            renderAttribute={(eventSeries) => eventSeries.type}
+            renderAttribute={(event) => event.event.type}
           ></SelectionTable>
           {editScenario === null && (
             <Link
@@ -656,8 +533,13 @@ export default function ScenarioFormPage() {
             Expand below to adjust inflation assumptions and annual contribution
             limits for retirement accounts.
           </p>
-          <Link to="/Limits&ContributionLimits">
-            Click here to expand Inflation & Contribution Limits settings ▼
+          <Link
+            to="/dashboard/createScenario/Limits&ContributionLimits"
+            className="limits-and-contribution-container"
+          >
+            {editScenario !== null
+              ? "Edit Limits & Contribution"
+              : "Add Limits & Contribution"}
           </Link>
         </div>
 
@@ -685,7 +567,7 @@ export default function ScenarioFormPage() {
         </div>
 
         <div className="save-button-container">
-          <button onClick={handleSubmit} className="save-button">
+          <button className="save-button" onClick={handleSubmit}>
             Save Scenario
           </button>
         </div>

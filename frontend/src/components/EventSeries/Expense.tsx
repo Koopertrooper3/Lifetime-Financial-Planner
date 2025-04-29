@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ToggleSwitch from "../shared/ToggleSwitch";
 import EventSeriesExpectedInput from "../shared/EventSeriesExpectedInput";
 import IncomeAllocationInput from "../shared/IncomeAllocationInput";
 import "../../stylesheets/EventSeries/Expense.css";
 import { EventSeriesExpenseProps } from "../../interfaces/EventSeries/EventSeriesExpenseProps";
+import { useScenarioContext } from "../../useScenarioContext";
+import ValidationTextFields from "../shared/ValidationTextFields";
 
 export default function EventSeriesExpense({
   isDiscretionary,
@@ -31,6 +33,13 @@ export default function EventSeriesExpense({
   spousePercentage,
   setSpousePercentage,
 }: EventSeriesExpenseProps) {
+  const { editEventSeries } = useScenarioContext();
+
+  useEffect(() => {
+    setIsDiscretionary(editEventSeries.event.discretionary || false);
+    setExpenseInitialAmount(editEventSeries.event.initialAmount || 0);
+  }, [editEventSeries]);
+
   return (
     <div className="event-series-expense-container">
       <div className="title-with-info">
@@ -58,11 +67,15 @@ export default function EventSeriesExpense({
 
         <div>
           <p>Enter the Initial Amount</p>
-          <input
-            className="textbox"
+          <ValidationTextFields
+            value={expenseInitialAmount}
             placeholder="Enter a dollar amount (eg. $50)"
-            onChange={(e) => setExpenseInitialAmount(e.target.value)}
-          ></input>
+            setInput={setExpenseInitialAmount}
+            inputType="number"
+            width="100%"
+            height="1.4375em"
+            disabled={false}
+          ></ValidationTextFields>
         </div>
       </div>
 
@@ -116,6 +129,7 @@ export default function EventSeriesExpense({
         {
           <EventSeriesExpectedInput
             distributionType={expenseDistributionType}
+            setDistributionType={setExpenseDistributionType}
             isFixedAmount={isExpenseAmount}
             setIsFixedAmount={setIsExpenseAmount}
             fixedValue={expenseFixedValue}
@@ -133,11 +147,11 @@ export default function EventSeriesExpense({
         {
           <IncomeAllocationInput
             applyInflation={applyInflation}
-            onToggleInflation={setInflation}
+            setApplyInflation={setInflation}
             userPercentage={userPercentage}
-            onUserPercentageChange={setUserPercentage}
+            setUserPercentage={setUserPercentage}
             spousePercentage={spousePercentage}
-            onSpousePercentageChange={setSpousePercentage}
+            setSpousePercentage={setSpousePercentage}
           />
         }
       </div>

@@ -1,39 +1,147 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import CenteredFormWrapper from "../wrapper/CenteredFormWrapper";
 import ValidationTextFields from "../components/shared/ValidationTextFields";
+import "../stylesheets/LimitsInflationPage.css";
+import {
+  FixedDistribution,
+  NormalDistribution,
+  UniformDistribution,
+} from "../../../backend/db/DistributionSchemas";
+import { useScenarioContext } from "../useScenarioContext";
+import { useInflationAssumptionHooks } from "../hooks/useInflationAssumptionFormHooks";
+import { useHelperContext } from "../HelperContext";
 
 export function LimitsInflationPage() {
-  const [distributionType, setDistributionType] = useState<
-    "Fixed Value/Percentage" | "Normal Distribution" | "Uniform Distribution"
-  >("Fixed Value/Percentage");
-  const [fixedInflationRate, setFixedInflationRate] = useState<string | number>(
-    ""
-  );
-  const [meanInflationRate, setMeanInflationRate] = useState<string | number>();
+  const navigate = useNavigate();
 
-  const [stdDev, setStdDev] = useState<string | number>("");
+  const {
+    inflationAssumption,
+    setInflationAssumption,
+    afterTaxContributionLimit,
+    setAfterTaxContributionLimit,
+    editScenario,
+    setEditScenario,
+  } = useScenarioContext();
+  const { inflationAssumptionHooks } = useInflationAssumptionHooks();
+  const { handleEditScenario } = useHelperContext();
 
-  const [upperBoundInflationRate, setUpperBoundInflationRate] = useState<
-    string | number
-  >("");
+  useEffect(() => {
+    console.log("Updated inflation assumption", { inflationAssumption });
+  }, [inflationAssumption]);
 
-  const [lowerBoundInflationRate, setLowerBoundInflationRate] = useState<
-    string | number
-  >("");
+  useEffect(() => {
+    const {
+      setInflationDistributionType,
+      setFixedInflationValue,
+      setMean,
+      setStdDev,
+      setLowerBound,
+      setUpperBound,
+      setAnnualContribution,
+    } = inflationAssumptionHooks;
 
-  const [annualContribution, setAnnualContribution] = useState<string | number>(
-    ""
-  );
+    // Set the distribution type and corresponding values
+    switch (inflationAssumption.type) {
+      case "Fixed":
+        setInflationDistributionType("Fixed Value/Percentage");
+        setFixedInflationValue(inflationAssumption.value);
+        break;
+
+      case "Normal":
+        setInflationDistributionType("Normal Distribution");
+        setMean(inflationAssumption.mean);
+        setStdDev(inflationAssumption.stdev);
+        break;
+
+      case "Uniform":
+        setInflationDistributionType("Uniform Distribution");
+        setLowerBound(inflationAssumption.min);
+        setUpperBound(inflationAssumption.max);
+        break;
+    }
+
+    setAnnualContribution(afterTaxContributionLimit);
+  }, [inflationAssumption]);
+
+  function mapDistributionType(
+    distributionType: string
+  ): "Fixed" | "Normal" | "Uniform" {
+    if (distributionType === "Fixed Value/Percentage") return "Fixed";
+    if (distributionType === "Normal Distribution") return "Normal";
+    if (distributionType === "Uniform Distribution") return "Uniform";
+    throw new Error("Invalid distribution type");
+  }
+
+  const handleSave = async () => {
+    const {
+      inflationDistributionType,
+      fixedInflationValue,
+      mean,
+      stdDev,
+      lowerBound,
+      upperBound,
+      annualContribution,
+    } = inflationAssumptionHooks;
+
+    const distributionTypeMapped = mapDistributionType(
+      inflationDistributionType
+    );
+
+    let inflationDistribution:
+      | FixedDistribution
+      | NormalDistribution
+      | UniformDistribution;
+
+    switch (distributionTypeMapped) {
+      case "Fixed":
+        inflationDistribution = {
+          type: "Fixed",
+          value: Number(fixedInflationValue),
+        };
+        break;
+      case "Normal":
+        inflationDistribution = {
+          type: "Normal",
+          mean: Number(mean),
+          stdev: Number(stdDev),
+        };
+        break;
+      case "Uniform":
+        inflationDistribution = {
+          type: "Uniform",
+          min: Number(lowerBound),
+          max: Number(upperBound),
+        };
+        break;
+    }
+
+    const userID = await (async () => {
+      const res = await fetch("http://localhost:8000/user", {
+        credentials: "include", // ensures session cookie is sent
+      });
+      const user = await res.json();
+      return user._id;
+    })();
+    const scenarioID = editScenario._id;
+    const updatedFields = {
+      inflationAssumption: inflationDistribution,
+      afterTaxContributionLimit: Number(annualContribution),
+    };
+
+    const data = await handleEditScenario(userID, scenarioID, updatedFields);
+    setEditScenario(data);
+
+    navigate("/dashboard/createScenario");
+  };
 
   return (
     <CenteredFormWrapper>
       <div className="header-line">
         <h2 className="header green-title">Limits and Inflation</h2>{" "}
-        {/* Fixed h2 tag */}
         <span className="grayed-text">Inflation & Contribution Limits</span>
         <span className="red-text">Required</span>
-        <Link to="/scenarioFormPage" className="back-link">
+        <Link to="/dashboard/createScenario" className="back-link">
           {"<<"}Back
         </Link>
       </div>
@@ -60,9 +168,14 @@ export function LimitsInflationPage() {
               id="distributionType"
               value="Fixed Value/Percentage"
               onChange={() => {
-                setDistributionType("Fixed Value/Percentage");
+                inflationAssumptionHooks.setInflationDistributionType(
+                  "Fixed Value/Percentage"
+                );
               }}
-              checked={distributionType == "Fixed Value/Percentage"}
+              checked={
+                inflationAssumptionHooks.inflationDistributionType ==
+                "Fixed Value/Percentage"
+              }
             ></input>
             Fixed Value/Percentage
           </label>
@@ -72,9 +185,14 @@ export function LimitsInflationPage() {
               id="distributionType"
               value="Normal Distribution"
               onChange={() => {
-                setDistributionType("Normal Distribution");
+                inflationAssumptionHooks.setInflationDistributionType(
+                  "Normal Distribution"
+                );
               }}
-              checked={distributionType == "Normal Distribution"}
+              checked={
+                inflationAssumptionHooks.inflationDistributionType ==
+                "Normal Distribution"
+              }
             ></input>
             Normal Distribution
           </label>
@@ -84,22 +202,28 @@ export function LimitsInflationPage() {
               id="distributionType"
               value="Uniform Distribution"
               onChange={() => {
-                setDistributionType("Uniform Distribution");
+                inflationAssumptionHooks.setInflationDistributionType(
+                  "Uniform Distribution"
+                );
               }}
-              checked={distributionType == "Uniform Distribution"}
+              checked={
+                inflationAssumptionHooks.inflationDistributionType ==
+                "Uniform Distribution"
+              }
             ></input>
             Uniform Distribution
           </label>
         </div>
       </div>
 
-      {distributionType === "Fixed Value/Percentage" && (
+      {inflationAssumptionHooks.inflationDistributionType ===
+        "Fixed Value/Percentage" && (
         <div>
           <p>Enter a inflation rate</p>
           <ValidationTextFields
-            value={fixedInflationRate}
+            value={inflationAssumptionHooks.fixedInflationValue}
             placeholder="Enter inflation rate (e.g. 2.5%)"
-            setInput={setFixedInflationRate}
+            setInput={inflationAssumptionHooks.setFixedInflationValue}
             inputType="number"
             width="100%"
             height="1.4375em"
@@ -108,14 +232,15 @@ export function LimitsInflationPage() {
         </div>
       )}
 
-      {distributionType === "Normal Distribution" && (
+      {inflationAssumptionHooks.inflationDistributionType ===
+        "Normal Distribution" && (
         <div>
           <div>
             <p>Enter a mean inflation rate</p>
             <ValidationTextFields
-              value={meanInflationRate}
+              value={inflationAssumptionHooks.mean}
               placeholder="Enter inflation rate (e.g. 2.5%)"
-              setInput={setMeanInflationRate}
+              setInput={inflationAssumptionHooks.setMean}
               inputType="number"
               width="100%"
               height="1.4375em"
@@ -125,8 +250,9 @@ export function LimitsInflationPage() {
           <div>
             <p>Enter a standard deviation</p>
             <ValidationTextFields
+              value={inflationAssumptionHooks.stdDev}
               placeholder="Enter standard deviation (e.g. 0.2%)"
-              setInput={setStdDev}
+              setInput={inflationAssumptionHooks.setStdDev}
               inputType="number"
               width="100%"
               height="1.4375em"
@@ -136,13 +262,15 @@ export function LimitsInflationPage() {
         </div>
       )}
 
-      {distributionType === "Uniform Distribution" && (
+      {inflationAssumptionHooks.inflationDistributionType ===
+        "Uniform Distribution" && (
         <div>
           <div>
             <p>Enter an upper bound</p>
             <ValidationTextFields
+              value={inflationAssumptionHooks.upperBound}
               placeholder="Enter upper bound inflation rate (e.g. 2.5%)"
-              setInput={setUpperBoundInflationRate}
+              setInput={inflationAssumptionHooks.setUpperBound}
               inputType="number"
               width="100%"
               height="1.4375em"
@@ -152,8 +280,9 @@ export function LimitsInflationPage() {
           <div>
             <p>Enter a lower bound</p>
             <ValidationTextFields
+              value={inflationAssumptionHooks.lowerBound}
               placeholder="Enter lower bound nflation rate (e.g. 1%)"
-              setInput={setLowerBoundInflationRate}
+              setInput={inflationAssumptionHooks.setLowerBound}
               inputType="number"
               width="100%"
               height="1.4375em"
@@ -163,7 +292,7 @@ export function LimitsInflationPage() {
         </div>
       )}
 
-      <div>
+      <div className="contribution-container">
         <p>
           Enter the current annual contribution limit for after-tax retirement
           accounts.{" "}
@@ -172,13 +301,20 @@ export function LimitsInflationPage() {
           </span>
         </p>
         <ValidationTextFields
+          value={inflationAssumptionHooks.annualContribution}
           placeholder="Enter inflation rate (e.g. 2.5%)"
-          setInput={setAnnualContribution}
+          setInput={inflationAssumptionHooks.setAnnualContribution}
           inputType="number"
           width="100%"
           height="1.4375em"
           disabled={false}
         ></ValidationTextFields>
+      </div>
+
+      <div>
+        <button className="save-button" onClick={handleSave}>
+          Save
+        </button>
       </div>
     </CenteredFormWrapper>
   );
