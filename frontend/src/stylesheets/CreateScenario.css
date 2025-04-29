@@ -136,4 +136,41 @@
   margin-bottom: 10px;
 }
 
+.add-investment-type-container,
+.add-event-series-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  font-size: 15px;
+  border: none;
+  border-radius: 5px;
+  background-color: #24C849;
+  padding: 10px;
+  color: white;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.save-button-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.save-button {
+  background-color: #4C49ED;
+  color: white;
+  width: 100%;
+  border: none;
+  border-radius: 5px;
+  padding-top: 15px;
+  padding-bottom: 15px;
+}
+
+.save-button:hover {
+  cursor: pointer;
+}
+
+
 

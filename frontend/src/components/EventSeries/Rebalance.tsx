@@ -2,38 +2,38 @@ import { useState } from "react";
 import AllocationTable from "../shared/AllocationTable";
 import AllocationTypeSelector from "../shared/AllocationTypeSelector";
 import "../../stylesheets/EventSeries/Rebalance.css";
-
-type Investment = {
-  id: string;
-  name: string;
-  initialAllocation?: number;
-  finalAllocation?: number;
-};
+import { Investment, assetProportion } from "../../useScenarioContext";
 
 interface EventSeriesRebalanceProps {
   allocationType: "Fixed" | "Glide Path";
   setAllocationType: (type: "Fixed" | "Glide Path") => void;
-  investments: Investment[];
-  setInvestments: (investments: Investment[]) => void;
+  allocatedInvestments: assetProportion[];
+  setAllocatedInvestments: (allocatedInvestments: assetProportion[]) => void;
+  allocated2Investments: assetProportion[];
+  setAllocated2Investments: (investments: assetProportion[]) => void;
   startYear: string;
   setStartYear: (year: string) => void;
   endYear: string;
   setEndYear: (year: string) => void;
   maxCashHoldings: string;
   setMaxCashHoldings: (amount: string) => void;
+  taxStatus: "Pre-Tax" | "After-Tax" | "Non-Retirement";
+  setTaxStatus: (type: "Pre-Tax" | "After-Tax" | "Non-Retirement") => void;
 }
 
 const EventSeriesRebalance = ({
   allocationType,
   setAllocationType,
-  investments,
-  setInvestments,
+  allocatedInvestments,
+  setAllocatedInvestments,
+  allocated2Investments,
+  setAllocated2Investments,
   startYear,
   setStartYear,
   endYear,
   setEndYear,
-  maxCashHoldings,
-  setMaxCashHoldings,
+  taxStatus,
+  setTaxStatus,
 }: EventSeriesRebalanceProps) => {
   return (
     <div className="event-series-rebalance-container">
@@ -42,6 +42,39 @@ const EventSeriesRebalance = ({
         <p className="grayed-text">
           Rebalance investments, bonds, estate funds, etc.
         </p>
+      </div>
+
+      <div className="type-container">
+        <label className="option">
+          <input
+            type="radio"
+            name="taxStatus"
+            value="Pre-Tax"
+            onChange={() => setTaxStatus("Pre-Tax")}
+            checked={taxStatus === "Pre-Tax"}
+          />
+          Pre-Tax
+        </label>
+        <label className="option">
+          <input
+            type="radio"
+            name="taxStatus"
+            value="After-Tax"
+            onChange={() => setTaxStatus("After-Tax")}
+            checked={taxStatus === "After-Tax"}
+          />
+          After-Tax
+        </label>
+        <label className="option">
+          <input
+            type="radio"
+            name="taxStatus"
+            value="Non-Retirement"
+            onChange={() => setTaxStatus("Non-Retirement")}
+            checked={taxStatus === "Non-Retirement"}
+          />
+          Non-Retirement
+        </label>
       </div>
 
       <p>Asset Allocation Type</p>
@@ -77,12 +110,15 @@ const EventSeriesRebalance = ({
 
       <div className="table-container">
         <AllocationTable
-          investments={investments}
+          allocatedInvestments={allocatedInvestments}
+          setAllocatedInvestments={setAllocatedInvestments}
+          allocated2Investments={allocated2Investments}
+          setAllocated2Investments={setAllocated2Investments}
           allocationType={allocationType}
         ></AllocationTable>
       </div>
 
-      <div className="max-holdings-container">
+      {/* <div className="max-holdings-container">
         <p>Maximum Cash Holdings</p>
         <p className="grayed-text">
           Enter the maximum cash balance to maintain. Extra cash will be
@@ -95,7 +131,7 @@ const EventSeriesRebalance = ({
           onChange={(e) => setMaxCashHoldings(e.target.value)}
           placeholder="Enter a dollar amount (eg. $50)"
         ></input>
-      </div>
+      </div> */}
     </div>
   );
 };

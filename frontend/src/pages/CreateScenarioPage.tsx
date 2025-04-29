@@ -3,7 +3,7 @@ import "../stylesheets/CreateScenario.css";
 import LifeExpectency from "../components/LifeExpectency";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-
+import axios from 'axios';
 
 // import { Outlet } from "react-router-dom";
 
@@ -19,6 +19,7 @@ export default function CreateScenarioPage() {
       transition={{ duration: 0.3 }}
       className="create-scenario-container" // moved this class here instead of inner div
     >
+      
       {/*Title*/}
       <div className="header-line">
         <h2 className="header">Create New Scenario</h2>
@@ -26,7 +27,6 @@ export default function CreateScenarioPage() {
           {"<<"}Back
         </Link>
       </div>
-
       {/*Description*/}
       <p className="scenario-description">
         A scenario is a personalized financial plan. It includes investments,

@@ -1,28 +1,30 @@
 import z from "zod";
 
-const baseDistribution = z.object({
-    type: z.string()
-});
+const fixedDistribution = z.object({
+  type: z.literal("Fixed"),
+  value: z.number()
+}).strict();
 
-const fixedDistribution = baseDistribution.extend({
-    type: z.literal("Fixed"),
-    value: z.number()
-});
+const normalDistribution = z.object({
+  type: z.literal("Normal"),
+  mean: z.number(),
+  stdev: z.number(),
+  // Make min/max optional for normal distribution
+  min: z.number().optional(),
+  max: z.number().optional() 
+}).strict();
 
-const normalDistribution = baseDistribution.extend({
-    type: z.literal("Normal"),
-    mean: z.number(),
-    stdDev: z.number()
-});
-  
-const uniformDistribution = baseDistribution.extend({
-    type: z.literal("Uniform"),
-    min: z.number(),
-    max: z.number()
-});
+const uniformDistribution = z.object({
+  type: z.literal("Uniform"),
+  // Using both lower/upper AND min/max for compatibility
+  lower: z.number(),
+  upper: z.number(),
+  min: z.number().optional(),
+  max: z.number().optional()
+}).strict();
 
 export default z.discriminatedUnion("type", [
-    fixedDistribution,
-    normalDistribution,
-    uniformDistribution
+  fixedDistribution,
+  normalDistribution,
+  uniformDistribution
 ]);

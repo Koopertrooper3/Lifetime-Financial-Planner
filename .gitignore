@@ -13,7 +13,6 @@ scraper-test-site
 
 #Code coverage tooling
 .nyc_output
-logs
 coverage
 *.txt
 backend/simulator/simulation algorithm overview.pdf

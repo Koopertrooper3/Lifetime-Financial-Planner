@@ -2,43 +2,7 @@ import { useState } from "react";
 import EventSeriesExpectedInput from "../shared/EventSeriesExpectedInput";
 import IncomeAllocationInput from "../shared/IncomeAllocationInput";
 import "../../stylesheets/EventSeries/Income.css";
-
-interface EventSeriesIncomeProps {
-  incomeType: "Social Security" | "Wages";
-  setIncomeType: (type: "Social Security" | "Wages") => void;
-  initialAmount: string;
-  setInitialAmount: (value: string) => void;
-  // Distribution props
-  distributionType:
-    | "Fixed Value/Percentage"
-    | "Normal Distribution"
-    | "Uniform Distribution";
-  setDistributionType: (
-    type:
-      | "Fixed Value/Percentage"
-      | "Normal Distribution"
-      | "Uniform Distribution"
-  ) => void;
-  isFixedAmount: boolean;
-  setIsFixedAmount: (isFixedAmount: boolean) => void;
-  fixedValue: string;
-  setFixedValue: (value: string) => void;
-  mean: string;
-  setMean: (value: string) => void;
-  stdDev: string;
-  setStdDev: (value: string) => void;
-  lowerBound: string;
-  setLowerBound: (value: string) => void;
-  upperBound: string;
-  setUpperBound: (value: string) => void;
-  // Allocation props
-  applyInflation: boolean;
-  setToggleInflation: (apply: boolean) => void;
-  userPercentage: number;
-  setUserPercentage: (value: number) => void;
-  spousePercentage: number;
-  setSpousePercentage: (value: number) => void;
-}
+import { EventSeriesIncomeProps } from "../../interfaces/EventSeries/EventSeriesIncomeProps";
 
 export default function EventSeriesIncome({
   incomeType,
@@ -81,6 +45,7 @@ export default function EventSeriesIncome({
             id="incomeType"
             value="Social Security"
             checked={incomeType == "Social Security"}
+            onChange={() => setIncomeType("Social Security")}
           ></input>
           Social Security
         </label>
@@ -90,6 +55,7 @@ export default function EventSeriesIncome({
             id="incomeType"
             value="Wages"
             checked={incomeType == "Wages"}
+            onChange={() => setIncomeType("Wages")}
           ></input>
           Wages
         </label>
@@ -156,7 +122,6 @@ export default function EventSeriesIncome({
         {
           <EventSeriesExpectedInput
             distributionType={distributionType}
-            setDistributionType={setDistributionType}
             isFixedAmount={isFixedAmount}
             setIsFixedAmount={setIsFixedAmount}
             fixedValue={fixedValue}

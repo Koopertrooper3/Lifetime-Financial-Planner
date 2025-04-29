@@ -1,0 +1,214 @@
+[Income] Year: 2025, Amount: 75000, Event name: salary
+[Expense]: Year: 2025, Amount: 5000, Expense: food
+[Expense]: Year: 2025, Amount: 0, Expense: Federal Income
+[Expense]: Year: 2025, Amount: 0, Expense: State Income
+[Expense]: Year: 2025, Amount: 0, Expense: Federal Income
+[Expense]: Year: 2025, Amount: 0, Expense: Federal Income
+[Income] Year: 2026, Amount: 76160, Event name: salary
+[Expense]: Year: 2026, Amount: 5000, Expense: food
+[Expense]: Year: 2026, Amount: 0, Expense: Federal Income
+[Expense]: Year: 2026, Amount: 6732.444464387645, Expense: State Income
+[Expense]: Year: 2026, Amount: 0, Expense: Federal Income
+[Expense]: Year: 2026, Amount: 0, Expense: Federal Income
+[Income] Year: 2027, Amount: 78058, Event name: salary
+[Expense]: Year: 2027, Amount: 5000, Expense: food
+[Expense]: Year: 2027, Amount: 0, Expense: Federal Income
+[Expense]: Year: 2027, Amount: 6874.466793349762, Expense: State Income
+[Expense]: Year: 2027, Amount: 0, Expense: Federal Income
+[Expense]: Year: 2027, Amount: 0, Expense: Federal Income
+[Income] Year: 2028, Amount: 78854, Event name: salary
+[Expense]: Year: 2028, Amount: 5000, Expense: food
+[Expense]: Year: 2028, Amount: 0, Expense: Federal Income
+[Expense]: Year: 2028, Amount: 7059.427359663504, Expense: State Income
+[Expense]: Year: 2028, Amount: 0, Expense: Federal Income
+[Expense]: Year: 2028, Amount: 0, Expense: Federal Income
+[Income] Year: 2029, Amount: 80111, Event name: salary
+[Expense]: Year: 2029, Amount: 5000, Expense: food
+[Expense]: Year: 2029, Amount: 0, Expense: Federal Income
+[Expense]: Year: 2029, Amount: 7186.194781551481, Expense: State Income
+[Expense]: Year: 2029, Amount: 0, Expense: Federal Income
+[Expense]: Year: 2029, Amount: 0, Expense: Federal Income
+[Income] Year: 2030, Amount: 81394, Event name: salary
+[Expense]: Year: 2030, Amount: 5000, Expense: food
+[Expense]: Year: 2030, Amount: 0, Expense: Federal Income
+[Expense]: Year: 2030, Amount: 7340.806708052663, Expense: State Income
+[Expense]: Year: 2030, Amount: 0, Expense: Federal Income
+[Expense]: Year: 2030, Amount: 0, Expense: Federal Income
+[Income] Year: 2031, Amount: 82261, Event name: salary
+[Expense]: Year: 2031, Amount: 5000, Expense: food
+[Expense]: Year: 2031, Amount: 0, Expense: Federal Income
+[Expense]: Year: 2031, Amount: 7499.412643127158, Expense: State Income
+[Expense]: Year: 2031, Amount: 0, Expense: Federal Income
+[Expense]: Year: 2031, Amount: 0, Expense: Federal Income
+[Income] Year: 2032, Amount: 84247, Event name: salary
+[Expense]: Year: 2032, Amount: 5000, Expense: food
+[Expense]: Year: 2032, Amount: 0, Expense: Federal Income
+[Expense]: Year: 2032, Amount: 7637.780683378382, Expense: State Income
+[Expense]: Year: 2032, Amount: 0, Expense: Federal Income
+[Expense]: Year: 2032, Amount: 0, Expense: Federal Income
+[Income] Year: 2033, Amount: 85259, Event name: salary
+[Expense]: Year: 2033, Amount: 5000, Expense: food
+[Expense]: Year: 2033, Amount: 0, Expense: Federal Income
+[Expense]: Year: 2033, Amount: 7840.412468410535, Expense: State Income
+[Expense]: Year: 2033, Amount: 0, Expense: Federal Income
+[Expense]: Year: 2033, Amount: 0, Expense: Federal Income
+[Income] Year: 2034, Amount: 87007, Event name: salary
+[Expense]: Year: 2034, Amount: 5000, Expense: food
+[Expense]: Year: 2034, Amount: 0, Expense: Federal Income
+[Expense]: Year: 2034, Amount: 7992.27798439283, Expense: State Income
+[Expense]: Year: 2034, Amount: 0, Expense: Federal Income
+[Expense]: Year: 2034, Amount: 0, Expense: Federal Income
+[Income] Year: 2035, Amount: 87705, Event name: salary
+[Expense]: Year: 2035, Amount: 5000, Expense: food
+[Expense]: Year: 2035, Amount: 0, Expense: Federal Income
+[Expense]: Year: 2035, Amount: 8187.508082838122, Expense: State Income
+[Expense]: Year: 2035, Amount: 0, Expense: Federal Income
+[Expense]: Year: 2035, Amount: 0, Expense: Federal Income
+[Income] Year: 2036, Amount: 88755, Event name: salary
+[Expense]: Year: 2036, Amount: 5000, Expense: food
+[Expense]: Year: 2036, Amount: 0, Expense: Federal Income
+[Expense]: Year: 2036, Amount: 8327.96201015289, Expense: State Income
+[Expense]: Year: 2036, Amount: 0, Expense: Federal Income
+[Expense]: Year: 2036, Amount: 0, Expense: Federal Income
+[Income] Year: 2037, Amount: 89642, Event name: salary
+[Expense]: Year: 2037, Amount: 5000, Expense: food
+[Expense]: Year: 2037, Amount: 0, Expense: Federal Income
+[Expense]: Year: 2037, Amount: 8490.837370941428, Expense: State Income
+[Expense]: Year: 2037, Amount: 0, Expense: Federal Income
+[Expense]: Year: 2037, Amount: 0, Expense: Federal Income
+[Income] Year: 2038, Amount: 91296, Event name: salary
+[Expense]: Year: 2038, Amount: 5000, Expense: food
+[Expense]: Year: 2038, Amount: 0, Expense: Federal Income
+[Expense]: Year: 2038, Amount: 8647.902500050757, Expense: State Income
+[Expense]: Year: 2038, Amount: 0, Expense: Federal Income
+[Expense]: Year: 2038, Amount: 0, Expense: Federal Income
+[Income] Year: 2039, Amount: 92986, Event name: salary
+[Expense]: Year: 2039, Amount: 5000, Expense: food
+[Expense]: Year: 2039, Amount: 0, Expense: Federal Income
+[Expense]: Year: 2039, Amount: 8850.399221523714, Expense: State Income
+[Expense]: Year: 2039, Amount: 0, Expense: Federal Income
+[Expense]: Year: 2039, Amount: 0, Expense: Federal Income
+[Income] Year: 2040, Amount: 94325, Event name: salary
+[Expense]: Year: 2040, Amount: 5000, Expense: food
+[Expense]: Year: 2040, Amount: 0, Expense: Federal Income
+[Expense]: Year: 2040, Amount: 9058.223173318196, Expense: State Income
+[Expense]: Year: 2040, Amount: 0, Expense: Federal Income
+[Expense]: Year: 2040, Amount: 0, Expense: Federal Income
+[Income] Year: 2041, Amount: 95580, Event name: salary
+[Expense]: Year: 2041, Amount: 5000, Expense: food
+[Expense]: Year: 2041, Amount: 0, Expense: Federal Income
+[Expense]: Year: 2041, Amount: 9250.187299272235, Expense: State Income
+[Expense]: Year: 2041, Amount: 0, Expense: Federal Income
+[Expense]: Year: 2041, Amount: 0, Expense: Federal Income
+[Income] Year: 2042, Amount: 97199, Event name: salary
+[Expense]: Year: 2042, Amount: 5000, Expense: food
+[Expense]: Year: 2042, Amount: 0, Expense: Federal Income
+[Expense]: Year: 2042, Amount: 9441.08263267154, Expense: State Income
+[Expense]: Year: 2042, Amount: 0, Expense: Federal Income
+[Expense]: Year: 2042, Amount: 0, Expense: Federal Income
+[Income] Year: 2043, Amount: 97862, Event name: salary
+[Expense]: Year: 2043, Amount: 5000, Expense: food
+[Expense]: Year: 2043, Amount: 0, Expense: Federal Income
+[Expense]: Year: 2043, Amount: 9655.653171803939, Expense: State Income
+[Expense]: Year: 2043, Amount: 0, Expense: Federal Income
+[Expense]: Year: 2043, Amount: 0, Expense: Federal Income
+[Income] Year: 2044, Amount: 99748, Event name: salary
+[Expense]: Year: 2044, Amount: 5000, Expense: food
+[Expense]: Year: 2044, Amount: 0, Expense: Federal Income
+[Expense]: Year: 2044, Amount: 9821.409033037562, Expense: State Income
+[Expense]: Year: 2044, Amount: 0, Expense: Federal Income
+[Expense]: Year: 2044, Amount: 0, Expense: Federal Income
+[Income] Year: 2045, Amount: 101557, Event name: salary
+[Expense]: Year: 2045, Amount: 5000, Expense: food
+[Expense]: Year: 2045, Amount: 0, Expense: Federal Income
+[Expense]: Year: 2045, Amount: 10058.308863511564, Expense: State Income
+[Expense]: Year: 2045, Amount: 0, Expense: Federal Income
+[Expense]: Year: 2045, Amount: 0, Expense: Federal Income
+[Income] Year: 2046, Amount: 102550, Event name: salary
+[Expense]: Year: 2046, Amount: 5000, Expense: food
+[Expense]: Year: 2046, Amount: 0, Expense: Federal Income
+[Expense]: Year: 2046, Amount: 10294.96846577173, Expense: State Income
+[Expense]: Year: 2046, Amount: 0, Expense: Federal Income
+[Expense]: Year: 2046, Amount: 0, Expense: Federal Income
+[Income] Year: 2047, Amount: 103584, Event name: salary
+[Expense]: Year: 2047, Amount: 5000, Expense: food
+[Expense]: Year: 2047, Amount: 0, Expense: Federal Income
+[Expense]: Year: 2047, Amount: 10490.863488195355, Expense: State Income
+[Expense]: Year: 2047, Amount: 0, Expense: Federal Income
+[Expense]: Year: 2047, Amount: 0, Expense: Federal Income
+[Income] Year: 2048, Amount: 105211, Event name: salary
+[Expense]: Year: 2048, Amount: 5000, Expense: food
+[Expense]: Year: 2048, Amount: 0, Expense: Federal Income
+[Expense]: Year: 2048, Amount: 10693.252267754604, Expense: State Income
+[Expense]: Year: 2048, Amount: 0, Expense: Federal Income
+[Expense]: Year: 2048, Amount: 0, Expense: Federal Income
+[Income] Year: 2049, Amount: 105797, Event name: salary
+[Expense]: Year: 2049, Amount: 5000, Expense: food
+[Expense]: Year: 2049, Amount: 0, Expense: Federal Income
+[Expense]: Year: 2049, Amount: 10932.621068759741, Expense: State Income
+[Expense]: Year: 2049, Amount: 0, Expense: Federal Income
+[Expense]: Year: 2049, Amount: 0, Expense: Federal Income
+[Income] Year: 2050, Amount: 106873, Event name: salary
+[Roth Conversion]: Year: 2050, Amount 45303.71728809548, Investment Type: S&P 500
+[Expense]: Year: 2050, Amount: 5000, Expense: food
+[Expense]: Year: 2050, Amount: 0, Expense: Federal Income
+[Expense]: Year: 2050, Amount: 11119.232005451904, Expense: State Income
+[Expense]: Year: 2050, Amount: 0, Expense: Federal Income
+[Expense]: Year: 2050, Amount: 0, Expense: Federal Income
+[Income] Year: 2051, Amount: 108388, Event name: salary
+[Roth Conversion]: Year: 2051, Amount 0.010368684669039252, Investment Type: S&P 500
+[Expense]: Year: 2051, Amount: 5000, Expense: food
+[Expense]: Year: 2051, Amount: 0, Expense: Federal Income
+[Expense]: Year: 2051, Amount: 17520.317352833154, Expense: State Income
+[Expense]: Year: 2051, Amount: 0, Expense: Federal Income
+[Expense]: Year: 2051, Amount: 0, Expense: Federal Income
+[Income] Year: 2052, Amount: 109852, Event name: salary
+[Roth Conversion]: Year: 2052, Amount 0.015103813275255888, Investment Type: S&P 500
+[Expense]: Year: 2052, Amount: 5000, Expense: food
+[Expense]: Year: 2052, Amount: 0, Expense: Federal Income
+[Expense]: Year: 2052, Amount: 18418.608987716638, Expense: State Income
+[Expense]: Year: 2052, Amount: 0, Expense: Federal Income
+[Expense]: Year: 2052, Amount: 0, Expense: Federal Income
+[Income] Year: 2053, Amount: 111094, Event name: salary
+[Roth Conversion]: Year: 2053, Amount 0.011889264808576022, Investment Type: S&P 500
+[Expense]: Year: 2053, Amount: 5000, Expense: food
+[Expense]: Year: 2053, Amount: 0, Expense: Federal Income
+[Expense]: Year: 2053, Amount: 19366.54571240741, Expense: State Income
+[Expense]: Year: 2053, Amount: 0, Expense: Federal Income
+[Expense]: Year: 2053, Amount: 0, Expense: Federal Income
+[Income] Year: 2054, Amount: 111884, Event name: salary
+[Roth Conversion]: Year: 2054, Amount 0.0027172220796851596, Investment Type: S&P 500
+[Expense]: Year: 2054, Amount: 5000, Expense: food
+[Expense]: Year: 2054, Amount: 0, Expense: Federal Income
+[Expense]: Year: 2054, Amount: 20366.99908675201, Expense: State Income
+[Expense]: Year: 2054, Amount: 0, Expense: Federal Income
+[Expense]: Year: 2054, Amount: 0, Expense: Federal Income
+[Income] Year: 2055, Amount: 113088, Event name: salary
+[Roth Conversion]: Year: 2055, Amount 0.011258741671127209, Investment Type: S&P 500
+[Expense]: Year: 2055, Amount: 5000, Expense: food
+[Expense]: Year: 2055, Amount: 0, Expense: Federal Income
+[Expense]: Year: 2055, Amount: 21423.010993807962, Expense: State Income
+[Expense]: Year: 2055, Amount: 0, Expense: Federal Income
+[Expense]: Year: 2055, Amount: 0, Expense: Federal Income
+[Income] Year: 2056, Amount: 115050, Event name: salary
+[Roth Conversion]: Year: 2056, Amount 0.009080765032372106, Investment Type: S&P 500
+[Expense]: Year: 2056, Amount: 5000, Expense: food
+[Expense]: Year: 2056, Amount: 0, Expense: Federal Income
+[Expense]: Year: 2056, Amount: 22537.803875883816, Expense: State Income
+[Expense]: Year: 2056, Amount: 0, Expense: Federal Income
+[Expense]: Year: 2056, Amount: 0, Expense: Federal Income
+[Income] Year: 2057, Amount: 115844, Event name: salary
+[Roth Conversion]: Year: 2057, Amount 0.006146022696880454, Investment Type: S&P 500
+[Expense]: Year: 2057, Amount: 5000, Expense: food
+[Expense]: Year: 2057, Amount: 0, Expense: Federal Income
+[Expense]: Year: 2057, Amount: 23714.791589854667, Expense: State Income
+[Expense]: Year: 2057, Amount: 0, Expense: Federal Income
+[Expense]: Year: 2057, Amount: 0, Expense: Federal Income
+[Income] Year: 2058, Amount: 116722, Event name: salary
+[Roth Conversion]: Year: 2058, Amount 0.011756868346675772, Investment Type: S&P 500
+[Expense]: Year: 2058, Amount: 5000, Expense: food
+[Expense]: Year: 2058, Amount: 0, Expense: Federal Income
+[Expense]: Year: 2058, Amount: 24957.59091934423, Expense: State Income
+[Expense]: Year: 2058, Amount: 0, Expense: Federal Income
+[Expense]: Year: 2058, Amount: 0, Expense: Federal Income
+[Income] Year: 2059, Amount: 118298, Event name: salary

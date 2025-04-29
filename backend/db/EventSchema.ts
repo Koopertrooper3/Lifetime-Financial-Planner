@@ -81,22 +81,40 @@ expenseChangeDistributionField.discriminator('Normal',normalDistSchema)
 expenseChangeDistributionField.discriminator('Uniform',uniformDistSchema)
 
 //Invest schema
-const assetProportion = new Schema({
+const assetProportion = new Schema<assetProportion>({
     asset: String,
     proportion: Number,
 })
 
-const investEventSchema = new Schema({
-    assetAllocation: [assetProportion],
+const investEventSchema = new Schema<investEvent>({
+    assetAllocation: {
+        type: Map,
+        of: Number
+    },
     glidePath: Boolean,
-    assetAllocation2: [assetProportion],
+    assetAllocation2: {
+        type: Map,
+        of: Number
+    },
     maxCash: Number,
 })
 
 //Rebalance schema
 
-const rebalanceEventSchema = new Schema({
-    assetAllocation: [assetProportion]
+const rebalanceEventSchema = new Schema<rebalanceEvent>({
+    taxStatus: {
+        type: String,
+        enum: ["Pre-Tax","After-Tax","Non-Retirement"]
+    },
+    assetAllocation: {
+        type: Map,
+        of: Number
+    },
+    glidePath: Boolean,
+    assetAllocation2: {
+        type: Map,
+        of: Number
+    },
 })
 
 eventDataField.discriminator('Income',incomeEventSchema);
@@ -132,22 +150,26 @@ export interface expenseEvent{
     discretionary: boolean
 }
 
-interface assetProportion {
+export interface assetProportion {
     asset: string,
     proportion: number,
 }
 
 export interface investEvent{
     type: "Invest",
-    assetAllocation: assetProportion[],
+    assetAllocation: Record<string,number>,
     glidePath: boolean,
-    assetAllocation2: assetProportion[],
+    assetAllocation2: Record<string,number>,
     maxCash: number
 }
 
+type TaxStatus = "Pre-Tax" | "After-Tax" | "Non-Retirement"
 export interface rebalanceEvent{
-    type: "Rebalance"
-    assetAllocation: assetProportion[]
+    type: "Rebalance",
+    taxStatus: TaxStatus,
+    assetAllocation: Record<string,number>,
+    glidePath: boolean,
+    assetAllocation2: Record<string,number>,
 }
 
 type eventData = incomeEvent | expenseEvent | investEvent | rebalanceEvent

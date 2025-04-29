@@ -18,7 +18,7 @@ const scenarioSchema = new Schema<Scenario>({
         type: String,
         enum: ["couple", "individual"],
     },
-    birthYear: {
+    birthYears: {
         type: [Number],
         validate: {
             validator: function(value: number[]){
@@ -55,20 +55,20 @@ const scenarioSchema = new Schema<Scenario>({
         },
         required: true,
     },
-    investmentTypes: {
+    investmentTypes: [{
         type: Map,
         of: investmentTypeSchema,
         required: true,
-    },
-    investments: {
+    }],
+    investments: [{
         type: Map,
         of: investmentSchema,
         required: true,
-    },
-    eventSeries: {
+    }],
+    eventSeries: [{
         type: Map,
         of: eventSchema
-    },
+    }],
     inflationAssumption: {
         type: distributionWrapper,
         required: true,
@@ -134,7 +134,7 @@ export const scenarioModel = model('Scenario', scenarioSchema);
 export interface Scenario {
     name: string,
     maritalStatus: "couple" | "individual",
-    birthYear: number[],
+    birthYears: number[],
     lifeExpectancy: (FixedDistribution | NormalDistribution | UniformDistribution)[]
     investmentTypes: Record<string,InvestmentType>,
     investments: Record<string,Investment>,

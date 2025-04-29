@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useHelperContext } from "../HelperContext";
+import { useScenarioContext } from "../useScenarioContext";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import "../stylesheets/ScenarioPage.css";
@@ -11,9 +12,9 @@ export default function ScenarioPage() {
   const [scenario, setScenario] = useState<any>(null);
   const { allInvestmentTypes, fetchScenario, allScenarios, userID } =
     useHelperContext();
-
+  const { setEditScenario } = useScenarioContext();
   const [activeTab, setActiveTab] = useState("investments");
-  const [numberOfSimulations, setNumberOfSimulations] = useState(1)
+  const [numberOfSimulations, setNumberOfSimulations] = useState(1);
   //const [investmentTypes, setInvestmentTypes] = useState<any[]>([]);
   // const [distributionMap, setDistributionMap] = useState<Record<string, any>>(
   //   {}
@@ -38,11 +39,9 @@ export default function ScenarioPage() {
 
   useEffect(() => {
     // if (!scenario || !allInvestmentTypes) return;
-
     // const filteredInvestmentTypes = allInvestmentTypes.filter((invType: any) =>
     //   scenario.investmentTypes.includes(invType._id)
     // );
-
     // setInvestmentTypes(filteredInvestmentTypes);
   }, [scenario, allInvestmentTypes]);
 
@@ -55,23 +54,20 @@ export default function ScenarioPage() {
     //     if (invType.incomeDistribution)
     //       allDistIds.add(invType.incomeDistribution);
     //   }
-
     //   const results: Record<string, any> = {};
     //   for (const id of allDistIds) {
     //     const res = await fetchDistribution(id);
     //     results[id] = res;
     //   }
-
     //   setDistributionMap(results);
     // };
-
     // if (investmentTypes.length > 0) fetchDistributions();
-  }, );
+  });
 
   if (!scenario) return <div>Loading....</div>;
 
   const investments = scenario.investments;
-  const investmentTypes = scenario.investmentTypes
+  const investmentTypes = scenario.investmentTypes;
   const eventSeries = scenario.eventSeries;
   const spendingStrategy = scenario.spendingStrategy;
   const expenseWithdrawalStrategy = scenario.expenseWithdrawalStrategy;
@@ -83,17 +79,21 @@ export default function ScenarioPage() {
     { id: "investmentTypes", label: "Investment Types" },
     { id: "events", label: "Events" },
     { id: "strategies", label: "Strategies" },
-    { id: "simulation", label: "Simulation"}
+    { id: "simulation", label: "Simulation" },
   ];
-  const sendSimulatorRequest = async () =>{
-    if(userID == null){
-      throw new Error("Undefined user")
+  const sendSimulatorRequest = async () => {
+    if (userID == null) {
+      throw new Error("Undefined user");
     }
-    await axios.post("http://localhost:8000/scenario/runsimulation",{
-      "userID": userID._id,
-      "scenarioID":id, 
-      "totalSimulations": numberOfSimulations
-    })
+    await axios.post("http://localhost:8000/scenario/runsimulation", {
+      userID: userID._id,
+      scenarioID: id,
+      totalSimulations: numberOfSimulations,
+    });
+  };
+
+  function handleEditClick() {
+    setEditScenario(scenario); // Store the scenario
   }
 
   return (
@@ -101,6 +101,10 @@ export default function ScenarioPage() {
       <div className="card header-card">
         <div className="header-line">
           <h2>Scenario: {scenario.name}</h2>
+          <button className="edit-link" onClick={handleEditClick}>
+            <Link to={"/dashboard/createScenario/"}>Edit</Link>
+          </button>
+
           <Link to="/dashboard" className="close-link">
             Close
           </Link>
@@ -295,9 +299,19 @@ export default function ScenarioPage() {
       {activeTab === "simulation" && (
         <div className="card tab-content">
           <div className="card-grid-simulator">
-            <button className="simulator-button" onClick={sendSimulatorRequest}>Run Simulation</button>
-            <p style={ {textAlign:"right"}}>Number of simulations</p>
-            <input className="simulatior-run-input" type="text" onChange={(elem)=>{setNumberOfSimulations(Number(elem.target.value.replace(/\D/,'')))}}></input>
+            <button className="simulator-button" onClick={sendSimulatorRequest}>
+              Run Simulation
+            </button>
+            <p style={{ textAlign: "right" }}>Number of simulations</p>
+            <input
+              className="simulatior-run-input"
+              type="text"
+              onChange={(elem) => {
+                setNumberOfSimulations(
+                  Number(elem.target.value.replace(/\D/, ""))
+                );
+              }}
+            ></input>
           </div>
         </div>
       )}

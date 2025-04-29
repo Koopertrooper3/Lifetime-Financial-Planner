@@ -23,7 +23,7 @@ export async function RMDScraper(){
         const RMDTableCells = await WebsiteRMDTable[row].getByRole('cell').all()
 
         const [age1, dist1, age2, dist2] = await Promise.all([RMDTableCells[0].textContent(),RMDTableCells[1].textContent(),RMDTableCells[2].textContent(),RMDTableCells[3].textContent()])
-        console.log(`${age1} ${dist1} ${age2} ${dist2}`)
+        //console.log(`${age1} ${dist1} ${age2} ${dist2}`)
 
         if(age1 == null || dist1 == null || age2 == null || dist2 == null){
             throw new Error("Age1 or dist1 null")

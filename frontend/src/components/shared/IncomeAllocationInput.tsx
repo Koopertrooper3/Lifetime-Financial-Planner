@@ -46,10 +46,11 @@ const IncomeAllocationInput = ({
           </span>
         </p>
 
-        <div className="percentage-inputs">
+        <div className="percentage-container">
           <div className="user-input">
-            <label>User</label>
+            <div className="purple-title">User</div>
             <input
+              className="user-percentage-textbox"
               type="number"
               min="0"
               max="100"
@@ -59,8 +60,9 @@ const IncomeAllocationInput = ({
             />
           </div>
           <div className="spouse-input">
-            <label>Spouse</label>
+            <div className="purple-title">Spouse</div>
             <input
+              className="spouse-percentage-textbox"
               type="number"
               min="0"
               max="100"
@@ -71,7 +73,7 @@ const IncomeAllocationInput = ({
           </div>
         </div>
 
-        <div className="red-text">Total must add up to 100%</div>
+        <p className="red-text">Total must add up to 100%</p>
       </div>
     </div>
   );

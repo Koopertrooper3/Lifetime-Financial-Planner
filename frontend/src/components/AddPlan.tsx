@@ -2,14 +2,17 @@ import "../stylesheets/AddPlan.css";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useScenarioContext } from "../useScenarioContext";
 
 const AddPlan = () => {
   const [addPlan, setAddPlan] = useState(false);
+  const { setEditScenario } = useScenarioContext();
   const navigate = useNavigate();
 
   const handleClick = () => {
-    setAddPlan(true); 
-    navigate("createScenario");
+    setEditScenario(null);
+    setAddPlan(true);
+    navigate("/dashboard/createScenario");
   };
 
   return (

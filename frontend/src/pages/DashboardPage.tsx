@@ -93,6 +93,7 @@ function DashboardPage() {
   return userData == null ? (
     <LoadingWheel />
   ) : (
+    
     <motion.div
       // initial={{ x: 0 }}
       // animate={{ x: 0 }}
@@ -122,7 +123,6 @@ function DashboardPage() {
           {getBreadcrumb()}
         </motion.span>
       </div>
-  
         {!isCreatePage && (
           <div className="dashboard-container">
             <AddPlan />

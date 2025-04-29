@@ -13,3 +13,29 @@
   line-height: 1;
   letter-spacing: 0;
 }
+
+.percentage-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.user-input,
+.spouse-input {
+  width: 100%;
+}
+
+.user-percentage-textbox,
+.spouse-percentage-textbox {
+  width: 80%;
+  border: 1px solid #E5E7EB;
+  border-radius: 5px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 12px 12px;
+  box-sizing: border-box;
+}
+
+.red-text {
+  margin-left: 0px;
+}

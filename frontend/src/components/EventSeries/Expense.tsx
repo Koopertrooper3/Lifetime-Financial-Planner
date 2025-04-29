@@ -3,73 +3,27 @@ import ToggleSwitch from "../shared/ToggleSwitch";
 import EventSeriesExpectedInput from "../shared/EventSeriesExpectedInput";
 import IncomeAllocationInput from "../shared/IncomeAllocationInput";
 import "../../stylesheets/EventSeries/Expense.css";
-
-type DistributionType =
-  | "Fixed Value/Percentage"
-  | "Normal Distribution"
-  | "Uniform Distribution";
-
-interface EventSeriesExpenseProps {
-  // Discretionary Expense
-  isDiscretionary: boolean;
-  setIsDiscretionary: (value: boolean) => void;
-
-  // Initial Amount
-  initialAmount: string;
-  setInitialAmount: (value: string) => void;
-
-  // Distribution Configuration
-  distributionType: DistributionType;
-  setDistributionType: (value: DistributionType) => void;
-  isAmount: boolean;
-  setIsAmount: (value: boolean) => void;
-
-  // Fixed Value/Percentage
-  fixedValue?: string;
-  setFixedValue?: (value: string) => void;
-
-  // Normal Distribution
-  mean?: string;
-  setMean?: (value: string) => void;
-  stdDev?: string;
-  setStdDev?: (value: string) => void;
-
-  // Uniform Distribution
-  lowerBound?: string;
-  setLowerBound?: (value: string) => void;
-  upperBound?: string;
-  setUpperBound?: (value: string) => void;
-
-  // Inflation Adjustment
-  applyInflation: boolean;
-  setInflation: (value: boolean) => void;
-
-  // Expense Allocation
-  userPercentage: number;
-  setUserPercentage: (value: number) => void;
-  spousePercentage: number;
-  setSpousePercentage: (value: number) => void;
-}
+import { EventSeriesExpenseProps } from "../../interfaces/EventSeries/EventSeriesExpenseProps";
 
 export default function EventSeriesExpense({
   isDiscretionary,
   setIsDiscretionary,
-  initialAmount,
-  setInitialAmount,
-  distributionType,
-  setDistributionType,
-  isAmount,
-  setIsAmount,
-  fixedValue,
-  setFixedValue,
-  mean,
-  setMean,
-  stdDev,
-  setStdDev,
-  lowerBound,
-  setLowerBound,
-  upperBound,
-  setUpperBound,
+  expenseInitialAmount,
+  setExpenseInitialAmount,
+  expenseDistributionType,
+  setExpenseDistributionType,
+  isExpenseAmount,
+  setIsExpenseAmount,
+  expenseFixedValue,
+  setExpenseFixedValue,
+  expenseMean,
+  setExpenseMean,
+  expenseStdDev,
+  setExpenseStdDev,
+  expenseLowerBound,
+  setExpenseLowerBound,
+  expenseUpperBound,
+  setExpenseUpperBound,
   applyInflation,
   setInflation,
   userPercentage,
@@ -107,7 +61,7 @@ export default function EventSeriesExpense({
           <input
             className="textbox"
             placeholder="Enter a dollar amount (eg. $50)"
-            onChange={(e) => setInitialAmount(e.target.value)}
+            onChange={(e) => setExpenseInitialAmount(e.target.value)}
           ></input>
         </div>
       </div>
@@ -127,9 +81,9 @@ export default function EventSeriesExpense({
               id="distributionType"
               value="Fixed Value/Percentage"
               onChange={() => {
-                setDistributionType("Fixed Value/Percentage");
+                setExpenseDistributionType("Fixed Value/Percentage");
               }}
-              checked={distributionType == "Fixed Value/Percentage"}
+              checked={expenseDistributionType == "Fixed Value/Percentage"}
             ></input>
             Fixed Value/Percentage
           </label>
@@ -139,9 +93,9 @@ export default function EventSeriesExpense({
               id="distributionType"
               value="Normal Distribution"
               onChange={() => {
-                setDistributionType("Normal Distribution");
+                setExpenseDistributionType("Normal Distribution");
               }}
-              checked={distributionType == "Normal Distribution"}
+              checked={expenseDistributionType == "Normal Distribution"}
             ></input>
             Normal Distribution
           </label>
@@ -152,29 +106,28 @@ export default function EventSeriesExpense({
               id="distributionType"
               value="Uniform Distribution"
               onChange={() => {
-                setDistributionType("Uniform Distribution");
+                setExpenseDistributionType("Uniform Distribution");
               }}
-              checked={distributionType == "Uniform Distribution"}
+              checked={expenseDistributionType == "Uniform Distribution"}
             ></input>
             Uniform Distribution
           </label>
         </div>
         {
           <EventSeriesExpectedInput
-            distributionType={distributionType}
-            setDistributionType={setDistributionType}
-            isFixedAmount={isAmount}
-            setIsFixedAmount={setIsAmount}
-            fixedValue={fixedValue}
-            setFixedValue={setFixedValue}
-            mean={mean}
-            setMean={setMean}
-            stdDev={stdDev}
-            setStdDev={setStdDev}
-            lowerBound={lowerBound}
-            setLowerBound={setLowerBound}
-            upperBound={upperBound}
-            setUpperBound={setUpperBound}
+            distributionType={expenseDistributionType}
+            isFixedAmount={isExpenseAmount}
+            setIsFixedAmount={setIsExpenseAmount}
+            fixedValue={expenseFixedValue}
+            setFixedValue={setExpenseFixedValue}
+            mean={expenseMean}
+            setMean={setExpenseMean}
+            stdDev={expenseStdDev}
+            setStdDev={setExpenseStdDev}
+            lowerBound={expenseLowerBound}
+            setLowerBound={setExpenseLowerBound}
+            upperBound={expenseUpperBound}
+            setUpperBound={setExpenseUpperBound}
           ></EventSeriesExpectedInput>
         }
         {

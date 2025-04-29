@@ -150,9 +150,9 @@ async function testScenario() {
         duration: {type: "Fixed", value: 200},
         event: {
             type: "Invest", 
-            assetAllocation: [{asset: "S&P 500 non-retirement", proportion: 0.6},{asset: "S&P 500 non-retirement", proportion: 0.4}],
+            assetAllocation: {"S&P 500 non-retirement": 0.6,"S&P 500 after-tax" :0.4},
             glidePath: true,
-            assetAllocation2: [{asset: "S&P 500 non-retirement", proportion: 0.8},{asset: "S&P 500 non-retirement", proportion: 0.2}],
+            assetAllocation2: {"S&P 500 non-retirement": 0.8,"S&P 500 after-tax" :0.2},
             maxCash: 1000
         }
     }
@@ -163,8 +163,10 @@ async function testScenario() {
         duration: {type: "Fixed", value: 200},
         event: {
             type: "Rebalance", 
-            assetAllocation: [{asset: "S&P 500 non-retirement", proportion: 0.7},{asset: "S&P 500 non-retirement", proportion: 0.3}],
-
+            assetAllocation: {"S&P 500 non-retirement": 0.7,"S&P 500 after-tax" :0.3},
+            glidePath: true,
+            assetAllocation2: {"S&P 500 non-retirement": 0.8,"S&P 500 after-tax" :0.2},
+            taxStatus: "Non-Retirement"
         }
     }
 
@@ -172,7 +174,7 @@ async function testScenario() {
         const exampleScenario : Scenario = {
             name: "reimu",
             maritalStatus: "couple",
-            birthYear : [1985,1987],
+            birthYears : [1985,1987],
             lifeExpectancy : [ {type: "Fixed", value: 80} , {type: "Normal", mean: 82, stdev: 3} ],
             investmentTypes: {"cash" : cashInvestmentType ,"S&P 500" : SNPInvestmentType,"tax-exempt bonds": taxExemptBondsInvestmentType},
             investments: {"cash" :cashInvestment, "S&P 500 non-retirement" :snp500Investment, "tax-exempt bonds": taxExemptBondsInvestment,"S&P 500 pre-tax": snp500InvestmentPreTax,"S&P 500 after-tax": snp500InvestmentAfterTax},

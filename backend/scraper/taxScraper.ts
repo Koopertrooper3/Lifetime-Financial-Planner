@@ -1,5 +1,5 @@
 import {firefox} from 'playwright';
-import {federalTaxModel, taxBracketType,FederalTax} from "../db/taxes"
+import {federalTaxModel, taxBracketType,FederalTax, CapitalGainsTaxBracketType} from "../db/taxes"
 import dotenv from "dotenv"
 import path from 'path';
 
@@ -68,11 +68,10 @@ async function federalIncomeTax(){
     for (const row of singleFilingIncomeTaxTable){
         const cells = await row.getByRole("cell").all()
 
-        const [taxRate,lowerThreshold,upperThreshold] = await Promise.all([cells[0].innerHTML(),cells[1].innerHTML(),cells[2].innerHTML()]);
+        const [taxRate,upperThreshold] = await Promise.all([cells[0].innerHTML(),cells[2].innerHTML()]);
 
         const taxBracket : taxBracketType = {
             rate : Number(taxRate.replace('%',''))/100,
-            lowerThreshold: Number(lowerThreshold.replace(USDFormattingRegex,'')),
             upperThreshold :  Number.isNaN(Number(upperThreshold.replace(USDFormattingRegex, ''))) ?  Infinity : Number(upperThreshold.replace(USDFormattingRegex,''))
         }
 
@@ -83,11 +82,10 @@ async function federalIncomeTax(){
     for (const row of marriedFilingIncomeTaxTable){
         const cells = await row.getByRole("cell").all()
 
-        const [taxRate,lowerThreshold,upperThreshold] = await Promise.all([cells[0].innerHTML(),cells[1].innerHTML(),cells[2].innerHTML()])
+        const [taxRate,upperThreshold] = await Promise.all([cells[0].innerHTML(),cells[2].innerHTML()])
 
         const taxBracket : taxBracketType = {
             rate : Number(taxRate.replace('%',''))/100,
-            lowerThreshold: Number(lowerThreshold.replace(USDFormattingRegex,'')),
             upperThreshold :  Number.isNaN(Number(upperThreshold.replace(USDFormattingRegex, ''))) ?  Infinity : Number(upperThreshold.replace(USDFormattingRegex,''))
         }
 
@@ -175,7 +173,7 @@ async function capitalGainsTax() {
 
             if(singlesBracket?.length == 1){
                 const singleLimit = Number(singlesBracket[0].replace(USDFormattingRegex, ''))
-                const taxBracket : taxBracketType = {
+                const taxBracket : CapitalGainsTaxBracketType = {
                     rate : Number(taxRate)/100,
                     lowerThreshold: 0,
                     upperThreshold :  singleLimit
@@ -188,7 +186,7 @@ async function capitalGainsTax() {
                 const secondLimit = Number(singlesBracket[1].replace(USDFormattingRegex, ''))
 
                 if(firstLimit < secondLimit){
-                    const taxBracket : taxBracketType = {
+                    const taxBracket : CapitalGainsTaxBracketType = {
                         rate : Number(taxRate)/100,
                         lowerThreshold: firstLimit,
                         upperThreshold :  secondLimit
@@ -197,7 +195,7 @@ async function capitalGainsTax() {
 
                     singleCapitalGainsTaxBrackets.push(taxBracket)
                 }else{
-                    const taxBracket : taxBracketType = {
+                    const taxBracket : CapitalGainsTaxBracketType = {
                         rate : Number(taxRate)/100,
                         lowerThreshold: secondLimit,
                         upperThreshold :  firstLimit
@@ -210,7 +208,7 @@ async function capitalGainsTax() {
 
             if(marriedBracket?.length == 1){
                 const singleLimit = Number(marriedBracket[0].replace(USDFormattingRegex, ''))
-                const taxBracket : taxBracketType = {
+                const taxBracket : CapitalGainsTaxBracketType = {
                     rate : Number(taxRate)/100,
                     lowerThreshold: 0,
                     upperThreshold :  singleLimit
@@ -222,7 +220,7 @@ async function capitalGainsTax() {
                 const secondLimit = Number(marriedBracket[1].replace(USDFormattingRegex, ''))
 
                 if(firstLimit < secondLimit){
-                    const taxBracket : taxBracketType = {
+                    const taxBracket : CapitalGainsTaxBracketType = {
                         rate : Number(taxRate)/100,
                         lowerThreshold: firstLimit,
                         upperThreshold :  secondLimit
@@ -231,7 +229,7 @@ async function capitalGainsTax() {
 
                     marriedcapitalGainsTaxBrackets.push(taxBracket)
                 }else{
-                    const taxBracket : taxBracketType = {
+                    const taxBracket : CapitalGainsTaxBracketType = {
                         rate : Number(taxRate)/100,
                         lowerThreshold: secondLimit,
                         upperThreshold :  firstLimit
@@ -242,12 +240,12 @@ async function capitalGainsTax() {
                 }
             }
         }else{
-            const singleTaxBracket : taxBracketType = {
+            const singleTaxBracket : CapitalGainsTaxBracketType = {
                 rate : Number(taxRate)/100,
                 lowerThreshold: maxLimit["single"],
                 upperThreshold : Infinity
             }
-            const marriedTaxBracket : taxBracketType = {
+            const marriedTaxBracket : CapitalGainsTaxBracketType = {
                 rate : Number(taxRate)/100,
                 lowerThreshold: maxLimit["married"],
                 upperThreshold : Infinity
