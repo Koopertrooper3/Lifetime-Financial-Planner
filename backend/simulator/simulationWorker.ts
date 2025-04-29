@@ -1,21 +1,20 @@
-/* eslint-disable prefer-const */
 /* eslint-disable @typescript-eslint/no-empty-function */
 /* eslint-disable @typescript-eslint/no-unused-vars */
+
 import { createWriteStream, WriteStream } from "fs"
 import path from "path"
 import { finished } from "stream/promises"
 import {scenarioModel, Scenario} from "../db/Scenario"
 import PB from "probability-distributions"
 import { Investment } from "../db/InvestmentSchema"
-import { FederalTax, taxBracketType } from "../db/taxes"
-import {StateTaxBracket, stateTaxParser, TaxBracket} from "../state_taxes/statetax_parser"
+import { FederalTax, taxBracketType, StateTaxBracket, StateTax } from "../db/taxes"
 import { worker } from 'workerpool'
-import { Event as ScenarioEvent } from "../db/EventSchema"
+import { Event as ScenarioEvent, assetProportion } from "../db/EventSchema"
 import { assert } from "console"
 import { EventDistribution } from "../db/EventSchema"
 import { RMDScraper } from "../scraper/RMDScraper"
 import { InvestmentType, IncomeDistribution, ReturnDistribution } from "../db/InvestmentTypesSchema"
-import { initalizeCSVLog,writeCSVlog,closeCSVlog, pushToLog as pushToRealLog, incomeEventLogMessage, RMDLogMessage, RothConversionLogMessage, ExpenseLogMessage } from "./logging"
+import { initalizeCSVLog,writeCSVlog,closeCSVlog, incomeEventLogMessage, RMDLogMessage, expenseLogMessage, rothConversionLogMessage, investLogMessage } from "./logging"
 
 const USER = 0
 const SPOUSE = 1
@@ -35,6 +34,10 @@ const SOCIAL_SECURITY_PROPORTION = 0.85
  * @returns {string} 
  */
 
+function pushToLog(logStream : WriteStream, message : string){
+    logStream.write(message)
+}
+
 type TaxType = "Federal Income" | "State Income" | "Capital Gains" | "Early Withdrawal Penalty"
 /**
  * Description placeholder
@@ -47,7 +50,7 @@ interface threadData {
     simulationsPerThread: number,
     scenario: Scenario,
     federalTaxes : FederalTax,
-    stateTaxes: StateTaxBracket
+    stateTaxes: StateTax
 }
 
 /**
@@ -63,7 +66,7 @@ interface Result{
 type TaxBracketLevel = "Federal" | "State"
 interface TaxBracketContainer {
     "Federal" : FederalTax,
-    "State" : StateTaxBracket
+    "State" : StateTax
 }
 /**
  * Description placeholder
@@ -73,6 +76,12 @@ interface TaxBracketContainer {
  * @returns {unknown} 
  */
 
+interface AnnualValues {
+    totalIncome : number,
+    totalSocialSecurityIncome: number,
+    totalEarlyWithdrawal : number,
+    totalCapitalGains : number,
+}
 
 async function simulation(threadData : threadData){
     const result : Result = {completed : 0, succeeded: 0, failed: 0}
@@ -115,11 +124,15 @@ async function simulation(threadData : threadData){
         }
 
         let simulatedYear = new Date().getFullYear();
-        let previousYearIncome = 0.0
-        let previousYearSocialSecurityIncome = 0.0
+        let prevYearValues : AnnualValues = {
+            totalIncome: 0,
+            totalSocialSecurityIncome: 0,
+            totalCapitalGains: 0,
+            totalEarlyWithdrawal: 0
+        }
+
         let filingStatus = 0
-        let previousYearEarlyWithdrawals = 0.0
-        let previousYearCapitalGains = 0.0
+
         let currentYearTaxBrackets = baseTaxBrackets
         let previousYearTaxBrackets = baseTaxBrackets
         let solvent = true
@@ -128,9 +141,12 @@ async function simulation(threadData : threadData){
         }
 
         for(let age = startingYear - userBirthYear; age < lifeExpectancy && solvent == true; age++){
-            let currentYearTotalIncome = 0.0
-            let currentYearCapitalGains = 0.0
-            let currentYearEarlyWithdrawals = 0.0
+            const currentYearValues : AnnualValues = {
+                totalIncome: 0,
+                totalSocialSecurityIncome: 0,
+                totalCapitalGains: 0,
+                totalEarlyWithdrawal: 0
+            }
 
             const inflationRate = calculateInflation(scenario)
             let spousalStatus : boolean;
@@ -147,69 +163,79 @@ async function simulation(threadData : threadData){
             //Calculate brackets after inflation
             currentYearTaxBrackets = adjustTaxBracketsForInflation(previousYearTaxBrackets,inflationRate)
             //TODO: Calculate annual limits on retirement account contributions after inflation
-
+            const newAfterTaxContributionLimit = adjustRetirementAccountContributionLimit(scenario,inflationRate)
+            scenario.afterTaxContributionLimit = newAfterTaxContributionLimit
+            
             //Income events
             const {totalEventIncome,totalSocialSecurityIncome, adjustedEvents,incomeLogMessages} = 
             processIncome(scenario.eventSeries,inflationRate,spousalStatus,simulatedYear)
 
             scenario.investments["cash"].value += totalEventIncome
-            currentYearTotalIncome += totalEventIncome
+            currentYearValues.totalIncome += totalEventIncome
             scenario.eventSeries = adjustedEvents
-            pushToRealLog(logStream,incomeLogMessages.join("\n"))
+            currentYearValues.totalSocialSecurityIncome += totalSocialSecurityIncome
+            pushToLog(logStream,incomeLogMessages.join("\n"))
 
             //Perform RMD
             if(age >= 74 && Object.values(scenario.investments).some((investment) => investment.taxStatus == "Pre-tax")){
                 if(Object.keys(RMDTable).length === 0){
                     RMDTable = await RMDScraper()
                 }
-                const {RMDIncome, adjustedAccounts} = performRMD(scenario.investments, scenario.RMDStrategy,RMDTable,age,logStream,simulatedYear)
-                currentYearTotalIncome += RMDIncome
+                const {RMDIncome, adjustedAccounts,RMDLogMessages} = performRMD(scenario.investments, scenario.RMDStrategy,RMDTable,age,simulatedYear)
+                currentYearValues.totalIncome += RMDIncome
                 scenario.investments = adjustedAccounts
+                pushToLog(logStream,RMDLogMessages.join("\n"))
+
             }  
 
             //Update the value of investments
             const {totalInvestmentIncome, updatedAccounts} = updateInvestments(scenario.investmentTypes,scenario.investments)
             scenario.investments = updatedAccounts
-            currentYearTotalIncome += totalInvestmentIncome
+            currentYearValues.totalIncome += totalInvestmentIncome
 
             //Run roth conversion optimizer if conditions allow
             if(scenario.RothConversionOpt == true && simulatedYear >= scenario.RothConversionStart && simulatedYear <= scenario.RothConversionEnd){
-                const {adjustedAccounts, rothConversionIncome } = rothConversionOptimizer(scenario.RothConversionStrategy,scenario.investments,currentYearTaxBrackets["Federal"],
-                    currentYearTotalIncome,filingStatus,logStream,simulatedYear)
+                const {adjustedAccounts, rothConversionIncome,rothConversionLogMessages } = rothConversionOptimizer(scenario.RothConversionStrategy,scenario.investments,currentYearTaxBrackets["Federal"],
+                    currentYearValues.totalIncome,filingStatus,simulatedYear)
                 scenario.investments = adjustedAccounts
-                currentYearTotalIncome += rothConversionIncome
+                currentYearValues.totalIncome += rothConversionIncome
+                pushToLog(logStream,rothConversionLogMessages.join('\n'))
             }
 
             //Determine and pay taxes and non-discretionary expenses
-            const {nonDiscretionaryExpenses,NDExpenseLogMessages} = determineNonDiscretionaryExpenses(scenario.eventSeries,previousYearTaxBrackets,previousYearEarlyWithdrawals,
-                previousYearIncome,previousYearCapitalGains,filingStatus,spousalStatus,logStream,simulatedYear)
+            const nonDescExpenseReturn = payNonDiscretionaryExpenses(scenario,currentYearTaxBrackets,purchaseLedger,age,filingStatus,spousalStatus,
+                prevYearValues,inflationRate,simulatedYear);
 
+            scenario.eventSeries = nonDescExpenseReturn.adjustedEventSeries
+            scenario.investments = nonDescExpenseReturn.adjustedAccounts
+            currentYearValues.totalIncome += nonDescExpenseReturn.totalIncome
+            currentYearValues.totalCapitalGains += nonDescExpenseReturn.totalCapitalGain
+            currentYearValues.totalEarlyWithdrawal += nonDescExpenseReturn.earlyWithdrawal
+            pushToLog(logStream,nonDescExpenseReturn.nonDescExpenseLogMessages.join('\n'))
 
-            const {allExpensesPaid,totalIncome,earlyWithdrawal,totalCapitalGain,adjustedAccounts} = payNonDiscretionaryExpenses(scenario.investments, scenario.investmentTypes,purchaseLedger,
-                nonDiscretionaryExpenses, scenario.expenseWithdrawalStrategy,age)
-            
-            if(allExpensesPaid == false){
+            if(nonDescExpenseReturn.allExpensesPaid == false){
                 solvent = false
                 break;
             }
-            scenario.investments = adjustedAccounts
-            currentYearCapitalGains += totalCapitalGain
-            currentYearEarlyWithdrawals += earlyWithdrawal
-            currentYearTotalIncome += totalIncome
+        
+            const descExpenseReturn = payDiscretionaryExpenses(scenario,purchaseLedger,age,spousalStatus,inflationRate,simulatedYear)
 
-            //payDiscretionaryExpenses(scenario.investments, scenario.investmentTypes,
-            //    purchaseLedger,scenario.eventSeries,scenario.spendingStrategy,scenario.expenseWithdrawalStrategy,scenario.financialGoal,age)
+            scenario.eventSeries = descExpenseReturn.adjustedEventSeries
+            scenario.investments = descExpenseReturn.adjustedAccounts
+            currentYearValues.totalIncome += descExpenseReturn.totalIncome
+            currentYearValues.totalCapitalGains += descExpenseReturn.totalCapitalGain
+            currentYearValues.totalEarlyWithdrawal += descExpenseReturn.earlyWithdrawal
+            pushToLog(logStream,descExpenseReturn.discExpenseLogMessages.join('\n'))
 
-            //processInvestEvent()
+            const investReturn = processInvestEvent(scenario,simulatedYear)
+            scenario.investments = investReturn.adjustedAccounts
+            pushToLog(logStream,investReturn.logMessages.join('\n'))
 
             //processRebalanceEvent()
             simulatedYear += 1
-            previousYearIncome = currentYearTotalIncome
-            previousYearSocialSecurityIncome = totalSocialSecurityIncome
-            previousYearEarlyWithdrawals = currentYearEarlyWithdrawals
+            prevYearValues = currentYearValues
             previousYearTaxBrackets = currentYearTaxBrackets
-            previousYearCapitalGains = currentYearCapitalGains
-            previousYearEarlyWithdrawals = currentYearEarlyWithdrawals
+
             writeCSVlog(scenario.investments,csvStream,simulatedYear)
         }
 
@@ -416,22 +442,18 @@ function adjustTaxBracketsForInflation(taxBrackets: TaxBracketContainer, inflati
     //Update federal brackets
     const federalBrackets = adjustedTaxBrackets.Federal
     federalBrackets.singleIncomeTaxBrackets.forEach((taxBracket) => {
-        taxBracket.lowerThreshold += taxBracket.lowerThreshold*inflationRate
         taxBracket.upperThreshold += taxBracket.upperThreshold*inflationRate
     })
 
     federalBrackets.marriedIncomeTaxBrackets.forEach((taxBracket) => {
-        taxBracket.lowerThreshold += taxBracket.lowerThreshold*inflationRate
         taxBracket.upperThreshold += taxBracket.upperThreshold*inflationRate
     })
 
     federalBrackets.singleCapitalGainsTaxBrackets.forEach((taxBracket) => {
-        taxBracket.lowerThreshold += taxBracket.lowerThreshold*inflationRate
         taxBracket.upperThreshold += taxBracket.upperThreshold*inflationRate
     })
 
     federalBrackets.marriedIncomeTaxBrackets.forEach((taxBracket) => {
-        taxBracket.lowerThreshold += taxBracket.lowerThreshold*inflationRate
         taxBracket.upperThreshold += taxBracket.upperThreshold*inflationRate
     })
 
@@ -443,13 +465,11 @@ function adjustTaxBracketsForInflation(taxBrackets: TaxBracketContainer, inflati
     const stateBrackets = adjustedTaxBrackets.State
 
     stateBrackets.singleIncomeTax.forEach((taxBracket) =>{
-        taxBracket.lowerThreshold += taxBracket.lowerThreshold*inflationRate
         taxBracket.upperThreshold += taxBracket.upperThreshold*inflationRate
         taxBracket.flatAdjustment += taxBracket.flatAdjustment*inflationRate
     })
 
     stateBrackets.marriedIncomeTax.forEach((taxBracket) =>{
-        taxBracket.lowerThreshold += taxBracket.lowerThreshold*inflationRate
         taxBracket.upperThreshold += taxBracket.upperThreshold*inflationRate
         taxBracket.flatAdjustment += taxBracket.flatAdjustment*inflationRate
     })
@@ -463,6 +483,11 @@ function adjustTaxBracketsForInflation(taxBrackets: TaxBracketContainer, inflati
  * @param {number} inflationRate 
  * @returns {{ currentYearIncome: number; currentYearSocialSecurityIncome: number; adjustedIncomeEvents: Record<string, ScenarioEvent>; }} 
  */
+
+function adjustRetirementAccountContributionLimit(scenario : Scenario, inflationRate : number){
+    const currentLimit = scenario.afterTaxContributionLimit
+    return currentLimit + (currentLimit * inflationRate)
+}
 function processIncome(scenarioEvents : Record<string,ScenarioEvent>, inflationRate : number, 
     spousalStatus : boolean, currentYear : number){
 
@@ -478,7 +503,7 @@ function processIncome(scenarioEvents : Record<string,ScenarioEvent>, inflationR
         if(currentEvent.event.type == "Income"){
 
             let eventIncome = 0.0
-            let adjustedEventIncome = 0.0
+            let adjustedEventIncome
             const modifiedEvent = structuredClone(currentEvent)
 
             //Determine next year's income
@@ -486,7 +511,9 @@ function processIncome(scenarioEvents : Record<string,ScenarioEvent>, inflationR
             if(currentEvent.event.changeAmountOrPercent == "Amount"){
                 adjustedEventIncome = currentEvent.event.initialAmount + incomeChange
             }else if(currentEvent.event.changeAmountOrPercent == "Percent"){
-                adjustedEventIncome += currentEvent.event.initialAmount * incomeChange
+                adjustedEventIncome = currentEvent.event.initialAmount + (currentEvent.event.initialAmount * incomeChange)
+            }else{
+                throw new Error("Invalid change distribution")
             }
 
             //Determine of the event has started
@@ -516,11 +543,9 @@ function processIncome(scenarioEvents : Record<string,ScenarioEvent>, inflationR
 
             modifiedEvent.event.initialAmount = adjustedEventIncome
             adjustedEvents[currentEventKey] = modifiedEvent
-            if(currentEvent.event.socialSecurity == true){
-                totalEventIncome += eventIncome * SOCIAL_SECURITY_PROPORTION
-            }else{
-                totalEventIncome += eventIncome
-            }
+
+            totalEventIncome += eventIncome
+
             incomeLogMessages.push(incomeEventLogMessage(currentYear,modifiedEvent.name,eventIncome))
         }else{
             adjustedEvents[currentEventKey] = structuredClone(currentEvent)
@@ -535,8 +560,7 @@ function processIncome(scenarioEvents : Record<string,ScenarioEvent>, inflationR
  * from investments in pre-tax retirement accounts to investments in non-retirement
  * accounts.
  */
-function performRMD(investments : Record<string,Investment>, RMDStrategy : string[], RMDTable: Record<number,number>,age : number,
-    logStream : WriteStream,year : number){
+function performRMD(investments : Record<string,Investment>, RMDStrategy : string[], RMDTable: Record<number,number>,age : number,year : number){
 
     let RMDIncome = 0
     if(RMDTable[age] == null){
@@ -545,8 +569,7 @@ function performRMD(investments : Record<string,Investment>, RMDStrategy : strin
     const adjustedAccounts = structuredClone(investments)
     const preTaxAccounts = Object.values(adjustedAccounts).filter((investment) => investment.taxStatus == "Pre-tax")
     const nonRetirementTaxAccounts = Object.values(adjustedAccounts).filter((investment) => investment.taxStatus == "Non-retirement")
-    const logMessages : string[] = [];
-
+    const RMDLogMessages : string[] = []
     let RMDIndex = 0
 
     const preTaxTotalValue = preTaxAccounts.reduce( (totalValue,investment) => totalValue += investment.value, 0.0)
@@ -584,13 +607,14 @@ function performRMD(investments : Record<string,Investment>, RMDStrategy : strin
         }
 
         receivingAccount.value += withdrawnAmount
-        requiredDistribution--
-        logMessages.push(RMDLogMessage(year, withdrawnAmount, withdrawingAccount.investmentType))
+        requiredDistribution-= withdrawnAmount
+        RMDLogMessages.push(RMDLogMessage(year, withdrawnAmount, withdrawingAccount.investmentType))
+
     }
 
     RMDIncome += requiredDistribution
 
-    return {RMDIncome,adjustedAccounts}
+    return {RMDIncome,adjustedAccounts,RMDLogMessages}
 
 
 }
@@ -654,19 +678,25 @@ function updateInvestments(investmentDataRecord : Record<string,InvestmentType>,
  * to after-tax retirement accounts to minimize lifetime income tax.
 */
 function rothConversionOptimizer(rothConversionStrategy : string[], accounts : Record<string,Investment>,federalTaxBracket : FederalTax, 
-    currentYearIncome : number, filingStatus: number, logStream: WriteStream, year : number){
-
+    currentYearIncome : number, filingStatus: number, year : number){
+    
+    const rothConversionLogMessages : string[] = []
     let incomeTaxBracket : taxBracketType[];
     const adjustedAccounts : Record<string,Investment> = structuredClone(accounts)
-    const logMessages : string[] = [];
-    
+
     if(filingStatus > 0){
         incomeTaxBracket = federalTaxBracket.marriedIncomeTaxBrackets
     }else{
         incomeTaxBracket = federalTaxBracket.singleIncomeTaxBrackets
     }
 
-    const currentBracket = incomeTaxBracket.find((bracket) => currentYearIncome >= bracket.lowerThreshold && currentYearIncome <= bracket.upperThreshold)
+    const currentBracket = incomeTaxBracket.find((bracket,index,taxBrackets) => {
+        if(index+1 > taxBrackets.length){
+            return true
+        }else{
+            return taxBrackets[index+1].upperThreshold >= currentYearIncome
+        }
+    });
 
     if(currentBracket == undefined){
         throw new Error(`Tax bracket does not exist for income ${currentYearIncome}`)
@@ -709,19 +739,19 @@ function rothConversionOptimizer(rothConversionStrategy : string[], accounts : R
         receivingAccount.value += withdrawnAmount
         rothConversionAmount--
         
-        logMessages.push(RothConversionLogMessage(year,withdrawnAmount,withdrawingInvestmentType))
+        rothConversionLogMessages.push(rothConversionLogMessage(year,withdrawnAmount,withdrawingInvestmentType))
 
     }
 
-    return {adjustedAccounts, rothConversionIncome}
+    return {adjustedAccounts, rothConversionIncome,rothConversionLogMessages}
 
 }
 
-function calculateFederalIncomeTax(taxBrackets : FederalTax, income : number,filingStatus : number){
+function calculateFederalIncomeTax(taxBrackets : FederalTax, income : number,socialSecurity : number,filingStatus : number){
 
     //TP: Generated by Github Copilot with the prompt
     //"create an algorithm that calculates how much I have to pay in US federal taxes given my annual income"
-
+    income += socialSecurity*SOCIAL_SECURITY_PROPORTION
     let taxBurden = 0.0;
     let incomeTaxBracket : taxBracketType[];
     let standardDeduction : number
@@ -735,17 +765,15 @@ function calculateFederalIncomeTax(taxBrackets : FederalTax, income : number,fil
 
     }
 
+    income -= standardDeduction;
+    let previousBracket = 0
     // Iterate through the tax brackets to calculate the tax burden
     for (const bracket of incomeTaxBracket) {
-        const taxableIncome = Math.min(income, bracket.upperThreshold) - bracket.lowerThreshold;
+        const taxableIncome = Math.min(income, bracket.upperThreshold)-previousBracket;
         taxBurden += taxableIncome * bracket.rate;
-
-        if (income <= bracket.upperThreshold) {
-            break;
-        }
-        
+        previousBracket = bracket.upperThreshold
     }
-    taxBurden -= standardDeduction
+
     if(taxBurden < 0){
         taxBurden = 0
     }
@@ -766,7 +794,13 @@ function calculateFederalCapitalGainsTax(taxBrackets : FederalTax, income : numb
         capitalGainsTaxBracket = taxBrackets.singleCapitalGainsTaxBrackets
     }
 
-    const capitalGainsRate = capitalGainsTaxBracket.find((bracket) => income >= bracket.lowerThreshold && income <= bracket.upperThreshold)?.rate
+    const capitalGainsRate = capitalGainsTaxBracket.find((bracket,index,taxBrackets) => {
+        if(index+1 > taxBrackets.length){
+            return true
+        }else{
+            return taxBrackets[index+1].upperThreshold >= income
+        }
+    })?.rate
     
     if(capitalGainsRate == undefined){
         throw new Error("Unable to find capital gains tax rate")
@@ -779,13 +813,13 @@ function calculateWithdrawalTax(previousYearEarlyWithdrawals : number){
     return previousYearEarlyWithdrawals*EARLY_WITHDRAWAL_PENALTY
 }
 
-function calculateStateIncomeTax(taxBrackets : StateTaxBracket, income : number,filingStatus : number){
+function calculateStateIncomeTax(taxBrackets : StateTax, income : number,filingStatus : number){
 
     //TP: Generated by Github Copilot with the prompt
     //"create an algorithm that calculates how much I have to pay in US federal taxes given my annual income"
 
     let taxBurden = 0.0;
-    let incomeTaxBracket : TaxBracket[];
+    let incomeTaxBracket : StateTaxBracket[];
 
     // Determine the applicable tax brackets based on filing status
     if(filingStatus > 0){
@@ -793,10 +827,10 @@ function calculateStateIncomeTax(taxBrackets : StateTaxBracket, income : number,
     }else{
         incomeTaxBracket = taxBrackets.singleIncomeTax
     }
-
+    
     // Iterate through the tax brackets to calculate the tax burden
     for (const bracket of incomeTaxBracket) {
-        const taxableIncome = Math.min(income, bracket.upperThreshold) - bracket.lowerThreshold;
+        const taxableIncome = Math.min(income, bracket.upperThreshold);
         taxBurden += taxableIncome * bracket.rate + bracket.flatAdjustment;
 
         if (income <= bracket.upperThreshold) {
@@ -807,43 +841,34 @@ function calculateStateIncomeTax(taxBrackets : StateTaxBracket, income : number,
 
     return taxBurden;
 }
+
 /** Description placeholder */
-function determineNonDiscretionaryExpenses(events : Record<string,ScenarioEvent>, 
-    taxBrackets: TaxBracketContainer,previousYearEarlyWithdrawals : number, previousYearIncome : number, previousYearCapitalGains : number, 
-    filingStatus : number,spousalStatus : boolean, logStream : WriteStream, year : number){
+function determineTaxBurden(taxBrackets: TaxBracketContainer, prevYearValues: AnnualValues, filingStatus : number, year : number){
     
-    const federalIncomeTaxBurden = calculateFederalIncomeTax(taxBrackets.Federal,previousYearIncome,filingStatus)
-    const federalCapitalGainsTaxBurden = calculateFederalCapitalGainsTax(taxBrackets.Federal,previousYearIncome,previousYearCapitalGains,filingStatus)
-    const earlyWithdrawalTax = calculateWithdrawalTax(previousYearEarlyWithdrawals)
-    const stateTaxBurden = calculateStateIncomeTax(taxBrackets.State,previousYearIncome,filingStatus)
-    const NDExpenseLogMessages : string[] = [];
-
-    NDExpenseLogMessages.push(ExpenseLogMessage(year,federalIncomeTaxBurden,"Federal Income"))
-    NDExpenseLogMessages.push(ExpenseLogMessage(year,stateTaxBurden,"State Income"))
-    NDExpenseLogMessages.push(ExpenseLogMessage(year,federalCapitalGainsTaxBurden,"Federal Income"))
-    NDExpenseLogMessages.push(ExpenseLogMessage(year,earlyWithdrawalTax,"Federal Income"))
+    const newExpenseSeries : ExpenseObject[] = []
+    const federalIncomeTaxBurden = calculateFederalIncomeTax(taxBrackets.Federal,prevYearValues.totalIncome,prevYearValues.totalSocialSecurityIncome,filingStatus)
+    const federalCapitalGainsTaxBurden = calculateFederalCapitalGainsTax(taxBrackets.Federal,prevYearValues.totalIncome,prevYearValues.totalCapitalGains,filingStatus)
+    const earlyWithdrawalTax = calculateWithdrawalTax(prevYearValues.totalEarlyWithdrawal)
+    const stateTaxBurden = calculateStateIncomeTax(taxBrackets.State,prevYearValues.totalIncome,filingStatus)
     
-    const eventNonDiscretionaryExpenses = Object.values(events).reduce((accumulatedExpenses, event)=> {
-        if(event.event.type == "Expense" && event.event.discretionary == false){
-            let expenseAmount : number;
-            if(spousalStatus == true){
-                expenseAmount = event.event.initialAmount
-                NDExpenseLogMessages.push(ExpenseLogMessage(year,expenseAmount,event.name))
-                return accumulatedExpenses += expenseAmount
-            }else{
-                expenseAmount = event.event.initialAmount*event.event.userFraction
-                NDExpenseLogMessages.push(ExpenseLogMessage(year,expenseAmount,event.name))
-                return accumulatedExpenses += expenseAmount
-            }
-        }else{
-            return accumulatedExpenses
-        }
-    },0.0)
+    newExpenseSeries.push(
+        {
+            expenseAmount : federalIncomeTaxBurden,
+            logMessage : expenseLogMessage(year,federalIncomeTaxBurden,"Federal Income Tax"),
+        },{
+            expenseAmount : stateTaxBurden,
+            logMessage : expenseLogMessage(year,stateTaxBurden,"State Income Tax"),
+        },{
+            expenseAmount : federalCapitalGainsTaxBurden,
+            logMessage : expenseLogMessage(year,federalCapitalGainsTaxBurden,"Federal Capital Gains Tax"),
+        },{
+            expenseAmount : earlyWithdrawalTax,
+            logMessage : expenseLogMessage(year,earlyWithdrawalTax,"Early Withdrawal Income"),
+        },)
+    
 
-
-
-    const nonDiscretionaryExpenses = federalIncomeTaxBurden + federalCapitalGainsTaxBurden + stateTaxBurden + earlyWithdrawalTax + eventNonDiscretionaryExpenses
-    return {nonDiscretionaryExpenses,NDExpenseLogMessages}
+    const totalExpenses = federalIncomeTaxBurden + federalCapitalGainsTaxBurden + stateTaxBurden + earlyWithdrawalTax
+    return newExpenseSeries
 }
 
 function determineTaxableCapitalGain(purchaseLedger : number[], withdrawalAmount : number, investmentValue : number){
@@ -867,87 +892,163 @@ function determineTaxableCapitalGain(purchaseLedger : number[], withdrawalAmount
     return capitalGain
 }
 
-function payNonDiscretionaryExpenses(accounts : Record<string,Investment>, investmentTypeRecord : Record<string,InvestmentType>,
-    purchaseLedger : Record<string, number[]>, totalExpenses : number, expenseWithdrawalStrategy : string[], age : number){
+function generateExpenseSeriesFromEvents(eventSeries : Record<string,ScenarioEvent>,year : number,inflationRate : number,spousalStatus : boolean){
+
+    const adjustedEventSeries = structuredClone(eventSeries)
+
+    const eventExpenses = Object.values(eventSeries).filter((currEvent) => currEvent.event.type == "Expense" && hasEventStarted(currEvent,year)).map((currEvent) =>{
+        if(currEvent.event.type != "Expense" || !hasEventStarted(currEvent,year)){
+            throw new Error("Filter doesn't work properly")
+        }
+
+        let totalExpense : number
+        if(spousalStatus == true){
+            totalExpense = currEvent.event.initialAmount
+        }else{
+            totalExpense = currEvent.event.initialAmount * currEvent.event.userFraction
+        }
+
+        const newExpenseObject : ExpenseObject = {
+            expenseAmount : currEvent.event.initialAmount,
+            logMessage : expenseLogMessage(year,currEvent.event.initialAmount,currEvent.name),
+        }
+
+        //Adjust expenses
+        const adjustedEvent = adjustedEventSeries[currEvent.name]
+        if(adjustedEvent.event.type != "Expense"){
+            throw new Error("Clone failed to properly copy event")
+        }
+        adjustedEvent.event.initialAmount = determineExpenseValueChange(currEvent,inflationRate)
+
+        return newExpenseObject
+
+    })
+
+    return {eventExpenses,adjustedEventSeries}
+}
+interface ExpenseObject {
+    expenseAmount : number
+    logMessage : string
+}
+interface payNonDescExpensesReturn{
+    allExpensesPaid: boolean,
+    adjustedEventSeries : Record<string,ScenarioEvent>,
+    adjustedAccounts : Record<string,Investment>,
+    totalIncome : number,
+    totalCapitalGain : number,
+    earlyWithdrawal : number,
+    nonDescExpenseLogMessages : string[]
+}
+function payNonDiscretionaryExpenses(scenario : Scenario, taxBracket : TaxBracketContainer, purchaseLedger : Record<string, number[]>, age : number, 
+    filingStatus : number, spousalStatus : boolean, prevYearValues : AnnualValues, inflationRate : number, year : number) : payNonDescExpensesReturn{
     
+
+    const accounts = scenario.investments
     const adjustedAccounts = structuredClone(accounts)
-    
+    const expenseWithdrawalStrategy = scenario.expenseWithdrawalStrategy
+    const eventSeries = scenario.eventSeries
+    const investmentDataRecord = scenario.investmentTypes
+    const expenseSeries :  ExpenseObject[] = []
+    const nonDescExpenseLogMessages : string[] = []
+
+    let allExpensesPaid = false
+
+    expenseSeries.concat(determineTaxBurden(taxBracket,prevYearValues,filingStatus,filingStatus))
+
     let earlyWithdrawal = 0.0
     let totalIncome = 0.0
     let totalCapitalGain = 0.0
-    let allExpensesPaid = false
+    let expenseWithdrawalStrategyIndex = 0
 
-    const cashWithdrawal = Math.min(adjustedAccounts["cash"].value,totalExpenses)
-    totalExpenses -= cashWithdrawal
-    adjustedAccounts["cash"].value -= cashWithdrawal
+    const eventExpensesResult = generateExpenseSeriesFromEvents(eventSeries,year,inflationRate,spousalStatus)
 
-    for(const accountID of expenseWithdrawalStrategy){
-        const withdrawingAccount = adjustedAccounts[accountID]
-        const currentPurchaseLedger = purchaseLedger[accountID]
+    expenseSeries.concat(eventExpensesResult.eventExpenses)
+    const adjustedEventSeries = eventExpensesResult.adjustedEventSeries
 
-        if(withdrawingAccount == null || currentPurchaseLedger == null){
-            throw new Error("Invalid investment in expenseWithdrawalStrategy")
-        }
+    const cashInvestment = adjustedAccounts["cash"]
+    if(cashInvestment == null){
+        throw new Error("Cash does not exist")
+    }
+    
+        
+    for(const currentExpense of expenseSeries){
 
-        const withdrawnAmount = Math.min(withdrawingAccount.value,totalExpenses)
+        //Determine total cost of expenses with respect to spousal status
+        let totalExpenses : number = currentExpense.expenseAmount
 
-        //Consider tax implications
-        if(withdrawingAccount.taxStatus == "After-tax"){
-            //Tax-free accounts
-            //Subject to early withdrawal penalties
-            //Subject to capital gains
+        //Withdraw from cash first
+        const cashWithdrawal = Math.min(cashInvestment.value,totalExpenses)
+        totalExpenses -= cashWithdrawal
+        cashInvestment.value -= cashWithdrawal
 
-            if(age < EARLY_WITHDRAWAL_AGE){
-                earlyWithdrawal += withdrawnAmount
-            }
-            const capitalGain = determineTaxableCapitalGain(currentPurchaseLedger,withdrawnAmount,withdrawingAccount.value)
-            totalCapitalGain += capitalGain
+        while(totalExpenses >= 0 && expenseWithdrawalStrategyIndex < expenseWithdrawalStrategy.length){
 
-        }else if(withdrawingAccount.taxStatus == "Pre-tax"){
-            //Tax-deferred accounts
-            //Subject to early withdrawal penalties
-            //Subject to income tax
+            const withdrawingAccount = adjustedAccounts[expenseWithdrawalStrategy[expenseWithdrawalStrategyIndex]];
+            const currentInvestmentData = investmentDataRecord[expenseWithdrawalStrategy[expenseWithdrawalStrategyIndex]]
+            const currentInvestmentLedger = purchaseLedger[expenseWithdrawalStrategy[expenseWithdrawalStrategyIndex]]
 
-            if(age < EARLY_WITHDRAWAL_AGE){
-                earlyWithdrawal += withdrawnAmount
+            if(withdrawingAccount == null || currentInvestmentData == null || currentInvestmentLedger == null){
+                throw new Error("Investment does not exist")
             }
 
-            totalIncome += withdrawnAmount
+            const withdrawnAmount = Math.min(totalExpenses,withdrawingAccount.value);
 
-        }else if(withdrawingAccount.taxStatus == "Non-retirement"){
-            //Taxable accounts
-            //Subject to capital gains
+            const taxFromWithdrawal = determineTaxFromWithdrawal(withdrawingAccount,currentInvestmentData,currentInvestmentLedger,withdrawnAmount,age)
 
-            const investmentData = investmentTypeRecord[withdrawingAccount.investmentType]
-            if(investmentData == null){
-                throw new Error("Invalid investment type")
+            totalIncome += taxFromWithdrawal.income
+            totalCapitalGain += taxFromWithdrawal.capitalGain
+            earlyWithdrawal += taxFromWithdrawal.earlyWithdrawal
+
+            totalExpenses -= withdrawnAmount
+            withdrawingAccount.value -= withdrawnAmount
+
+            if(withdrawingAccount.value == 0){
+                expenseWithdrawalStrategyIndex++
             }
-            const capitalGain = determineTaxableCapitalGain(currentPurchaseLedger,withdrawnAmount,withdrawingAccount.value)
-            totalCapitalGain += capitalGain
+
             
+
+        }
+        if(expenseWithdrawalStrategyIndex < expenseWithdrawalStrategy.length){
+            nonDescExpenseLogMessages.push(currentExpense.logMessage)
         }else{
-            throw new Error("Invalid tax status")
+            return {allExpensesPaid,totalIncome,totalCapitalGain,earlyWithdrawal,adjustedEventSeries,adjustedAccounts,nonDescExpenseLogMessages}
         }
-
-        totalExpenses -= withdrawnAmount
-        withdrawingAccount.value -= withdrawnAmount
-
-        if(totalExpenses <= 0.0){
-            allExpensesPaid = true
-            break;
-        }
+        
     }
 
-
-    return {allExpensesPaid,totalIncome,earlyWithdrawal,totalCapitalGain,adjustedAccounts}
+    allExpensesPaid = true
+    return {allExpensesPaid,totalIncome,totalCapitalGain,earlyWithdrawal,adjustedEventSeries,adjustedAccounts,nonDescExpenseLogMessages}
+    
 }
+function determineExpenseValueChange(event : ScenarioEvent,inflationRate : number){
+    //Determine next year's expense
+    if(event.event.type != "Expense"){
+        throw new Error("Not an expense, function not applicable")
+    }
 
+    let adjustedEventExpense
+    const incomeChange = calculateChangeDistribution(event.event.changeDistribution)
+    if(event.event.changeAmountOrPercent == "Amount"){
+        adjustedEventExpense = event.event.initialAmount + incomeChange
+    }else if(event.event.changeAmountOrPercent == "Percent"){
+        adjustedEventExpense = event.event.initialAmount + (event.event.initialAmount * incomeChange)
+    }else{
+        throw new Error("Invalid expense event change distribution")
+    }
+
+    if(event.event.inflationAdjusted == true){
+        adjustedEventExpense += adjustedEventExpense * inflationRate
+    }
+
+    return adjustedEventExpense
+}
 function determineTaxFromWithdrawal(account : Investment, investmentData : InvestmentType, currentPurchaseLedger : number[], withdrawnAmount : number,
     age : number){
     
-    let totalEarlyWithdrawal = 0.0
-    let totalCapitalGain = 0.0
-    let totalIncome = 0.0
+    let earlyWithdrawal = 0.0
+    let capitalGain = 0.0
+    let income = 0.0
     
     //Consider tax implications
     if(account.taxStatus == "After-tax"){
@@ -956,10 +1057,9 @@ function determineTaxFromWithdrawal(account : Investment, investmentData : Inves
         //Subject to capital gains
 
         if(age < EARLY_WITHDRAWAL_AGE){
-            totalEarlyWithdrawal += withdrawnAmount
+            earlyWithdrawal += withdrawnAmount
         }
-        const capitalGain = determineTaxableCapitalGain(currentPurchaseLedger,withdrawnAmount,account.value)
-        totalCapitalGain += capitalGain
+        capitalGain = determineTaxableCapitalGain(currentPurchaseLedger,withdrawnAmount,account.value)
 
     }else if(account.taxStatus == "Pre-tax"){
         //Tax-deferred accounts
@@ -967,10 +1067,10 @@ function determineTaxFromWithdrawal(account : Investment, investmentData : Inves
         //Subject to income tax
 
         if(age < EARLY_WITHDRAWAL_AGE){
-            totalEarlyWithdrawal += withdrawnAmount
+            earlyWithdrawal += withdrawnAmount
         }
 
-        totalIncome += withdrawnAmount
+        income += withdrawnAmount
 
     }else if(account.taxStatus == "Non-retirement"){
         //Taxable accounts
@@ -979,22 +1079,40 @@ function determineTaxFromWithdrawal(account : Investment, investmentData : Inves
         if(investmentData == null){
             throw new Error("Invalid investment type")
         }
-        const capitalGain = determineTaxableCapitalGain(currentPurchaseLedger,withdrawnAmount,account.value)
-        totalCapitalGain += capitalGain
+        capitalGain = determineTaxableCapitalGain(currentPurchaseLedger,withdrawnAmount,account.value)
         
     }else{
         throw new Error("Invalid tax status")
     }
 
-    return {totalIncome,totalEarlyWithdrawal,totalCapitalGain}
+    return {income,earlyWithdrawal,capitalGain}
 
 }
-/** Description placeholder */
-function payDiscretionaryExpenses(accounts : Record<string,Investment>, investmentDataRecord : Record<string,InvestmentType>,
-    purchaseLedger : Record<string,number[]>, expenses : Record<string,ScenarioEvent>, spendingStrategy : string[], expenseWithdrawalStrategy : string[], 
-    finanicalGoal: number, age : number){
 
-    const adjustedAccounts = structuredClone(accounts)
+interface payDiscExpensesReturn {
+    adjustedAccounts : Record<string,Investment>,
+    adjustedEventSeries : Record<string,ScenarioEvent>,
+    totalIncome : number,
+    earlyWithdrawal : number,
+    totalCapitalGain : number,
+    discExpenseLogMessages : string[]
+}
+/** Description placeholder */
+function payDiscretionaryExpenses(scenario : Scenario, purchaseLedger : Record<string,number[]>, age : number,spousalStatus : boolean,inflationRate : number,year : number) : payDiscExpensesReturn{
+
+    const accounts = scenario.investments
+    const adjustedAccounts = structuredClone(scenario.investments)
+    const finanicalGoal = scenario.financialGoal
+    const expenseWithdrawalStrategy = scenario.expenseWithdrawalStrategy
+    const spendingStrategy = scenario.spendingStrategy
+    const eventSeries = scenario.eventSeries
+    const adjustedEventSeries = structuredClone(scenario.eventSeries)
+    const investmentDataRecord = scenario.investmentTypes
+    const cashInvestment = adjustedAccounts["cash"]
+    const discExpenseLogMessages : string[] = []
+    if(cashInvestment == null){
+        throw new Error("Cash does not exist")
+    }
 
     const totalValue = Object.values(accounts).reduce((accumulatedValue, account)=>{
         return accumulatedValue += account.value
@@ -1004,36 +1122,237 @@ function payDiscretionaryExpenses(accounts : Record<string,Investment>, investme
     let earlyWithdrawal = 0.0
     let totalIncome = 0.0
     let totalCapitalGain = 0.0
-    let allExpensesPaid = false
     let expenseWithdrawalStrategyIndex = 0
 
-   for(const expenseID in spendingStrategy){
-        const currentExpense = expenses[expenseID]
+   while(expendableValue >= 0 && expenseWithdrawalStrategyIndex < expenseWithdrawalStrategy.length){
+        
+        for(const expenseID in spendingStrategy){
 
-        if(currentExpense.event.type != "Expense"){
-            throw new Error("not an expense")
+            //Determine if we have exhausted all our accounts that we can withdraw from
+            if(expenseWithdrawalStrategyIndex < expenseWithdrawalStrategy.length){
+                break
+            }
+
+            //Determine expenses first
+            const currentExpense = adjustedEventSeries[expenseID];
+            if(currentExpense.event.type != "Expense"){
+                throw new Error("Non-expense in spending strategy")
+            }
+            if(hasEventStarted(currentExpense,year) == false){
+                continue
+            }
+
+            let totalExpenses = 0
+            if(spousalStatus == true){
+                totalExpenses = currentExpense.event.initialAmount
+            }else{
+                totalExpenses = currentExpense.event.initialAmount * currentExpense.event.userFraction
+            }
+
+            if(expendableValue-totalExpenses <= 0){
+                continue;
+            }
+
+            //Withdraw from cash first
+            const cashWithdrawal = Math.min(totalExpenses,cashInvestment.value)
+            totalExpenses -= cashWithdrawal
+            cashInvestment.value -= cashWithdrawal
+
+            while(totalExpenses >= 0 && expenseWithdrawalStrategyIndex < expenseWithdrawalStrategy.length){
+
+                const withdrawingAccount = adjustedAccounts[expenseWithdrawalStrategy[expenseWithdrawalStrategyIndex]];
+                const currentInvestmentData = investmentDataRecord[expenseWithdrawalStrategy[expenseWithdrawalStrategyIndex]]
+                const currentInvestmentLedger = purchaseLedger[expenseWithdrawalStrategy[expenseWithdrawalStrategyIndex]]
+                if(withdrawingAccount == null || currentInvestmentData == null || currentInvestmentLedger == null){
+                    throw new Error("Investment does not exist")
+                }
+
+                const withdrawnAmount = Math.min(totalExpenses,withdrawingAccount.value);
+
+                const taxFromWithdrawal = determineTaxFromWithdrawal(withdrawingAccount,currentInvestmentData,currentInvestmentLedger,withdrawnAmount,age)
+
+                totalIncome += taxFromWithdrawal.income
+                totalCapitalGain += taxFromWithdrawal.capitalGain
+                earlyWithdrawal += taxFromWithdrawal.earlyWithdrawal
+
+                totalExpenses -= withdrawnAmount
+                withdrawingAccount.value -= withdrawnAmount
+                expendableValue -= withdrawnAmount
+                currentExpense.event.initialAmount = determineExpenseValueChange(currentExpense,inflationRate)
+                if(withdrawingAccount.value == 0){
+                    expenseWithdrawalStrategyIndex++
+                }
+
+            }
+
         }
 
-        const expenseAmount = currentExpense.event.initialAmount
-        const withdrawingAccountID = expenseWithdrawalStrategy[expenseWithdrawalStrategyIndex]
-        const withdrawingAccount = adjustedAccounts[withdrawingAccountID]
-        
-        
    }
-    
-    
 
-    return {earlyWithdrawal,totalCapitalGain,adjustedAccounts}
+    return {earlyWithdrawal,totalIncome,totalCapitalGain,adjustedAccounts,adjustedEventSeries,discExpenseLogMessages}
 
 }
 
-/** Description placeholder */
-function processInvestEvent(){
+function determineInvestmentAllocation(investEvent : ScenarioEvent,currentYear : number){
+    if(investEvent.event.type != "Invest"){
+        throw new Error("Invalid Invest Event")
+    }
 
+    if(investEvent.start.type != "Fixed" || investEvent.duration.type != "Fixed"){
+        throw new Error("Event not resolved")
+    }
+
+    let currentYearAllocations : Record<string,number>
+
+    if(investEvent.event.glidePath == true){
+        const yearsIntoEvent = (investEvent.start.value+investEvent.duration.value) - currentYear
+        const startingAllocations = investEvent.event.assetAllocation
+        const endingAllocations = investEvent.event.assetAllocation2
+        currentYearAllocations = {}
+        const duration = investEvent.duration.value
+        
+
+        Object.entries(startingAllocations).forEach(([assetType,initalProportion]) =>{
+            const finalProportion = endingAllocations[assetType]
+            if(finalProportion == null){
+                throw new Error("No corresponding proportion")
+            }
+
+            const rate = (finalProportion-initalProportion)/duration
+            currentYearAllocations[assetType] = rate*yearsIntoEvent+initalProportion
+            
+        })
+        
+        
+    }else{
+        currentYearAllocations = investEvent.event.assetAllocation
+    }
+
+    return currentYearAllocations
+}
+
+/** Non-retirement or after tax */
+function processInvestEvent(scenario: Scenario,year : number){
+    const logMessages : string[] = []
+    const afterTaxContributionLimit = scenario.afterTaxContributionLimit
+    const investEvent = Object.values(scenario.eventSeries).find((event) => event.event.type == "Invest")
+    const cash = scenario.investments["cash"]
+    const investmentData = scenario.investmentTypes
+    const adjustedAccounts = structuredClone(scenario.investments)
+
+    if(investEvent == null || hasEventStarted(investEvent,year) == false){
+        return {adjustedAccounts,logMessages}
+    }
+
+    if(investEvent.event.type != "Invest"){
+        throw new Error("Invalid Invest Event")
+    }
+    if(cash == null){
+        throw new Error("No cash investment")
+    }
+    const currYearInvestmentAllocation = determineInvestmentAllocation(investEvent,year)
+
+    const excessCash = cash.value - investEvent.event.maxCash
+
+    if(excessCash < 0){
+        return {adjustedAccounts,logMessages}
+    }else{
+        //Determine how the excess cash is distributed
+
+
+        // const totalInvestmentValue = Object.keys(scenario.investments).reduce((accumulatedValue, currentInvestment)=>{
+        //     return accumulatedValue += adjustedAccounts[currentInvestment].value
+        // },0.0)
+
+        const realizedInvestmentAllocations = Object.values(currYearInvestmentAllocation).map((proportion)=>{
+            return (excessCash*proportion)
+        })
+
+        const totalAfterTaxContribution = Object.entries(realizedInvestmentAllocations).reduce((totalValue,[asset,contribution]) =>{
+            if(adjustedAccounts[asset].taxStatus == "After-tax"){
+                totalValue += contribution
+            }
+            return totalValue
+        },0.0)
+
+        if(totalAfterTaxContribution > afterTaxContributionLimit){
+            const reductionProportion = afterTaxContributionLimit/totalAfterTaxContribution
+            Object.entries(realizedInvestmentAllocations).map(([asset,contribution]) =>{
+                if(adjustedAccounts[asset].taxStatus == "After-tax"){
+                    contribution -= contribution*reductionProportion
+                }else{
+                    contribution += contribution*reductionProportion
+                }
+            })
+        }
+
+        //Make the necessary investments
+        Object.entries(realizedInvestmentAllocations).map(([asset,contribution]) =>{
+            adjustedAccounts[asset].value += contribution
+            logMessages.push(investLogMessage(year,contribution,asset))
+        })
+
+
+    }
+
+    return {adjustedAccounts,logMessages}
+}
+
+function determineRebalanceAllocation(rebalanceEvent : ScenarioEvent, currentYear : number){
+    if(rebalanceEvent.event.type != "Rebalance"){
+        throw new Error("Invalid Rebalance Event")
+    }
+
+    if(rebalanceEvent.start.type != "Fixed" || rebalanceEvent.duration.type != "Fixed"){
+        throw new Error("Event not resolved")
+    }
+
+    let currentYearAllocations : Record<string,number>
+
+    if(rebalanceEvent.event.glidePath == true){
+        const yearsIntoEvent = (rebalanceEvent.start.value+rebalanceEvent.duration.value) - currentYear
+        const startingAllocations = rebalanceEvent.event.assetAllocation
+        const endingAllocations = rebalanceEvent.event.assetAllocation2
+        currentYearAllocations = {}
+        const duration = rebalanceEvent.duration.value
+        
+
+        Object.entries(startingAllocations).forEach(([assetType,initalProportion]) =>{
+            const finalProportion = endingAllocations[assetType]
+            if(finalProportion == null){
+                throw new Error("No corresponding proportion")
+            }
+
+            const rate = (finalProportion-initalProportion)/duration
+            currentYearAllocations[assetType] = rate*yearsIntoEvent+initalProportion
+            
+        })
+        
+        
+    }else{
+        currentYearAllocations = rebalanceEvent.event.assetAllocation
+    }
+
+    return currentYearAllocations
 }
 /** This is a description of the foo function. */
-function processRebalanceEvent(){
+function processRebalanceEvent(scenario : Scenario,year : number){
+    const logMessages : string[] = []
+    const allRebalanceEvents = Object.values(scenario.eventSeries).filter((event) => event.event.type == "Rebalance")
+    const investmentData = scenario.investmentTypes
+    const adjustedAccounts = structuredClone(scenario.investments)
 
+    if(allRebalanceEvents.length == 0){
+        return {adjustedAccounts,logMessages}
+    }
+    
+    for(const rebalanceEvent of allRebalanceEvents){
+        if(rebalanceEvent.event.type != "Rebalance"){
+            throw new Error("Improper filtering, non-rebalance event in rebalance array")
+        }
+
+        const taxStatus = rebalanceEvent.event.taxStatus
+    }
 }
 worker({
     simulation : simulation
