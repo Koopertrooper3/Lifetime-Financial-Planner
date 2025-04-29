@@ -35,7 +35,6 @@ const expenseEventSchema = baseEventSchema.extend({
 });
 
 const assetAllocationSchema = z.record(z.string(), z.number())
-  .or(z.array(z.object({ asset: z.string(), proportion: z.number() })));
 
 const investEventSchema = baseEventSchema.extend({
   type: z.literal("invest"),
@@ -47,7 +46,11 @@ const investEventSchema = baseEventSchema.extend({
 
 const rebalanceEventSchema = baseEventSchema.extend({
   type: z.literal("rebalance"),
-  assetAllocation: assetAllocationSchema
+  taxStatus: z.enum(["Pre-Tax","After-Tax","Non-Retirement"]),
+  assetAllocation: assetAllocationSchema,
+  glidePath: z.boolean(),
+  assetAllocation2: assetAllocationSchema.optional(),
+
 });
 
 // 3. Combine all event types into one schema
