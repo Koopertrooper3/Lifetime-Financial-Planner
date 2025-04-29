@@ -1,5 +1,9 @@
 import React, { createContext, useContext, useState } from "react";
-import { FixedDistribution, NormalDistribution, UniformDistribution } from "../../backend/db/DistributionSchemas.ts"
+import {
+  FixedDistribution,
+  NormalDistribution,
+  UniformDistribution,
+} from "../../backend/db/DistributionSchemas.ts";
 import { InvestmentType } from "../../backend/db/InvestmentTypesSchema";
 import { Investment } from "../../backend/db/InvestmentSchema";
 import { Event } from "../../backend/db/EventSchema";
@@ -10,22 +14,39 @@ interface ScenarioContextType {
   name: string;
   setName: React.Dispatch<React.SetStateAction<string>>;
   maritalStatus: "individual" | "couple";
-  setMaritalStatus: React.Dispatch<React.SetStateAction<"individual" | "couple">>;
+  setMaritalStatus: React.Dispatch<
+    React.SetStateAction<"individual" | "couple">
+  >;
   birthYears: number[];
   setBirthYears: React.Dispatch<React.SetStateAction<number[]>>;
-  lifeExpectancy: (FixedDistribution | NormalDistribution | UniformDistribution)[];
+  lifeExpectancy: (
+    | FixedDistribution
+    | NormalDistribution
+    | UniformDistribution
+  )[];
   setLifeExpectancy: React.Dispatch<
-    React.SetStateAction<(FixedDistribution | NormalDistribution | UniformDistribution)[]>
+    React.SetStateAction<
+      (FixedDistribution | NormalDistribution | UniformDistribution)[]
+    >
   >;
   investmentTypes: Record<string, InvestmentType>;
-  setInvestmentTypes: React.Dispatch<React.SetStateAction<Record<string, InvestmentType>>>;
+  setInvestmentTypes: React.Dispatch<
+    React.SetStateAction<Record<string, InvestmentType>>
+  >;
   investments: Record<string, Investment>;
-  setInvestments: React.Dispatch<React.SetStateAction<Record<string, Investment>>>;
+  setInvestments: React.Dispatch<
+    React.SetStateAction<Record<string, Investment>>
+  >;
   eventSeries: Record<string, Event>;
   setEventSeries: React.Dispatch<React.SetStateAction<Record<string, Event>>>;
-  inflationAssumption: FixedDistribution | NormalDistribution | UniformDistribution;
+  inflationAssumption:
+    | FixedDistribution
+    | NormalDistribution
+    | UniformDistribution;
   setInflationAssumption: React.Dispatch<
-    React.SetStateAction<FixedDistribution | NormalDistribution | UniformDistribution>
+    React.SetStateAction<
+      FixedDistribution | NormalDistribution | UniformDistribution
+    >
   >;
   afterTaxContributionLimit: number;
   setAfterTaxContributionLimit: React.Dispatch<React.SetStateAction<number>>;
@@ -74,19 +95,30 @@ export const ScenarioProvider: React.FC<{ children: React.ReactNode }> = ({
   );
   const [birthYears, setBirthYears] = useState<number[]>([1985]);
 
-  const [lifeExpectancy, setLifeExpectancy] = useState<(FixedDistribution | NormalDistribution | UniformDistribution)[]>(
-    [{ type: "Fixed", value: 80 }]
-  );
-  
+  const [lifeExpectancy, setLifeExpectancy] = useState<
+    (FixedDistribution | NormalDistribution | UniformDistribution)[]
+  >([{ type: "Fixed", value: 80 }]);
+
   // Changed from arrays to Record<string, T> to match schema
-  const [investmentTypes, setInvestmentTypes] = useState<Record<string, InvestmentType>>({});
-  const [investments, setInvestments] = useState<Record<string, Investment>>({});
+  const [investmentTypes, setInvestmentTypes] = useState<
+    Record<string, InvestmentType>
+  >({});
+  const [investments, setInvestments] = useState<Record<string, Investment>>({
+    cash: {
+      investmentType: "cash",
+      value: 0,
+      taxStatus: "Non-retirement",
+      id: "cash",
+    },
+  });
   const [eventSeries, setEventSeries] = useState<Record<string, Event>>({});
 
   // Inflation assumption
-  const [inflationAssumption, setInflationAssumption] = useState<FixedDistribution | NormalDistribution | UniformDistribution>({
+  const [inflationAssumption, setInflationAssumption] = useState<
+    FixedDistribution | NormalDistribution | UniformDistribution
+  >({
     type: "Fixed",
-    value: 0.03  
+    value: 0.03,
   });
 
   // Strategy-related fields
