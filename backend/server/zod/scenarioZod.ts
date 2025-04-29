@@ -6,7 +6,7 @@ import eventZod from './eventZod';
 
 export default z.object({
     name: z.string().min(1, "Name is required and currently empty"),
-    maritalStatus: z.enum(["couple", "individual"], {
+    maritalStatus: z.enum(["couple", "Couple", "individual", "Individual"], {
         errorMap: () => ({ message: "Marital status must be either 'couple' or 'individual'" }),
     }),
     birthYears: z.array(z.number().min(0, "birthYears can't be negative")),
@@ -53,7 +53,7 @@ export default z.object({
         if(val.lifeExpectancy.length !== 2){
             ctx.addIssue({
                 code: z.ZodIssueCode.custom,
-                message: "coupple must have two lifeExpectancy"
+                message: "couple must have two lifeExpectancy"
             })
         }
     }

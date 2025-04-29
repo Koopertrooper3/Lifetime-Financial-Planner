@@ -17,7 +17,7 @@ const baseEventSchema = z.object({
 const incomeEventSchema = baseEventSchema.extend({
   type: z.literal("income"),
   initialAmount: z.number(),
-  changeAmtOrPct: z.enum(["amount", "percent"]),
+  changeAmtOrPct: z.enum(["amount", "percent", "Amount", "Percent"]),
   changeDistribution: distributionZod,
   inflationAdjusted: z.boolean(),
   userFraction: z.number(),
@@ -27,7 +27,7 @@ const incomeEventSchema = baseEventSchema.extend({
 const expenseEventSchema = baseEventSchema.extend({
   type: z.literal("expense"),
   initialAmount: z.number(),
-  changeAmtOrPct: z.enum(["amount", "percent"]),
+  changeAmtOrPct: z.enum(["amount", "percent", "Amount", "Percent"]),
   changeDistribution: distributionZod,
   inflationAdjusted: z.boolean(),
   userFraction: z.number(),
@@ -46,11 +46,10 @@ const investEventSchema = baseEventSchema.extend({
 
 const rebalanceEventSchema = baseEventSchema.extend({
   type: z.literal("rebalance"),
-  taxStatus: z.enum(["Pre-Tax","After-Tax","Non-Retirement"]),
+  taxStatus: z.enum(["Pre-Tax","After-Tax","Non-Retirement","pre-tax","after-tax","non-retirement"]).optional(),
   assetAllocation: assetAllocationSchema,
-  glidePath: z.boolean(),
+  glidePath: z.boolean().optional(),
   assetAllocation2: assetAllocationSchema.optional(),
-
 });
 
 // 3. Combine all event types into one schema
