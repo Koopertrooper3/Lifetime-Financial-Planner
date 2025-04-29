@@ -61,26 +61,26 @@ test('Create Scenario', async ({ request }) => {
     name: "Marisa",
     maritalStatus: "individual",
     birthYears: [1985],
-    lifeExpectancy: [{type: "Fixed",value: 80}],
+    lifeExpectancy: [{type: "fixed", value: 80}],
     investmentTypes: {},
-    investments: { "cash" : {investmentType: "cash",value: 100,taxStatus: "Non-retirement",id: "cash"}},
+    investments: { "cash" : {investmentType: "cash",value: 100,taxStatus: "non-retirement",id: "cash"}},
     eventSeries: {
       "cash": {
         name: "salary",
         start: {
-          type: "Fixed",
+          type: "fixed",
           value: 2025,
         },
         duration: {
-          type: "Fixed",
+          type: "fixed",
           value: 40,
         },
         event: {
-          type: "Income",
+          type: "income",
           initialAmount: 75000,
-          changeAmountOrPercent: "Amount",
+          changeAmountOrPercent: "amount",
           changeDistribution: {
-            type: "Uniform",
+            type: "uniform",
             min: 500,
             max: 2000,
           },
@@ -91,10 +91,10 @@ test('Create Scenario', async ({ request }) => {
       },
       "invest" : {
         name: "invest",
-        start: {type: "EventBased", withOrAfter: "With", event: "salary"},
-        duration: {type: "Fixed", value: 200},
+        start: {type: "eventBased", withOrAfter: "with", event: "salary"},
+        duration: {type: "fixed", value: 200},
         event: {
-            type: "Invest", 
+            type: "invest", 
             assetAllocation: {"S&P 500 non-retirement": 0.6,"S&P 500 after-tax" :0.4},
             glidePath: true,
             assetAllocation2: {"S&P 500 non-retirement": 0.8,"S&P 500 after-tax" :0.2},
@@ -102,7 +102,7 @@ test('Create Scenario', async ({ request }) => {
         }
       }
      },
-    inflationAssumption: {type: "Fixed",value: 0.03},
+    inflationAssumption: {type: "fixed", value: 0.03},
     afterTaxContributionLimit: 10000,
     spendingStrategy: [],
     expenseWithdrawalStrategy: [],

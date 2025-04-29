@@ -118,15 +118,15 @@ const scenarioSchema = new Schema<Scenario>({
 
 const lifeExpectancyField = scenarioSchema.path<Schema.Types.DocumentArray>('lifeExpectancy');
 
-lifeExpectancyField.discriminator('Fixed',fixedValueSchema);
-lifeExpectancyField.discriminator('Normal',normalDistSchema)
-lifeExpectancyField.discriminator('Uniform',uniformDistSchema)
+lifeExpectancyField.discriminator('fixed',fixedValueSchema);
+lifeExpectancyField.discriminator('normal',normalDistSchema)
+lifeExpectancyField.discriminator('uniform',uniformDistSchema)
 
 const inflationAssumptionField = scenarioSchema.path<Schema.Types.DocumentArray>('inflationAssumption');
 
-inflationAssumptionField.discriminator('Fixed',fixedValueSchema);
-inflationAssumptionField.discriminator('Normal',normalDistSchema)
-inflationAssumptionField.discriminator('Uniform',uniformDistSchema)
+inflationAssumptionField.discriminator('fixed',fixedValueSchema);
+inflationAssumptionField.discriminator('normal',normalDistSchema)
+inflationAssumptionField.discriminator('uniform',uniformDistSchema)
 
 export const scenarioModel = model('Scenario', scenarioSchema);
 

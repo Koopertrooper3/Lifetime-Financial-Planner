@@ -30,18 +30,18 @@ export const uniformDistSchema = new Schema({
 })
 
 export interface FixedDistribution {
-    type: "Fixed",
+    type: "fixed",
     value: number,
 }
 
 export interface NormalDistribution {
-    type: "Normal",
+    type: "normal",
     mean: number,
     stdev: number,
 }
 
 export interface UniformDistribution {
-    type: "Uniform",
+    type: "uniform",
     min: number,
     max: number,
 }

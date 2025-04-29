@@ -19,11 +19,11 @@ async function testScenario() {
     const cashInvestmentType : InvestmentType = {
         name: "cash",
         description: "cash",
-        returnAmtOrPct: "Amount",
-        returnDistribution: {type: "Fixed", value: 0},
+        returnAmtOrPct: "amount",
+        returnDistribution: {type: "fixed", value: 0},
         expenseRatio: 0,
-        incomeAmtOrPct: "Percent",
-        incomeDistribution: {type: "Fixed", value: 0},
+        incomeAmtOrPct: "percent",
+        incomeDistribution: {type: "fixed", value: 0},
         taxability: true
         
     }
@@ -31,68 +31,68 @@ async function testScenario() {
     const SNPInvestmentType : InvestmentType = {
         name: "S&P 500",
         description: "S&P 500 index fund",
-        returnAmtOrPct: "Percent",
-        returnDistribution: {type: "Normal", mean: 0.06, stdev: 0.02},
+        returnAmtOrPct: "percent",
+        returnDistribution: {type: "normal", mean: 0.06, stdev: 0.02},
         expenseRatio: 0.001,
-        incomeAmtOrPct: "Amount",
-        incomeDistribution: {type: "Normal", mean: 0.01, stdev: 0.005},
+        incomeAmtOrPct: "amount",
+        incomeDistribution: {type: "normal", mean: 0.01, stdev: 0.005},
         taxability: true
         
     }
     const taxExemptBondsInvestmentType : InvestmentType = {
         name: "tax-exempt bonds",
         description: "NY tax-exempt bonds",
-        returnAmtOrPct: "Amount",
-        returnDistribution: {type: "Fixed", value: 0},
+        returnAmtOrPct: "amount",
+        returnDistribution: {type: "fixed", value: 0},
         expenseRatio: 0.004,
-        incomeAmtOrPct: "Percent",
-        incomeDistribution: {type: "Normal", mean: 0.03, stdev: 0.01},
+        incomeAmtOrPct: "percent",
+        incomeDistribution: {type: "normal", mean: 0.03, stdev: 0.01},
         taxability: false
     }
 
     const cashInvestment : Investment = {
         investmentType : "cash",
         value: 100,
-        taxStatus : "Non-retirement",
+        taxStatus : "non-retirement",
         id: "cash"
     }
 
     const snp500Investment : Investment = {
         investmentType : "S&P 500",
         value: 100000,
-        taxStatus : "Non-retirement",
+        taxStatus : "non-retirement",
         id: "S&P 500 non-retirement"
     }
 
     const taxExemptBondsInvestment : Investment = {
         investmentType : "S&P 500",
         value: 2000,
-        taxStatus : "Non-retirement",
+        taxStatus : "non-retirement",
         id: "tax-exempt bonds"
     }
 
     const snp500InvestmentPreTax : Investment = {
         investmentType : "S&P 500",
         value: 10000,
-        taxStatus : "Pre-tax",
+        taxStatus : "pre-tax",
         id: "S&P 500 pre-tax"
     }
     const snp500InvestmentAfterTax : Investment = {
         investmentType : "S&P 500",
         value: 2000,
-        taxStatus : "After-tax",
+        taxStatus : "after-tax",
         id: "S&P 500 after-tax"
     }
 
     const salaryEvent : Event = {
         name: "salary",
-        start: {type: "Fixed", value: 2025},
-        duration: {type: "Fixed", value: 40},
+        start: {type: "fixed", value: 2025},
+        duration: {type: "fixed", value: 40},
         event: {
-            type: "Income", 
+            type: "income", 
             initialAmount: 75000, 
-            changeAmountOrPercent: "Amount",
-            changeDistribution: {type: "Uniform", min: 500, max: 2000},
+            changeAmountOrPercent: "amount",
+            changeDistribution: {type: "uniform", min: 500, max: 2000},
             inflationAdjusted: false,
             userFraction: 1.0,
             socialSecurity: false
@@ -101,13 +101,13 @@ async function testScenario() {
 
     const foodEvent : Event = {
         name: "food",
-        start: {type: "EventBased", withOrAfter: "With", event: "salary"},
-        duration: {type: "Fixed", value: 200},
+        start: {type: "eventBased", withOrAfter: "with", event: "salary"},
+        duration: {type: "fixed", value: 200},
         event: {
-            type: "Expense", 
+            type: "expense", 
             initialAmount: 5000, 
-            changeAmountOrPercent: "Percent",
-            changeDistribution: {type: "Normal", mean: 0.01, stdev: 0.01},
+            changeAmountOrPercent: "percent",
+            changeDistribution: {type: "normal", mean: 0.01, stdev: 0.01},
             inflationAdjusted: true,
             userFraction: 0.5,
             discretionary: false
@@ -116,13 +116,13 @@ async function testScenario() {
 
     const vacationEvent : Event = {
         name: "vacation",
-        start: {type: "EventBased", withOrAfter: "With", event: "salary"},
-        duration: {type: "Fixed", value: 200},
+        start: {type: "eventBased", withOrAfter: "with", event: "salary"},
+        duration: {type: "fixed", value: 200},
         event: {
-            type: "Expense", 
+            type: "expense", 
             initialAmount: 1200, 
-            changeAmountOrPercent: "Amount",
-            changeDistribution: {type: "Fixed", value: 0},
+            changeAmountOrPercent: "amount",
+            changeDistribution: {type: "fixed", value: 0},
             inflationAdjusted: true,
             userFraction: 0.6,
             discretionary: true
@@ -131,13 +131,13 @@ async function testScenario() {
 
     const streamingEvent : Event = {
         name: "streaming services",
-        start: {type: "EventBased", withOrAfter: "With", event: "salary"},
-        duration: {type: "Fixed", value: 200},
+        start: {type: "eventBased", withOrAfter: "with", event: "salary"},
+        duration: {type: "fixed", value: 200},
         event: {
-            type: "Expense", 
+            type: "expense", 
             initialAmount: 500, 
-            changeAmountOrPercent: "Amount",
-            changeDistribution: {type: "Fixed", value: 0},
+            changeAmountOrPercent: "amount",
+            changeDistribution: {type: "fixed", value: 0},
             inflationAdjusted: true,
             userFraction: 1.0,
             discretionary: true
@@ -146,10 +146,10 @@ async function testScenario() {
 
     const investEvent : Event = {
         name: "invest",
-        start: {type: "EventBased", withOrAfter: "With", event: "salary"},
-        duration: {type: "Fixed", value: 200},
+        start: {type: "eventBased", withOrAfter: "with", event: "salary"},
+        duration: {type: "fixed", value: 200},
         event: {
-            type: "Invest", 
+            type: "invest", 
             assetAllocation: {"S&P 500 non-retirement": 0.6,"S&P 500 after-tax" :0.4},
             glidePath: true,
             assetAllocation2: {"S&P 500 non-retirement": 0.8,"S&P 500 after-tax" :0.2},
@@ -159,14 +159,14 @@ async function testScenario() {
 
     const rebalanceEvent : Event = {
         name: "rebalance",
-        start: {type: "EventBased", withOrAfter: "With", event: "salary"},
-        duration: {type: "Fixed", value: 200},
+        start: {type: "eventBased", withOrAfter: "with", event: "salary"},
+        duration: {type: "fixed", value: 200},
         event: {
-            type: "Rebalance", 
+            type: "rebalance", 
             assetAllocation: {"S&P 500 non-retirement": 0.7,"S&P 500 after-tax" :0.3},
             glidePath: true,
             assetAllocation2: {"S&P 500 non-retirement": 0.8,"S&P 500 after-tax" :0.2},
-            taxStatus: "Non-Retirement"
+            taxStatus: "non-retirement"
         }
     }
 
@@ -175,11 +175,11 @@ async function testScenario() {
             name: "reimu",
             maritalStatus: "couple",
             birthYears : [1985,1987],
-            lifeExpectancy : [ {type: "Fixed", value: 80} , {type: "Normal", mean: 82, stdev: 3} ],
+            lifeExpectancy : [ {type: "fixed", value: 80} , {type: "normal", mean: 82, stdev: 3} ],
             investmentTypes: {"cash" : cashInvestmentType ,"S&P 500" : SNPInvestmentType,"tax-exempt bonds": taxExemptBondsInvestmentType},
             investments: {"cash" :cashInvestment, "S&P 500 non-retirement" :snp500Investment, "tax-exempt bonds": taxExemptBondsInvestment,"S&P 500 pre-tax": snp500InvestmentPreTax,"S&P 500 after-tax": snp500InvestmentAfterTax},
             eventSeries: {"salary": salaryEvent, "food": foodEvent, "vacation": vacationEvent, "streaming services": streamingEvent,"my investments": investEvent, "rebalance": rebalanceEvent},
-            inflationAssumption: {type: "Fixed", value: 0.03},
+            inflationAssumption: {type: "fixed", value: 0.03},
             afterTaxContributionLimit: 7000,
             spendingStrategy: ["vacation", "streaming services"],
             expenseWithdrawalStrategy: ["S&P 500 non-retirement", "tax-exempt bonds", "S&P 500 after-tax"],

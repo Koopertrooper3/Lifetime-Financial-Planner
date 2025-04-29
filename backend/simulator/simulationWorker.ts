@@ -177,7 +177,7 @@ async function simulation(threadData : threadData){
             pushToLog(logStream,incomeLogMessages.join("\n"))
 
             //Perform RMD
-            if(age >= 74 && Object.values(scenario.investments).some((investment) => investment.taxStatus == "Pre-tax")){
+            if(age >= 74 && Object.values(scenario.investments).some((investment) => investment.taxStatus == "pre-tax")){
                 if(Object.keys(RMDTable).length === 0){
                     RMDTable = await RMDScraper()
                 }
@@ -270,9 +270,9 @@ function constructPurchaseLedger(accounts: Record<string,Investment>){
  */
 function calculateLifeExpectancy(scenario : Scenario){
     const userLifeExpectancy = scenario.lifeExpectancy[USER]
-    if(userLifeExpectancy.type == "Fixed"){
+    if(userLifeExpectancy.type == "fixed"){
         return userLifeExpectancy.value
-    }else if(userLifeExpectancy.type == "Normal"){
+    }else if(userLifeExpectancy.type == "normal"){
         return Math.round(PB.rnorm(1,userLifeExpectancy.mean,userLifeExpectancy.stdev)[0])
     }else{
         return PB.rint(1,userLifeExpectancy.min,userLifeExpectancy.max, 1)[0]
@@ -284,9 +284,9 @@ function calculateSpousalLifeExpectancy(scenario : Scenario){
         return 0
     }else{
         const spousalLifeExpectancy = scenario.lifeExpectancy[SPOUSE]
-        if(spousalLifeExpectancy.type == "Fixed"){
+        if(spousalLifeExpectancy.type == "fixed"){
             return spousalLifeExpectancy.value
-        }else if(spousalLifeExpectancy.type == "Normal"){
+        }else if(spousalLifeExpectancy.type == "normal"){
             return Math.round(PB.rnorm(1,spousalLifeExpectancy.mean,spousalLifeExpectancy.stdev)[0])
         }else{
             return PB.rint(1,spousalLifeExpectancy.min,spousalLifeExpectancy.max, 1)[0]
@@ -301,27 +301,27 @@ function calculateSpousalLifeExpectancy(scenario : Scenario){
  */
 function calculateInflation(scenario : Scenario): number{
     const inflationAssumption = scenario.inflationAssumption
-    if(inflationAssumption.type == "Fixed"){
+    if(inflationAssumption.type == "fixed"){
         return inflationAssumption.value
-    }else if(inflationAssumption.type == "Normal"){
+    }else if(inflationAssumption.type == "normal"){
         return PB.rnorm(1,inflationAssumption.mean,inflationAssumption.stdev)[0]
     }else{
         return PB.rint(1,inflationAssumption.min,inflationAssumption.max, 1)[0]
     }
 }
 function resolveInvestmentTypeDistribution(distribution : IncomeDistribution | ReturnDistribution): number{
-    if(distribution.type == "Fixed"){
+    if(distribution.type == "fixed"){
         return distribution.value
-    }else if(distribution.type == "Normal"){
+    }else if(distribution.type == "normal"){
         return PB.rnorm(1,distribution.mean,distribution.stdev)[0]
     }else{
         return PB.rint(1,distribution.min,distribution.max, 1)[0]
     }
 }
 function calculateChangeDistribution(distribution : EventDistribution): number{
-    if(distribution.type == "Fixed"){
+    if(distribution.type == "fixed"){
         return distribution.value
-    }else if(distribution.type == "Normal"){
+    }else if(distribution.type == "normal"){
         return PB.rnorm(1,distribution.mean,distribution.stdev)[0]
     }else{
         return PB.rint(1,distribution.min,distribution.max, 1)[0]
@@ -347,36 +347,36 @@ function resolveEventDurations(scenarioEvents : Record<string,ScenarioEvent>){
         //TP: Following code was generate by copilot with three promots
         /* generate all possible cases of currentEvent.duration as a switch statement without code inside */
         switch (currentEvent.duration.type) {
-            case "Fixed":
+            case "fixed":
                 realizedDuration = currentEvent.duration.value
                 break;
-            case "Normal":
+            case "normal":
                 realizedDuration = Math.round(PB.rnorm(1, currentEvent.duration.mean, currentEvent.duration.stdev)[0])
                 break;
-            case "Uniform":
+            case "uniform":
                 realizedDuration = PB.rint(1, currentEvent.duration.min, currentEvent.duration.max, 1)[0]
                 break;
         }
 
-        currentEvent.duration = {type: "Fixed", value: realizedDuration}
+        currentEvent.duration = {type: "fixed", value: realizedDuration}
 
-        if(currentEvent.start.type != "EventBased"){
+        if(currentEvent.start.type != "eventBased"){
             //TP: Following code was generate by copilot with three promots
             /* generate all possible cases of currentEvent.duration.start
             make it a switch statement
             remove the code inside the cases */
             switch (currentEvent.start.type) {
-                case "Fixed":
+                case "fixed":
                     realizedStart = currentEvent.start.value
                 break;
-                case "Normal":
+                case "normal":
                     realizedStart = Math.round(PB.rnorm(1,currentEvent.start.mean,currentEvent.start.stdev)[0])
                 break;
-                case "Uniform":
+                case "uniform":
                     realizedStart = PB.rint(1,currentEvent.start.min,currentEvent.start.max, 1)[0]
                 break;
             }
-            currentEvent.start = {type: "Fixed", value: realizedStart}
+            currentEvent.start = {type: "fixed", value: realizedStart}
         }else{
             dependentEventStack.push(eventKey)
         }
@@ -391,27 +391,27 @@ function resolveEventDurations(scenarioEvents : Record<string,ScenarioEvent>){
 
         const event = resolvedEventSeries[eventKey]
 
-        if(event.start.type != "EventBased"){
+        if(event.start.type != "eventBased"){
             throw new Error("Event already resolved")
         }
 
         const parentEvent = resolvedEventSeries[event.start.event]
 
         
-        if(event.start.withOrAfter == "With"){
-            if(parentEvent.start.type != "Fixed"){
+        if(event.start.withOrAfter == "with"){
+            if(parentEvent.start.type != "fixed"){
                 dependentEventStack.push(eventKey)
             }else{ 
-                event.start = {type: "Fixed", value: parentEvent.start.value}
+                event.start = {type: "fixed", value: parentEvent.start.value}
             }
-        }else if(event.start.withOrAfter == "After"){
-            if(parentEvent.start.type != "Fixed"){
+        }else if(event.start.withOrAfter == "after"){
+            if(parentEvent.start.type != "fixed"){
                 dependentEventStack.push(eventKey)
             }else{
-                if(parentEvent.duration.type != "Fixed"){
+                if(parentEvent.duration.type != "fixed"){
                     throw new Error("Parent duration hasn't been resolved")
                 }
-                event.start = {type: "Fixed", value: parentEvent.start.value + parentEvent.duration.value}
+                event.start = {type: "fixed", value: parentEvent.start.value + parentEvent.duration.value}
             }
         }else{
             throw new Error("Event already resolved?")
@@ -420,7 +420,7 @@ function resolveEventDurations(scenarioEvents : Record<string,ScenarioEvent>){
     }
 
     for(const resolvedEvent of Object.values(resolvedEventSeries)){
-        assert(resolvedEvent.start.type == "Fixed", "NOT ALL EVENTS RESOVLED")
+        assert(resolvedEvent.start.type == "fixed", "NOT ALL EVENTS RESOVLED")
     }
 
     return resolvedEventSeries
@@ -428,7 +428,7 @@ function resolveEventDurations(scenarioEvents : Record<string,ScenarioEvent>){
 
 function hasEventStarted(currentEvent : ScenarioEvent, currentYear : number){
     const eventStartType = currentEvent.start.type
-    if(eventStartType == "Fixed"){
+    if(eventStartType == "fixed"){
         return currentYear >= currentEvent.start.value 
     }else{
         throw new Error("Event not resolved!")
@@ -500,7 +500,7 @@ function processIncome(scenarioEvents : Record<string,ScenarioEvent>, inflationR
         const currentEventKey = currentEventEntry[0]
         const currentEvent = currentEventEntry[1]
 
-        if(currentEvent.event.type == "Income"){
+        if(currentEvent.event.type == "income"){
 
             let eventIncome = 0.0
             let adjustedEventIncome
@@ -508,9 +508,9 @@ function processIncome(scenarioEvents : Record<string,ScenarioEvent>, inflationR
 
             //Determine next year's income
             const incomeChange = calculateChangeDistribution(currentEvent.event.changeDistribution)
-            if(currentEvent.event.changeAmountOrPercent == "Amount"){
+            if(currentEvent.event.changeAmountOrPercent == "amount"){
                 adjustedEventIncome = currentEvent.event.initialAmount + incomeChange
-            }else if(currentEvent.event.changeAmountOrPercent == "Percent"){
+            }else if(currentEvent.event.changeAmountOrPercent == "percent"){
                 adjustedEventIncome = currentEvent.event.initialAmount + (currentEvent.event.initialAmount * incomeChange)
             }else{
                 throw new Error("Invalid change distribution")
@@ -537,7 +537,7 @@ function processIncome(scenarioEvents : Record<string,ScenarioEvent>, inflationR
                 adjustedEventIncome += adjustedEventIncome * inflationRate
             }
 
-            if(modifiedEvent.event.type != "Income"){
+            if(modifiedEvent.event.type != "income"){
                 throw new Error("Event improperly cloned")
             }
 
@@ -567,8 +567,8 @@ function performRMD(investments : Record<string,Investment>, RMDStrategy : strin
         throw new Error(`No Required Distribution factor for age ${age}`)
     }
     const adjustedAccounts = structuredClone(investments)
-    const preTaxAccounts = Object.values(adjustedAccounts).filter((investment) => investment.taxStatus == "Pre-tax")
-    const nonRetirementTaxAccounts = Object.values(adjustedAccounts).filter((investment) => investment.taxStatus == "Non-retirement")
+    const preTaxAccounts = Object.values(adjustedAccounts).filter((investment) => investment.taxStatus == "pre-tax")
+    const nonRetirementTaxAccounts = Object.values(adjustedAccounts).filter((investment) => investment.taxStatus == "non-retirement")
     const RMDLogMessages : string[] = []
     let RMDIndex = 0
 
@@ -587,13 +587,13 @@ function performRMD(investments : Record<string,Investment>, RMDStrategy : strin
         const withdrawingInvestmentType = withdrawingAccount.investmentType
         const withdrawnAmount = Math.min(withdrawingAccount.value,requiredDistribution)
 
-        let receivingAccount : Investment | undefined = nonRetirementTaxAccounts.find((investment) => investment.investmentType == withdrawingInvestmentType && investment.taxStatus == "Non-retirement")
+        let receivingAccount : Investment | undefined = nonRetirementTaxAccounts.find((investment) => investment.investmentType == withdrawingInvestmentType && investment.taxStatus == "non-retirement")
 
         if(receivingAccount == undefined){
             receivingAccount = {
                 investmentType: withdrawingAccount.investmentType,
                 value: 0,
-                taxStatus: "Non-retirement",
+                taxStatus: "non-retirement",
                 id: `${withdrawingAccount.investmentType}-non-retirement`
             }
 
@@ -636,24 +636,24 @@ function updateInvestments(investmentDataRecord : Record<string,InvestmentType>,
         let investmentValueChange = 0.0
 
         //Determine investment returns from dividends and interest
-        if(currentInvestmentData.returnAmtOrPct == "Amount"){
+        if(currentInvestmentData.returnAmtOrPct == "amount"){
             investmentValueChange = resolveInvestmentTypeDistribution(currentInvestmentData.returnDistribution)
-        }else if(currentInvestmentData.returnAmtOrPct == "Percent"){
+        }else if(currentInvestmentData.returnAmtOrPct == "percent"){
             investmentValueChange = account.value * resolveInvestmentTypeDistribution(currentInvestmentData.returnDistribution)
         }else{
             throw new Error("Invalid value change type")
         }
 
         //Determine income
-        if(currentInvestmentData.incomeAmtOrPct == "Amount"){
+        if(currentInvestmentData.incomeAmtOrPct == "amount"){
             investmentIncome = resolveInvestmentTypeDistribution(currentInvestmentData.incomeDistribution)
-        }else if(currentInvestmentData.incomeAmtOrPct == "Percent"){
+        }else if(currentInvestmentData.incomeAmtOrPct == "percent"){
             investmentIncome = account.value * resolveInvestmentTypeDistribution(currentInvestmentData.incomeDistribution)
         }else{
             throw new Error("Invalid income change type")
         }
 
-        if(account.taxStatus == "Non-retirement" && currentInvestmentData.taxability == true){
+        if(account.taxStatus == "non-retirement" && currentInvestmentData.taxability == true){
             totalInvestmentIncome += investmentIncome
         }
         modifiedAccount.value += investmentIncome
@@ -711,19 +711,19 @@ function rothConversionOptimizer(rothConversionStrategy : string[], accounts : R
         if(withdrawingAccount == null){
             throw new Error("Invalid investment in roth conversion strategy")
         }
-        if(withdrawingAccount.taxStatus != "Pre-tax"){
+        if(withdrawingAccount.taxStatus != "pre-tax"){
             throw new Error("Invalid investment tax status for roth conversion")
         }
         const withdrawingInvestmentType = withdrawingAccount.investmentType
         const withdrawnAmount = Math.min(withdrawingAccount.value, rothConversionAmount)
 
-        let receivingAccount : Investment | undefined = Object.values(accounts).find((investment) => investment.investmentType == withdrawingInvestmentType && investment.taxStatus == "After-tax")
+        let receivingAccount : Investment | undefined = Object.values(accounts).find((investment) => investment.investmentType == withdrawingInvestmentType && investment.taxStatus == "after-tax")
 
         if(receivingAccount == undefined){
             receivingAccount = {
                 investmentType: withdrawingAccount.investmentType,
                 value: 0,
-                taxStatus: "After-tax",
+                taxStatus: "after-tax",
                 id: `${withdrawingAccount.investmentType}-after-tax`
             }
 
@@ -896,8 +896,8 @@ function generateExpenseSeriesFromEvents(eventSeries : Record<string,ScenarioEve
 
     const adjustedEventSeries = structuredClone(eventSeries)
 
-    const eventExpenses = Object.values(eventSeries).filter((currEvent) => currEvent.event.type == "Expense" && hasEventStarted(currEvent,year)).map((currEvent) =>{
-        if(currEvent.event.type != "Expense" || !hasEventStarted(currEvent,year)){
+    const eventExpenses = Object.values(eventSeries).filter((currEvent) => currEvent.event.type == "expense" && hasEventStarted(currEvent,year)).map((currEvent) =>{
+        if(currEvent.event.type != "expense" || !hasEventStarted(currEvent,year)){
             throw new Error("Filter doesn't work properly")
         }
 
@@ -915,7 +915,7 @@ function generateExpenseSeriesFromEvents(eventSeries : Record<string,ScenarioEve
 
         //Adjust expenses
         const adjustedEvent = adjustedEventSeries[currEvent.name]
-        if(adjustedEvent.event.type != "Expense"){
+        if(adjustedEvent.event.type != "expense"){
             throw new Error("Clone failed to properly copy event")
         }
         adjustedEvent.event.initialAmount = determineExpenseValueChange(currEvent,inflationRate)
@@ -1023,15 +1023,15 @@ function payNonDiscretionaryExpenses(scenario : Scenario, taxBracket : TaxBracke
 }
 function determineExpenseValueChange(event : ScenarioEvent,inflationRate : number){
     //Determine next year's expense
-    if(event.event.type != "Expense"){
+    if(event.event.type != "expense"){
         throw new Error("Not an expense, function not applicable")
     }
 
     let adjustedEventExpense
     const incomeChange = calculateChangeDistribution(event.event.changeDistribution)
-    if(event.event.changeAmountOrPercent == "Amount"){
+    if(event.event.changeAmountOrPercent == "amount"){
         adjustedEventExpense = event.event.initialAmount + incomeChange
-    }else if(event.event.changeAmountOrPercent == "Percent"){
+    }else if(event.event.changeAmountOrPercent == "percent"){
         adjustedEventExpense = event.event.initialAmount + (event.event.initialAmount * incomeChange)
     }else{
         throw new Error("Invalid expense event change distribution")
@@ -1051,7 +1051,7 @@ function determineTaxFromWithdrawal(account : Investment, investmentData : Inves
     let income = 0.0
     
     //Consider tax implications
-    if(account.taxStatus == "After-tax"){
+    if(account.taxStatus == "after-tax"){
         //Tax-free accounts
         //Subject to early withdrawal penalties
         //Subject to capital gains
@@ -1061,7 +1061,7 @@ function determineTaxFromWithdrawal(account : Investment, investmentData : Inves
         }
         capitalGain = determineTaxableCapitalGain(currentPurchaseLedger,withdrawnAmount,account.value)
 
-    }else if(account.taxStatus == "Pre-tax"){
+    }else if(account.taxStatus == "pre-tax"){
         //Tax-deferred accounts
         //Subject to early withdrawal penalties
         //Subject to income tax
@@ -1072,7 +1072,7 @@ function determineTaxFromWithdrawal(account : Investment, investmentData : Inves
 
         income += withdrawnAmount
 
-    }else if(account.taxStatus == "Non-retirement"){
+    }else if(account.taxStatus == "non-retirement"){
         //Taxable accounts
         //Subject to capital gains
 
@@ -1135,7 +1135,7 @@ function payDiscretionaryExpenses(scenario : Scenario, purchaseLedger : Record<s
 
             //Determine expenses first
             const currentExpense = adjustedEventSeries[expenseID];
-            if(currentExpense.event.type != "Expense"){
+            if(currentExpense.event.type != "expense"){
                 throw new Error("Non-expense in spending strategy")
             }
             if(hasEventStarted(currentExpense,year) == false){
@@ -1194,11 +1194,11 @@ function payDiscretionaryExpenses(scenario : Scenario, purchaseLedger : Record<s
 }
 
 function determineInvestmentAllocation(investEvent : ScenarioEvent,currentYear : number){
-    if(investEvent.event.type != "Invest"){
+    if(investEvent.event.type != "invest"){
         throw new Error("Invalid Invest Event")
     }
 
-    if(investEvent.start.type != "Fixed" || investEvent.duration.type != "Fixed"){
+    if(investEvent.start.type != "fixed" || investEvent.duration.type != "fixed"){
         throw new Error("Event not resolved")
     }
 
@@ -1235,7 +1235,7 @@ function determineInvestmentAllocation(investEvent : ScenarioEvent,currentYear :
 function processInvestEvent(scenario: Scenario,year : number){
     const logMessages : string[] = []
     const afterTaxContributionLimit = scenario.afterTaxContributionLimit
-    const investEvent = Object.values(scenario.eventSeries).find((event) => event.event.type == "Invest")
+    const investEvent = Object.values(scenario.eventSeries).find((event) => event.event.type == "invest")
     const cash = scenario.investments["cash"]
     const investmentData = scenario.investmentTypes
     const adjustedAccounts = structuredClone(scenario.investments)
@@ -1244,7 +1244,7 @@ function processInvestEvent(scenario: Scenario,year : number){
         return {adjustedAccounts,logMessages}
     }
 
-    if(investEvent.event.type != "Invest"){
+    if(investEvent.event.type != "invest"){
         throw new Error("Invalid Invest Event")
     }
     if(cash == null){
@@ -1269,7 +1269,7 @@ function processInvestEvent(scenario: Scenario,year : number){
         })
 
         const totalAfterTaxContribution = Object.entries(realizedInvestmentAllocations).reduce((totalValue,[asset,contribution]) =>{
-            if(adjustedAccounts[asset].taxStatus == "After-tax"){
+            if(adjustedAccounts[asset].taxStatus == "after-tax"){
                 totalValue += contribution
             }
             return totalValue
@@ -1278,7 +1278,7 @@ function processInvestEvent(scenario: Scenario,year : number){
         if(totalAfterTaxContribution > afterTaxContributionLimit){
             const reductionProportion = afterTaxContributionLimit/totalAfterTaxContribution
             Object.entries(realizedInvestmentAllocations).map(([asset,contribution]) =>{
-                if(adjustedAccounts[asset].taxStatus == "After-tax"){
+                if(adjustedAccounts[asset].taxStatus == "after-tax"){
                     contribution -= contribution*reductionProportion
                 }else{
                     contribution += contribution*reductionProportion
@@ -1299,11 +1299,11 @@ function processInvestEvent(scenario: Scenario,year : number){
 }
 
 function determineRebalanceAllocation(rebalanceEvent : ScenarioEvent, currentYear : number){
-    if(rebalanceEvent.event.type != "Rebalance"){
+    if(rebalanceEvent.event.type != "rebalance"){
         throw new Error("Invalid Rebalance Event")
     }
 
-    if(rebalanceEvent.start.type != "Fixed" || rebalanceEvent.duration.type != "Fixed"){
+    if(rebalanceEvent.start.type != "fixed" || rebalanceEvent.duration.type != "fixed"){
         throw new Error("Event not resolved")
     }
 
@@ -1338,7 +1338,7 @@ function determineRebalanceAllocation(rebalanceEvent : ScenarioEvent, currentYea
 /** This is a description of the foo function. */
 function processRebalanceEvent(scenario : Scenario,year : number){
     const logMessages : string[] = []
-    const allRebalanceEvents = Object.values(scenario.eventSeries).filter((event) => event.event.type == "Rebalance")
+    const allRebalanceEvents = Object.values(scenario.eventSeries).filter((event) => event.event.type == "rebalance")
     const investmentData = scenario.investmentTypes
     const adjustedAccounts = structuredClone(scenario.investments)
 
@@ -1347,7 +1347,7 @@ function processRebalanceEvent(scenario : Scenario,year : number){
     }
     
     for(const rebalanceEvent of allRebalanceEvents){
-        if(rebalanceEvent.event.type != "Rebalance"){
+        if(rebalanceEvent.event.type != "rebalance"){
             throw new Error("Improper filtering, non-rebalance event in rebalance array")
         }
 

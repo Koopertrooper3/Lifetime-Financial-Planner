@@ -59,10 +59,10 @@ export type IncomeDistribution = FixedDistribution | NormalDistribution | Unifor
 export interface InvestmentType {
     name: string,
     description: string,
-    returnAmtOrPct: "Amount" | "Percent",
+    returnAmtOrPct: "amount" | "percent",
     returnDistribution: ReturnDistribution,
     expenseRatio: number,
-    incomeAmtOrPct: "Amount" | "Percent",
+    incomeAmtOrPct: "amount" | "percent",
     incomeDistribution: IncomeDistribution,
     taxability: boolean
 }

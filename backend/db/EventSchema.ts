@@ -22,35 +22,35 @@ export const eventSchema = new Schema<Event>({
 //Different event types
 const eventStartField = eventSchema.path<Schema.Types.DocumentArray>('start');
 
-const eventbasedStartSchema = new Schema({
+const eventbasedStartSchema = new Schema<eventBased>({
     withOrAfter: {
         type: String,
-        enum: ["With", "After"]
+        enum: ["with", "after"]
     },
     event: String
 })
 
-eventStartField.discriminator('Fixed',fixedValueSchema);
-eventStartField.discriminator('Normal',normalDistSchema)
-eventStartField.discriminator('Uniform',uniformDistSchema)
-eventStartField.discriminator('EventBased',eventbasedStartSchema)
+eventStartField.discriminator('fixed',fixedValueSchema);
+eventStartField.discriminator('normal',normalDistSchema)
+eventStartField.discriminator('uniform',uniformDistSchema)
+eventStartField.discriminator('startsWith',eventbasedStartSchema)
 
 //Different duration types
 const eventDurationField = eventSchema.path<Schema.Types.DocumentArray>('duration');
 
-eventDurationField.discriminator('Fixed',fixedValueSchema);
-eventDurationField.discriminator('Normal',normalDistSchema)
-eventDurationField.discriminator('Uniform',uniformDistSchema)
+eventDurationField.discriminator('fixed',fixedValueSchema);
+eventDurationField.discriminator('normal',normalDistSchema)
+eventDurationField.discriminator('uniform',uniformDistSchema)
 
 //Different event types (income,expense,invest,rebalance)
 const eventDataField = eventSchema.path<Schema.Types.DocumentArray>('event');
 
 //Income schema
-const incomeEventSchema = new Schema({
+const incomeEventSchema = new Schema<incomeEvent>({
     initialAmount: Number,
     changeAmountOrPercent : {
         type: String,
-        enum: ["Amount","Percent"]
+        enum: ["amount","percent"]
     },
     changeDistribution: distributionWrapper,
     inflationAdjusted: Boolean,
@@ -60,16 +60,16 @@ const incomeEventSchema = new Schema({
 
 
 const incomeChangeDistributionField = incomeEventSchema.path<Schema.Types.DocumentArray>('changeDistribution')
-incomeChangeDistributionField.discriminator('Fixed',fixedValueSchema)
-incomeChangeDistributionField.discriminator('Normal',normalDistSchema)
-incomeChangeDistributionField.discriminator('Uniform',uniformDistSchema)
+incomeChangeDistributionField.discriminator('fixed',fixedValueSchema)
+incomeChangeDistributionField.discriminator('normal',normalDistSchema)
+incomeChangeDistributionField.discriminator('uniform',uniformDistSchema)
 
 //Expense schema
-const expenseEventSchema = new Schema({
+const expenseEventSchema = new Schema<expenseEvent>({
     initialAmount: Number,
-    changeAmountOrPecent : {
+    changeAmountOrPercent : {
         type: String,
-        enum: ["Amount","Percent"]
+        enum: ["amount","percent"]
     },
     changeDistribution: distributionWrapper,
     inflationAdjusted: Boolean,
@@ -77,8 +77,8 @@ const expenseEventSchema = new Schema({
     discretionary: Boolean,
 })
 const expenseChangeDistributionField = expenseEventSchema.path<Schema.Types.DocumentArray>('changeDistribution')
-expenseChangeDistributionField.discriminator('Normal',normalDistSchema)
-expenseChangeDistributionField.discriminator('Uniform',uniformDistSchema)
+expenseChangeDistributionField.discriminator('normal',normalDistSchema)
+expenseChangeDistributionField.discriminator('uniform',uniformDistSchema)
 
 //Invest schema
 const assetProportion = new Schema<assetProportion>({
@@ -104,7 +104,7 @@ const investEventSchema = new Schema<investEvent>({
 const rebalanceEventSchema = new Schema<rebalanceEvent>({
     taxStatus: {
         type: String,
-        enum: ["Pre-Tax","After-Tax","Non-Retirement"]
+        enum: ["pre-tax","after-tax","non-retirement"]
     },
     assetAllocation: {
         type: Map,
@@ -117,23 +117,23 @@ const rebalanceEventSchema = new Schema<rebalanceEvent>({
     },
 })
 
-eventDataField.discriminator('Income',incomeEventSchema);
-eventDataField.discriminator('Expense',expenseEventSchema);
-eventDataField.discriminator('Invest',investEventSchema);
-eventDataField.discriminator('Rebalance',rebalanceEventSchema);
+eventDataField.discriminator('income',incomeEventSchema);
+eventDataField.discriminator('expense',expenseEventSchema);
+eventDataField.discriminator('invest',investEventSchema);
+eventDataField.discriminator('rebalance',rebalanceEventSchema);
 
 interface eventBased{
-    type: "EventBased",
-    withOrAfter: "With" | "After",
+    type: "eventBased",
+    withOrAfter: "with" | "after",
     event: string,
 }
 type eventStartType = FixedDistribution | NormalDistribution | UniformDistribution | eventBased
 export type EventDistribution = FixedDistribution | NormalDistribution | UniformDistribution
 
 export interface incomeEvent{
-    type: "Income",
+    type: "income",
     initialAmount: number,
-    changeAmountOrPercent: "Amount" | "Percent",
+    changeAmountOrPercent: "amount" | "percent",
     changeDistribution: EventDistribution,
     inflationAdjusted: boolean
     userFraction: number,
@@ -141,9 +141,9 @@ export interface incomeEvent{
 }
 
 export interface expenseEvent{
-    type: "Expense",
+    type: "expense",
     initialAmount: number,
-    changeAmountOrPercent: "Amount" | "Percent",
+    changeAmountOrPercent: "amount" | "percent",
     changeDistribution: EventDistribution,
     inflationAdjusted: boolean,
     userFraction: number,
@@ -156,16 +156,16 @@ export interface assetProportion {
 }
 
 export interface investEvent{
-    type: "Invest",
+    type: "invest",
     assetAllocation: Record<string,number>,
     glidePath: boolean,
     assetAllocation2: Record<string,number>,
     maxCash: number
 }
 
-type TaxStatus = "Pre-Tax" | "After-Tax" | "Non-Retirement"
+type TaxStatus = "pre-tax" | "after-tax" | "non-retirement"
 export interface rebalanceEvent{
-    type: "Rebalance",
+    type: "rebalance",
     taxStatus: TaxStatus,
     assetAllocation: Record<string,number>,
     glidePath: boolean,
