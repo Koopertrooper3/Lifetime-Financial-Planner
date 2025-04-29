@@ -45,9 +45,9 @@ const assetProportionZod = z.object({
 
 const investEventZod = z.object({
     type: z.literal("Invest"),
-    assetAllocation: z.array(assetProportionZod),
+    assetAllocation: z.record(z.string(),z.number()),
     glidePath: z.boolean(),
-    assetAllocation2: z.array(assetProportionZod),
+    assetAllocation2: z.record(z.string(),z.number()),
     maxCash: z.number()
 }).strict();
 

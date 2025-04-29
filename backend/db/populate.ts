@@ -150,9 +150,9 @@ async function testScenario() {
         duration: {type: "Fixed", value: 200},
         event: {
             type: "Invest", 
-            assetAllocation: [{asset: "S&P 500 non-retirement", proportion: 0.6},{asset: "S&P 500 non-retirement", proportion: 0.4}],
+            assetAllocation: {"S&P 500 non-retirement": 0.6,"S&P 500 after-tax" :0.4},
             glidePath: true,
-            assetAllocation2: [{asset: "S&P 500 non-retirement", proportion: 0.8},{asset: "S&P 500 non-retirement", proportion: 0.2}],
+            assetAllocation2: {"S&P 500 non-retirement": 0.8,"S&P 500 after-tax" :0.2},
             maxCash: 1000
         }
     }
@@ -163,9 +163,9 @@ async function testScenario() {
         duration: {type: "Fixed", value: 200},
         event: {
             type: "Rebalance", 
-            assetAllocation: [{asset: "S&P 500 non-retirement", proportion: 0.7},{asset: "S&P 500 non-retirement", proportion: 0.3}],
+            assetAllocation: {"S&P 500 non-retirement": 0.7,"S&P 500 after-tax" :0.3},
             glidePath: true,
-            assetAllocation2: [{asset: "S&P 500 non-retirement", proportion: 0.8},{asset: "S&P 500 non-retirement", proportion: 0.2}],
+            assetAllocation2: {"S&P 500 non-retirement": 0.8,"S&P 500 after-tax" :0.2},
             taxStatus: "Non-Retirement"
         }
     }

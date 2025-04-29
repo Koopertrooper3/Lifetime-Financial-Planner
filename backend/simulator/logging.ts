@@ -31,7 +31,9 @@ export function expenseLogMessage(year: number, amount : number, expense : strin
 export function rothConversionLogMessage(year: number, amount : number, investmentType : string){
     return `[Roth Conversion]: Year: ${year}, Amount ${amount}, Investment Type: ${investmentType}\n`
 }
-
+export function investLogMessage(year: number, amount : number, investmentType : string){
+    return `[Invest]: Year: ${year}, Amount ${amount}, Investment Type: ${investmentType}\n`
+}
 export async function closeCSVlog(writeStream : WriteStream){
     writeStream.end()
     await finished(writeStream)

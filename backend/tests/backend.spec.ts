@@ -65,29 +65,43 @@ test('Create Scenario', async ({ request }) => {
     investmentTypes: {},
     investments: { "cash" : {investmentType: "cash",value: 100,taxStatus: "Non-retirement",id: "cash"}},
     eventSeries: {
-      "cash": {name: "salary",
-      start: {
-        type: "Fixed",
-        value: 2025,
-      },
-      duration: {
-        type: "Fixed",
-        value: 40,
-      },
-      event: {
-        type: "Income",
-        initialAmount: 75000,
-        changeAmountOrPercent: "Amount",
-        changeDistribution: {
-          type: "Uniform",
-          min: 500,
-          max: 2000,
+      "cash": {
+        name: "salary",
+        start: {
+          type: "Fixed",
+          value: 2025,
         },
-        inflationAdjusted: false,
-        userFraction: 1,
-        socialSecurity: false,
+        duration: {
+          type: "Fixed",
+          value: 40,
+        },
+        event: {
+          type: "Income",
+          initialAmount: 75000,
+          changeAmountOrPercent: "Amount",
+          changeDistribution: {
+            type: "Uniform",
+            min: 500,
+            max: 2000,
+          },
+          inflationAdjusted: false,
+          userFraction: 1,
+          socialSecurity: false,
+        }
+      },
+      "invest" : {
+        name: "invest",
+        start: {type: "EventBased", withOrAfter: "With", event: "salary"},
+        duration: {type: "Fixed", value: 200},
+        event: {
+            type: "Invest", 
+            assetAllocation: {"S&P 500 non-retirement": 0.6,"S&P 500 after-tax" :0.4},
+            glidePath: true,
+            assetAllocation2: {"S&P 500 non-retirement": 0.8,"S&P 500 after-tax" :0.2},
+            maxCash: 1000
+        }
       }
-    } },
+     },
     inflationAssumption: {type: "Fixed",value: 0.03},
     afterTaxContributionLimit: 10000,
     spendingStrategy: [],
@@ -117,6 +131,7 @@ test('Create Scenario', async ({ request }) => {
   await scenarioConnection.findOneAndDelete({_id: new ObjectId(newScenarioID)})
 
 });
+
 test('Share Scenario', async ({ request }) => {
   const client = new MongoClient(databaseConnectionString);
   const userConnection = client.db(databaseName).collection("users")
@@ -157,7 +172,7 @@ test('Share Scenario', async ({ request }) => {
   })
 
   expect(databaseResult).toBeTruthy()
-  const cleanupResult = await userConnection.findOneAndUpdate({_id: target},{$set: {"ownedScenarios": originalSharedArray}})
+  await userConnection.findOneAndUpdate({_id: target},{$set: {"ownedScenarios": originalSharedArray}})
 
 });
 // test('get started link', async ({ page }) => {

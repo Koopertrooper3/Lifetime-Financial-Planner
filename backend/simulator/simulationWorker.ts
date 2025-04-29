@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 /* eslint-disable @typescript-eslint/no-unused-vars */
+
 import { createWriteStream, WriteStream } from "fs"
 import path from "path"
 import { finished } from "stream/promises"
@@ -8,12 +9,12 @@ import PB from "probability-distributions"
 import { Investment } from "../db/InvestmentSchema"
 import { FederalTax, taxBracketType, StateTaxBracket, StateTax } from "../db/taxes"
 import { worker } from 'workerpool'
-import { Event as ScenarioEvent } from "../db/EventSchema"
+import { Event as ScenarioEvent, assetProportion } from "../db/EventSchema"
 import { assert } from "console"
 import { EventDistribution } from "../db/EventSchema"
 import { RMDScraper } from "../scraper/RMDScraper"
 import { InvestmentType, IncomeDistribution, ReturnDistribution } from "../db/InvestmentTypesSchema"
-import { initalizeCSVLog,writeCSVlog,closeCSVlog, incomeEventLogMessage, RMDLogMessage, expenseLogMessage, rothConversionLogMessage } from "./logging"
+import { initalizeCSVLog,writeCSVlog,closeCSVlog, incomeEventLogMessage, RMDLogMessage, expenseLogMessage, rothConversionLogMessage, investLogMessage } from "./logging"
 
 const USER = 0
 const SPOUSE = 1
@@ -162,7 +163,9 @@ async function simulation(threadData : threadData){
             //Calculate brackets after inflation
             currentYearTaxBrackets = adjustTaxBracketsForInflation(previousYearTaxBrackets,inflationRate)
             //TODO: Calculate annual limits on retirement account contributions after inflation
-
+            const newAfterTaxContributionLimit = adjustRetirementAccountContributionLimit(scenario,inflationRate)
+            scenario.afterTaxContributionLimit = newAfterTaxContributionLimit
+            
             //Income events
             const {totalEventIncome,totalSocialSecurityIncome, adjustedEvents,incomeLogMessages} = 
             processIncome(scenario.eventSeries,inflationRate,spousalStatus,simulatedYear)
@@ -215,15 +218,18 @@ async function simulation(threadData : threadData){
                 break;
             }
         
-            const descExpenseReturn = payDiscretionaryExpenses(scenario,purchaseLedger,age,spousalStatus,inflationRate)
+            const descExpenseReturn = payDiscretionaryExpenses(scenario,purchaseLedger,age,spousalStatus,inflationRate,simulatedYear)
 
             scenario.eventSeries = descExpenseReturn.adjustedEventSeries
             scenario.investments = descExpenseReturn.adjustedAccounts
             currentYearValues.totalIncome += descExpenseReturn.totalIncome
             currentYearValues.totalCapitalGains += descExpenseReturn.totalCapitalGain
             currentYearValues.totalEarlyWithdrawal += descExpenseReturn.earlyWithdrawal
+            pushToLog(logStream,descExpenseReturn.discExpenseLogMessages.join('\n'))
 
-            //processInvestEvent()
+            const investReturn = processInvestEvent(scenario,simulatedYear)
+            scenario.investments = investReturn.adjustedAccounts
+            pushToLog(logStream,investReturn.logMessages.join('\n'))
 
             //processRebalanceEvent()
             simulatedYear += 1
@@ -477,6 +483,11 @@ function adjustTaxBracketsForInflation(taxBrackets: TaxBracketContainer, inflati
  * @param {number} inflationRate 
  * @returns {{ currentYearIncome: number; currentYearSocialSecurityIncome: number; adjustedIncomeEvents: Record<string, ScenarioEvent>; }} 
  */
+
+function adjustRetirementAccountContributionLimit(scenario : Scenario, inflationRate : number){
+    const currentLimit = scenario.afterTaxContributionLimit
+    return currentLimit + (currentLimit * inflationRate)
+}
 function processIncome(scenarioEvents : Record<string,ScenarioEvent>, inflationRate : number, 
     spousalStatus : boolean, currentYear : number){
 
@@ -1087,7 +1098,7 @@ interface payDiscExpensesReturn {
     discExpenseLogMessages : string[]
 }
 /** Description placeholder */
-function payDiscretionaryExpenses(scenario : Scenario, purchaseLedger : Record<string,number[]>, age : number,spousalStatus : boolean,inflationRate : number) : payDiscExpensesReturn{
+function payDiscretionaryExpenses(scenario : Scenario, purchaseLedger : Record<string,number[]>, age : number,spousalStatus : boolean,inflationRate : number,year : number) : payDiscExpensesReturn{
 
     const accounts = scenario.investments
     const adjustedAccounts = structuredClone(scenario.investments)
@@ -1127,6 +1138,9 @@ function payDiscretionaryExpenses(scenario : Scenario, purchaseLedger : Record<s
             if(currentExpense.event.type != "Expense"){
                 throw new Error("Non-expense in spending strategy")
             }
+            if(hasEventStarted(currentExpense,year) == false){
+                continue
+            }
 
             let totalExpenses = 0
             if(spousalStatus == true){
@@ -1136,7 +1150,7 @@ function payDiscretionaryExpenses(scenario : Scenario, purchaseLedger : Record<s
             }
 
             if(expendableValue-totalExpenses <= 0){
-                break;
+                continue;
             }
 
             //Withdraw from cash first
@@ -1179,13 +1193,166 @@ function payDiscretionaryExpenses(scenario : Scenario, purchaseLedger : Record<s
 
 }
 
-/** Description placeholder */
-function processInvestEvent(){
+function determineInvestmentAllocation(investEvent : ScenarioEvent,currentYear : number){
+    if(investEvent.event.type != "Invest"){
+        throw new Error("Invalid Invest Event")
+    }
 
+    if(investEvent.start.type != "Fixed" || investEvent.duration.type != "Fixed"){
+        throw new Error("Event not resolved")
+    }
+
+    let currentYearAllocations : Record<string,number>
+
+    if(investEvent.event.glidePath == true){
+        const yearsIntoEvent = (investEvent.start.value+investEvent.duration.value) - currentYear
+        const startingAllocations = investEvent.event.assetAllocation
+        const endingAllocations = investEvent.event.assetAllocation2
+        currentYearAllocations = {}
+        const duration = investEvent.duration.value
+        
+
+        Object.entries(startingAllocations).forEach(([assetType,initalProportion]) =>{
+            const finalProportion = endingAllocations[assetType]
+            if(finalProportion == null){
+                throw new Error("No corresponding proportion")
+            }
+
+            const rate = (finalProportion-initalProportion)/duration
+            currentYearAllocations[assetType] = rate*yearsIntoEvent+initalProportion
+            
+        })
+        
+        
+    }else{
+        currentYearAllocations = investEvent.event.assetAllocation
+    }
+
+    return currentYearAllocations
+}
+
+/** Non-retirement or after tax */
+function processInvestEvent(scenario: Scenario,year : number){
+    const logMessages : string[] = []
+    const afterTaxContributionLimit = scenario.afterTaxContributionLimit
+    const investEvent = Object.values(scenario.eventSeries).find((event) => event.event.type == "Invest")
+    const cash = scenario.investments["cash"]
+    const investmentData = scenario.investmentTypes
+    const adjustedAccounts = structuredClone(scenario.investments)
+
+    if(investEvent == null || hasEventStarted(investEvent,year) == false){
+        return {adjustedAccounts,logMessages}
+    }
+
+    if(investEvent.event.type != "Invest"){
+        throw new Error("Invalid Invest Event")
+    }
+    if(cash == null){
+        throw new Error("No cash investment")
+    }
+    const currYearInvestmentAllocation = determineInvestmentAllocation(investEvent,year)
+
+    const excessCash = cash.value - investEvent.event.maxCash
+
+    if(excessCash < 0){
+        return {adjustedAccounts,logMessages}
+    }else{
+        //Determine how the excess cash is distributed
+
+
+        // const totalInvestmentValue = Object.keys(scenario.investments).reduce((accumulatedValue, currentInvestment)=>{
+        //     return accumulatedValue += adjustedAccounts[currentInvestment].value
+        // },0.0)
+
+        const realizedInvestmentAllocations = Object.values(currYearInvestmentAllocation).map((proportion)=>{
+            return (excessCash*proportion)
+        })
+
+        const totalAfterTaxContribution = Object.entries(realizedInvestmentAllocations).reduce((totalValue,[asset,contribution]) =>{
+            if(adjustedAccounts[asset].taxStatus == "After-tax"){
+                totalValue += contribution
+            }
+            return totalValue
+        },0.0)
+
+        if(totalAfterTaxContribution > afterTaxContributionLimit){
+            const reductionProportion = afterTaxContributionLimit/totalAfterTaxContribution
+            Object.entries(realizedInvestmentAllocations).map(([asset,contribution]) =>{
+                if(adjustedAccounts[asset].taxStatus == "After-tax"){
+                    contribution -= contribution*reductionProportion
+                }else{
+                    contribution += contribution*reductionProportion
+                }
+            })
+        }
+
+        //Make the necessary investments
+        Object.entries(realizedInvestmentAllocations).map(([asset,contribution]) =>{
+            adjustedAccounts[asset].value += contribution
+            logMessages.push(investLogMessage(year,contribution,asset))
+        })
+
+
+    }
+
+    return {adjustedAccounts,logMessages}
+}
+
+function determineRebalanceAllocation(rebalanceEvent : ScenarioEvent, currentYear : number){
+    if(rebalanceEvent.event.type != "Rebalance"){
+        throw new Error("Invalid Rebalance Event")
+    }
+
+    if(rebalanceEvent.start.type != "Fixed" || rebalanceEvent.duration.type != "Fixed"){
+        throw new Error("Event not resolved")
+    }
+
+    let currentYearAllocations : Record<string,number>
+
+    if(rebalanceEvent.event.glidePath == true){
+        const yearsIntoEvent = (rebalanceEvent.start.value+rebalanceEvent.duration.value) - currentYear
+        const startingAllocations = rebalanceEvent.event.assetAllocation
+        const endingAllocations = rebalanceEvent.event.assetAllocation2
+        currentYearAllocations = {}
+        const duration = rebalanceEvent.duration.value
+        
+
+        Object.entries(startingAllocations).forEach(([assetType,initalProportion]) =>{
+            const finalProportion = endingAllocations[assetType]
+            if(finalProportion == null){
+                throw new Error("No corresponding proportion")
+            }
+
+            const rate = (finalProportion-initalProportion)/duration
+            currentYearAllocations[assetType] = rate*yearsIntoEvent+initalProportion
+            
+        })
+        
+        
+    }else{
+        currentYearAllocations = rebalanceEvent.event.assetAllocation
+    }
+
+    return currentYearAllocations
 }
 /** This is a description of the foo function. */
-function processRebalanceEvent(){
+function processRebalanceEvent(scenario : Scenario,year : number){
+    const logMessages : string[] = []
+    const allRebalanceEvents = Object.values(scenario.eventSeries).filter((event) => event.event.type == "Rebalance")
+    const investmentData = scenario.investmentTypes
+    const adjustedAccounts = structuredClone(scenario.investments)
 
+    if(allRebalanceEvents.length == 0){
+        return {adjustedAccounts,logMessages}
+    }
+    
+    for(const rebalanceEvent of allRebalanceEvents){
+        if(rebalanceEvent.event.type != "Rebalance"){
+            throw new Error("Improper filtering, non-rebalance event in rebalance array")
+        }
+
+        const taxStatus = rebalanceEvent.event.taxStatus
+    }
 }
 worker({
     simulation : simulation
