@@ -10,6 +10,10 @@ import AddNewInvestmentType from "./pages/AddNewInvestmentType";
 import AddNewEventSeries from "./pages/AddNewEventSeries";
 import CreateSlideWrapper from "./CreateSlideWrapper";
 import UserProfilePage from "./pages/UserProfilePage";
+import { registerChartJSComponents } from "./components/Charts/ChartSetup";
+
+registerChartJSComponents();
+
 
 function App() {
   return (
