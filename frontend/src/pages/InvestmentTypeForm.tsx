@@ -7,10 +7,12 @@ import "../stylesheets/InvestmentType/AddNewInvestmentType.css";
 import ValidationTextFields from "../components/shared/ValidationTextFields";
 import { useInvestmentTypeHooks } from "../hooks/useInvestmentTypeHooks";
 import { useScenarioContext } from "../useScenarioContext";
+import { InvestmentType } from "../../../backend/db/InvestmentTypesSchema";
 import {
-  InvestmentType,
-  InvestmentTypeDistribution,
-} from "../useScenarioContext";
+  FixedDistribution,
+  NormalDistribution,
+  UniformDistribution,
+} from "../../../backend/db/DistributionSchemas";
 import { useHelperContext } from "../HelperContext";
 
 type ValueType = "Fixed Amount/Percentage" | "Normal Distribution";
@@ -20,12 +22,8 @@ const isValueType = (val: any): val is ValueType =>
 export default function InvestmentTypeForm() {
   const navigate = useNavigate();
   const { investmentTypeHooks } = useInvestmentTypeHooks();
-  const {
-    editInvestmentType,
-    investmentTypes,
-    editScenario,
-    setEditScenario
-  } = useScenarioContext();
+  const { editInvestmentType, investmentTypes, editScenario, setEditScenario } =
+    useScenarioContext();
   const { handleEditScenario } = useHelperContext();
 
   useEffect(() => {
@@ -113,7 +111,10 @@ export default function InvestmentTypeForm() {
       investmentTypeHooks?.incomeDistributionType
     );
 
-    const returnDistribution: InvestmentTypeDistribution =
+    const returnDistribution:
+      | FixedDistribution
+      | NormalDistribution
+      | UniformDistribution =
       returnDistributionTypeMapped === "Fixed"
         ? { type: "Fixed", value: Number(returnFixedValue) }
         : {
@@ -122,7 +123,10 @@ export default function InvestmentTypeForm() {
             stdev: Number(returnStdDev),
           };
 
-    const incomeDistribution: InvestmentTypeDistribution =
+    const incomeDistribution:
+      | FixedDistribution
+      | NormalDistribution
+      | UniformDistribution =
       incomeDistributionTypeMapped === "Fixed"
         ? { type: "Fixed", value: Number(incomeFixedValue) }
         : {
@@ -164,11 +168,11 @@ export default function InvestmentTypeForm() {
     })();
     const scenarioID = editScenario._id;
     const updatedField = {
-      investmentTypes: updatedInvestmentTypes
+      investmentTypes: updatedInvestmentTypes,
     };
-    const data = await handleEditScenario(userID, scenarioID, updatedField)
+    const data = await handleEditScenario(userID, scenarioID, updatedField);
     setEditScenario(data);
-    
+
     navigate("/dashboard/createScenario");
   };
 

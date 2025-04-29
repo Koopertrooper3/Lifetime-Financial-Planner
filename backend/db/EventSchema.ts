@@ -127,7 +127,7 @@ interface eventBased{
     withOrAfter: "With" | "After",
     event: string,
 }
-type eventStartType = FixedDistribution | NormalDistribution | UniformDistribution | eventBased
+export type eventStartType = FixedDistribution | NormalDistribution | UniformDistribution | eventBased
 export type EventDistribution = FixedDistribution | NormalDistribution | UniformDistribution
 
 export interface incomeEvent{

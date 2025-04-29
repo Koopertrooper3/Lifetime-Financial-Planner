@@ -2,11 +2,9 @@ import { useEffect, useState } from "react";
 import AllocationTable from "../shared/AllocationTable";
 import AllocationTypeSelector from "../shared/AllocationTypeSelector";
 import "../../stylesheets/EventSeries/Invest.css";
-import {
-  Investment,
-  assetProportion,
-  useScenarioContext,
-} from "../../useScenarioContext";
+import { Investment } from "../../../../backend/db/InvestmentSchema";
+import { assetProportion } from "../../../../backend/db/EventSchema";
+import { useScenarioContext } from "../../useScenarioContext";
 
 interface EventSeriesInvestProps {
   allocationType: "Fixed" | "Glide Path";

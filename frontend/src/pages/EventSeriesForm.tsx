@@ -9,16 +9,16 @@ import "../stylesheets/EventSeries/AddNewEventSeries.css";
 import EventSeriesRebalance from "../components/EventSeries/Rebalance";
 import ValidationTextFields from "../components/shared/ValidationTextFields";
 import {
-  useScenarioContext,
-  EventSeries,
-  eventStartType,
-  EventSeriesDistribution,
-  IncomeEvent,
-  ExpenseEvent,
-  InvestEvent,
-  RebalanceEvent,
+  Event,
+  EventDistribution,
+  incomeEvent,
+  expenseEvent,
+  investEvent,
+  rebalanceEvent,
   assetProportion,
-} from "../useScenarioContext";
+  eventStartType,
+} from "../../../backend/db/EventSchema";
+import { useScenarioContext } from "../useScenarioContext";
 import { useEventSeriesFormHooks } from "../hooks/useEventSeriesFormHooks";
 import { useHelperContext } from "../HelperContext";
 
@@ -196,7 +196,7 @@ export default function EventSeriesForm() {
     }
 
     // ========== Duration ===========
-    let duration: EventSeriesDistribution;
+    let duration: EventDistribution;
 
     if (durationType === "Fixed Value") {
       duration = {
@@ -220,9 +220,9 @@ export default function EventSeriesForm() {
     }
 
     // ============= Event ===============
-    let event: IncomeEvent | ExpenseEvent | InvestEvent | RebalanceEvent;
+    let event: incomeEvent | expenseEvent | investEvent | rebalanceEvent;
     if (eventType === "Income") {
-      const incomeChangeDistribution: EventSeriesDistribution =
+      const incomeChangeDistribution: EventDistribution =
         incomeDistributionType === "Fixed Value/Percentage"
           ? { type: "Fixed", value: Number(fixedIncomeValue) }
           : incomeDistributionType === "Normal Distribution"
@@ -247,7 +247,7 @@ export default function EventSeriesForm() {
         socialSecurity: incomeType === "Social Security",
       };
     } else if (eventType === "Expense") {
-      const expenseChangeDistribution: EventSeriesDistribution =
+      const expenseChangeDistribution: EventDistribution =
         expenseDistributionType === "Fixed Value/Percentage"
           ? { type: "Fixed", value: Number(expenseFixedValue) }
           : expenseDistributionType === "Normal Distribution"
@@ -272,43 +272,70 @@ export default function EventSeriesForm() {
         discretionary: isDiscretionary,
       };
     } else if (eventType === "Invest") {
-      const allocation: assetProportion[] = allocatedInvestments.map(
+      // Original array version
+      const allocationArray: assetProportion[] = allocatedInvestments.map(
         (inv: any) => ({
           asset: inv.asset,
           proportion: Number(inv.proportion),
         })
       );
 
-      let allocation2: assetProportion[] | undefined;
+      // Convert to Record<string, number>
+      const allocation: Record<string, number> = allocationArray.reduce(
+        (acc, curr) => {
+          acc[curr.asset] = curr.proportion;
+          return acc;
+        },
+        {} as Record<string, number>
+      );
+
+      let allocation2: Record<string, number> = {};
       if (investAllocationType === "Glide Path") {
-        allocation2 = allocated2Investments.map((inv: any) => ({
+        const allocation2Array = allocated2Investments.map((inv: any) => ({
           asset: inv.asset,
           proportion: Number(inv.proportion),
         }));
+
+        allocation2 = allocation2Array.reduce((acc, curr) => {
+          acc[curr.asset] = curr.proportion;
+          return acc;
+        }, {} as Record<string, number>);
       }
 
       event = {
         type: "Invest",
         assetAllocation: allocation,
         glidePath: investAllocationType === "Glide Path",
-        assetAllocation2:
-          investAllocationType === "Glide Path" ? allocation2 : [],
+        assetAllocation2: allocation2,
         maxCash: Number(investMaxCashHoldings),
       };
     } else if (eventType === "Rebalance") {
-      const allocation: assetProportion[] = allocatedRebalanceInvestments.map(
-        (inv: any) => ({
-          asset: inv.asset,
-          proportion: Number(inv.proportion),
-        })
-      );
-
-      let allocation2: assetProportion[] | undefined;
-      if (allocationType === "Glide Path") {
-        allocation2 = allocatedRebalance2Investments.map((inv: any) => ({
+      const allocationArray: assetProportion[] =
+        allocatedRebalanceInvestments.map((inv: any) => ({
           asset: inv.asset,
           proportion: Number(inv.proportion),
         }));
+
+      // Convert to Record<string, number>
+      const allocation: Record<string, number> = allocationArray.reduce(
+        (acc, curr) => {
+          acc[curr.asset] = curr.proportion;
+          return acc;
+        },
+        {} as Record<string, number>
+      );
+
+      let allocation2: Record<string, number> = {};
+      if (allocationType === "Glide Path") {
+        const allocation2Array = allocated2Investments.map((inv: any) => ({
+          asset: inv.asset,
+          proportion: Number(inv.proportion),
+        }));
+
+        allocation2 = allocation2Array.reduce((acc, curr) => {
+          acc[curr.asset] = curr.proportion;
+          return acc;
+        }, {} as Record<string, number>);
       }
 
       event = {
@@ -316,18 +343,18 @@ export default function EventSeriesForm() {
         taxStatus: taxStatus,
         assetAllocation: allocation,
         glidePath: allocationType === "Glide Path",
-        assetAllocation2: allocationType === "Glide Path" ? allocation2 : [],
+        assetAllocation2: allocation2,
       };
     } else {
       throw new Error("Event Reformatting Issue");
     }
 
     // ============ Event Series ============
-    const newEventSeries: EventSeries = {
+    const newEventSeries: Event = {
       name: String(eventSeriesName),
-      start,
-      duration,
-      event,
+      start: start,
+      duration: duration,
+      event: event,
     };
 
     const updatedEventSeries = { ...eventSeries };

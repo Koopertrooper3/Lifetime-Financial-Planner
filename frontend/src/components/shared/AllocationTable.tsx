@@ -1,4 +1,5 @@
-import { Investment, assetProportion } from "../../useScenarioContext";
+import { Investment } from "../../../../backend/db/InvestmentSchema";
+import { assetProportion } from "../../../../backend/db/EventSchema";
 import { useScenarioContext } from "../../useScenarioContext";
 import "../../stylesheets/shared/AllocationTable.css";
 import { useState, useEffect } from "react";
@@ -23,8 +24,7 @@ const AllocationTable = ({
   useEffect(() => {
     setAllocatedInvestments(editEventSeries.event.assetAllocation || []);
     setAllocated2Investments(editEventSeries.event.assetAllocation2 || []);
-  }, [editEventSeries])
-
+  }, [editEventSeries]);
 
   useEffect(() => {
     console.log(`allocatedInvestments`, allocatedInvestments);

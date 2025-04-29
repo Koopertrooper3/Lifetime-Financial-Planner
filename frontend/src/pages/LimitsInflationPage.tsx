@@ -3,7 +3,12 @@ import { useNavigate, Link } from "react-router-dom";
 import CenteredFormWrapper from "../wrapper/CenteredFormWrapper";
 import ValidationTextFields from "../components/shared/ValidationTextFields";
 import "../stylesheets/LimitsInflationPage.css";
-import { InflationAssumption, useScenarioContext } from "../useScenarioContext";
+import {
+  FixedDistribution,
+  NormalDistribution,
+  UniformDistribution,
+} from "../../../backend/db/DistributionSchemas";
+import { useScenarioContext } from "../useScenarioContext";
 import { useInflationAssumptionHooks } from "../hooks/useInflationAssumptionFormHooks";
 import { useHelperContext } from "../HelperContext";
 
@@ -16,7 +21,7 @@ export function LimitsInflationPage() {
     afterTaxContributionLimit,
     setAfterTaxContributionLimit,
     editScenario,
-    setEditScenario
+    setEditScenario,
   } = useScenarioContext();
   const { inflationAssumptionHooks } = useInflationAssumptionHooks();
   const { handleEditScenario } = useHelperContext();
@@ -46,13 +51,13 @@ export function LimitsInflationPage() {
       case "Normal":
         setInflationDistributionType("Normal Distribution");
         setMean(inflationAssumption.mean);
-        setStdDev(inflationAssumption.stdDev);
+        setStdDev(inflationAssumption.stdev);
         break;
 
       case "Uniform":
         setInflationDistributionType("Uniform Distribution");
-        setLowerBound(inflationAssumption.lower);
-        setUpperBound(inflationAssumption.upper);
+        setLowerBound(inflationAssumption.min);
+        setUpperBound(inflationAssumption.max);
         break;
     }
 
@@ -83,7 +88,10 @@ export function LimitsInflationPage() {
       inflationDistributionType
     );
 
-    let inflationDistribution: InflationAssumption;
+    let inflationDistribution:
+      | FixedDistribution
+      | NormalDistribution
+      | UniformDistribution;
 
     switch (distributionTypeMapped) {
       case "Fixed":
@@ -96,14 +104,14 @@ export function LimitsInflationPage() {
         inflationDistribution = {
           type: "Normal",
           mean: Number(mean),
-          stdDev: Number(stdDev),
+          stdev: Number(stdDev),
         };
         break;
       case "Uniform":
         inflationDistribution = {
           type: "Uniform",
-          lower: Number(lowerBound),
-          upper: Number(upperBound),
+          min: Number(lowerBound),
+          max: Number(upperBound),
         };
         break;
     }
@@ -118,10 +126,10 @@ export function LimitsInflationPage() {
     const scenarioID = editScenario._id;
     const updatedFields = {
       inflationAssumption: inflationDistribution,
-      afterTaxContributionLimit: Number(annualContribution)
+      afterTaxContributionLimit: Number(annualContribution),
     };
 
-    const data = await handleEditScenario(userID, scenarioID, updatedFields)
+    const data = await handleEditScenario(userID, scenarioID, updatedFields);
     setEditScenario(data);
 
     navigate("/dashboard/createScenario");
