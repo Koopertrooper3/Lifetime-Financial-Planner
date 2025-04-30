@@ -1,7 +1,7 @@
 import express from "express";
 import { scenarioModel } from "../../db/Scenario";
 import z from "zod";
-// @ts-ignore
+//@ts-expect-error Incomplete
 import { runParameterSweepSimulations } from "../../simulator/simulationHead";
 
 
@@ -26,13 +26,13 @@ const simExploreZod = z.object({
  *  - Queue the scenario into the existing simulation pipeline
  *  - Return an aggregated result object for charting
  */
-simulationRouter.post("/simulation-explore", async (req, res) => {
+simulationRouter.post("/simulation-explore", async (req,res) => {
   const validated = simExploreZod.parse(req.body);
 
   try {
     const baseScenario = await scenarioModel.findById(validated.scenarioId).lean();
     if (!baseScenario) {
-      return res.status(404).json({ error: "Scenario not found." });
+      res.status(404).json({ error: "Scenario not found." });
     }
 
     /**
@@ -48,7 +48,7 @@ simulationRouter.post("/simulation-explore", async (req, res) => {
         validated.stepSize
     );
 
-    res.json(results);
+    res.status(200).json(results);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Simulation failed or not implemented yet." });
