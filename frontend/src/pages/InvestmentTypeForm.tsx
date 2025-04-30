@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import ExpectedInput from "../components/shared/InvestmentTypeExpectedInput";
@@ -170,8 +170,10 @@ export default function InvestmentTypeForm() {
     const updatedField = {
       investmentTypes: updatedInvestmentTypes,
     };
+    console.log("Investment Type Form: ", updatedField);
     const data = await handleEditScenario(userID, scenarioID, updatedField);
     setEditScenario(data);
+    console.log(editScenario);
 
     navigate("/dashboard/createScenario");
   };

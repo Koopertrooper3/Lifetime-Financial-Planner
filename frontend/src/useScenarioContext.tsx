@@ -148,6 +148,9 @@ export const ScenarioProvider: React.FC<{ children: React.ReactNode }> = ({
   const [editEventSeries, setEditEventSeries] = useState(null);
   const [editInflationAssumption, setEditInflationAssumption] = useState(null);
 
+  {
+    console.log("Use Scenario Context: ", investmentTypes);
+  }
   return (
     <ScenarioContext.Provider
       value={{

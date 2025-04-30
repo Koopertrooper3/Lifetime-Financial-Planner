@@ -55,20 +55,20 @@ const scenarioSchema = new Schema<Scenario>({
         },
         required: true,
     },
-    investmentTypes: [{
+    investmentTypes: {
         type: Map,
         of: investmentTypeSchema,
         required: true,
-    }],
-    investments: [{
+    },
+    investments: {
         type: Map,
         of: investmentSchema,
         required: true,
-    }],
-    eventSeries: [{
+    },
+    eventSeries: {
         type: Map,
         of: eventSchema
-    }],
+    },
     inflationAssumption: {
         type: distributionWrapper,
         required: true,
