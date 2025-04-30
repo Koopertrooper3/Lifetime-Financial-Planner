@@ -21,6 +21,7 @@ router.get('/:id', async (req : Request, res: Response) => {
   
     try {
       const scenario = await scenarioModel.findById(id);
+      console.log(scenario)
       res.status(200).json({ data : scenario });
     } catch (error: unknown) {
       console.log(`Error in fetching scenario ${id}: `, (error as Error).message);
@@ -58,7 +59,7 @@ router.post("/create", async (req, res) => {
 
         await user?.save()
 
-        console.log(`scenario added to user ${user.name}, ownedScenario: ${user.ownedScenarios}`)
+        console.log(`scenario added to user ${user.name}, added Scenario: ${req.body.scenario}`)
         res.status(200).send({ message: "Scenario created successfully", scenarioID: newScenario._id });
     } catch (error) {
         console.error("Error creating scenario:", error);

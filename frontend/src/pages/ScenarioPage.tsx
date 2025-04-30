@@ -6,6 +6,7 @@ import { useParams } from "react-router-dom";
 import "../stylesheets/ScenarioPage.css";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import ExportScenario from '../components/ExportScenario';
 
 export default function ScenarioPage() {
   const { id } = useParams();
@@ -104,7 +105,7 @@ export default function ScenarioPage() {
           <button className="edit-link" onClick={handleEditClick}>
             <Link to={"/dashboard/createScenario/"}>Edit</Link>
           </button>
-
+          <ExportScenario scenarioID={scenario._id} />
           <Link to="/dashboard" className="close-link">
             Close
           </Link>
