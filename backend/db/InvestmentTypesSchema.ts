@@ -15,7 +15,7 @@ export const investmentTypeSchema = new Schema<InvestmentType>({
     },
     returnAmtOrPct: {
         type: String,
-        enum: ["Amount", "Percent"],
+        enum: ["amount", "percent"],
         required: true,
     },
     returnDistribution: {
@@ -28,7 +28,7 @@ export const investmentTypeSchema = new Schema<InvestmentType>({
     },
     incomeAmtOrPct: {
         type: String,
-        enum: ["Amount", "Percent"],
+        enum: ["amount", "percent"],
         required: true,
     },
     incomeDistribution: {

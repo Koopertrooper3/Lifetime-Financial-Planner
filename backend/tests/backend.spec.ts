@@ -62,7 +62,18 @@ test('Create Scenario', async ({ request }) => {
     maritalStatus: "individual",
     birthYears: [1985],
     lifeExpectancy: [{type: "fixed", value: 80}],
-    investmentTypes: {},
+    investmentTypes: { 
+      "cash": {
+      name: "cash",
+      description: "cash",
+      returnAmtOrPct: "amount",
+      returnDistribution: {type: "fixed", value: 0},
+      expenseRatio: 0,
+      incomeAmtOrPct: "percent",
+      incomeDistribution: {type: "fixed", value: 0},
+      taxability: true,
+    },
+  },
     investments: { "cash" : {investmentType: "cash",value: 100,taxStatus: "non-retirement",id: "cash"}},
     eventSeries: {
       "cash": {
