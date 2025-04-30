@@ -1,18 +1,22 @@
 import React from "react";
 import { Line } from "react-chartjs-2";
 
-type LineChartProbabilityProps = {
-  years: number[];
-  successRates: number[];
+type SuccessEntry = {
+  year: number;
+  successRate: number; // 0.0 - 1.0
 };
 
-const LineChartProbability: React.FC<LineChartProbabilityProps> = ({ years, successRates }) => {
+type LineChartProbabilityProps = {
+  probabilities: SuccessEntry[];
+};
+
+const LineChartProbability: React.FC<LineChartProbabilityProps> = ({ probabilities }) => {
   const data = {
-    labels: years,
+    labels: probabilities.map((p) => p.year),
     datasets: [
       {
         label: "Probability of Success (%)",
-        data: successRates,
+        data: probabilities.map((p) => p.successRate * 100),
         borderColor: "blue",
         backgroundColor: "rgba(0, 0, 255, 0.1)",
         fill: false,

@@ -1,4 +1,4 @@
-export const isDebug = false;
+export const isDebug = true;
 
 export type User = {
   _id: string;
