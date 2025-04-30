@@ -8,7 +8,7 @@ import { mockSimulationResults } from "./components/Charts/MockData";
 interface HelperContextType {
   fetchScenario: (id: string) => Promise<any>;
   fetchAllScenarios: () => Promise<any>;
-  fetchSimulationResults: (scenarioId: string) => Promise<any>; 
+  fetchSimulationResults: (scenarioId: string) => Promise<any>;
   setGlobalUserID: (userId: string) => void;
   userID: any;
   allInvestmentTypes: any[] | null;
@@ -86,6 +86,7 @@ export const HelperContextProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [allInvestmentTypes]);
 
   const fetchScenario = async (id: string) => {
+    console.log("Fetching for scenario: ", id);
     try {
       const res = await fetch(`http://localhost:8000/scenario/${id}`);
       const json = await res.json();
@@ -97,13 +98,15 @@ export const HelperContextProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const fetchSimulationResults = async (scenarioId: string) => {
     try {
-      const res = await fetch(`http://localhost:8000/simulation-results/${scenarioId}`);
+      const res = await fetch(
+        `http://localhost:8000/simulation-results/${scenarioId}`
+      );
       const json = await res.json();
       return json.data;
     } catch (error) {
       console.error("Error fetching simulation results:", error);
     }
-  };  
+  };
 
   const fetchAllScenarios = async () => {
     try {
