@@ -57,10 +57,10 @@ export default function EventSeriesForm() {
       } = eventSeriesFormHooks;
 
       const mapDistributionTypeToLabel = (type: string) => {
-        if (type === "Normal") return "Normal Distribution";
-        if (type === "Fixed") return "Fixed Value";
-        if (type === "Uniform") return "Uniform Distribution";
-        if (type === "EventBased") return "Event Based";
+        if (type === "normal") return "Normal Distribution";
+        if (type === "fixed") return "Fixed Value";
+        if (type === "uniform") return "Uniform Distribution";
+        if (type === "eventBased") return "Event Based";
       };
 
       // Name
@@ -221,7 +221,7 @@ export default function EventSeriesForm() {
 
     // ============= Event ===============
     let event: incomeEvent | expenseEvent | investEvent | rebalanceEvent;
-    if (eventType === "Income") {
+    if (eventType === "income") {
       const incomeChangeDistribution: EventDistribution =
         incomeDistributionType === "Fixed Value/Percentage"
           ? { type: "fixed", value: Number(fixedIncomeValue) }
@@ -246,7 +246,7 @@ export default function EventSeriesForm() {
         userFraction: userPercentage / 100,
         socialSecurity: incomeType === "Social Security",
       };
-    } else if (eventType === "Expense") {
+    } else if (eventType === "expense") {
       const expenseChangeDistribution: EventDistribution =
         expenseDistributionType === "Fixed Value/Percentage"
           ? { type: "fixed", value: Number(expenseFixedValue) }
@@ -271,7 +271,7 @@ export default function EventSeriesForm() {
         userFraction: userPercentage / 100,
         discretionary: isDiscretionary,
       };
-    } else if (eventType === "Invest") {
+    } else if (eventType === "invest") {
       // Original array version
       const allocationArray: assetProportion[] = allocatedInvestments.map(
         (inv: any) => ({
@@ -309,7 +309,7 @@ export default function EventSeriesForm() {
         assetAllocation2: allocation2,
         maxCash: Number(investMaxCashHoldings),
       };
-    } else if (eventType === "Rebalance") {
+    } else if (eventType === "rebalance") {
       const allocationArray: assetProportion[] =
         allocatedRebalanceInvestments.map((inv: any) => ({
           asset: inv.asset,
@@ -377,8 +377,10 @@ export default function EventSeriesForm() {
     const updatedField = {
       eventSeries: updatedEventSeries,
     };
-    const data = await handleEditScenario(userID, scenarioID, updatedField);
-    setEditScenario(data);
+    console.log("Updaded Field: Event Series Form: ", updatedField);
+    const response = await handleEditScenario(userID, scenarioID, updatedField);
+    console.log("Event Series Form Response: ", response.data);
+    setEditScenario(response.data);
 
     navigate("/dashboard/createScenario");
   };
@@ -596,7 +598,7 @@ export default function EventSeriesForm() {
                   <input
                     type="radio"
                     name="eventStart"
-                    value="With"
+                    value="with"
                     onChange={() => eventSeriesFormHooks.setWithOrAfter("with")}
                     checked={eventSeriesFormHooks.withOrAfter === "with"}
                   />
@@ -606,7 +608,7 @@ export default function EventSeriesForm() {
                   <input
                     type="radio"
                     name="eventStart"
-                    value="After"
+                    value="after"
                     onChange={() =>
                       eventSeriesFormHooks.setWithOrAfter("after")
                     }
@@ -778,9 +780,9 @@ export default function EventSeriesForm() {
                 <input
                   type="radio"
                   id="eventSeriesType"
-                  value="Income"
-                  onChange={() => eventSeriesFormHooks.setEventType("Income")}
-                  checked={eventSeriesFormHooks.eventType === "Income"}
+                  value="income"
+                  onChange={() => eventSeriesFormHooks.setEventType("income")}
+                  checked={eventSeriesFormHooks.eventType === "income"}
                 />
                 Income
               </label>
@@ -788,9 +790,9 @@ export default function EventSeriesForm() {
                 <input
                   type="radio"
                   id="eventSeriesType"
-                  value="Expense"
-                  onChange={() => eventSeriesFormHooks.setEventType("Expense")}
-                  checked={eventSeriesFormHooks.eventType === "Expense"}
+                  value="expense"
+                  onChange={() => eventSeriesFormHooks.setEventType("expense")}
+                  checked={eventSeriesFormHooks.eventType === "expense"}
                 />
                 Expense
               </label>
@@ -798,9 +800,9 @@ export default function EventSeriesForm() {
                 <input
                   type="radio"
                   id="eventSeriesType"
-                  value="Invest"
-                  onChange={() => eventSeriesFormHooks.setEventType("Invest")}
-                  checked={eventSeriesFormHooks.eventType === "Invest"}
+                  value="invest"
+                  onChange={() => eventSeriesFormHooks.setEventType("invest")}
+                  checked={eventSeriesFormHooks.eventType === "invest"}
                 />
                 Invest
               </label>
@@ -808,18 +810,23 @@ export default function EventSeriesForm() {
                 <input
                   type="radio"
                   id="eventSeriesType"
-                  value="Rebalance"
+                  value="rebalance"
                   onChange={() =>
-                    eventSeriesFormHooks.setEventType("Rebalance")
+                    eventSeriesFormHooks.setEventType("rebalance")
                   }
-                  checked={eventSeriesFormHooks.eventType === "Rebalance"}
+                  checked={eventSeriesFormHooks.eventType === "rebalance"}
                 />
                 Rebalance
               </label>
             </div>
           </div>
 
-          {eventSeriesFormHooks.eventType === "Income" && (
+          <div
+            style={{
+              display:
+                eventSeriesFormHooks.eventType === "income" ? "block" : "none",
+            }}
+          >
             <EventSeriesIncome
               incomeType={eventSeriesFormHooks.incomeType}
               setIncomeType={eventSeriesFormHooks.setIncomeType}
@@ -848,9 +855,9 @@ export default function EventSeriesForm() {
               spousePercentage={eventSeriesFormHooks.spousePercentage}
               setSpousePercentage={eventSeriesFormHooks.setSpousePercentage}
             />
-          )}
+          </div>
 
-          {eventSeriesFormHooks.eventType === "Expense" && (
+          {eventSeriesFormHooks.eventType === "expense" && (
             <EventSeriesExpense
               isDiscretionary={eventSeriesFormHooks.isDiscretionary}
               setIsDiscretionary={eventSeriesFormHooks.setIsDiscretionary}
@@ -885,7 +892,7 @@ export default function EventSeriesForm() {
             />
           )}
 
-          {eventSeriesFormHooks.eventType === "Invest" && (
+          {eventSeriesFormHooks.eventType === "invest" && (
             <EventSeriesInvest
               allocationType={eventSeriesFormHooks.investAllocationType}
               setAllocationType={eventSeriesFormHooks.setInvestAllocationType}
@@ -908,7 +915,7 @@ export default function EventSeriesForm() {
             />
           )}
 
-          {eventSeriesFormHooks.eventType === "Rebalance" && (
+          {eventSeriesFormHooks.eventType === "rebalance" && (
             <EventSeriesRebalance
               allocationType={eventSeriesFormHooks.allocationType}
               setAllocationType={eventSeriesFormHooks.setAllocationType}

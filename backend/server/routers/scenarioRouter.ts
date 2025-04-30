@@ -78,7 +78,7 @@ router.post("/edit", async (req, res) => {
   console.log("/scenario/edit hit");
 
   try {
-      console.log("Incoming body:", req.body);
+      console.log("Incoming body:", JSON.stringify(req.body.updatedFields, null, 2));
       
       editScenarioZod.parse(req.body); // Allows partial updates
 

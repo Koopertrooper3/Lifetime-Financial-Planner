@@ -31,18 +31,42 @@ export default function EventSeriesIncome({
   userPercentage,
   setUserPercentage,
   spousePercentage,
-  setSpousePercentage
+  setSpousePercentage,
 }: EventSeriesIncomeProps) {
   const { editEventSeries } = useScenarioContext();
+  const { eventSeriesFormHooks } = useEventSeriesFormHooks();
+
+  const mapDistributionTypeToLabel = (
+    type: string
+  ):
+    | "Fixed Value/Percentage"
+    | "Normal Distribution"
+    | "Uniform Distribution" => {
+    if (type === "normal") return "Normal Distribution";
+    if (type === "fixed") return "Fixed Value/Percentage";
+    if (type === "uniform") return "Uniform Distribution";
+    return "Fixed Value/Percentage"; // Default value instead of "undefined"
+  };
 
   useEffect(() => {
     if (editEventSeries) {
+      const {
+        setIncomeType,
+        setIncomeInitialValue,
+        setIncomeDistributionType,
+      } = eventSeriesFormHooks;
+
       setIncomeType(
         editEventSeries.event.socialSecurity === true
           ? "Social Security"
           : "Wages"
       );
-      setInitialAmount(editEventSeries.event.initialAmount || 0);
+      setIncomeInitialValue(editEventSeries.event.initialAmount || 0);
+      setIncomeDistributionType(
+        mapDistributionTypeToLabel(
+          editEventSeries.event.changeDistribution.type
+        )
+      );
     }
   }, [editEventSeries]);
 
@@ -60,8 +84,10 @@ export default function EventSeriesIncome({
             type="radio"
             id="incomeType"
             value="Social Security"
-            checked={incomeType == "Social Security"}
-            onChange={() => setIncomeType("Social Security")}
+            checked={eventSeriesFormHooks.incomeType == "Social Security"}
+            onChange={() =>
+              eventSeriesFormHooks.setIncomeType("Social Security")
+            }
           ></input>
           Social Security
         </label>
@@ -70,8 +96,8 @@ export default function EventSeriesIncome({
             type="radio"
             id="incomeType"
             value="Wages"
-            checked={incomeType == "Wages"}
-            onChange={() => setIncomeType("Wages")}
+            checked={eventSeriesFormHooks.incomeType == "Wages"}
+            onChange={() => eventSeriesFormHooks.setIncomeType("Wages")}
           ></input>
           Wages
         </label>
@@ -80,9 +106,9 @@ export default function EventSeriesIncome({
       <div>
         <p>Enter the Initial Amount</p>
         <ValidationTextFields
-          value={initialAmount}
+          value={eventSeriesFormHooks.incomeInitialValue}
           placeholder="Enter a dollar amount (eg. $50)"
-          setInput={setInitialAmount}
+          setInput={eventSeriesFormHooks.setIncomeInitialValue}
           inputType="number"
           width="100%"
           height="1.4375em"
@@ -107,9 +133,14 @@ export default function EventSeriesIncome({
                 id="distributionType"
                 value="Fixed Value/Percentage"
                 onChange={() => {
-                  setDistributionType("Fixed Value/Percentage");
+                  eventSeriesFormHooks.setIncomeDistributionType(
+                    "Fixed Value/Percentage"
+                  );
                 }}
-                checked={distributionType == "Fixed Value/Percentage"}
+                checked={
+                  eventSeriesFormHooks.incomeDistributionType ==
+                  "Fixed Value/Percentage"
+                }
               ></input>
               Fixed Value/Percentage
             </label>
@@ -119,9 +150,14 @@ export default function EventSeriesIncome({
                 id="distributionType"
                 value="Normal Distribution"
                 onChange={() => {
-                  setDistributionType("Normal Distribution");
+                  eventSeriesFormHooks.setIncomeDistributionType(
+                    "Normal Distribution"
+                  );
                 }}
-                checked={distributionType == "Normal Distribution"}
+                checked={
+                  eventSeriesFormHooks.incomeDistributionType ==
+                  "Normal Distribution"
+                }
               ></input>
               Normal Distribution
             </label>
@@ -131,9 +167,14 @@ export default function EventSeriesIncome({
                 id="distributionType"
                 value="Uniform Distribution"
                 onChange={() => {
-                  setDistributionType("Uniform Distribution");
+                  eventSeriesFormHooks.setIncomeDistributionType(
+                    "Uniform Distribution"
+                  );
                 }}
-                checked={distributionType == "Uniform Distribution"}
+                checked={
+                  eventSeriesFormHooks.incomeDistributionType ==
+                  "Uniform Distribution"
+                }
               ></input>
               Uniform Distribution
             </label>
