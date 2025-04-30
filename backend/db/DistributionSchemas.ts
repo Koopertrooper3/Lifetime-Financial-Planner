@@ -18,7 +18,7 @@ export const normalDistSchema = new Schema({
     }
 })
 
-export const uniformDistSchema = new Schema({
+export const uniformDistSchema = new Schema<UniformDistribution>({
     lower: {
         type: Number,
         required: true

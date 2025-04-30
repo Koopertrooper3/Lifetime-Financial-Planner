@@ -91,7 +91,7 @@ async function testScenario() {
         event: {
             type: "income", 
             initialAmount: 75000, 
-            changeAmountOrPercent: "amount",
+            changeAmtOrPct: "amount",
             changeDistribution: {type: "uniform", lower: 500, upper: 2000},
             inflationAdjusted: false,
             userFraction: 1.0,
@@ -101,12 +101,12 @@ async function testScenario() {
 
     const foodEvent : Event = {
         name: "food",
-        start: {type: "eventBased", withOrAfter: "with", event: "salary"},
+        start: {type: "startWith", eventSeries: "salary"},
         duration: {type: "fixed", value: 200},
         event: {
             type: "expense", 
             initialAmount: 5000, 
-            changeAmountOrPercent: "percent",
+            changeAmtOrPct: "percent",
             changeDistribution: {type: "normal", mean: 0.01, stdev: 0.01},
             inflationAdjusted: true,
             userFraction: 0.5,
@@ -116,12 +116,12 @@ async function testScenario() {
 
     const vacationEvent : Event = {
         name: "vacation",
-        start: {type: "eventBased", withOrAfter: "with", event: "salary"},
+        start: {type: "startWith", eventSeries: "salary"},
         duration: {type: "fixed", value: 200},
         event: {
             type: "expense", 
             initialAmount: 1200, 
-            changeAmountOrPercent: "amount",
+            changeAmtOrPct: "amount",
             changeDistribution: {type: "fixed", value: 0},
             inflationAdjusted: true,
             userFraction: 0.6,
@@ -131,12 +131,12 @@ async function testScenario() {
 
     const streamingEvent : Event = {
         name: "streaming services",
-        start: {type: "eventBased", withOrAfter: "with", event: "salary"},
+        start: {type: "startWith", eventSeries: "salary"},
         duration: {type: "fixed", value: 200},
         event: {
             type: "expense", 
             initialAmount: 500, 
-            changeAmountOrPercent: "amount",
+            changeAmtOrPct: "amount",
             changeDistribution: {type: "fixed", value: 0},
             inflationAdjusted: true,
             userFraction: 1.0,
@@ -146,7 +146,7 @@ async function testScenario() {
 
     const investEvent : Event = {
         name: "invest",
-        start: {type: "eventBased", withOrAfter: "with", event: "salary"},
+        start: {type: "startWith", eventSeries: "salary"},
         duration: {type: "fixed", value: 200},
         event: {
             type: "invest", 
@@ -159,7 +159,7 @@ async function testScenario() {
 
     const rebalanceEvent : Event = {
         name: "rebalance",
-        start: {type: "eventBased", withOrAfter: "with", event: "salary"},
+        start: {type: "startWith", eventSeries: "salary"},
         duration: {type: "fixed", value: 200},
         event: {
             type: "rebalance", 
