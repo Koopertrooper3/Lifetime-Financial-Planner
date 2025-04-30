@@ -43,18 +43,18 @@ export function LimitsInflationPage() {
 
     // Set the distribution type and corresponding values
     switch (inflationAssumption.type) {
-      case "Fixed":
+      case "fixed":
         setInflationDistributionType("Fixed Value/Percentage");
         setFixedInflationValue(inflationAssumption.value);
         break;
 
-      case "Normal":
+      case "normal":
         setInflationDistributionType("Normal Distribution");
         setMean(inflationAssumption.mean);
         setStdDev(inflationAssumption.stdev);
         break;
 
-      case "Uniform":
+      case "uniform":
         setInflationDistributionType("Uniform Distribution");
         setLowerBound(inflationAssumption.min);
         setUpperBound(inflationAssumption.max);
@@ -96,20 +96,20 @@ export function LimitsInflationPage() {
     switch (distributionTypeMapped) {
       case "Fixed":
         inflationDistribution = {
-          type: "Fixed",
+          type: "fixed",
           value: Number(fixedInflationValue),
         };
         break;
       case "Normal":
         inflationDistribution = {
-          type: "Normal",
+          type: "normal",
           mean: Number(mean),
           stdev: Number(stdDev),
         };
         break;
       case "Uniform":
         inflationDistribution = {
-          type: "Uniform",
+          type: "uniform",
           min: Number(lowerBound),
           max: Number(upperBound),
         };

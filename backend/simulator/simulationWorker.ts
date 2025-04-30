@@ -4,18 +4,18 @@
 import { createWriteStream, WriteStream } from "fs"
 import path from "path"
 import { finished } from "stream/promises"
-import {scenarioModel, Scenario} from "../db/Scenario"
+import {Scenario} from "../db/Scenario"
 import PB from "probability-distributions"
 import { Investment } from "../db/InvestmentSchema"
 import { FederalTax, taxBracketType, StateTaxBracket, StateTax } from "../db/taxes"
 import { worker } from 'workerpool'
-import { Event as ScenarioEvent, assetProportion } from "../db/EventSchema"
+import { Event as ScenarioEvent } from "../db/EventSchema"
 import { assert } from "console"
 import { EventDistribution } from "../db/EventSchema"
 import { RMDScraper } from "../scraper/RMDScraper"
-import { InvestmentType, IncomeDistribution, ReturnDistribution } from "../db/InvestmentTypesSchema"
-import { initalizeCSVLog,writeCSVlog,closeCSVlog, incomeEventLogMessage, RMDLogMessage, expenseLogMessage, rothConversionLogMessage, investLogMessage } from "./logging"
-
+import { InvestmentType } from "../db/InvestmentTypesSchema"
+import { initalizeCSVLog,writeCSVlog,closeCSVlog, incomeEventLogMessage, RMDLogMessage, expenseLogMessage, rothConversionLogMessage, investLogMessage, pushToLog } from "./logging"
+import { AnnualValues, payDiscExpensesReturn, Result, TaxBracketContainer, threadData } from "./simulatorInterfaces"
 const USER = 0
 const SPOUSE = 1
 
@@ -24,64 +24,6 @@ const EVENT_DATA = 1
 const EARLY_WITHDRAWAL_PENALTY = 0.10
 const EARLY_WITHDRAWAL_AGE = 59
 const SOCIAL_SECURITY_PROPORTION = 0.85
-//String generator functions
-/**
- * Description placeholder
- *
- * @param {number} year 
- * @param {string} eventName 
- * @param {number} amount 
- * @returns {string} 
- */
-
-function pushToLog(logStream : WriteStream, message : string){
-    logStream.write(message)
-}
-
-type TaxType = "Federal Income" | "State Income" | "Capital Gains" | "Early Withdrawal Penalty"
-/**
- * Description placeholder
- */
-interface threadData {
-
-    username: string,
-    scenarioID : string, 
-    threadNumber: number
-    simulationsPerThread: number,
-    scenario: Scenario,
-    federalTaxes : FederalTax,
-    stateTaxes: StateTax
-}
-
-/**
- * Description placeholder
- *
- */
-interface Result{
-    completed: number,
-    succeeded: number,
-    failed: number,
-  }
-
-type TaxBracketLevel = "Federal" | "State"
-interface TaxBracketContainer {
-    "Federal" : FederalTax,
-    "State" : StateTax
-}
-/**
- * Description placeholder
- *
- * @async
- * @param {threadData} threadData 
- * @returns {unknown} 
- */
-
-interface AnnualValues {
-    totalIncome : number,
-    totalSocialSecurityIncome: number,
-    totalEarlyWithdrawal : number,
-    totalCapitalGains : number,
-}
 
 async function simulation(threadData : threadData){
     const result : Result = {completed : 0, succeeded: 0, failed: 0}
@@ -114,7 +56,7 @@ async function simulation(threadData : threadData){
         const scenario = structuredClone(baseScenario)
         const lifeExpectancy : number = calculateLifeExpectancy(scenario)
         const spouseLifeExpectancy : number = calculateSpousalLifeExpectancy(scenario)
-        const purchaseLedger : Record<string,number[]> = constructPurchaseLedger(scenario.investments)
+        let purchaseLedger : Record<string,number[]> = constructPurchaseLedger(scenario.investments)
 
         try{
             scenario.eventSeries = resolveEventDurations(scenario.eventSeries)
@@ -148,7 +90,7 @@ async function simulation(threadData : threadData){
                 totalEarlyWithdrawal: 0
             }
 
-            const inflationRate = calculateInflation(scenario)
+            const inflationRate = resolveDistribution(scenario.inflationAssumption)
             let spousalStatus : boolean;
             if(scenario.maritalStatus == "couple"){
                 spousalStatus = determineSpousalStatus(scenario.birthYears[SPOUSE],spouseLifeExpectancy,simulatedYear)
@@ -162,44 +104,42 @@ async function simulation(threadData : threadData){
 
             //Calculate brackets after inflation
             currentYearTaxBrackets = adjustTaxBracketsForInflation(previousYearTaxBrackets,inflationRate)
-            //TODO: Calculate annual limits on retirement account contributions after inflation
+            //Calculate annual limits on retirement account contributions after inflation
             const newAfterTaxContributionLimit = adjustRetirementAccountContributionLimit(scenario,inflationRate)
             scenario.afterTaxContributionLimit = newAfterTaxContributionLimit
             
             //Income events
-            const {totalEventIncome,totalSocialSecurityIncome, adjustedEvents,incomeLogMessages} = 
-            processIncome(scenario.eventSeries,inflationRate,spousalStatus,simulatedYear)
+            const processIncomeReturn = processIncome(scenario.eventSeries,inflationRate,spousalStatus,simulatedYear)
 
-            scenario.investments["cash"].value += totalEventIncome
-            currentYearValues.totalIncome += totalEventIncome
-            scenario.eventSeries = adjustedEvents
-            currentYearValues.totalSocialSecurityIncome += totalSocialSecurityIncome
-            pushToLog(logStream,incomeLogMessages.join("\n"))
+            scenario.investments["cash"].value += processIncomeReturn.totalEventIncome
+            currentYearValues.totalIncome += processIncomeReturn.totalEventIncome
+            scenario.eventSeries = processIncomeReturn.adjustedEvents
+            currentYearValues.totalSocialSecurityIncome += processIncomeReturn.totalSocialSecurityIncome
+            pushToLog(logStream,processIncomeReturn.incomeLogMessages.join("\n"))
 
             //Perform RMD
             if(age >= 74 && Object.values(scenario.investments).some((investment) => investment.taxStatus == "pre-tax")){
                 if(Object.keys(RMDTable).length === 0){
                     RMDTable = await RMDScraper()
                 }
-                const {RMDIncome, adjustedAccounts,RMDLogMessages} = performRMD(scenario.investments, scenario.RMDStrategy,RMDTable,age,simulatedYear)
-                currentYearValues.totalIncome += RMDIncome
-                scenario.investments = adjustedAccounts
-                pushToLog(logStream,RMDLogMessages.join("\n"))
+                const RMDReturn = performRMD(scenario.investments, scenario.RMDStrategy,RMDTable,age,simulatedYear)
+                currentYearValues.totalIncome += RMDReturn.RMDIncome
+                scenario.investments = RMDReturn.adjustedAccounts
+                pushToLog(logStream,RMDReturn.RMDLogMessages.join("\n"))
 
             }  
 
             //Update the value of investments
-            const {totalInvestmentIncome, updatedAccounts} = updateInvestments(scenario.investmentTypes,scenario.investments)
-            scenario.investments = updatedAccounts
-            currentYearValues.totalIncome += totalInvestmentIncome
+            const updateInvestmentReturn = updateInvestments(scenario.investmentTypes,scenario.investments)
+            scenario.investments = updateInvestmentReturn.updatedAccounts
+            currentYearValues.totalIncome += updateInvestmentReturn.totalInvestmentIncome
 
             //Run roth conversion optimizer if conditions allow
             if(scenario.RothConversionOpt == true && simulatedYear >= scenario.RothConversionStart && simulatedYear <= scenario.RothConversionEnd){
-                const {adjustedAccounts, rothConversionIncome,rothConversionLogMessages } = rothConversionOptimizer(scenario.RothConversionStrategy,scenario.investments,currentYearTaxBrackets["Federal"],
-                    currentYearValues.totalIncome,filingStatus,simulatedYear)
-                scenario.investments = adjustedAccounts
-                currentYearValues.totalIncome += rothConversionIncome
-                pushToLog(logStream,rothConversionLogMessages.join('\n'))
+                const rothConversionReturn = rothConversionOptimizer(scenario,currentYearTaxBrackets["Federal"],currentYearValues.totalIncome,filingStatus,simulatedYear)
+                scenario.investments = rothConversionReturn.adjustedAccounts
+                currentYearValues.totalIncome += rothConversionReturn.rothConversionIncome
+                pushToLog(logStream,rothConversionReturn.rothConversionLogMessages.join('\n'))
             }
 
             //Determine and pay taxes and non-discretionary expenses
@@ -227,11 +167,17 @@ async function simulation(threadData : threadData){
             currentYearValues.totalEarlyWithdrawal += descExpenseReturn.earlyWithdrawal
             pushToLog(logStream,descExpenseReturn.discExpenseLogMessages.join('\n'))
 
-            const investReturn = processInvestEvent(scenario,simulatedYear)
+            const investReturn = processInvestEvent(scenario,simulatedYear,purchaseLedger)
             scenario.investments = investReturn.adjustedAccounts
+            purchaseLedger = investReturn.adjustedPurchaseLedger
             pushToLog(logStream,investReturn.logMessages.join('\n'))
 
-            //processRebalanceEvent()
+            const rebalanceReturn = processRebalanceEvent(scenario,simulatedYear,purchaseLedger)
+            scenario.investments = rebalanceReturn.adjustedAccounts
+            purchaseLedger = rebalanceReturn.adjustedPurchaseLedger
+            pushToLog(logStream,rebalanceReturn.logMessages.join('\n'))
+            currentYearValues.totalCapitalGains += rebalanceReturn.totalCapitalGain
+
             simulatedYear += 1
             prevYearValues = currentYearValues
             previousYearTaxBrackets = currentYearTaxBrackets
@@ -293,32 +239,8 @@ function calculateSpousalLifeExpectancy(scenario : Scenario){
         }
     }
 }
-/**
- * Description placeholder
- *
- * @param {Scenario} scenario 
- * @returns {number} 
- */
-function calculateInflation(scenario : Scenario): number{
-    const inflationAssumption = scenario.inflationAssumption
-    if(inflationAssumption.type == "fixed"){
-        return inflationAssumption.value
-    }else if(inflationAssumption.type == "normal"){
-        return PB.rnorm(1,inflationAssumption.mean,inflationAssumption.stdev)[0]
-    }else{
-        return PB.rint(1,inflationAssumption.min,inflationAssumption.max, 1)[0]
-    }
-}
-function resolveInvestmentTypeDistribution(distribution : IncomeDistribution | ReturnDistribution): number{
-    if(distribution.type == "fixed"){
-        return distribution.value
-    }else if(distribution.type == "normal"){
-        return PB.rnorm(1,distribution.mean,distribution.stdev)[0]
-    }else{
-        return PB.rint(1,distribution.min,distribution.max, 1)[0]
-    }
-}
-function calculateChangeDistribution(distribution : EventDistribution): number{
+
+function resolveDistribution(distribution : EventDistribution): number{
     if(distribution.type == "fixed"){
         return distribution.value
     }else if(distribution.type == "normal"){
@@ -507,7 +429,7 @@ function processIncome(scenarioEvents : Record<string,ScenarioEvent>, inflationR
             const modifiedEvent = structuredClone(currentEvent)
 
             //Determine next year's income
-            const incomeChange = calculateChangeDistribution(currentEvent.event.changeDistribution)
+            const incomeChange = resolveDistribution(currentEvent.event.changeDistribution)
             if(currentEvent.event.changeAmountOrPercent == "amount"){
                 adjustedEventIncome = currentEvent.event.initialAmount + incomeChange
             }else if(currentEvent.event.changeAmountOrPercent == "percent"){
@@ -637,18 +559,18 @@ function updateInvestments(investmentDataRecord : Record<string,InvestmentType>,
 
         //Determine investment returns from dividends and interest
         if(currentInvestmentData.returnAmtOrPct == "amount"){
-            investmentValueChange = resolveInvestmentTypeDistribution(currentInvestmentData.returnDistribution)
+            investmentValueChange = resolveDistribution(currentInvestmentData.returnDistribution)
         }else if(currentInvestmentData.returnAmtOrPct == "percent"){
-            investmentValueChange = account.value * resolveInvestmentTypeDistribution(currentInvestmentData.returnDistribution)
+            investmentValueChange = account.value * resolveDistribution(currentInvestmentData.returnDistribution)
         }else{
             throw new Error("Invalid value change type")
         }
 
         //Determine income
         if(currentInvestmentData.incomeAmtOrPct == "amount"){
-            investmentIncome = resolveInvestmentTypeDistribution(currentInvestmentData.incomeDistribution)
+            investmentIncome = resolveDistribution(currentInvestmentData.incomeDistribution)
         }else if(currentInvestmentData.incomeAmtOrPct == "percent"){
-            investmentIncome = account.value * resolveInvestmentTypeDistribution(currentInvestmentData.incomeDistribution)
+            investmentIncome = account.value * resolveDistribution(currentInvestmentData.incomeDistribution)
         }else{
             throw new Error("Invalid income change type")
         }
@@ -677,9 +599,10 @@ function updateInvestments(investmentDataRecord : Record<string,InvestmentType>,
  * Conducts an in-kind transfer of assets from pre-tax retirement accounts 
  * to after-tax retirement accounts to minimize lifetime income tax.
 */
-function rothConversionOptimizer(rothConversionStrategy : string[], accounts : Record<string,Investment>,federalTaxBracket : FederalTax, 
-    currentYearIncome : number, filingStatus: number, year : number){
+function rothConversionOptimizer(scenario : Scenario,federalTaxBracket : FederalTax, currentYearIncome : number, filingStatus: number, year : number){
     
+    const rothConversionStrategy = scenario.RothConversionStrategy
+    const accounts = scenario.investments
     const rothConversionLogMessages : string[] = []
     let incomeTaxBracket : taxBracketType[];
     const adjustedAccounts : Record<string,Investment> = structuredClone(accounts)
@@ -871,8 +794,8 @@ function determineTaxBurden(taxBrackets: TaxBracketContainer, prevYearValues: An
     return newExpenseSeries
 }
 
-function determineTaxableCapitalGain(purchaseLedger : number[], withdrawalAmount : number, investmentValue : number){
-    const purchasePrice = purchaseLedger.reduce((total,price)=>{
+function determineTaxableCapitalGain(currentPurchaseLedger : number[], withdrawalAmount : number, investmentValue : number){
+    const purchasePrice = currentPurchaseLedger.reduce((total,price)=>{
         return total += price
     },0.0)
     
@@ -1028,7 +951,7 @@ function determineExpenseValueChange(event : ScenarioEvent,inflationRate : numbe
     }
 
     let adjustedEventExpense
-    const incomeChange = calculateChangeDistribution(event.event.changeDistribution)
+    const incomeChange = resolveDistribution(event.event.changeDistribution)
     if(event.event.changeAmountOrPercent == "amount"){
         adjustedEventExpense = event.event.initialAmount + incomeChange
     }else if(event.event.changeAmountOrPercent == "percent"){
@@ -1089,14 +1012,6 @@ function determineTaxFromWithdrawal(account : Investment, investmentData : Inves
 
 }
 
-interface payDiscExpensesReturn {
-    adjustedAccounts : Record<string,Investment>,
-    adjustedEventSeries : Record<string,ScenarioEvent>,
-    totalIncome : number,
-    earlyWithdrawal : number,
-    totalCapitalGain : number,
-    discExpenseLogMessages : string[]
-}
 /** Description placeholder */
 function payDiscretionaryExpenses(scenario : Scenario, purchaseLedger : Record<string,number[]>, age : number,spousalStatus : boolean,inflationRate : number,year : number) : payDiscExpensesReturn{
 
@@ -1193,23 +1108,23 @@ function payDiscretionaryExpenses(scenario : Scenario, purchaseLedger : Record<s
 
 }
 
-function determineInvestmentAllocation(investEvent : ScenarioEvent,currentYear : number){
-    if(investEvent.event.type != "invest"){
-        throw new Error("Invalid Invest Event")
+function determineAllocation(allocationEvent : ScenarioEvent,currentYear : number){
+    if(allocationEvent.event.type != "invest" && allocationEvent.event.type != "rebalance" ){
+        throw new Error("Invalid Event: Allocations do not exist for this event")
     }
-
-    if(investEvent.start.type != "fixed" || investEvent.duration.type != "fixed"){
+    
+    if(allocationEvent.start.type != "fixed" || allocationEvent.duration.type != "fixed"){
         throw new Error("Event not resolved")
     }
 
     let currentYearAllocations : Record<string,number>
 
-    if(investEvent.event.glidePath == true){
-        const yearsIntoEvent = (investEvent.start.value+investEvent.duration.value) - currentYear
-        const startingAllocations = investEvent.event.assetAllocation
-        const endingAllocations = investEvent.event.assetAllocation2
+    if(allocationEvent.event.glidePath == true){
+        const yearsIntoEvent = (allocationEvent.start.value+allocationEvent.duration.value) - currentYear
+        const startingAllocations = allocationEvent.event.assetAllocation
+        const endingAllocations = allocationEvent.event.assetAllocation2
         currentYearAllocations = {}
-        const duration = investEvent.duration.value
+        const duration = allocationEvent.duration.value
         
 
         Object.entries(startingAllocations).forEach(([assetType,initalProportion]) =>{
@@ -1225,23 +1140,23 @@ function determineInvestmentAllocation(investEvent : ScenarioEvent,currentYear :
         
         
     }else{
-        currentYearAllocations = investEvent.event.assetAllocation
+        currentYearAllocations = allocationEvent.event.assetAllocation
     }
 
     return currentYearAllocations
 }
 
 /** Non-retirement or after tax */
-function processInvestEvent(scenario: Scenario,year : number){
+function processInvestEvent(scenario: Scenario,year : number,purchaseLedger : Record<string, number[]>){
     const logMessages : string[] = []
     const afterTaxContributionLimit = scenario.afterTaxContributionLimit
     const investEvent = Object.values(scenario.eventSeries).find((event) => event.event.type == "invest")
     const cash = scenario.investments["cash"]
-    const investmentData = scenario.investmentTypes
     const adjustedAccounts = structuredClone(scenario.investments)
+    const adjustedPurchaseLedger = structuredClone(purchaseLedger)
 
     if(investEvent == null || hasEventStarted(investEvent,year) == false){
-        return {adjustedAccounts,logMessages}
+        return {adjustedAccounts,adjustedPurchaseLedger,logMessages}
     }
 
     if(investEvent.event.type != "invest"){
@@ -1250,12 +1165,12 @@ function processInvestEvent(scenario: Scenario,year : number){
     if(cash == null){
         throw new Error("No cash investment")
     }
-    const currYearInvestmentAllocation = determineInvestmentAllocation(investEvent,year)
+    const currYearInvestmentAllocation = determineAllocation(investEvent,year)
 
     const excessCash = cash.value - investEvent.event.maxCash
 
     if(excessCash < 0){
-        return {adjustedAccounts,logMessages}
+        return {adjustedAccounts,adjustedPurchaseLedger,logMessages}
     }else{
         //Determine how the excess cash is distributed
 
@@ -1289,61 +1204,25 @@ function processInvestEvent(scenario: Scenario,year : number){
         //Make the necessary investments
         Object.entries(realizedInvestmentAllocations).map(([asset,contribution]) =>{
             adjustedAccounts[asset].value += contribution
+            adjustedPurchaseLedger[asset].push(contribution)
             logMessages.push(investLogMessage(year,contribution,asset))
         })
 
 
     }
 
-    return {adjustedAccounts,logMessages}
-}
-
-function determineRebalanceAllocation(rebalanceEvent : ScenarioEvent, currentYear : number){
-    if(rebalanceEvent.event.type != "rebalance"){
-        throw new Error("Invalid Rebalance Event")
-    }
-
-    if(rebalanceEvent.start.type != "fixed" || rebalanceEvent.duration.type != "fixed"){
-        throw new Error("Event not resolved")
-    }
-
-    let currentYearAllocations : Record<string,number>
-
-    if(rebalanceEvent.event.glidePath == true){
-        const yearsIntoEvent = (rebalanceEvent.start.value+rebalanceEvent.duration.value) - currentYear
-        const startingAllocations = rebalanceEvent.event.assetAllocation
-        const endingAllocations = rebalanceEvent.event.assetAllocation2
-        currentYearAllocations = {}
-        const duration = rebalanceEvent.duration.value
-        
-
-        Object.entries(startingAllocations).forEach(([assetType,initalProportion]) =>{
-            const finalProportion = endingAllocations[assetType]
-            if(finalProportion == null){
-                throw new Error("No corresponding proportion")
-            }
-
-            const rate = (finalProportion-initalProportion)/duration
-            currentYearAllocations[assetType] = rate*yearsIntoEvent+initalProportion
-            
-        })
-        
-        
-    }else{
-        currentYearAllocations = rebalanceEvent.event.assetAllocation
-    }
-
-    return currentYearAllocations
+    return {adjustedAccounts,adjustedPurchaseLedger,logMessages}
 }
 /** This is a description of the foo function. */
-function processRebalanceEvent(scenario : Scenario,year : number){
+function processRebalanceEvent(scenario : Scenario,year : number,purchaseLedger : Record<string, number[]>){
     const logMessages : string[] = []
-    const allRebalanceEvents = Object.values(scenario.eventSeries).filter((event) => event.event.type == "rebalance")
-    const investmentData = scenario.investmentTypes
+    const allRebalanceEvents = Object.values(scenario.eventSeries).filter((event) => event.event.type == "rebalance" && hasEventStarted(event,year))
     const adjustedAccounts = structuredClone(scenario.investments)
+    const adjustedPurchaseLedger = structuredClone(purchaseLedger)
+    let totalCapitalGain = 0.0
 
     if(allRebalanceEvents.length == 0){
-        return {adjustedAccounts,logMessages}
+        return {totalCapitalGain,adjustedAccounts,adjustedPurchaseLedger,logMessages}
     }
     
     for(const rebalanceEvent of allRebalanceEvents){
@@ -1352,7 +1231,37 @@ function processRebalanceEvent(scenario : Scenario,year : number){
         }
 
         const taxStatus = rebalanceEvent.event.taxStatus
+        const targetAllocation = determineAllocation(rebalanceEvent,year)
+        const totalValue = Object.keys(targetAllocation).reduce((totalValue,asset) => totalValue += adjustedAccounts[asset].value,0.0)
+
+        const realizedTargetAllocations : Record<string,number> = {}
+
+        Object.entries(targetAllocation).forEach(([asset,proportion]) =>{
+            realizedTargetAllocations[asset] = totalValue*proportion
+        })
+
+        Object.entries(realizedTargetAllocations).forEach(([asset,targetValue]) =>{
+            const targetAccount = adjustedAccounts[asset]
+            const currPurchaseLedger = adjustedPurchaseLedger[asset]
+            if(targetAccount.value > targetValue){
+                //This is considered a sale
+                const saleValue = targetAccount.value - targetValue
+                if(taxStatus == "non-retirement"){
+                    totalCapitalGain += saleValue
+                }
+            }else{
+                //This is considered a purchase
+                const purchaseAmount = targetValue - targetAccount.value
+                if(taxStatus == "non-retirement"){
+                    currPurchaseLedger.push(purchaseAmount)
+                }
+            }
+            targetAccount.value = targetValue
+            
+        })
     }
+
+    return {totalCapitalGain,adjustedAccounts,adjustedPurchaseLedger,logMessages}
 }
 worker({
     simulation : simulation

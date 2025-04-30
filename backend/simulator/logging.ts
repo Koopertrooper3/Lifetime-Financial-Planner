@@ -38,3 +38,6 @@ export async function closeCSVlog(writeStream : WriteStream){
     writeStream.end()
     await finished(writeStream)
 }
+export function pushToLog(logStream : WriteStream, message : string){
+    logStream.write(message)
+}

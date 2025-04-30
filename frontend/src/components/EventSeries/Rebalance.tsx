@@ -2,7 +2,8 @@ import { useState } from "react";
 import AllocationTable from "../shared/AllocationTable";
 import AllocationTypeSelector from "../shared/AllocationTypeSelector";
 import "../../stylesheets/EventSeries/Rebalance.css";
-import { Investment, assetProportion } from "../../useScenarioContext";
+import { Investment } from "../../../../backend/db/InvestmentSchema";
+import { assetProportion } from "../../../../backend/db/EventSchema";
 
 interface EventSeriesRebalanceProps {
   allocationType: "Fixed" | "Glide Path";
@@ -17,8 +18,8 @@ interface EventSeriesRebalanceProps {
   setEndYear: (year: string) => void;
   maxCashHoldings: string;
   setMaxCashHoldings: (amount: string) => void;
-  taxStatus: "Pre-Tax" | "After-Tax" | "Non-Retirement";
-  setTaxStatus: (type: "Pre-Tax" | "After-Tax" | "Non-Retirement") => void;
+  taxStatus: "pre-tax" | "after-tax" | "non-retirement";
+  setTaxStatus: (type: "pre-tax" | "after-tax" | "non-retirement") => void;
 }
 
 const EventSeriesRebalance = ({
@@ -50,8 +51,8 @@ const EventSeriesRebalance = ({
             type="radio"
             name="taxStatus"
             value="Pre-Tax"
-            onChange={() => setTaxStatus("Pre-Tax")}
-            checked={taxStatus === "Pre-Tax"}
+            onChange={() => setTaxStatus("pre-tax")}
+            checked={taxStatus === "pre-tax"}
           />
           Pre-Tax
         </label>
@@ -60,8 +61,8 @@ const EventSeriesRebalance = ({
             type="radio"
             name="taxStatus"
             value="After-Tax"
-            onChange={() => setTaxStatus("After-Tax")}
-            checked={taxStatus === "After-Tax"}
+            onChange={() => setTaxStatus("after-tax")}
+            checked={taxStatus === "after-tax"}
           />
           After-Tax
         </label>
@@ -70,8 +71,8 @@ const EventSeriesRebalance = ({
             type="radio"
             name="taxStatus"
             value="Non-Retirement"
-            onChange={() => setTaxStatus("Non-Retirement")}
-            checked={taxStatus === "Non-Retirement"}
+            onChange={() => setTaxStatus("non-retirement")}
+            checked={taxStatus === "non-retirement"}
           />
           Non-Retirement
         </label>
