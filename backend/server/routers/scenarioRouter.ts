@@ -64,6 +64,12 @@ router.post("/create", async (req, res) => {
     }
 });
 
+const editScenarioZod = z.object({
+  userID: z.string(),
+  scenarioID: z.string(),
+  updatedFields: scenarioZod._def.schema.partial()
+});
+
 // when editing a scenario, the route expects two main fields: userID, scenario._id, and scenario
 router.post("/edit", async (req, res) => {
   console.log("/scenario/edit hit");
@@ -71,7 +77,7 @@ router.post("/edit", async (req, res) => {
   try {
       console.log("Incoming body:", req.body);
       
-      createScenarioZod.partial().parse(req.body); // Allows partial updates
+      editScenarioZod.parse(req.body); // Allows partial updates
 
       // now check to see if the user with userID exists, failure will throw error
       const user = await User.findById(req.body.userID);
@@ -79,12 +85,16 @@ router.post("/edit", async (req, res) => {
           throw new Error("User does not exist");
       }
 
+      console.log("Edit Scenario Backend After user: ", req.body);
+
       // Update ONLY the specified fields using `$set`
       const updatedScenario = await scenarioModel.findOneAndUpdate(
-          { _id: req.body.scenarioID, user: req.body.userID }, // Ensure user owns the scenario
+          { _id: req.body.scenarioID }, 
           { $set: req.body.updatedFields }, // Only updates provided fields
           { new: true } // Return the updated document
       );
+
+      console.log("Edit Scenario Backend After findOneAndUpdate: ", updatedScenario);
 
       if (!updatedScenario) {
           throw new Error("Scenario not found or user mismatch");

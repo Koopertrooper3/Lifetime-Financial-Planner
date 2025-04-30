@@ -1,6 +1,6 @@
 import "../stylesheets/AddPlan.css";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
-import { useState } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useScenarioContext } from "../useScenarioContext";
 import { Scenario } from "../../../backend/db/Scenario";
@@ -31,6 +31,10 @@ const AddPlan = () => {
     setEditScenario,
   } = useScenarioContext();
 
+  useEffect(() => {
+    console.log("Current lifeExpectancy:", lifeExpectancy);
+  }, [lifeExpectancy]);
+
   const { allScenarios, fetchAllScenarios } = useHelperContext();
 
   const navigate = useNavigate();
@@ -60,6 +64,7 @@ const AddPlan = () => {
 
   const handleClick = async () => {
     const currentUserId = await getId();
+    console.log("Raw lifeExpectancy:", lifeExpectancy);
 
     const scenario = {
       name: name,
@@ -81,6 +86,7 @@ const AddPlan = () => {
       RothConversionEnd: RothConversionEnd,
       RothConversionStrategy: RothConversionStrategy,
     };
+    console.log("Add Plan: investmentType: ", investmentTypes);
     console.log("Add Plan: currentUserID: ", currentUserId);
     console.log("Add Plan: scenario: ", scenario);
     await handleSaveScenario(currentUserId, scenario);

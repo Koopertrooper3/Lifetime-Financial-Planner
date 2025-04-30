@@ -46,7 +46,7 @@ const investEventSchema = baseEventSchema.extend({
 
 const rebalanceEventSchema = baseEventSchema.extend({
   type: z.literal("rebalance"),
-  taxStatus: z.enum(["Pre-Tax","After-Tax","Non-Retirement","pre-tax","after-tax","non-retirement"]).optional(),
+  taxStatus: z.enum(["Pre-tax","After-tax","Non-retirement","pre-tax","after-tax","non-retirement"]).optional(),
   assetAllocation: assetAllocationSchema,
   glidePath: z.boolean().optional(),
   assetAllocation2: assetAllocationSchema.optional(),

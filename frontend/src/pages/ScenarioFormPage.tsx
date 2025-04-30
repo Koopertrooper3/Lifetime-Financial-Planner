@@ -41,6 +41,8 @@ export default function ScenarioFormPage() {
     setRothConversionEnd,
     setRothConversionStrategy,
     editScenario,
+    setEditInvestmentType,
+    setEditEventSeries,
   } = useScenarioContext();
 
   const handleCancel = () => {
@@ -72,12 +74,20 @@ export default function ScenarioFormPage() {
   };
 
   useEffect(() => {
+    console.log("Scenario Form Page Investment Type: ", investmentTypes);
+  }, [investmentTypes]);
+
+  useEffect(() => {
     if (editScenario) {
       setName(editScenario.name);
       setMaritalStatus(editScenario.maritalStatus);
       setBirthYears(editScenario.birthYears);
       setLifeExpectancy(editScenario.lifeExpectancy);
       setInvestmentTypes(editScenario.investmentTypes);
+      console.log(
+        "scenario form page, use effect: ",
+        editScenario.investmentTypes
+      );
       setInvestments(editScenario.investments);
       setEventSeries(editScenario.eventSeries);
       setInflationAssumption(editScenario.inflationAssumption);
@@ -103,12 +113,22 @@ export default function ScenarioFormPage() {
       return user._id;
     })();
     const scenarioID = editScenario._id;
+    // Removes the _id from life expectancy
+    const cleanedLifeExpectancy = lifeExpectancy.map((item) => {
+      if ("_id" in item) {
+        const { _id, ...rest } = item;
+        return rest;
+      }
+      return item;
+    });
     const updatedFields = {
       name: name,
       maritalStatus: maritalStatus,
       birthYears: birthYears,
-      lifeExpectancy: lifeExpectancy,
+      lifeExpectancy: cleanedLifeExpectancy,
     };
+    console.log("Scenario Form Page: ", updatedFields);
+    console.log("Scenario Form Page: ", editScenario._id);
     await handleEditScenario(userID, scenarioID, updatedFields);
     navigate(`/scenario/${scenarioID}`);
   };
@@ -146,7 +166,7 @@ export default function ScenarioFormPage() {
       <div className="financial-goal-container">
         <h3 className="purple-title">Financial Goal</h3>
         <ValidationTextFields
-          value={financialGoal || ""}
+          value={financialGoal ?? ""}
           placeholder="Enter amount"
           setInput={(val) => setFinancialGoal(Number(val))}
           inputType="number"
@@ -481,20 +501,19 @@ export default function ScenarioFormPage() {
             title="Investment Types"
             description="An investment type represents an account or vehicle used to grow or
           preserve assets."
-            data={investmentTypes}
+            data={Object.values(investmentTypes)}
             emptyMessage="This plan does not contain any new investment types."
             renderAttribute={(investmentType) =>
               investmentType.taxability ? "Taxable" : "Tax-exempt"
             }
           ></SelectionTable>
-          {editScenario === null && (
-            <Link
-              to="/dashboard/createScenario/addNewInvestmentType"
-              className="add-investment-type-container"
-            >
-              Add New Investment Type
-            </Link>
-          )}
+          <Link
+            to="/dashboard/createScenario/addNewInvestmentType"
+            className="add-investment-type-container"
+            onClick={() => setEditInvestmentType(null)}
+          >
+            Add New Investment Type
+          </Link>
         </div>
 
         {/*Event Series*/}
@@ -509,18 +528,17 @@ export default function ScenarioFormPage() {
           <SelectionTable
             title="Event Series"
             description="An event series represents recurring income, expenses, or investment activity over time."
-            data={eventSeries}
+            data={Object.values(eventSeries)}
             emptyMessage="This plan does not contain any new event series."
-            renderAttribute={(event) => event.event.type}
+            renderAttribute={(event) => event?.event?.type}
           ></SelectionTable>
-          {editScenario === null && (
-            <Link
-              to="/dashboard/createScenario/addNewEventSeries"
-              className="add-event-series-container"
-            >
-              Add New Event Series
-            </Link>
-          )}
+          <Link
+            to="/dashboard/createScenario/addNewEventSeries"
+            className="add-event-series-container"
+            onClick={() => setEditEventSeries(null)}
+          >
+            Add New Event Series
+          </Link>
         </div>
 
         {/*Inflation & Contribution Limits*/}

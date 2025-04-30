@@ -37,7 +37,7 @@ export default function SelectionTable({
     <CollapsibleWrapper title={title} initiallyOpen={true}>
       <p className="grayed-text">{description}</p>
 
-      {data?.length === 0 ? (
+      {Object.entries(data)?.length === 1 ? (
         <p>{emptyMessage}</p>
       ) : (
         <>

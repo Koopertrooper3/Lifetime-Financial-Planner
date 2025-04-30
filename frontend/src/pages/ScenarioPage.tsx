@@ -129,8 +129,8 @@ export default function ScenarioPage() {
           <div>
             Birth Year:
             {scenario.maritalStatus === "couple"
-              ? `${scenario.birthYear[0]}, ${scenario.birthYear[1]}`
-              : scenario.birthYear[0]}
+              ? `${scenario.birthYears[0]}, ${scenario.birthYears[1]}`
+              : scenario.birthYears[0]}
           </div>
           <div>Residence State: {scenario.residenceState}</div>
         </div>
