@@ -59,7 +59,11 @@ router.post("/create", async (req, res) => {
 
         await user?.save()
 
-        console.log(`scenario added to user ${user.name}, added Scenario: ${req.body.scenario}`)
+        let test = await scenarioModel.findById(newScenario._id)
+        console.log("The following scenario just got added: ");
+        console.log(test);
+
+        console.log(`scenario added to user ${user.name}`)
         res.status(200).send({ message: "Scenario created successfully", scenarioID: newScenario._id });
     } catch (error) {
         console.error("Error creating scenario:", error);
