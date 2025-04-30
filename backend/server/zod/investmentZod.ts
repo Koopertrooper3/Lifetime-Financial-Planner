@@ -4,7 +4,7 @@ export default z.object({
     id: z.string(),
     investmentType: z.string(),
     value: z.number(),
-    taxStatus: z.enum(["Pre-tax","After-tax","Non-retirement","pre-tax","after-tax","non-retirement"], {
-        errorMap: () => ({ message: "tax status must be `Non-Retirement`, `Pre-tax` or `After-tax`"})
+    taxStatus: z.enum(["pre-tax","after-tax","non-retirement"], {
+        errorMap: () => ({ message: "tax status must be `non-retirement`, `pre-tax` or `after-tax`"})
     })
 }).strict();

@@ -6,7 +6,7 @@ import eventZod from './eventZod';
 
 export default z.object({
     name: z.string().min(1, "Name is required and currently empty"),
-    maritalStatus: z.enum(["couple", "Couple", "individual", "Individual"], {
+    maritalStatus: z.enum(["couple", "individual"], {
         errorMap: () => ({ message: "Marital status must be either 'couple' or 'individual'" }),
     }),
     birthYears: z.array(z.number().min(0, "birthYears can't be negative")),

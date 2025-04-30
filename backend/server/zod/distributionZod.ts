@@ -1,12 +1,12 @@
 import z from "zod";
 
 const fixedDistribution = z.object({
-  type: z.enum(["Fixed", "fixed"]),
+  type: z.literal("fixed"),
   value: z.number()
 }).strict();
 
 const normalDistribution = z.object({
-  type: z.enum(["Normal", "normal"]),
+  type: z.literal("normal"),
   mean: z.number(),
   stdev: z.number(),
   // Make min/max optional for normal distribution
@@ -15,7 +15,7 @@ const normalDistribution = z.object({
 }).strict();
 
 const uniformDistribution = z.object({
-  type: z.enum(["uniform", "Uniform"]),
+  type: z.literal("uniform"),
   // Using both lower/upper AND min/max for compatibility
   lower: z.number(),
   upper: z.number(),

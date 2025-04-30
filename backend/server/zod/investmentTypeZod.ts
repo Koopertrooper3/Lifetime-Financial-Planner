@@ -4,12 +4,12 @@ import distributionZod from "./distributionZod";
 export default z.object({
     name: z.string().min(1, "Name is required"),
     description: z.string().optional(),
-    returnAmtOrPct: z.enum(["Amount", "Percent", "amount", "percent"], {
+    returnAmtOrPct: z.enum(["amount", "percent"], {
         errorMap: () => ({ message: "returnAmtOrPct must be either 'amount' or 'percent'" }),
     }),
     returnDistribution: distributionZod,
     expenseRatio: z.number().min(0, "Expense ratio cannot be negative"),
-    incomeAmtOrPct: z.enum(["Amount", "Percent", "amount", "percent"], {
+    incomeAmtOrPct: z.enum(["amount", "percent"], {
         errorMap: () => ({message: "Income type must be 'amount' or 'percent'"}),
     }),
     incomeDistribution: distributionZod,
