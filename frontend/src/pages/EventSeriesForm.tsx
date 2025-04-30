@@ -73,8 +73,8 @@ export default function EventSeriesForm() {
       setStartYear(editEventSeries.start?.value || "");
       setMeanYear(editEventSeries.start?.mean || "");
       setStdDevYear(editEventSeries.start?.stdev || "");
-      setLowerBoundYear(editEventSeries.start?.min || "");
-      setUpperBoundYear(editEventSeries.start?.max || "");
+      setLowerBoundYear(editEventSeries.start?.lower || "");
+      setUpperBoundYear(editEventSeries.start?.upper || "");
       setWithOrAfter(editEventSeries.start?.withOrAfter || "");
       setSelectedEvent(editEventSeries.start?.event || "");
 
@@ -85,8 +85,8 @@ export default function EventSeriesForm() {
       setDurationValue(editEventSeries.duration?.value || "");
       setMeanDuration(editEventSeries.duration?.mean || "");
       setStdDuration(editEventSeries.duration?.stdev || "");
-      setLowerBoundDuration(editEventSeries.duration?.min || "");
-      setUpperBoundDuration(editEventSeries.duration?.max || "");
+      setLowerBoundDuration(editEventSeries.duration?.lower || "");
+      setUpperBoundDuration(editEventSeries.duration?.upper || "");
 
       // Event Type
       setEventType(editEventSeries.event?.type || "");
@@ -182,8 +182,8 @@ export default function EventSeriesForm() {
     } else if (startYearModel === "Uniform Distribution") {
       start = {
         type: "uniform",
-        min: Number(lowerBoundYear),
-        max: Number(upperBoundYear),
+        lower: Number(lowerBoundYear),
+        upper: Number(upperBoundYear),
       };
     } else if (startYearModel === "EventBased") {
       start = {
@@ -212,8 +212,8 @@ export default function EventSeriesForm() {
     } else if (durationType === "Uniform Distribution") {
       duration = {
         type: "uniform",
-        min: Number(lowerBoundDuration),
-        max: Number(upperBoundDuration),
+        lower: Number(lowerBoundDuration),
+        upper: Number(upperBoundDuration),
       };
     } else {
       throw new Error("Invalid duration type selected");
@@ -233,8 +233,8 @@ export default function EventSeriesForm() {
             }
           : {
               type: "uniform",
-              min: Number(incomeLowerBound),
-              max: Number(incomeUpperBound),
+              lower: Number(incomeLowerBound),
+              upper: Number(incomeUpperBound),
             };
 
       event = {
@@ -258,8 +258,8 @@ export default function EventSeriesForm() {
             }
           : {
               type: "uniform",
-              min: Number(expenseLowerBound),
-              max: Number(expenseUpperBound),
+              lower: Number(expenseLowerBound),
+              upper: Number(expenseUpperBound),
             };
 
       event = {
@@ -350,11 +350,26 @@ export default function EventSeriesForm() {
     }
 
     // ============ Event Series ============
+    // const newEventSeries: Event = {
+    //   name: String(eventSeriesName),
+    //   start: start,
+    //   duration: duration,
+    //   event: event,
+    // };
+
     const newEventSeries: Event = {
-      name: String(eventSeriesName),
-      start: start,
-      duration: duration,
-      event: event,
+      name: "salary",
+      start: { type: "fixed", value: 2025 },
+      duration: { type: "fixed", value: 40 },
+      event: {
+        type: "income",
+        initialAmount: 75000,
+        changeAmountOrPercent: "amount",
+        changeDistribution: { type: "uniform", lower: 500, upper: 2000 },
+        inflationAdjusted: false,
+        userFraction: 1.0,
+        socialSecurity: false,
+      },
     };
 
     const updatedEventSeries = { ...eventSeries };

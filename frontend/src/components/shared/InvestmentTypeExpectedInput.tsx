@@ -2,6 +2,7 @@ import ToggleSwitch from "./ToggleSwitch";
 import "../../stylesheets/InvestmentType/ExpectedInput.css";
 import { ExpectedInputProps } from "../../interfaces/InvestmentType/ExpectedInput";
 import ValidationTextFields from "./ValidationTextFields";
+import { useEffect } from "react";
 
 const ExpectedInput = ({
   inputType,
@@ -15,6 +16,10 @@ const ExpectedInput = ({
   stdDev = "",
   setStdDev = () => {},
 }: ExpectedInputProps) => {
+  // useEffect(() => {
+
+  // }, [editEventSeries])
+
   const labels = {
     return: {
       description: "Enter the Annual Return",
