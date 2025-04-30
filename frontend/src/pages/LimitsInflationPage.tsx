@@ -56,8 +56,8 @@ export function LimitsInflationPage() {
 
       case "uniform":
         setInflationDistributionType("Uniform Distribution");
-        setLowerBound(inflationAssumption.min);
-        setUpperBound(inflationAssumption.max);
+        setLowerBound(inflationAssumption.lower);
+        setUpperBound(inflationAssumption.upper);
         break;
     }
 
@@ -110,8 +110,8 @@ export function LimitsInflationPage() {
       case "Uniform":
         inflationDistribution = {
           type: "uniform",
-          min: Number(lowerBound),
-          max: Number(upperBound),
+          lower: Number(lowerBound),
+          upper: Number(upperBound),
         };
         break;
     }
@@ -129,8 +129,12 @@ export function LimitsInflationPage() {
       afterTaxContributionLimit: Number(annualContribution),
     };
 
-    const data = await handleEditScenario(userID, scenarioID, updatedFields);
-    setEditScenario(data);
+    const response = await handleEditScenario(
+      userID,
+      scenarioID,
+      updatedFields
+    );
+    setEditScenario(response.data);
 
     navigate("/dashboard/createScenario");
   };
