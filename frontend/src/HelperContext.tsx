@@ -154,28 +154,29 @@ export const HelperContextProvider: React.FC<{ children: React.ReactNode }> = ({
   return (
     <HelperContext.Provider
       value={
-        isDebug
-          ? {
-              fetchScenario: async (id: string) =>
-                mockScenarios.find((s) => s._id === id),
-              fetchAllScenarios: async () => mockScenarios,
-              fetchSimulationResults: async () => mockSimulationResults,
-              setGlobalUserID,
-              userID,
-              allInvestmentTypes: mockInvestmentTypes,
-              allScenarios: mockScenarios,
-              handleEditScenario,
-            }
-          : {
-              fetchScenario,
-              fetchAllScenarios,
-              fetchSimulationResults,
-              setGlobalUserID,
-              userID,
-              allInvestmentTypes,
-              allScenarios,
-              handleEditScenario,
-            }
+        // isDebug
+        //   ? {
+        //       fetchScenario: async (id: string) =>
+        //         mockScenarios.find((s) => s._id === id),
+        //       fetchAllScenarios: async () => mockScenarios,
+        //       fetchSimulationResults: async () => mockSimulationResults,
+        //       setGlobalUserID,
+        //       userID,
+        //       allInvestmentTypes: mockInvestmentTypes,
+        //       allScenarios: mockScenarios,
+        //       handleEditScenario,
+        //     }
+        //   : {
+        {
+          fetchScenario,
+          fetchAllScenarios,
+          fetchSimulationResults,
+          setGlobalUserID,
+          userID,
+          allInvestmentTypes,
+          allScenarios,
+          handleEditScenario,
+        }
       }
     >
       {children}

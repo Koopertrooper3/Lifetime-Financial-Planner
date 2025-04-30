@@ -31,6 +31,7 @@ export default function EventSeriesForm() {
 
   useEffect(() => {
     if (editEventSeries) {
+      console.log(editEventSeries);
       const {
         setEventSeriesName,
 
@@ -185,12 +186,12 @@ export default function EventSeriesForm() {
         lower: Number(lowerBoundYear),
         upper: Number(upperBoundYear),
       };
-    } else if (startYearModel === "EventBased") {
-      start = {
-        type: "eventBased",
-        withOrAfter: withOrAfter,
-        event: selectedEvent,
-      };
+      // } else if (startYearModel === "EventBased") {
+      //   start = {
+      //     type: "eventBased",
+      //     withOrAfter: withOrAfter,
+      //     event: selectedEvent,
+      //   };
     } else {
       throw new Error("Invalid start year model selected");
     }
@@ -240,7 +241,7 @@ export default function EventSeriesForm() {
       event = {
         type: "income",
         initialAmount: Number(incomeInitialValue),
-        changeAmountOrPercent: isFixedIncomeAmount ? "amount" : "percent",
+        changeAmtOrPct: isFixedIncomeAmount ? "amount" : "percent",
         changeDistribution: incomeChangeDistribution,
         inflationAdjusted: applyInflation,
         userFraction: userPercentage / 100,
@@ -265,7 +266,7 @@ export default function EventSeriesForm() {
       event = {
         type: "expense",
         initialAmount: Number(expenseInitialAmount),
-        changeAmountOrPercent: isExpenseAmount ? "amount" : "percent",
+        changeAmtOrPct: isExpenseAmount ? "amount" : "percent",
         changeDistribution: expenseChangeDistribution,
         inflationAdjusted: applyInflation,
         userFraction: userPercentage / 100,
@@ -350,26 +351,11 @@ export default function EventSeriesForm() {
     }
 
     // ============ Event Series ============
-    // const newEventSeries: Event = {
-    //   name: String(eventSeriesName),
-    //   start: start,
-    //   duration: duration,
-    //   event: event,
-    // };
-
     const newEventSeries: Event = {
-      name: "salary",
-      start: { type: "fixed", value: 2025 },
-      duration: { type: "fixed", value: 40 },
-      event: {
-        type: "income",
-        initialAmount: 75000,
-        changeAmountOrPercent: "amount",
-        changeDistribution: { type: "uniform", lower: 500, upper: 2000 },
-        inflationAdjusted: false,
-        userFraction: 1.0,
-        socialSecurity: false,
-      },
+      name: String(eventSeriesName),
+      start: start,
+      duration: duration,
+      event: event,
     };
 
     const updatedEventSeries = { ...eventSeries };

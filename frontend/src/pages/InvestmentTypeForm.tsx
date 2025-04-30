@@ -172,6 +172,8 @@ export default function InvestmentTypeForm() {
     // Replace with new investment type
     updatedInvestmentTypes[newInvestmentType.name] = newInvestmentType;
 
+    
+
     const userID = await (async () => {
       const res = await fetch("http://localhost:8000/user", {
         credentials: "include", // ensures session cookie is sent
