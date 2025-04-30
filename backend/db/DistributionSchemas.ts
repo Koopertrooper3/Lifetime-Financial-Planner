@@ -5,7 +5,7 @@ export const fixedValueSchema = new Schema({
         type: Number,
         required: true
     }
-})
+},{ _id : false })
 
 export const normalDistSchema = new Schema({
     mean: {
@@ -16,7 +16,7 @@ export const normalDistSchema = new Schema({
         type: Number,
         required: true
     }
-})
+},{ _id : false })
 
 export const uniformDistSchema = new Schema<UniformDistribution>({
     lower: {
@@ -27,7 +27,7 @@ export const uniformDistSchema = new Schema<UniformDistribution>({
         type: Number,
         required: true
     }
-})
+},{ _id : false })
 
 export interface FixedDistribution {
     type: "fixed",

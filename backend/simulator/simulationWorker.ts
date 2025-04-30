@@ -306,7 +306,7 @@ function resolveEventDurations(scenarioEvents : Record<string,ScenarioEvent>){
     }
 
     while(dependentEventStack.length){
-        const eventKey = dependentEventStack.pop()
+        const eventKey = dependentEventStack.shift()
         if(!eventKey){
             throw new Error("Dependent Event does not exist")
         }

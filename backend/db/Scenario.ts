@@ -5,7 +5,7 @@ import { investmentTypeSchema, InvestmentType } from './InvestmentTypesSchema';
 import { Event } from './EventSchema';
 import {Investment, investmentSchema} from './InvestmentSchema';
 
-const options = {discriminatorKey: 'type'}
+const options = {discriminatorKey: 'type', _id : false }
 
 const distributionWrapper = new Schema({}, options)
 
