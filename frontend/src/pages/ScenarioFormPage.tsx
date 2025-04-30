@@ -84,10 +84,6 @@ export default function ScenarioFormPage() {
       setBirthYears(editScenario.birthYears);
       setLifeExpectancy(editScenario.lifeExpectancy);
       setInvestmentTypes(editScenario.investmentTypes);
-      console.log(
-        "scenario form page, use effect: ",
-        editScenario.investmentTypes
-      );
       setInvestments(editScenario.investments);
       setEventSeries(editScenario.eventSeries);
       setInflationAssumption(editScenario.inflationAssumption);
@@ -289,13 +285,13 @@ export default function ScenarioFormPage() {
                 onChange={() =>
                   setLifeExpectancy((prev) => [
                     {
-                      type: "Fixed",
-                      value: prev[0]?.type === "Fixed" ? prev[0].value : 80,
+                      type: "fixed",
+                      value: prev[0]?.type === "fixed" ? prev[0].value : 80,
                     },
                     ...(prev.length > 1 ? [prev[1]] : []),
                   ])
                 }
-                checked={lifeExpectancy[0]?.type === "Fixed"}
+                checked={lifeExpectancy[0]?.type === "fixed"}
               />
               Fixed Age
             </label>
@@ -307,14 +303,14 @@ export default function ScenarioFormPage() {
                 onChange={() =>
                   setLifeExpectancy((prev) => [
                     {
-                      type: "Normal",
-                      mean: prev[0]?.type === "Normal" ? prev[0].mean : 82,
-                      stdev: prev[0]?.type === "Normal" ? prev[0].stdev : 3,
+                      type: "normal",
+                      mean: prev[0]?.type === "normal" ? prev[0].mean : 82,
+                      stdev: prev[0]?.type === "normal" ? prev[0].stdev : 3,
                     },
                     ...(prev.length > 1 ? [prev[1]] : []),
                   ])
                 }
-                checked={lifeExpectancy[0]?.type === "Normal"}
+                checked={lifeExpectancy[0]?.type === "normal"}
               />
               Normal Distribution
             </label>
@@ -322,7 +318,7 @@ export default function ScenarioFormPage() {
             <LifeExpectency
               lifeExpectancyType={lifeExpectancy[0]?.type}
               expectedAge={
-                lifeExpectancy[0]?.type === "Fixed"
+                lifeExpectancy[0]?.type === "fixed"
                   ? lifeExpectancy[0].value.toString()
                   : ""
               }
@@ -330,14 +326,14 @@ export default function ScenarioFormPage() {
                 setLifeExpectancy((prev) => {
                   const updated = [...prev];
                   updated[0] = {
-                    type: "Fixed",
+                    type: "fixed",
                     value: Number(val),
                   };
                   return updated;
                 })
               }
               meanAge={
-                lifeExpectancy[0]?.type === "Normal"
+                lifeExpectancy[0]?.type === "normal"
                   ? lifeExpectancy[0].mean.toString()
                   : ""
               }
@@ -346,9 +342,9 @@ export default function ScenarioFormPage() {
                   const updated = [...prev];
                   // Preserve the existing stdev if it's already Normal
                   const currentStdev =
-                    prev[0]?.type === "Normal" ? prev[0].stdev : 3;
+                    prev[0]?.type === "normal" ? prev[0].stdev : 3;
                   updated[0] = {
-                    type: "Normal",
+                    type: "normal",
                     mean: Number(val),
                     stdev: currentStdev,
                   };
@@ -356,7 +352,7 @@ export default function ScenarioFormPage() {
                 })
               }
               std={
-                lifeExpectancy[0]?.type === "Normal"
+                lifeExpectancy[0]?.type === "normal"
                   ? lifeExpectancy[0].stdev.toString()
                   : ""
               }
@@ -365,9 +361,9 @@ export default function ScenarioFormPage() {
                   const updated = [...prev];
                   // Preserve the existing mean if it's already Normal
                   const currentMean =
-                    prev[0]?.type === "Normal" ? prev[0].mean : 82;
+                    prev[0]?.type === "normal" ? prev[0].mean : 82;
                   updated[0] = {
-                    type: "Normal",
+                    type: "normal",
                     mean: currentMean,
                     stdev: Number(val),
                   };
@@ -400,12 +396,12 @@ export default function ScenarioFormPage() {
                     setLifeExpectancy((prev) => [
                       prev[0],
                       {
-                        type: "Fixed",
-                        value: prev[1]?.type === "Fixed" ? prev[1].value : 80,
+                        type: "fixed",
+                        value: prev[1]?.type === "fixed" ? prev[1].value : 80,
                       },
                     ])
                   }
-                  checked={lifeExpectancy[1]?.type === "Fixed"}
+                  checked={lifeExpectancy[1]?.type === "fixed"}
                 />
                 Fixed Age
               </label>
@@ -418,13 +414,13 @@ export default function ScenarioFormPage() {
                     setLifeExpectancy((prev) => [
                       prev[0],
                       {
-                        type: "Normal",
-                        mean: prev[1]?.type === "Normal" ? prev[1].mean : 82,
-                        stdev: prev[1]?.type === "Normal" ? prev[1].stdev : 3,
+                        type: "normal",
+                        mean: prev[1]?.type === "normal" ? prev[1].mean : 82,
+                        stdev: prev[1]?.type === "normal" ? prev[1].stdev : 3,
                       },
                     ])
                   }
-                  checked={lifeExpectancy[1]?.type === "Normal"}
+                  checked={lifeExpectancy[1]?.type === "normal"}
                 />
                 Normal Distribution
               </label>
@@ -432,7 +428,7 @@ export default function ScenarioFormPage() {
               <LifeExpectency
                 lifeExpectancyType={lifeExpectancy[1]?.type}
                 expectedAge={
-                  lifeExpectancy[1]?.type === "Fixed"
+                  lifeExpectancy[1]?.type === "fixed"
                     ? lifeExpectancy[1].value.toString()
                     : ""
                 }
@@ -440,14 +436,14 @@ export default function ScenarioFormPage() {
                   setLifeExpectancy((prev) => {
                     const updated = [...prev];
                     updated[1] = {
-                      type: "Fixed",
+                      type: "fixed",
                       value: Number(val),
                     };
                     return updated;
                   })
                 }
                 meanAge={
-                  lifeExpectancy[1]?.type === "Normal"
+                  lifeExpectancy[1]?.type === "normal"
                     ? lifeExpectancy[1].mean.toString()
                     : ""
                 }
@@ -455,9 +451,9 @@ export default function ScenarioFormPage() {
                   setLifeExpectancy((prev) => {
                     const updated = [...prev];
                     const currentStdev =
-                      prev[1]?.type === "Normal" ? prev[1].stdev : 3;
+                      prev[1]?.type === "normal" ? prev[1].stdev : 3;
                     updated[1] = {
-                      type: "Normal",
+                      type: "normal",
                       mean: Number(val),
                       stdev: currentStdev,
                     };
@@ -465,7 +461,7 @@ export default function ScenarioFormPage() {
                   })
                 }
                 std={
-                  lifeExpectancy[1]?.type === "Normal"
+                  lifeExpectancy[1]?.type === "normal"
                     ? lifeExpectancy[1].stdev.toString()
                     : ""
                 }
@@ -473,9 +469,9 @@ export default function ScenarioFormPage() {
                   setLifeExpectancy((prev) => {
                     const updated = [...prev];
                     const currentMean =
-                      prev[1]?.type === "Normal" ? prev[1].mean : 82;
+                      prev[1]?.type === "normal" ? prev[1].mean : 82;
                     updated[1] = {
-                      type: "Normal",
+                      type: "normal",
                       mean: currentMean,
                       stdev: Number(val),
                     };

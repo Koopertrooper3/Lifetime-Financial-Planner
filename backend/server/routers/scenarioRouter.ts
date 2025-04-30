@@ -85,7 +85,10 @@ router.post("/edit", async (req, res) => {
           throw new Error("User does not exist");
       }
 
-      console.log("Edit Scenario Backend After user: ", req.body);
+      // console.log("Edit Scenario Backend After user: ", req.body);
+      // Print updatedFields with full object expansion
+      console.log("Edit Scenario Backend After user:", 
+        JSON.stringify(req.body.updatedFields, null, 2));
 
       // Update ONLY the specified fields using `$set`
       const updatedScenario = await scenarioModel.findOneAndUpdate(
@@ -94,7 +97,9 @@ router.post("/edit", async (req, res) => {
           { new: true } // Return the updated document
       );
 
-      console.log("Edit Scenario Backend After findOneAndUpdate: ", updatedScenario);
+      // console.log("Edit Scenario Backend After findOneAndUpdate: ", updatedScenario);
+      console.log("Edit Scenario Backend After findOneAndUpdate:", 
+        JSON.stringify(updatedScenario?.toObject(), null, 2));
 
       if (!updatedScenario) {
           throw new Error("Scenario not found or user mismatch");

@@ -31,11 +31,15 @@ const AddPlan = () => {
     setEditScenario,
   } = useScenarioContext();
 
+  const { fetchScenario } = useHelperContext();
+
+  useEffect(() => {
+    setEditScenario(null);
+  }, []);
+
   useEffect(() => {
     console.log("Current lifeExpectancy:", lifeExpectancy);
   }, [lifeExpectancy]);
-
-  const { allScenarios, fetchAllScenarios } = useHelperContext();
 
   const navigate = useNavigate();
 
@@ -55,6 +59,7 @@ const AddPlan = () => {
       });
 
       console.log("Scenario created successfully:", res.data);
+      return res.data;
       // You can redirect or show success UI here
     } catch (error) {
       console.error("Error saving scenario:", error);
@@ -86,12 +91,12 @@ const AddPlan = () => {
       RothConversionEnd: RothConversionEnd,
       RothConversionStrategy: RothConversionStrategy,
     };
-    console.log("Add Plan: investmentType: ", investmentTypes);
-    console.log("Add Plan: currentUserID: ", currentUserId);
-    console.log("Add Plan: scenario: ", scenario);
-    await handleSaveScenario(currentUserId, scenario);
-    await fetchAllScenarios();
-    const latestScenario = allScenarios?.[allScenarios.length - 1];
+    const latestScenarioData = await handleSaveScenario(
+      currentUserId,
+      scenario
+    );
+    const latestScenario = await fetchScenario(latestScenarioData.scenarioID);
+    console.log("Add Plan: latestScenario: ", latestScenario);
     setEditScenario(latestScenario);
 
     navigate("/dashboard/createScenario");

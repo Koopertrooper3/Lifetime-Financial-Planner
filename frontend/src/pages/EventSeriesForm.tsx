@@ -170,24 +170,24 @@ export default function EventSeriesForm() {
 
     if (startYearModel === "Fixed Value") {
       start = {
-        type: "Fixed",
+        type: "fixed",
         value: Number(startYear),
       };
     } else if (startYearModel === "Normal Distribution") {
       start = {
-        type: "Normal",
+        type: "normal",
         mean: Number(meanYear),
         stdev: Number(stdDevYear),
       };
     } else if (startYearModel === "Uniform Distribution") {
       start = {
-        type: "Uniform",
+        type: "uniform",
         min: Number(lowerBoundYear),
         max: Number(upperBoundYear),
       };
     } else if (startYearModel === "EventBased") {
       start = {
-        type: "EventBased",
+        type: "eventBased",
         withOrAfter: withOrAfter,
         event: selectedEvent,
       };
@@ -200,18 +200,18 @@ export default function EventSeriesForm() {
 
     if (durationType === "Fixed Value") {
       duration = {
-        type: "Fixed",
+        type: "fixed",
         value: Number(durationValue),
       };
     } else if (durationType === "Normal Distribution") {
       duration = {
-        type: "Normal",
+        type: "normal",
         mean: Number(meanDuration),
         stdev: Number(stdDuration),
       };
     } else if (durationType === "Uniform Distribution") {
       duration = {
-        type: "Uniform",
+        type: "uniform",
         min: Number(lowerBoundDuration),
         max: Number(upperBoundDuration),
       };
@@ -224,23 +224,23 @@ export default function EventSeriesForm() {
     if (eventType === "Income") {
       const incomeChangeDistribution: EventDistribution =
         incomeDistributionType === "Fixed Value/Percentage"
-          ? { type: "Fixed", value: Number(fixedIncomeValue) }
+          ? { type: "fixed", value: Number(fixedIncomeValue) }
           : incomeDistributionType === "Normal Distribution"
           ? {
-              type: "Normal",
+              type: "normal",
               mean: Number(incomeMean),
               stdev: Number(incomeStdDev),
             }
           : {
-              type: "Uniform",
+              type: "uniform",
               min: Number(incomeLowerBound),
               max: Number(incomeUpperBound),
             };
 
       event = {
-        type: "Income",
+        type: "income",
         initialAmount: Number(incomeInitialValue),
-        changeAmountOrPercent: isFixedIncomeAmount ? "Amount" : "Percent",
+        changeAmountOrPercent: isFixedIncomeAmount ? "amount" : "percent",
         changeDistribution: incomeChangeDistribution,
         inflationAdjusted: applyInflation,
         userFraction: userPercentage / 100,
@@ -249,23 +249,23 @@ export default function EventSeriesForm() {
     } else if (eventType === "Expense") {
       const expenseChangeDistribution: EventDistribution =
         expenseDistributionType === "Fixed Value/Percentage"
-          ? { type: "Fixed", value: Number(expenseFixedValue) }
+          ? { type: "fixed", value: Number(expenseFixedValue) }
           : expenseDistributionType === "Normal Distribution"
           ? {
-              type: "Normal",
+              type: "normal",
               mean: Number(expenseMean),
               stdev: Number(expenseStdDev),
             }
           : {
-              type: "Uniform",
+              type: "uniform",
               min: Number(expenseLowerBound),
               max: Number(expenseUpperBound),
             };
 
       event = {
-        type: "Expense",
+        type: "expense",
         initialAmount: Number(expenseInitialAmount),
-        changeAmountOrPercent: isExpenseAmount ? "Amount" : "Percent",
+        changeAmountOrPercent: isExpenseAmount ? "amount" : "percent",
         changeDistribution: expenseChangeDistribution,
         inflationAdjusted: applyInflation,
         userFraction: userPercentage / 100,
@@ -303,7 +303,7 @@ export default function EventSeriesForm() {
       }
 
       event = {
-        type: "Invest",
+        type: "invest",
         assetAllocation: allocation,
         glidePath: investAllocationType === "Glide Path",
         assetAllocation2: allocation2,
@@ -339,7 +339,7 @@ export default function EventSeriesForm() {
       }
 
       event = {
-        type: "Rebalance",
+        type: "rebalance",
         taxStatus: taxStatus,
         assetAllocation: allocation,
         glidePath: allocationType === "Glide Path",
@@ -597,8 +597,8 @@ export default function EventSeriesForm() {
                     type="radio"
                     name="eventStart"
                     value="With"
-                    onChange={() => eventSeriesFormHooks.setWithOrAfter("With")}
-                    checked={eventSeriesFormHooks.withOrAfter === "With"}
+                    onChange={() => eventSeriesFormHooks.setWithOrAfter("with")}
+                    checked={eventSeriesFormHooks.withOrAfter === "with"}
                   />
                   With
                 </label>
@@ -608,9 +608,9 @@ export default function EventSeriesForm() {
                     name="eventStart"
                     value="After"
                     onChange={() =>
-                      eventSeriesFormHooks.setWithOrAfter("After")
+                      eventSeriesFormHooks.setWithOrAfter("after")
                     }
-                    checked={eventSeriesFormHooks.withOrAfter === "After"}
+                    checked={eventSeriesFormHooks.withOrAfter === "after"}
                   />
                   After
                 </label>

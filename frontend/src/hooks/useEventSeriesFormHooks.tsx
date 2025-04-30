@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { assetProportion, Investment } from "../useScenarioContext";
+import { assetProportion } from "../../../backend/db/EventSchema";
+import { Investment } from "../../../backend/db/InvestmentSchema";
 
 export function useEventSeriesFormHooks() {
   const [eventSeriesName, setEventSeriesName] = useState<string | number>("");
@@ -93,11 +94,11 @@ export function useEventSeriesFormHooks() {
   const [allocatedRebalance2Investments, setAllocatedRebalance2Investments] =
     useState<assetProportion[]>([]);
   const [taxStatus, setTaxStatus] = useState<
-    "Pre-Tax" | "After-Tax" | "Non-Retirement"
-  >("Pre-Tax");
+    "pre-tax" | "after-tax" | "non-retirement"
+  >("pre-tax");
   const [rebalanceMaxCashHoldings, setRebalanceMaxCashHoldings] = useState("");
 
-  const [withOrAfter, setWithOrAfter] = useState<"With" | "After">("With");
+  const [withOrAfter, setWithOrAfter] = useState<"with" | "after">("with");
   const [selectedEvent, setSelectedEvent] = useState("");
 
   return {

@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import ExpectedInput from "../components/shared/InvestmentTypeExpectedInput";
@@ -21,10 +21,18 @@ const isValueType = (val: any): val is ValueType =>
 
 export default function InvestmentTypeForm() {
   const navigate = useNavigate();
+  const navigateRef = useRef(false);
   const { investmentTypeHooks } = useInvestmentTypeHooks();
   const { editInvestmentType, investmentTypes, editScenario, setEditScenario } =
     useScenarioContext();
   const { handleEditScenario } = useHelperContext();
+
+  useEffect(() => {
+    if (navigateRef.current) {
+      navigateRef.current = false;
+      navigate("/dashboard/createScenario");
+    }
+  }, [editScenario]);
 
   useEffect(() => {
     if (editInvestmentType) {
@@ -53,26 +61,26 @@ export default function InvestmentTypeForm() {
       setIsTaxable(editInvestmentType.taxability ?? true); // fallback to true
 
       // Return Distribution
-      setIsFixedReturnAmount(editInvestmentType.returnAmtOrPct === "Amount");
-      if (editInvestmentType.returnDistribution.type === "Fixed") {
+      setIsFixedReturnAmount(editInvestmentType.returnAmtOrPct === "amount");
+      if (editInvestmentType.returnDistribution.type === "fixed") {
         investmentTypeHooks?.setReturnDistributionType(
           "Fixed Amount/Percentage"
         );
         setReturnFixedValue(editInvestmentType.returnDistribution.value || "");
-      } else if (editInvestmentType.returnDistribution.type === "Normal") {
+      } else if (editInvestmentType.returnDistribution.type === "normal") {
         investmentTypeHooks?.setReturnDistributionType("Normal Distribution");
         setReturnMean(editInvestmentType.returnDistribution.mean);
         setReturnStdDev(editInvestmentType.returnDistribution.stdev);
       }
 
       // Income Distribution
-      setIsFixedIncomeAmount(editInvestmentType.incomeAmtOrPct === "Amount");
-      if (editInvestmentType.incomeDistribution.type === "Fixed") {
+      setIsFixedIncomeAmount(editInvestmentType.incomeAmtOrPct === "amount");
+      if (editInvestmentType.incomeDistribution.type === "fixed") {
         investmentTypeHooks?.setIncomeDistributionType(
           "Fixed Amount/Percentage"
         );
         setIncomeFixedValue(editInvestmentType.incomeDistribution.value || "");
-      } else if (editInvestmentType.incomeDistribution.type === "Normal") {
+      } else if (editInvestmentType.incomeDistribution.type === "normal") {
         investmentTypeHooks?.setIncomeDistributionType("Normal Distribution");
         setIncomeMean(editInvestmentType.incomeDistribution.mean);
         setIncomeStdDev(editInvestmentType.incomeDistribution.stdev);
@@ -80,13 +88,14 @@ export default function InvestmentTypeForm() {
     }
   }, [editInvestmentType]);
 
-  function mapDistributionType(distributionType: string): "Fixed" | "Normal" {
-    if (distributionType === "Fixed Amount/Percentage") return "Fixed";
-    if (distributionType === "Normal Distribution") return "Normal";
+  function mapDistributionType(distributionType: string): "fixed" | "normal" {
+    if (distributionType === "Fixed Amount/Percentage") return "fixed";
+    if (distributionType === "Normal Distribution") return "normal";
     throw new Error("Invalid distribution type");
   }
 
-  const handleSaveInvestmentType = async () => {
+  const handleSaveInvestmentType = async (e: React.MouseEvent) => {
+    e.preventDefault();
     if (!investmentTypeHooks) return;
 
     const {
@@ -115,34 +124,38 @@ export default function InvestmentTypeForm() {
       | FixedDistribution
       | NormalDistribution
       | UniformDistribution =
-      returnDistributionTypeMapped === "Fixed"
-        ? { type: "Fixed", value: Number(returnFixedValue) }
+      returnDistributionTypeMapped === "fixed"
+        ? { type: "fixed", value: Number(returnFixedValue) }
         : {
-            type: "Normal",
+            type: "normal",
             mean: Number(returnMean),
             stdev: Number(returnStdDev),
           };
+
+    console.log("Return distribution: ", returnDistribution);
 
     const incomeDistribution:
       | FixedDistribution
       | NormalDistribution
       | UniformDistribution =
-      incomeDistributionTypeMapped === "Fixed"
-        ? { type: "Fixed", value: Number(incomeFixedValue) }
+      incomeDistributionTypeMapped === "fixed"
+        ? { type: "fixed", value: Number(incomeFixedValue) }
         : {
-            type: "Normal",
+            type: "normal",
             mean: Number(incomeMean),
             stdev: Number(incomeStdDev),
           };
 
+    console.log("income distribution: ", incomeDistribution);
+
     const newInvestmentType: InvestmentType = {
       name: String(investmentTypeName),
       description: String(investmentTypeDescription),
-      returnAmtOrPct: isFixedReturnAmount ? "Amount" : "Percent",
-      returnDistribution,
+      returnAmtOrPct: isFixedReturnAmount ? "amount" : "percent",
+      returnDistribution: returnDistribution,
       expenseRatio: Number(expectedRatio),
-      incomeAmtOrPct: isFixedIncomeAmount ? "Amount" : "Percent",
-      incomeDistribution,
+      incomeAmtOrPct: isFixedIncomeAmount ? "amount" : "percent",
+      incomeDistribution: incomeDistribution,
       taxability: taxable,
     };
 
@@ -170,12 +183,9 @@ export default function InvestmentTypeForm() {
     const updatedField = {
       investmentTypes: updatedInvestmentTypes,
     };
-    console.log("Investment Type Form: ", updatedField);
-    const data = await handleEditScenario(userID, scenarioID, updatedField);
-    setEditScenario(data);
-    console.log(editScenario);
-
-    navigate("/dashboard/createScenario");
+    const response = await handleEditScenario(userID, scenarioID, updatedField);
+    setEditScenario(response.data);
+    navigateRef.current = true;
   };
 
   return (
@@ -430,13 +440,12 @@ export default function InvestmentTypeForm() {
         </div>
 
         <div className="save-investment-type-container">
-          <Link
-            to="/dashboard/createScenario"
+          <button
             className="save-investment-type-button"
             onClick={handleSaveInvestmentType}
           >
             Save Investment Type
-          </Link>
+          </button>
         </div>
       </CenteredFormWrapper>
     </motion.div>

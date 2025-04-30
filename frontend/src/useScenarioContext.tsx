@@ -97,7 +97,7 @@ export const ScenarioProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const [lifeExpectancy, setLifeExpectancy] = useState<
     (FixedDistribution | NormalDistribution | UniformDistribution)[]
-  >([{ type: "Fixed", value: 80 }]);
+  >([{ type: "fixed", value: 80 }]);
 
   // Changed from arrays to Record<string, T> to match schema
   const [investmentTypes, setInvestmentTypes] = useState<
@@ -107,7 +107,7 @@ export const ScenarioProvider: React.FC<{ children: React.ReactNode }> = ({
     cash: {
       investmentType: "cash",
       value: 0,
-      taxStatus: "Non-retirement",
+      taxStatus: "non-retirement",
       id: "cash",
     },
   });
@@ -117,7 +117,7 @@ export const ScenarioProvider: React.FC<{ children: React.ReactNode }> = ({
   const [inflationAssumption, setInflationAssumption] = useState<
     FixedDistribution | NormalDistribution | UniformDistribution
   >({
-    type: "Fixed",
+    type: "fixed",
     value: 0.03,
   });
 
@@ -147,10 +147,6 @@ export const ScenarioProvider: React.FC<{ children: React.ReactNode }> = ({
   const [editInvestmentType, setEditInvestmentType] = useState(null);
   const [editEventSeries, setEditEventSeries] = useState(null);
   const [editInflationAssumption, setEditInflationAssumption] = useState(null);
-
-  {
-    console.log("Use Scenario Context: ", investmentTypes);
-  }
   return (
     <ScenarioContext.Provider
       value={{
