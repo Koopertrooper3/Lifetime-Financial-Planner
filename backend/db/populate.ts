@@ -117,7 +117,7 @@ async function testScenario() {
     const vacationEvent : Event = {
         name: "vacation",
         start: {type: "startWith", eventSeries: "salary"},
-        duration: {type: "fixed", value: 200},
+        duration: {type: "fixed", value: 40},
         event: {
             type: "expense", 
             initialAmount: 1200, 
@@ -132,7 +132,7 @@ async function testScenario() {
     const streamingEvent : Event = {
         name: "streaming services",
         start: {type: "startWith", eventSeries: "salary"},
-        duration: {type: "fixed", value: 200},
+        duration: {type: "fixed", value: 40},
         event: {
             type: "expense", 
             initialAmount: 500, 
@@ -147,7 +147,7 @@ async function testScenario() {
     const investEvent : Event = {
         name: "invest",
         start: {type: "startWith", eventSeries: "salary"},
-        duration: {type: "fixed", value: 200},
+        duration: {type: "fixed", value: 10},
         event: {
             type: "invest", 
             assetAllocation: {"S&P 500 non-retirement": 0.6,"S&P 500 after-tax" :0.4},
@@ -160,7 +160,7 @@ async function testScenario() {
     const rebalanceEvent : Event = {
         name: "rebalance",
         start: {type: "startWith", eventSeries: "salary"},
-        duration: {type: "fixed", value: 200},
+        duration: {type: "fixed", value: 10},
         event: {
             type: "rebalance", 
             assetAllocation: {"S&P 500 non-retirement": 0.7,"S&P 500 after-tax" :0.3},
@@ -172,7 +172,7 @@ async function testScenario() {
 
     try{
         const exampleScenario : Scenario = {
-            name: "reimu",
+            name: "Populate Test Scenario",
             maritalStatus: "couple",
             birthYears : [1985,1987],
             lifeExpectancy : [ {type: "fixed", value: 80} , {type: "normal", mean: 82, stdev: 3} ],

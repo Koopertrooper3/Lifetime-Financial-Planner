@@ -29,8 +29,8 @@ const eventbasedStartSchema = new Schema<eventBased>({
 eventStartField.discriminator('fixed',fixedValueSchema);
 eventStartField.discriminator('normal',normalDistSchema)
 eventStartField.discriminator('uniform',uniformDistSchema)
-eventStartField.discriminator('startsWith',eventbasedStartSchema)
-eventStartField.discriminator('startsAfter',eventbasedStartSchema)
+eventStartField.discriminator('startWith',eventbasedStartSchema)
+eventStartField.discriminator('startAfter',eventbasedStartSchema)
 
 //Different duration types
 const eventDurationField = eventSchema.path<Schema.Types.DocumentArray>('duration');
