@@ -58,7 +58,7 @@ export default function ScenarioFormPage() {
 
     // create correct json object for backend scenario creation
     const requestBody = {
-      userID: userInfo.data.googleId,
+      userID: userInfo.data._id,
       scenario: data,
     };
 

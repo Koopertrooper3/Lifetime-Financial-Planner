@@ -34,7 +34,17 @@ const YAMLImport: React.FC<YAMLImportProps> = ({
       // change eventSeries field to object instead of array
       let eventSeriesField : any = {}
       parsedData["eventSeries"].forEach((val : any) => {
-        eventSeriesField[val.name] = val;
+        let subEventSeriesField:any = {};
+        subEventSeriesField["event"] = {}
+        for(const [key, value] of Object.entries(val)){
+          if(["name", "duration", "start"].includes(key)){
+            subEventSeriesField[key] = value;
+          }
+          else{
+            subEventSeriesField["event"][key] = value;
+          }
+        }
+        eventSeriesField[val.name] = subEventSeriesField;
       });
       parsedData["eventSeries"] = eventSeriesField
 
