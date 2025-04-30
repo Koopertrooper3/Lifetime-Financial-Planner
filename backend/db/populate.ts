@@ -92,7 +92,7 @@ async function testScenario() {
             type: "income", 
             initialAmount: 75000, 
             changeAmountOrPercent: "amount",
-            changeDistribution: {type: "uniform", min: 500, max: 2000},
+            changeDistribution: {type: "uniform", lower: 500, upper: 2000},
             inflationAdjusted: false,
             userFraction: 1.0,
             socialSecurity: false

@@ -64,17 +64,21 @@ test('Create Scenario', async ({ request }) => {
     lifeExpectancy: [{type: "fixed", value: 80}],
     investmentTypes: { 
       "cash": {
-      name: "cash",
-      description: "cash",
-      returnAmtOrPct: "amount",
-      returnDistribution: {type: "fixed", value: 0},
-      expenseRatio: 0,
-      incomeAmtOrPct: "percent",
-      incomeDistribution: {type: "fixed", value: 0},
-      taxability: true,
+        name: "cash",
+        description: "cash",
+        returnAmtOrPct: "amount",
+        returnDistribution: {type: "fixed", value: 0},
+        expenseRatio: 0,
+        incomeAmtOrPct: "percent",
+        incomeDistribution: {type: "fixed", value: 0},
+        taxability: true,
+      },
     },
-  },
-    investments: { "cash" : {investmentType: "cash",value: 100,taxStatus: "non-retirement",id: "cash"}},
+    investments: { 
+      "cash" : {
+        investmentType: "cash",value: 100,taxStatus: "non-retirement",id: "cash"
+      }
+    },
     eventSeries: {
       "cash": {
         name: "salary",
@@ -92,8 +96,8 @@ test('Create Scenario', async ({ request }) => {
           changeAmountOrPercent: "amount",
           changeDistribution: {
             type: "uniform",
-            min: 500,
-            max: 2000,
+            lower: 500,
+            upper: 2000,
           },
           inflationAdjusted: false,
           userFraction: 1,

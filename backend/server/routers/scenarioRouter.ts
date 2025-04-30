@@ -42,6 +42,8 @@ router.post("/create", async (req, res) => {
         // first check to see if the request body is valid using zod validation, failure will throw error and be caught
         createScenarioZod.parse(req.body);
 
+        console.log("parsing request body is fine")
+        
         // now check to see if the user with userID exists, failure will throw error
         const user = await User.findOne({googleId: req.body.userID});
         

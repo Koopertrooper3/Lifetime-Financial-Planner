@@ -30,6 +30,30 @@ const YAMLImport: React.FC<YAMLImportProps> = ({
     try {
       const text = await file.text();
       const parsedData = yaml.parse(text);
+
+      // change eventSeries field to object instead of array
+      let eventSeriesField : any = {}
+      parsedData["eventSeries"].forEach((val : any) => {
+        eventSeriesField[val.name] = val;
+      });
+      parsedData["eventSeries"] = eventSeriesField
+
+      // change investment type field to object instead of array
+      let investmentTypesField : any = {}
+      parsedData["investmentTypes"].forEach((val : any) => {
+        investmentTypesField[val.name] = val;
+      });
+      parsedData["investmentTypes"] = investmentTypesField
+
+      // change investment field to object instead of array
+      let investmentsField : any = {}
+      parsedData["investments"].forEach((val : any) => {
+        investmentsField[val.id] = val;
+      });
+      parsedData["investments"] = investmentsField
+
+      console.log("parsedData", parsedData)
+
       onFileParsed(parsedData);
     } catch (err) {
       setError('Failed to parse YAML file. Please check the file format.');

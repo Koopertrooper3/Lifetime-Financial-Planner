@@ -221,7 +221,7 @@ function calculateLifeExpectancy(scenario : Scenario){
     }else if(userLifeExpectancy.type == "normal"){
         return Math.round(PB.rnorm(1,userLifeExpectancy.mean,userLifeExpectancy.stdev)[0])
     }else{
-        return PB.rint(1,userLifeExpectancy.min,userLifeExpectancy.max, 1)[0]
+        return PB.rint(1,userLifeExpectancy.lower,userLifeExpectancy.upper, 1)[0]
     }
 }
 
@@ -235,7 +235,7 @@ function calculateSpousalLifeExpectancy(scenario : Scenario){
         }else if(spousalLifeExpectancy.type == "normal"){
             return Math.round(PB.rnorm(1,spousalLifeExpectancy.mean,spousalLifeExpectancy.stdev)[0])
         }else{
-            return PB.rint(1,spousalLifeExpectancy.min,spousalLifeExpectancy.max, 1)[0]
+            return PB.rint(1,spousalLifeExpectancy.lower,spousalLifeExpectancy.upper, 1)[0]
         }
     }
 }
@@ -246,7 +246,7 @@ function resolveDistribution(distribution : EventDistribution): number{
     }else if(distribution.type == "normal"){
         return PB.rnorm(1,distribution.mean,distribution.stdev)[0]
     }else{
-        return PB.rint(1,distribution.min,distribution.max, 1)[0]
+        return PB.rint(1,distribution.lower,distribution.upper, 1)[0]
     }
 }
 
@@ -276,7 +276,7 @@ function resolveEventDurations(scenarioEvents : Record<string,ScenarioEvent>){
                 realizedDuration = Math.round(PB.rnorm(1, currentEvent.duration.mean, currentEvent.duration.stdev)[0])
                 break;
             case "uniform":
-                realizedDuration = PB.rint(1, currentEvent.duration.min, currentEvent.duration.max, 1)[0]
+                realizedDuration = PB.rint(1, currentEvent.duration.lower, currentEvent.duration.upper, 1)[0]
                 break;
         }
 
@@ -295,7 +295,7 @@ function resolveEventDurations(scenarioEvents : Record<string,ScenarioEvent>){
                     realizedStart = Math.round(PB.rnorm(1,currentEvent.start.mean,currentEvent.start.stdev)[0])
                 break;
                 case "uniform":
-                    realizedStart = PB.rint(1,currentEvent.start.min,currentEvent.start.max, 1)[0]
+                    realizedStart = PB.rint(1,currentEvent.start.lower,currentEvent.start.upper, 1)[0]
                 break;
             }
             currentEvent.start = {type: "fixed", value: realizedStart}

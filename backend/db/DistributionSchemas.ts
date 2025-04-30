@@ -19,11 +19,11 @@ export const normalDistSchema = new Schema({
 })
 
 export const uniformDistSchema = new Schema({
-    min: {
+    lower: {
         type: Number,
         required: true
     },
-    max: {
+    upper: {
         type: Number,
         required: true
     }
@@ -42,6 +42,6 @@ export interface NormalDistribution {
 
 export interface UniformDistribution {
     type: "uniform",
-    min: number,
-    max: number,
+    lower: number,
+    upper: number,
 }
