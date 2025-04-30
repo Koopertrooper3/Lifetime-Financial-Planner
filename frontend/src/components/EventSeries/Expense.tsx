@@ -35,9 +35,24 @@ export default function EventSeriesExpense({
 }: EventSeriesExpenseProps) {
   const { editEventSeries } = useScenarioContext();
 
+  const mapDistributionTypeToLabel = (
+    type: string
+  ):
+    | "Fixed Value/Percentage"
+    | "Normal Distribution"
+    | "Uniform Distribution" => {
+    if (type === "normal") return "Normal Distribution";
+    if (type === "fixed") return "Fixed Value/Percentage";
+    if (type === "uniform") return "Uniform Distribution";
+    return "Fixed Value/Percentage"; // Default value instead of "undefined"
+  };
+
   useEffect(() => {
     setIsDiscretionary(editEventSeries.event.discretionary || false);
     setExpenseInitialAmount(editEventSeries.event.initialAmount || 0);
+    setExpenseDistributionType(
+      mapDistributionTypeToLabel(editEventSeries.event.changeDistribution)
+    );
   }, [editEventSeries]);
 
   return (

@@ -282,7 +282,7 @@ function resolveEventDurations(scenarioEvents : Record<string,ScenarioEvent>){
 
         currentEvent.duration = {type: "fixed", value: realizedDuration}
 
-        if(currentEvent.start.type != "eventBased"){
+        if(currentEvent.start.type != "startWith" && currentEvent.start.type != "startAfter"){
             //TP: Following code was generate by copilot with three promots
             /* generate all possible cases of currentEvent.duration.start
             make it a switch statement
@@ -313,20 +313,20 @@ function resolveEventDurations(scenarioEvents : Record<string,ScenarioEvent>){
 
         const event = resolvedEventSeries[eventKey]
 
-        if(event.start.type != "eventBased"){
+        if(event.start.type != "startWith" && event.start.type != "startAfter"){
             throw new Error("Event already resolved")
         }
 
-        const parentEvent = resolvedEventSeries[event.start.event]
+        const parentEvent = resolvedEventSeries[event.start.eventSeries]
 
         
-        if(event.start.withOrAfter == "with"){
+        if(event.start.type == "startWith"){
             if(parentEvent.start.type != "fixed"){
                 dependentEventStack.push(eventKey)
             }else{ 
                 event.start = {type: "fixed", value: parentEvent.start.value}
             }
-        }else if(event.start.withOrAfter == "after"){
+        }else if(event.start.type == "startAfter"){
             if(parentEvent.start.type != "fixed"){
                 dependentEventStack.push(eventKey)
             }else{
@@ -430,9 +430,9 @@ function processIncome(scenarioEvents : Record<string,ScenarioEvent>, inflationR
 
             //Determine next year's income
             const incomeChange = resolveDistribution(currentEvent.event.changeDistribution)
-            if(currentEvent.event.changeAmountOrPercent == "amount"){
+            if(currentEvent.event.changeAmtOrPct == "amount"){
                 adjustedEventIncome = currentEvent.event.initialAmount + incomeChange
-            }else if(currentEvent.event.changeAmountOrPercent == "percent"){
+            }else if(currentEvent.event.changeAmtOrPct == "percent"){
                 adjustedEventIncome = currentEvent.event.initialAmount + (currentEvent.event.initialAmount * incomeChange)
             }else{
                 throw new Error("Invalid change distribution")
@@ -819,7 +819,9 @@ function generateExpenseSeriesFromEvents(eventSeries : Record<string,ScenarioEve
 
     const adjustedEventSeries = structuredClone(eventSeries)
 
-    const eventExpenses = Object.values(eventSeries).filter((currEvent) => currEvent.event.type == "expense" && hasEventStarted(currEvent,year)).map((currEvent) =>{
+    const eventExpenses = Object.values(eventSeries).filter((currEvent) => { 
+        return currEvent.event.type == "expense" && hasEventStarted(currEvent,year) && currEvent.event.discretionary == false
+    }).map((currEvent) =>{
         if(currEvent.event.type != "expense" || !hasEventStarted(currEvent,year)){
             throw new Error("Filter doesn't work properly")
         }
@@ -871,12 +873,11 @@ function payNonDiscretionaryExpenses(scenario : Scenario, taxBracket : TaxBracke
     const expenseWithdrawalStrategy = scenario.expenseWithdrawalStrategy
     const eventSeries = scenario.eventSeries
     const investmentDataRecord = scenario.investmentTypes
-    const expenseSeries :  ExpenseObject[] = []
+    let expenseSeries :  ExpenseObject[] = []
     const nonDescExpenseLogMessages : string[] = []
 
     let allExpensesPaid = false
-
-    expenseSeries.concat(determineTaxBurden(taxBracket,prevYearValues,filingStatus,filingStatus))
+    expenseSeries = expenseSeries.concat(determineTaxBurden(taxBracket,prevYearValues,filingStatus,filingStatus))
 
     let earlyWithdrawal = 0.0
     let totalIncome = 0.0
@@ -885,7 +886,7 @@ function payNonDiscretionaryExpenses(scenario : Scenario, taxBracket : TaxBracke
 
     const eventExpensesResult = generateExpenseSeriesFromEvents(eventSeries,year,inflationRate,spousalStatus)
 
-    expenseSeries.concat(eventExpensesResult.eventExpenses)
+    expenseSeries = expenseSeries.concat(eventExpensesResult.eventExpenses)
     const adjustedEventSeries = eventExpensesResult.adjustedEventSeries
 
     const cashInvestment = adjustedAccounts["cash"]
@@ -904,7 +905,7 @@ function payNonDiscretionaryExpenses(scenario : Scenario, taxBracket : TaxBracke
         totalExpenses -= cashWithdrawal
         cashInvestment.value -= cashWithdrawal
 
-        while(totalExpenses >= 0 && expenseWithdrawalStrategyIndex < expenseWithdrawalStrategy.length){
+        while(totalExpenses > 0 && expenseWithdrawalStrategyIndex < expenseWithdrawalStrategy.length){
 
             const withdrawingAccount = adjustedAccounts[expenseWithdrawalStrategy[expenseWithdrawalStrategyIndex]];
             const currentInvestmentData = investmentDataRecord[expenseWithdrawalStrategy[expenseWithdrawalStrategyIndex]]
@@ -952,9 +953,9 @@ function determineExpenseValueChange(event : ScenarioEvent,inflationRate : numbe
 
     let adjustedEventExpense
     const incomeChange = resolveDistribution(event.event.changeDistribution)
-    if(event.event.changeAmountOrPercent == "amount"){
+    if(event.event.changeAmtOrPct == "amount"){
         adjustedEventExpense = event.event.initialAmount + incomeChange
-    }else if(event.event.changeAmountOrPercent == "percent"){
+    }else if(event.event.changeAmtOrPct == "percent"){
         adjustedEventExpense = event.event.initialAmount + (event.event.initialAmount * incomeChange)
     }else{
         throw new Error("Invalid expense event change distribution")
@@ -1039,70 +1040,69 @@ function payDiscretionaryExpenses(scenario : Scenario, purchaseLedger : Record<s
     let totalCapitalGain = 0.0
     let expenseWithdrawalStrategyIndex = 0
 
-   while(expendableValue >= 0 && expenseWithdrawalStrategyIndex < expenseWithdrawalStrategy.length){
         
-        for(const expenseID in spendingStrategy){
+    for(const expenseID of spendingStrategy){
 
-            //Determine if we have exhausted all our accounts that we can withdraw from
-            if(expenseWithdrawalStrategyIndex < expenseWithdrawalStrategy.length){
-                break
+        //Determine if we have exhausted all our accounts that we can withdraw from
+        if(expenseWithdrawalStrategyIndex >= expenseWithdrawalStrategy.length){
+            break
+        }
+
+        //Determine expenses first
+        const currentExpense = adjustedEventSeries[expenseID];
+        if(currentExpense.event.type != "expense"){
+            throw new Error("Non-expense in spending strategy")
+        }
+        if(hasEventStarted(currentExpense,year) == false){
+            continue
+        }
+
+        let totalExpenses = 0
+        if(spousalStatus == true){
+            totalExpenses = currentExpense.event.initialAmount
+        }else{
+            totalExpenses = currentExpense.event.initialAmount * currentExpense.event.userFraction
+        }
+
+        if(expendableValue-totalExpenses <= 0){
+            continue;
+        }
+
+        //Withdraw from cash first
+        const cashWithdrawal = Math.min(totalExpenses,cashInvestment.value)
+        totalExpenses -= cashWithdrawal
+        cashInvestment.value -= cashWithdrawal
+
+        while(totalExpenses > 0 && expenseWithdrawalStrategyIndex < expenseWithdrawalStrategy.length){
+
+            const withdrawingAccount = adjustedAccounts[expenseWithdrawalStrategy[expenseWithdrawalStrategyIndex]];
+            const currentInvestmentData = investmentDataRecord[expenseWithdrawalStrategy[expenseWithdrawalStrategyIndex]]
+            const currentInvestmentLedger = purchaseLedger[expenseWithdrawalStrategy[expenseWithdrawalStrategyIndex]]
+            if(withdrawingAccount == null || currentInvestmentData == null || currentInvestmentLedger == null){
+                throw new Error("Investment does not exist")
             }
 
-            //Determine expenses first
-            const currentExpense = adjustedEventSeries[expenseID];
-            if(currentExpense.event.type != "expense"){
-                throw new Error("Non-expense in spending strategy")
-            }
-            if(hasEventStarted(currentExpense,year) == false){
-                continue
-            }
+            const withdrawnAmount = Math.min(totalExpenses,withdrawingAccount.value);
 
-            let totalExpenses = 0
-            if(spousalStatus == true){
-                totalExpenses = currentExpense.event.initialAmount
-            }else{
-                totalExpenses = currentExpense.event.initialAmount * currentExpense.event.userFraction
-            }
+            const taxFromWithdrawal = determineTaxFromWithdrawal(withdrawingAccount,currentInvestmentData,currentInvestmentLedger,withdrawnAmount,age)
 
-            if(expendableValue-totalExpenses <= 0){
-                continue;
-            }
+            totalIncome += taxFromWithdrawal.income
+            totalCapitalGain += taxFromWithdrawal.capitalGain
+            earlyWithdrawal += taxFromWithdrawal.earlyWithdrawal
 
-            //Withdraw from cash first
-            const cashWithdrawal = Math.min(totalExpenses,cashInvestment.value)
-            totalExpenses -= cashWithdrawal
-            cashInvestment.value -= cashWithdrawal
-
-            while(totalExpenses >= 0 && expenseWithdrawalStrategyIndex < expenseWithdrawalStrategy.length){
-
-                const withdrawingAccount = adjustedAccounts[expenseWithdrawalStrategy[expenseWithdrawalStrategyIndex]];
-                const currentInvestmentData = investmentDataRecord[expenseWithdrawalStrategy[expenseWithdrawalStrategyIndex]]
-                const currentInvestmentLedger = purchaseLedger[expenseWithdrawalStrategy[expenseWithdrawalStrategyIndex]]
-                if(withdrawingAccount == null || currentInvestmentData == null || currentInvestmentLedger == null){
-                    throw new Error("Investment does not exist")
-                }
-
-                const withdrawnAmount = Math.min(totalExpenses,withdrawingAccount.value);
-
-                const taxFromWithdrawal = determineTaxFromWithdrawal(withdrawingAccount,currentInvestmentData,currentInvestmentLedger,withdrawnAmount,age)
-
-                totalIncome += taxFromWithdrawal.income
-                totalCapitalGain += taxFromWithdrawal.capitalGain
-                earlyWithdrawal += taxFromWithdrawal.earlyWithdrawal
-
-                totalExpenses -= withdrawnAmount
-                withdrawingAccount.value -= withdrawnAmount
-                expendableValue -= withdrawnAmount
-                currentExpense.event.initialAmount = determineExpenseValueChange(currentExpense,inflationRate)
-                if(withdrawingAccount.value == 0){
-                    expenseWithdrawalStrategyIndex++
-                }
-
+            totalExpenses -= withdrawnAmount
+            withdrawingAccount.value -= withdrawnAmount
+            expendableValue -= withdrawnAmount
+            currentExpense.event.initialAmount = determineExpenseValueChange(currentExpense,inflationRate)
+            if(withdrawingAccount.value == 0){
+                expenseWithdrawalStrategyIndex++
             }
 
         }
 
-   }
+        }
+
+   
 
     return {earlyWithdrawal,totalIncome,totalCapitalGain,adjustedAccounts,adjustedEventSeries,discExpenseLogMessages}
 
@@ -1179,8 +1179,9 @@ function processInvestEvent(scenario: Scenario,year : number,purchaseLedger : Re
         //     return accumulatedValue += adjustedAccounts[currentInvestment].value
         // },0.0)
 
-        const realizedInvestmentAllocations = Object.values(currYearInvestmentAllocation).map((proportion)=>{
-            return (excessCash*proportion)
+        const realizedInvestmentAllocations : Record<string,number> = {}
+        Object.entries(currYearInvestmentAllocation).forEach(([asset,proportion])=>{
+            realizedInvestmentAllocations[asset] = (excessCash*proportion)
         })
 
         const totalAfterTaxContribution = Object.entries(realizedInvestmentAllocations).reduce((totalValue,[asset,contribution]) =>{
@@ -1192,12 +1193,14 @@ function processInvestEvent(scenario: Scenario,year : number,purchaseLedger : Re
 
         if(totalAfterTaxContribution > afterTaxContributionLimit){
             const reductionProportion = afterTaxContributionLimit/totalAfterTaxContribution
-            Object.entries(realizedInvestmentAllocations).map(([asset,contribution]) =>{
+            Object.entries(realizedInvestmentAllocations).forEach(([asset,contribution]) =>{
+
                 if(adjustedAccounts[asset].taxStatus == "after-tax"){
                     contribution -= contribution*reductionProportion
                 }else{
                     contribution += contribution*reductionProportion
                 }
+                realizedInvestmentAllocations[asset] = contribution
             })
         }
 

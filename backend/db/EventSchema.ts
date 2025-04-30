@@ -23,17 +23,14 @@ export const eventSchema = new Schema<Event>({
 const eventStartField = eventSchema.path<Schema.Types.DocumentArray>('start');
 
 const eventbasedStartSchema = new Schema<eventBased>({
-    withOrAfter: {
-        type: String,
-        enum: ["with", "after"]
-    },
-    event: String
+    eventSeries: String
 })
 
 eventStartField.discriminator('fixed',fixedValueSchema);
 eventStartField.discriminator('normal',normalDistSchema)
 eventStartField.discriminator('uniform',uniformDistSchema)
-eventStartField.discriminator('startsWith',eventbasedStartSchema)
+eventStartField.discriminator('startWith',eventbasedStartSchema)
+eventStartField.discriminator('startAfter',eventbasedStartSchema)
 
 //Different duration types
 const eventDurationField = eventSchema.path<Schema.Types.DocumentArray>('duration');
@@ -48,7 +45,7 @@ const eventDataField = eventSchema.path<Schema.Types.DocumentArray>('event');
 //Income schema
 const incomeEventSchema = new Schema<incomeEvent>({
     initialAmount: Number,
-    changeAmountOrPercent : {
+    changeAmtOrPct : {
         type: String,
         enum: ["amount","percent"]
     },
@@ -67,7 +64,7 @@ incomeChangeDistributionField.discriminator('uniform',uniformDistSchema)
 //Expense schema
 const expenseEventSchema = new Schema<expenseEvent>({
     initialAmount: Number,
-    changeAmountOrPercent : {
+    changeAmtOrPct : {
         type: String,
         enum: ["amount","percent"]
     },
@@ -123,9 +120,8 @@ eventDataField.discriminator('invest',investEventSchema);
 eventDataField.discriminator('rebalance',rebalanceEventSchema);
 
 interface eventBased{
-    type: "eventBased",
-    withOrAfter: "with" | "after",
-    event: string,
+    type: "startWith" | "startAfter",
+    eventSeries: string,
 }
 export type eventStartType = FixedDistribution | NormalDistribution | UniformDistribution | eventBased
 export type EventDistribution = FixedDistribution | NormalDistribution | UniformDistribution
@@ -133,7 +129,7 @@ export type EventDistribution = FixedDistribution | NormalDistribution | Uniform
 export interface incomeEvent{
     type: "income",
     initialAmount: number,
-    changeAmountOrPercent: "amount" | "percent",
+    changeAmtOrPct: "amount" | "percent",
     changeDistribution: EventDistribution,
     inflationAdjusted: boolean
     userFraction: number,
@@ -143,7 +139,7 @@ export interface incomeEvent{
 export interface expenseEvent{
     type: "expense",
     initialAmount: number,
-    changeAmountOrPercent: "amount" | "percent",
+    changeAmtOrPct: "amount" | "percent",
     changeDistribution: EventDistribution,
     inflationAdjusted: boolean,
     userFraction: number,

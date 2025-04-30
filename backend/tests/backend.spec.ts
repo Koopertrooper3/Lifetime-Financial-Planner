@@ -93,7 +93,7 @@ test('Create Scenario', async ({ request }) => {
         event: {
           type: "income",
           initialAmount: 75000,
-          changeAmountOrPercent: "amount",
+          changeAmtOrPct: "amount",
           changeDistribution: {
             type: "uniform",
             lower: 500,
@@ -106,7 +106,7 @@ test('Create Scenario', async ({ request }) => {
       },
       "invest" : {
         name: "invest",
-        start: {type: "eventBased", withOrAfter: "with", event: "salary"},
+        start: {type: "startWith", eventSeries: "salary"},
         duration: {type: "fixed", value: 200},
         event: {
             type: "invest", 

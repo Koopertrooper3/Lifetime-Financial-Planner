@@ -1,12 +1,14 @@
 import React from "react";
 import { Line } from "react-chartjs-2";
 
-
 export type Range = [number, number];
 
+export type YearlyResult = {
+  totalInvestments: number[];
+};
+
 type ShadedLineChartProps = {
-  years: number[];
-  medianValues: number[];
+  yearlyResults: Record<string, YearlyResult>;
   ranges: {
     "10-90": Range[];
     "20-80": Range[];
@@ -15,7 +17,16 @@ type ShadedLineChartProps = {
   };
 };
 
-const ShadedLineChart: React.FC<ShadedLineChartProps> = ({ years, medianValues, ranges }) => {
+const ShadedLineChart: React.FC<ShadedLineChartProps> = ({ yearlyResults, ranges }) => {
+  const years = Object.keys(yearlyResults).map(Number).sort();
+
+  const medianValues = years.map((year) => {
+    const values = yearlyResults[year.toString()].totalInvestments;
+    const sorted = [...values].sort((a, b) => a - b);
+    const mid = Math.floor(sorted.length / 2);
+    return sorted.length % 2 === 0 ? (sorted[mid - 1] + sorted[mid]) / 2 : sorted[mid];
+  });
+
   const data = {
     labels: years,
     datasets: [

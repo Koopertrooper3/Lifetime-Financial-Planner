@@ -24,28 +24,30 @@ const EventSeriesExpectedInput = ({
   const { editEventSeries } = useScenarioContext();
 
   useEffect(() => {
-    const mapDistributionTypeToLabel = (type: string) => {
-      if (type === "Normal") return "Normal Distribution";
-      if (type === "Fixed") return "Fixed Value";
-      if (type === "Uniform") return "Uniform Distribution";
-    };
+    if (editEventSeries) {
+      const mapDistributionTypeToLabel = (type: string) => {
+        if (type === "normal") return "Normal Distribution";
+        if (type === "fixed") return "Fixed Value";
+        if (type === "uniform") return "Uniform Distribution";
+      };
 
-    setDistributionType(
-      mapDistributionTypeToLabel(
-        editEventSeries?.event?.changeDistribution?.type
-      ) as
-        | "Fixed Value/Percentage"
-        | "Normal Distribution"
-        | "Uniform Distribution"
-    );
-    setIsFixedAmount(
-      editEventSeries?.event.changeAmountOrPercent?.type === "Amount"
-    );
-    setFixedValue(editEventSeries?.event?.changeDistribution?.value || "");
-    setMean(editEventSeries?.event?.changeDistribution?.mean || "");
-    setStdDev(editEventSeries?.event?.changeDistribution?.stdev || "");
-    setLowerBound(editEventSeries?.event?.changeDistribution?.min || "");
-    setUpperBound(editEventSeries?.event?.changeDistribution?.max || "");
+      setDistributionType(
+        mapDistributionTypeToLabel(
+          editEventSeries?.event?.changeDistribution?.type
+        ) as
+          | "Fixed Value/Percentage"
+          | "Normal Distribution"
+          | "Uniform Distribution"
+      );
+      setIsFixedAmount(
+        editEventSeries?.event.changeAmountOrPercent?.type === "amount"
+      );
+      setFixedValue(editEventSeries?.event?.changeDistribution?.value || "");
+      setMean(editEventSeries?.event?.changeDistribution?.mean || "");
+      setStdDev(editEventSeries?.event?.changeDistribution?.stdev || "");
+      setLowerBound(editEventSeries?.event?.changeDistribution?.min || "");
+      setUpperBound(editEventSeries?.event?.changeDistribution?.max || "");
+    }
   }, [editEventSeries]);
 
   const handleToggleSwitch = () => {

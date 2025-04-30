@@ -14,7 +14,7 @@ const baseEventSchema = z.object({
 });
 
 // 2. Define type-specific schemas that EXTEND the base schema
-const incomeEventSchema = baseEventSchema.extend({
+const incomeDataSchema = z.object({
   type: z.literal("income"),
   initialAmount: z.number(),
   changeAmtOrPct: z.enum(["amount", "percent", "Amount", "Percent"]),
@@ -24,7 +24,7 @@ const incomeEventSchema = baseEventSchema.extend({
   socialSecurity: z.boolean()
 });
 
-const expenseEventSchema = baseEventSchema.extend({
+const expenseDataSchema = z.object({
   type: z.literal("expense"),
   initialAmount: z.number(),
   changeAmtOrPct: z.enum(["amount", "percent", "Amount", "Percent"]),
@@ -36,7 +36,7 @@ const expenseEventSchema = baseEventSchema.extend({
 
 const assetAllocationSchema = z.record(z.string(), z.number())
 
-const investEventSchema = baseEventSchema.extend({
+const investDataSchema = z.object({
   type: z.literal("invest"),
   assetAllocation: assetAllocationSchema,
   glidePath: z.boolean(),
@@ -44,7 +44,7 @@ const investEventSchema = baseEventSchema.extend({
   maxCash: z.number()
 });
 
-const rebalanceEventSchema = baseEventSchema.extend({
+const rebalanceDataSchema = z.object({
   type: z.literal("rebalance"),
   taxStatus: z.enum(["pre-tax","after-tax","non-retirement"]).optional(),
   assetAllocation: assetAllocationSchema,
@@ -53,11 +53,13 @@ const rebalanceEventSchema = baseEventSchema.extend({
 });
 
 // 3. Combine all event types into one schema
-const eventSchema = z.discriminatedUnion("type", [
-  incomeEventSchema,
-  expenseEventSchema,
-  investEventSchema,
-  rebalanceEventSchema
-]);
+const eventSchema = baseEventSchema.extend({
+  event: z.discriminatedUnion("type",[
+    incomeDataSchema,
+    expenseDataSchema,
+    investDataSchema,
+    rebalanceDataSchema
+  ])
+})
 
 export default eventSchema;

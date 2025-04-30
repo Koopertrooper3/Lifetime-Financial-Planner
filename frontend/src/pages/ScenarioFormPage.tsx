@@ -46,6 +46,7 @@ export default function ScenarioFormPage() {
   } = useScenarioContext();
 
   const handleCancel = () => {
+    console.log(editScenario);
     navigate(`/scenario/${editScenario._id}`);
   };
 

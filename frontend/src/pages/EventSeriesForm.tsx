@@ -57,10 +57,10 @@ export default function EventSeriesForm() {
       } = eventSeriesFormHooks;
 
       const mapDistributionTypeToLabel = (type: string) => {
-        if (type === "Normal") return "Normal Distribution";
-        if (type === "Fixed") return "Fixed Value";
-        if (type === "Uniform") return "Uniform Distribution";
-        if (type === "EventBased") return "Event Based";
+        if (type === "normal") return "Normal Distribution";
+        if (type === "fixed") return "Fixed Value";
+        if (type === "uniform") return "Uniform Distribution";
+        if (type === "eventBased") return "Event Based";
       };
 
       // Name
@@ -73,8 +73,8 @@ export default function EventSeriesForm() {
       setStartYear(editEventSeries.start?.value || "");
       setMeanYear(editEventSeries.start?.mean || "");
       setStdDevYear(editEventSeries.start?.stdev || "");
-      setLowerBoundYear(editEventSeries.start?.min || "");
-      setUpperBoundYear(editEventSeries.start?.max || "");
+      setLowerBoundYear(editEventSeries.start?.lower || "");
+      setUpperBoundYear(editEventSeries.start?.upper || "");
       setWithOrAfter(editEventSeries.start?.withOrAfter || "");
       setSelectedEvent(editEventSeries.start?.event || "");
 
@@ -85,8 +85,8 @@ export default function EventSeriesForm() {
       setDurationValue(editEventSeries.duration?.value || "");
       setMeanDuration(editEventSeries.duration?.mean || "");
       setStdDuration(editEventSeries.duration?.stdev || "");
-      setLowerBoundDuration(editEventSeries.duration?.min || "");
-      setUpperBoundDuration(editEventSeries.duration?.max || "");
+      setLowerBoundDuration(editEventSeries.duration?.lower || "");
+      setUpperBoundDuration(editEventSeries.duration?.upper || "");
 
       // Event Type
       setEventType(editEventSeries.event?.type || "");
@@ -182,8 +182,8 @@ export default function EventSeriesForm() {
     } else if (startYearModel === "Uniform Distribution") {
       start = {
         type: "uniform",
-        min: Number(lowerBoundYear),
-        max: Number(upperBoundYear),
+        lower: Number(lowerBoundYear),
+        upper: Number(upperBoundYear),
       };
     } else if (startYearModel === "EventBased") {
       start = {
@@ -212,8 +212,8 @@ export default function EventSeriesForm() {
     } else if (durationType === "Uniform Distribution") {
       duration = {
         type: "uniform",
-        min: Number(lowerBoundDuration),
-        max: Number(upperBoundDuration),
+        lower: Number(lowerBoundDuration),
+        upper: Number(upperBoundDuration),
       };
     } else {
       throw new Error("Invalid duration type selected");
@@ -221,7 +221,7 @@ export default function EventSeriesForm() {
 
     // ============= Event ===============
     let event: incomeEvent | expenseEvent | investEvent | rebalanceEvent;
-    if (eventType === "Income") {
+    if (eventType === "income") {
       const incomeChangeDistribution: EventDistribution =
         incomeDistributionType === "Fixed Value/Percentage"
           ? { type: "fixed", value: Number(fixedIncomeValue) }
@@ -233,8 +233,8 @@ export default function EventSeriesForm() {
             }
           : {
               type: "uniform",
-              min: Number(incomeLowerBound),
-              max: Number(incomeUpperBound),
+              lower: Number(incomeLowerBound),
+              upper: Number(incomeUpperBound),
             };
 
       event = {
@@ -246,7 +246,7 @@ export default function EventSeriesForm() {
         userFraction: userPercentage / 100,
         socialSecurity: incomeType === "Social Security",
       };
-    } else if (eventType === "Expense") {
+    } else if (eventType === "expense") {
       const expenseChangeDistribution: EventDistribution =
         expenseDistributionType === "Fixed Value/Percentage"
           ? { type: "fixed", value: Number(expenseFixedValue) }
@@ -258,8 +258,8 @@ export default function EventSeriesForm() {
             }
           : {
               type: "uniform",
-              min: Number(expenseLowerBound),
-              max: Number(expenseUpperBound),
+              lower: Number(expenseLowerBound),
+              upper: Number(expenseUpperBound),
             };
 
       event = {
@@ -271,7 +271,7 @@ export default function EventSeriesForm() {
         userFraction: userPercentage / 100,
         discretionary: isDiscretionary,
       };
-    } else if (eventType === "Invest") {
+    } else if (eventType === "invest") {
       // Original array version
       const allocationArray: assetProportion[] = allocatedInvestments.map(
         (inv: any) => ({
@@ -309,7 +309,7 @@ export default function EventSeriesForm() {
         assetAllocation2: allocation2,
         maxCash: Number(investMaxCashHoldings),
       };
-    } else if (eventType === "Rebalance") {
+    } else if (eventType === "rebalance") {
       const allocationArray: assetProportion[] =
         allocatedRebalanceInvestments.map((inv: any) => ({
           asset: inv.asset,
@@ -350,11 +350,26 @@ export default function EventSeriesForm() {
     }
 
     // ============ Event Series ============
+    // const newEventSeries: Event = {
+    //   name: String(eventSeriesName),
+    //   start: start,
+    //   duration: duration,
+    //   event: event,
+    // };
+
     const newEventSeries: Event = {
-      name: String(eventSeriesName),
-      start: start,
-      duration: duration,
-      event: event,
+      name: "salary",
+      start: { type: "fixed", value: 2025 },
+      duration: { type: "fixed", value: 40 },
+      event: {
+        type: "income",
+        initialAmount: 75000,
+        changeAmountOrPercent: "amount",
+        changeDistribution: { type: "uniform", lower: 500, upper: 2000 },
+        inflationAdjusted: false,
+        userFraction: 1.0,
+        socialSecurity: false,
+      },
     };
 
     const updatedEventSeries = { ...eventSeries };
@@ -377,8 +392,10 @@ export default function EventSeriesForm() {
     const updatedField = {
       eventSeries: updatedEventSeries,
     };
-    const data = await handleEditScenario(userID, scenarioID, updatedField);
-    setEditScenario(data);
+    console.log("Updaded Field: Event Series Form: ", updatedField);
+    const response = await handleEditScenario(userID, scenarioID, updatedField);
+    console.log("Event Series Form Response: ", response.data);
+    setEditScenario(response.data);
 
     navigate("/dashboard/createScenario");
   };
@@ -596,7 +613,7 @@ export default function EventSeriesForm() {
                   <input
                     type="radio"
                     name="eventStart"
-                    value="With"
+                    value="with"
                     onChange={() => eventSeriesFormHooks.setWithOrAfter("with")}
                     checked={eventSeriesFormHooks.withOrAfter === "with"}
                   />
@@ -606,7 +623,7 @@ export default function EventSeriesForm() {
                   <input
                     type="radio"
                     name="eventStart"
-                    value="After"
+                    value="after"
                     onChange={() =>
                       eventSeriesFormHooks.setWithOrAfter("after")
                     }
@@ -778,9 +795,9 @@ export default function EventSeriesForm() {
                 <input
                   type="radio"
                   id="eventSeriesType"
-                  value="Income"
-                  onChange={() => eventSeriesFormHooks.setEventType("Income")}
-                  checked={eventSeriesFormHooks.eventType === "Income"}
+                  value="income"
+                  onChange={() => eventSeriesFormHooks.setEventType("income")}
+                  checked={eventSeriesFormHooks.eventType === "income"}
                 />
                 Income
               </label>
@@ -788,9 +805,9 @@ export default function EventSeriesForm() {
                 <input
                   type="radio"
                   id="eventSeriesType"
-                  value="Expense"
-                  onChange={() => eventSeriesFormHooks.setEventType("Expense")}
-                  checked={eventSeriesFormHooks.eventType === "Expense"}
+                  value="expense"
+                  onChange={() => eventSeriesFormHooks.setEventType("expense")}
+                  checked={eventSeriesFormHooks.eventType === "expense"}
                 />
                 Expense
               </label>
@@ -798,9 +815,9 @@ export default function EventSeriesForm() {
                 <input
                   type="radio"
                   id="eventSeriesType"
-                  value="Invest"
-                  onChange={() => eventSeriesFormHooks.setEventType("Invest")}
-                  checked={eventSeriesFormHooks.eventType === "Invest"}
+                  value="invest"
+                  onChange={() => eventSeriesFormHooks.setEventType("invest")}
+                  checked={eventSeriesFormHooks.eventType === "invest"}
                 />
                 Invest
               </label>
@@ -808,18 +825,23 @@ export default function EventSeriesForm() {
                 <input
                   type="radio"
                   id="eventSeriesType"
-                  value="Rebalance"
+                  value="rebalance"
                   onChange={() =>
-                    eventSeriesFormHooks.setEventType("Rebalance")
+                    eventSeriesFormHooks.setEventType("rebalance")
                   }
-                  checked={eventSeriesFormHooks.eventType === "Rebalance"}
+                  checked={eventSeriesFormHooks.eventType === "rebalance"}
                 />
                 Rebalance
               </label>
             </div>
           </div>
 
-          {eventSeriesFormHooks.eventType === "Income" && (
+          <div
+            style={{
+              display:
+                eventSeriesFormHooks.eventType === "income" ? "block" : "none",
+            }}
+          >
             <EventSeriesIncome
               incomeType={eventSeriesFormHooks.incomeType}
               setIncomeType={eventSeriesFormHooks.setIncomeType}
@@ -848,9 +870,9 @@ export default function EventSeriesForm() {
               spousePercentage={eventSeriesFormHooks.spousePercentage}
               setSpousePercentage={eventSeriesFormHooks.setSpousePercentage}
             />
-          )}
+          </div>
 
-          {eventSeriesFormHooks.eventType === "Expense" && (
+          {eventSeriesFormHooks.eventType === "expense" && (
             <EventSeriesExpense
               isDiscretionary={eventSeriesFormHooks.isDiscretionary}
               setIsDiscretionary={eventSeriesFormHooks.setIsDiscretionary}
@@ -885,7 +907,7 @@ export default function EventSeriesForm() {
             />
           )}
 
-          {eventSeriesFormHooks.eventType === "Invest" && (
+          {eventSeriesFormHooks.eventType === "invest" && (
             <EventSeriesInvest
               allocationType={eventSeriesFormHooks.investAllocationType}
               setAllocationType={eventSeriesFormHooks.setInvestAllocationType}
@@ -908,7 +930,7 @@ export default function EventSeriesForm() {
             />
           )}
 
-          {eventSeriesFormHooks.eventType === "Rebalance" && (
+          {eventSeriesFormHooks.eventType === "rebalance" && (
             <EventSeriesRebalance
               allocationType={eventSeriesFormHooks.allocationType}
               setAllocationType={eventSeriesFormHooks.setAllocationType}

@@ -26,7 +26,9 @@ export function useEventSeriesFormHooks() {
     ""
   );
 
-  const [eventType, setEventType] = useState("Income");
+  const [eventType, setEventType] = useState<
+    "income" | "expense" | "invest" | "rebalance"
+  >("income");
 
   const [incomeType, setIncomeType] = useState<"Social Security" | "Wages">(
     "Social Security"

@@ -48,7 +48,7 @@ const AddPlan = () => {
     const userInfo = await axios.get("http://localhost:8000/user", {
       withCredentials: true,
     });
-    return userInfo.data.googleId;
+    return userInfo.data._id;
   };
 
   const handleSaveScenario = async (userID: string, scenario: Scenario) => {
@@ -69,7 +69,6 @@ const AddPlan = () => {
 
   const handleClick = async () => {
     const currentUserId = await getId();
-    console.log("Raw lifeExpectancy:", lifeExpectancy);
 
     const scenario = {
       name: name,
@@ -95,6 +94,8 @@ const AddPlan = () => {
       currentUserId,
       scenario
     );
+    console.log("Add Plan: latestScenarioData", latestScenarioData);
+    console.log("latestScenarioData.scenarioID", latestScenarioData.scenarioID);
     const latestScenario = await fetchScenario(latestScenarioData.scenarioID);
     console.log("Add Plan: latestScenario: ", latestScenario);
     setEditScenario(latestScenario);

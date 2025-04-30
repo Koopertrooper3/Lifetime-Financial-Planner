@@ -1,39 +1,41 @@
 import React from "react";
 import { Bar } from "react-chartjs-2";
 
-type Investment = {
-  name: string;
-  value: number;
-};
+export type YearlyInvestmentBreakdown = Record<string, number>;
 
 type StackedBarChartProps = {
-  data: {
-    year: number;
-    investments: Investment[];
-  }[];
+  yearlyBreakdown: Record<string, YearlyInvestmentBreakdown> | undefined | null;
 };
 
-const StackedBarChart: React.FC<StackedBarChartProps> = ({ data }) => {
-  const labels = data.map((item) => item.year);
+const StackedBarChart: React.FC<StackedBarChartProps> = ({ yearlyBreakdown }) => {
+  if (!yearlyBreakdown || typeof yearlyBreakdown !== "object") return null;
 
-  const investmentNames = Array.from(
-    new Set(data.flatMap((item) => item.investments.map((inv) => inv.name)))
-  );
+  const years = Object.keys(yearlyBreakdown)
+    .map(Number)
+    .filter((y) => !isNaN(y))
+    .sort((a, b) => a - b);
+
+  const allNames = new Set<string>();
+  Object.values(yearlyBreakdown).forEach((inv) => {
+    if (inv && typeof inv === "object") {
+      Object.keys(inv).forEach((name) => allNames.add(name));
+    }
+  });
+  const investmentNames = Array.from(allNames);
 
   const datasets = investmentNames.map((name) => ({
     label: name,
-    data: data.map((yearData) => {
-      const investment = yearData.investments.find((inv) => inv.name === name);
-      return investment ? investment.value : 0;
-    }),
+    data: years.map(
+      (year) => yearlyBreakdown?.[year.toString()]?.[name] ?? 0
+    ),
     backgroundColor: `rgba(${Math.floor(Math.random() * 255)}, ${Math.floor(
       Math.random() * 255
-    )}, ${Math.floor(Math.random() * 255)}, 0.6)`, // Random colors for now
+    )}, ${Math.floor(Math.random() * 255)}, 0.6)`,
     stack: "stack1",
   }));
 
   const chartData = {
-    labels,
+    labels: years,
     datasets,
   };
 
