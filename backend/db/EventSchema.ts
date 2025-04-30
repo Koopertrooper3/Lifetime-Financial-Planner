@@ -17,7 +17,7 @@ export const eventSchema = new Schema<Event>({
     start: startTypeSchema,
     duration: durationTypeSchema,
     event: eventDataSchema
-})
+},{_id: false})
 
 //Different event types
 const eventStartField = eventSchema.path<Schema.Types.DocumentArray>('start');
@@ -53,7 +53,7 @@ const incomeEventSchema = new Schema<incomeEvent>({
     inflationAdjusted: Boolean,
     userFraction: Number,
     socialSecurity: Boolean,
-})
+},{_id: false})
 
 
 const incomeChangeDistributionField = incomeEventSchema.path<Schema.Types.DocumentArray>('changeDistribution')
@@ -72,7 +72,7 @@ const expenseEventSchema = new Schema<expenseEvent>({
     inflationAdjusted: Boolean,
     userFraction: Number,
     discretionary: Boolean,
-})
+},{_id: false})
 const expenseChangeDistributionField = expenseEventSchema.path<Schema.Types.DocumentArray>('changeDistribution')
 expenseChangeDistributionField.discriminator('normal',normalDistSchema)
 expenseChangeDistributionField.discriminator('uniform',uniformDistSchema)
@@ -94,7 +94,7 @@ const investEventSchema = new Schema<investEvent>({
         of: Number
     },
     maxCash: Number,
-})
+},{_id: false})
 
 //Rebalance schema
 
@@ -112,7 +112,7 @@ const rebalanceEventSchema = new Schema<rebalanceEvent>({
         type: Map,
         of: Number
     },
-})
+},{_id: false})
 
 eventDataField.discriminator('income',incomeEventSchema);
 eventDataField.discriminator('expense',expenseEventSchema);

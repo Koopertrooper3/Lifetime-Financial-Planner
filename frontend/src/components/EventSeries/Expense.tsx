@@ -143,20 +143,20 @@ export default function EventSeriesExpense({
         </div>
         {
           <EventSeriesExpectedInput
-            distributionType={expenseDistributionType}
-            setDistributionType={setExpenseDistributionType}
-            isFixedAmount={isExpenseAmount}
-            setIsFixedAmount={setIsExpenseAmount}
-            fixedValue={expenseFixedValue}
-            setFixedValue={setExpenseFixedValue}
-            mean={expenseMean}
-            setMean={setExpenseMean}
-            stdDev={expenseStdDev}
-            setStdDev={setExpenseStdDev}
-            lowerBound={expenseLowerBound}
-            setLowerBound={setExpenseLowerBound}
-            upperBound={expenseUpperBound}
-            setUpperBound={setExpenseUpperBound}
+            // distributionType={expenseDistributionType}
+            // setDistributionType={setExpenseDistributionType}
+            // isFixedAmount={isExpenseAmount}
+            // setIsFixedAmount={setIsExpenseAmount}
+            // fixedValue={expenseFixedValue}
+            // setFixedValue={setExpenseFixedValue}
+            // mean={expenseMean}
+            // setMean={setExpenseMean}
+            // stdDev={expenseStdDev}
+            // setStdDev={setExpenseStdDev}
+            // lowerBound={expenseLowerBound}
+            // setLowerBound={setExpenseLowerBound}
+            // upperBound={expenseUpperBound}
+            // setUpperBound={setExpenseUpperBound}
           ></EventSeriesExpectedInput>
         }
         {

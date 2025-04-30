@@ -1,37 +1,39 @@
 import ToggleSwitch from "./ToggleSwitch";
 import "../../stylesheets/InvestmentType/ExpectedInput.css";
 import ValidationTextFields from "./ValidationTextFields";
-import { ExpectedInput } from "../../interfaces/EventSeries/ExpectedInput";
 import { useEffect } from "react";
 import { useScenarioContext } from "../../useScenarioContext";
+import { useEventSeriesFormHooks } from "../../hooks/useEventSeriesFormHooks";
 
-const EventSeriesExpectedInput = ({
-  distributionType,
-  setDistributionType,
-  isFixedAmount,
-  setIsFixedAmount,
-  fixedValue = "",
-  setFixedValue = () => {},
-  mean = "",
-  setMean = () => {},
-  stdDev = "",
-  setStdDev = () => {},
-  lowerBound = "",
-  setLowerBound = () => {},
-  upperBound = "",
-  setUpperBound = () => {},
-}: ExpectedInput) => {
+const EventSeriesExpectedInput = () => {
   const { editEventSeries } = useScenarioContext();
+  const { eventSeriesFormHooks } = useEventSeriesFormHooks();
+  const {
+    incomeDistributionType,
+    isFixedIncomeAmount,
+    fixedIncomeValue,
+    incomeMean,
+    incomeStdDev,
+    incomeLowerBound,
+    incomeUpperBound,
+    setIncomeDistributionType,
+    setIsFixedIncomeAmount,
+    setFixedIncomeValue,
+    setIncomeMean,
+    setIncomeStdDev,
+    setIncomeLowerBound,
+    setIncomeUpperBound,
+  } = eventSeriesFormHooks;
 
   useEffect(() => {
     if (editEventSeries) {
       const mapDistributionTypeToLabel = (type: string) => {
         if (type === "normal") return "Normal Distribution";
-        if (type === "fixed") return "Fixed Value";
+        if (type === "fixed") return "Fixed Value/Percentage";
         if (type === "uniform") return "Uniform Distribution";
       };
 
-      setDistributionType(
+      setIncomeDistributionType(
         mapDistributionTypeToLabel(
           editEventSeries?.event?.changeDistribution?.type
         ) as
@@ -39,22 +41,32 @@ const EventSeriesExpectedInput = ({
           | "Normal Distribution"
           | "Uniform Distribution"
       );
-      setIsFixedAmount(
-        editEventSeries?.event.changeAmountOrPercent?.type === "amount"
+      setIsFixedIncomeAmount(
+        editEventSeries?.event.changeAmtOrPct?.type === "amount"
       );
-      setFixedValue(editEventSeries?.event?.changeDistribution?.value || "");
-      setMean(editEventSeries?.event?.changeDistribution?.mean || "");
-      setStdDev(editEventSeries?.event?.changeDistribution?.stdev || "");
-      setLowerBound(editEventSeries?.event?.changeDistribution?.min || "");
-      setUpperBound(editEventSeries?.event?.changeDistribution?.max || "");
+      setFixedIncomeValue(
+        editEventSeries?.event?.changeDistribution?.value?.toString() || ""
+      );
+      setIncomeMean(
+        editEventSeries?.event?.changeDistribution?.mean?.toString() || ""
+      );
+      setIncomeStdDev(
+        editEventSeries?.event?.changeDistribution?.stdev?.toString() || ""
+      );
+      setIncomeLowerBound(
+        editEventSeries?.event?.changeDistribution?.lower?.toString() || ""
+      );
+      setIncomeUpperBound(
+        editEventSeries?.event?.changeDistribution?.upper?.toString() || ""
+      );
     }
   }, [editEventSeries]);
 
   const handleToggleSwitch = () => {
-    setIsFixedAmount(!isFixedAmount);
+    setIsFixedIncomeAmount(!isFixedIncomeAmount);
   };
 
-  if (distributionType === "Fixed Value/Percentage") {
+  if (incomeDistributionType === "Fixed Value/Percentage") {
     return (
       <div className="expected-input-container">
         <p>Enter Annual Change in amount?</p>
@@ -66,20 +78,20 @@ const EventSeriesExpectedInput = ({
             (e.g. 2%){" "}
             <span>
               <ToggleSwitch
-                checked={isFixedAmount}
+                checked={isFixedIncomeAmount}
                 onChange={handleToggleSwitch}
               />
             </span>
           </div>
         </div>
         <ValidationTextFields
-          value={fixedValue}
+          value={fixedIncomeValue}
           placeholder={`Enter ${
-            isFixedAmount
+            isFixedIncomeAmount
               ? "a dollar amount (e.g. $50)"
               : "a percentage amount (e.g. 0.4%)"
           }`}
-          setInput={setFixedValue}
+          setInput={setFixedIncomeValue}
           inputType="number"
           width="100%"
           height="1.4375em"
@@ -89,7 +101,7 @@ const EventSeriesExpectedInput = ({
     );
   }
 
-  if (distributionType == "Normal Distribution") {
+  if (incomeDistributionType == "Normal Distribution") {
     return (
       <div className="expected-input-container">
         <p>
@@ -105,7 +117,7 @@ const EventSeriesExpectedInput = ({
             (e.g. 2%){" "}
             <span>
               <ToggleSwitch
-                checked={isFixedAmount}
+                checked={isFixedIncomeAmount}
                 onChange={handleToggleSwitch}
               />
             </span>
@@ -115,13 +127,13 @@ const EventSeriesExpectedInput = ({
           <div className="input-container">
             <p className="textbox-title">Enter the mean</p>
             <ValidationTextFields
-              value={mean}
+              value={incomeMean}
               placeholder={`Enter ${
-                isFixedAmount
+                isFixedIncomeAmount
                   ? "a dollar amount (e.g. $50)"
                   : "a percentage amount (e.g. 2%)"
               }`}
-              setInput={setMean}
+              setInput={setIncomeMean}
               inputType="number"
               width="100%"
               height="1.4375em"
@@ -132,13 +144,13 @@ const EventSeriesExpectedInput = ({
           <div className="input-container">
             <p>Enter the standard deviation</p>
             <ValidationTextFields
-              value={stdDev}
+              value={incomeStdDev}
               placeholder={`Enter ${
-                isFixedAmount
+                isFixedIncomeAmount
                   ? "a dollar amount (e.g. $50)"
                   : "a percentage amount (e.g. 2%)"
               }`}
-              setInput={setStdDev}
+              setInput={setIncomeStdDev}
               inputType="number"
               width="100%"
               height="1.4375em"
@@ -150,7 +162,7 @@ const EventSeriesExpectedInput = ({
     );
   }
 
-  if (distributionType == "Uniform Distribution") {
+  if (incomeDistributionType == "Uniform Distribution") {
     return (
       <div className="expected-input-container">
         <p>
@@ -166,7 +178,7 @@ const EventSeriesExpectedInput = ({
             (e.g. 2%){" "}
             <span>
               <ToggleSwitch
-                checked={isFixedAmount}
+                checked={isFixedIncomeAmount}
                 onChange={handleToggleSwitch}
               />
             </span>
@@ -176,13 +188,13 @@ const EventSeriesExpectedInput = ({
           <div className="input-container">
             <p className="textbox-title">Enter the lower bound</p>
             <ValidationTextFields
-              value={lowerBound}
+              value={incomeLowerBound}
               placeholder={`Enter ${
-                isFixedAmount
+                isFixedIncomeAmount
                   ? "a dollar amount (e.g. $50)"
                   : "a percentage amount (e.g. 2%)"
               }`}
-              setInput={setLowerBound}
+              setInput={setIncomeLowerBound}
               inputType="number"
               width="100%"
               height="1.4375em"
@@ -193,13 +205,13 @@ const EventSeriesExpectedInput = ({
           <div className="input-container">
             <p>Enter the upper bound</p>
             <ValidationTextFields
-              value={upperBound}
+              value={incomeUpperBound}
               placeholder={`Enter ${
-                isFixedAmount
+                isFixedIncomeAmount
                   ? "a dollar amount (e.g. $50)"
                   : "a percentage amount (e.g. 2%)"
               }`}
-              setInput={setUpperBound}
+              setInput={setIncomeUpperBound}
               inputType="number"
               width="100%"
               height="1.4375em"
@@ -210,6 +222,8 @@ const EventSeriesExpectedInput = ({
       </div>
     );
   }
+
+  return null;
 };
 
 export default EventSeriesExpectedInput;

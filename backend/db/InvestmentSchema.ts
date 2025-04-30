@@ -18,7 +18,7 @@ export const investmentSchema = new mongoose.Schema<Investment>({
         type: String,
         required: true,
     }
-});
+},{ _id : false });
 
 export interface Investment{
     investmentType: string,

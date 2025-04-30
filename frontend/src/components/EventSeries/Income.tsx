@@ -50,6 +50,13 @@ export default function EventSeriesIncome({
 
   useEffect(() => {
     if (editEventSeries) {
+      console.log("Income: ", editEventSeries);
+      console.log(
+        "Income: ",
+        mapDistributionTypeToLabel(
+          editEventSeries.event.changeDistribution.type
+        )
+      );
       const {
         setIncomeType,
         setIncomeInitialValue,
@@ -183,20 +190,20 @@ export default function EventSeriesIncome({
 
         {
           <EventSeriesExpectedInput
-            distributionType={distributionType}
-            setDistributionType={setDistributionType}
-            isFixedAmount={isFixedAmount}
-            setIsFixedAmount={setIsFixedAmount}
-            fixedValue={fixedValue}
-            setFixedValue={setFixedValue}
-            mean={mean}
-            setMean={setMean}
-            stdDev={stdDev}
-            setStdDev={setStdDev}
-            lowerBound={lowerBound}
-            setLowerBound={setLowerBound}
-            upperBound={upperBound}
-            setUpperBound={setUpperBound}
+          // distributionType={distributionType}
+          // setDistributionType={setDistributionType}
+          // isFixedAmount={isFixedAmount}
+          // setIsFixedAmount={setIsFixedAmount}
+          // fixedValue={fixedValue}
+          // setFixedValue={setFixedValue}
+          // mean={mean}
+          // setMean={setMean}
+          // stdDev={stdDev}
+          // setStdDev={setStdDev}
+          // lowerBound={lowerBound}
+          // setLowerBound={setLowerBound}
+          // upperBound={upperBound}
+          // setUpperBound={setUpperBound}
           ></EventSeriesExpectedInput>
         }
 

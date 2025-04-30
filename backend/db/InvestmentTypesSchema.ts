@@ -3,7 +3,7 @@ import { fixedValueSchema,FixedDistribution, normalDistSchema, NormalDistributio
 
 
 
-const distributionWrapper = new Schema({}, {discriminatorKey: 'type'})
+const distributionWrapper = new Schema({}, {discriminatorKey: 'type',_id: false})
 
 export const investmentTypeSchema = new Schema<InvestmentType>({
     name: {
@@ -39,7 +39,7 @@ export const investmentTypeSchema = new Schema<InvestmentType>({
         type: Boolean,
         required: true
     },
-});
+},{ _id : false });
 
 const returnDistributionField = investmentTypeSchema.path<Schema.Types.DocumentArray>('returnDistribution');
 
