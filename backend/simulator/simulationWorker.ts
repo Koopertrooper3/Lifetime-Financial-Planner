@@ -282,7 +282,7 @@ function resolveEventDurations(scenarioEvents : Record<string,ScenarioEvent>){
 
         currentEvent.duration = {type: "fixed", value: realizedDuration}
 
-        if(currentEvent.start.type != "eventBased"){
+        if(currentEvent.start.type != "startWith" && currentEvent.start.type != "startAfter"){
             //TP: Following code was generate by copilot with three promots
             /* generate all possible cases of currentEvent.duration.start
             make it a switch statement
@@ -313,20 +313,20 @@ function resolveEventDurations(scenarioEvents : Record<string,ScenarioEvent>){
 
         const event = resolvedEventSeries[eventKey]
 
-        if(event.start.type != "eventBased"){
+        if(event.start.type != "startWith" && event.start.type != "startAfter"){
             throw new Error("Event already resolved")
         }
 
-        const parentEvent = resolvedEventSeries[event.start.event]
+        const parentEvent = resolvedEventSeries[event.start.eventSeries]
 
         
-        if(event.start.withOrAfter == "with"){
+        if(event.start.type == "startWith"){
             if(parentEvent.start.type != "fixed"){
                 dependentEventStack.push(eventKey)
             }else{ 
                 event.start = {type: "fixed", value: parentEvent.start.value}
             }
-        }else if(event.start.withOrAfter == "after"){
+        }else if(event.start.type == "startAfter"){
             if(parentEvent.start.type != "fixed"){
                 dependentEventStack.push(eventKey)
             }else{
@@ -430,9 +430,9 @@ function processIncome(scenarioEvents : Record<string,ScenarioEvent>, inflationR
 
             //Determine next year's income
             const incomeChange = resolveDistribution(currentEvent.event.changeDistribution)
-            if(currentEvent.event.changeAmountOrPercent == "amount"){
+            if(currentEvent.event.changeAmtOrPct == "amount"){
                 adjustedEventIncome = currentEvent.event.initialAmount + incomeChange
-            }else if(currentEvent.event.changeAmountOrPercent == "percent"){
+            }else if(currentEvent.event.changeAmtOrPct == "percent"){
                 adjustedEventIncome = currentEvent.event.initialAmount + (currentEvent.event.initialAmount * incomeChange)
             }else{
                 throw new Error("Invalid change distribution")
@@ -952,9 +952,9 @@ function determineExpenseValueChange(event : ScenarioEvent,inflationRate : numbe
 
     let adjustedEventExpense
     const incomeChange = resolveDistribution(event.event.changeDistribution)
-    if(event.event.changeAmountOrPercent == "amount"){
+    if(event.event.changeAmtOrPct == "amount"){
         adjustedEventExpense = event.event.initialAmount + incomeChange
-    }else if(event.event.changeAmountOrPercent == "percent"){
+    }else if(event.event.changeAmtOrPct == "percent"){
         adjustedEventExpense = event.event.initialAmount + (event.event.initialAmount * incomeChange)
     }else{
         throw new Error("Invalid expense event change distribution")
