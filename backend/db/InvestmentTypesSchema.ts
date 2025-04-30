@@ -43,15 +43,15 @@ export const investmentTypeSchema = new Schema<InvestmentType>({
 
 const returnDistributionField = investmentTypeSchema.path<Schema.Types.DocumentArray>('returnDistribution');
 
-returnDistributionField.discriminator('Fixed',fixedValueSchema);
-returnDistributionField.discriminator('Normal',normalDistSchema)
-returnDistributionField.discriminator('Uniform',uniformDistSchema)
+returnDistributionField.discriminator('fixed',fixedValueSchema);
+returnDistributionField.discriminator('normal',normalDistSchema)
+returnDistributionField.discriminator('uniform',uniformDistSchema)
 
 const incomeDistributionField = investmentTypeSchema.path<Schema.Types.DocumentArray>('incomeDistribution');
 
-incomeDistributionField.discriminator('Fixed',fixedValueSchema);
-incomeDistributionField.discriminator('Normal',normalDistSchema)
-incomeDistributionField.discriminator('Uniform',uniformDistSchema)
+incomeDistributionField.discriminator('fixed',fixedValueSchema);
+incomeDistributionField.discriminator('normal',normalDistSchema)
+incomeDistributionField.discriminator('uniform',uniformDistSchema)
 
 export type ReturnDistribution = FixedDistribution | NormalDistribution | UniformDistribution
 export type IncomeDistribution = FixedDistribution | NormalDistribution | UniformDistribution

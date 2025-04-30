@@ -52,8 +52,7 @@ export default function({scenarioID} : Props){
             // re-arrange investmentTypes
             const investmentTypesField = Object.values(scenario["investmentTypes"]);
             scenario["investmentTypes"] = investmentTypesField;
-
-            console.log(scenario)
+            
             JsonToYamlDownloader(scenario)
         }
         catch (err){
