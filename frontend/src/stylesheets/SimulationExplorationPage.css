@@ -1,0 +1,61 @@
+.simulation-container {
+  padding: 24px;
+  font-family: sans-serif;
+  max-width: 1000px;
+  margin: auto;
+}
+
+.simulation-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.simulation-header {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 16px;
+}
+
+.simulation-input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+.simulation-button {
+  grid-column: span 2;
+  padding: 14px 0;
+  background-color: #007bff;
+  color: white;
+  font-weight: 600;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.simulation-button:hover {
+  background-color: #0056b3;
+}
+
+.simulation-results {
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  padding: 16px;
+  border-radius: 6px;
+  margin-top: 20px;
+  white-space: pre-wrap;
+  overflow-x: auto;
+  font-family: monospace;
+  font-size: 13px;
+}
+
+.simulation-section-title {
+  grid-column: span 2;
+  font-weight: 600;
+  margin-top: 12px;
+  font-size: 15px;
+}

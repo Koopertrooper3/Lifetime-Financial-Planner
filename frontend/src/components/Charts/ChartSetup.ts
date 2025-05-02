@@ -5,6 +5,7 @@ import {
     BarElement,
     PointElement,
     LineElement,
+    Filler,
     Title,
     Tooltip,
     Legend,
@@ -17,6 +18,7 @@ import {
       BarElement,
       PointElement,
       LineElement,
+      Filler,
       Title,
       Tooltip,
       Legend

@@ -15,6 +15,8 @@ import EditScenarioPage from "./pages/EditScenarioPage";
 import CreateSlideWrapper from "./CreateSlideWrapper";
 import UserProfilePage from "./pages/UserProfilePage";
 import { registerChartJSComponents } from "./components/Charts/ChartSetup";
+import SimulationExplorationPage from "./pages/SimulationExplorationPage";
+
 registerChartJSComponents();
 
 
@@ -56,6 +58,8 @@ function App() {
             <Route path="/user-profile" element={<UserProfilePage />} />
             <Route path="/scenarios/:id/edit" element={<EditScenarioPage />} />
             <Route path="/shared" element={<SharedWithMePage/>} />
+            <Route path="/simulationPage" element={<SimulationExplorationPage/>} />
+
             {/* <Route
             path="Limits&ContributionLimits"
             element={<LimitsInflationPage />}
