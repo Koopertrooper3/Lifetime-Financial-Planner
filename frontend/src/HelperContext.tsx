@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { isDebug, User } from "./debug";
@@ -9,10 +10,12 @@ interface HelperContextType {
   fetchScenario: (id: string) => Promise<any>;
   fetchAllScenarios: () => Promise<any>;
   fetchSimulationResults: (scenarioId: string) => Promise<any>;
-  setGlobalUserID: (userId: string) => void;
+  fetchUser: () => void;
   userID: any;
   allInvestmentTypes: any[] | null;
   allScenarios: any[] | null;
+  ownedScenarios : any[],
+  sharedWithScenarios : any[],
   handleEditScenario: (
     userID: string,
     scenarioID: string,
@@ -24,10 +27,12 @@ const HelperContext = createContext<HelperContextType>({
   fetchScenario: async () => null,
   fetchAllScenarios: async () => null,
   fetchSimulationResults: async () => null,
-  setGlobalUserID: async () => null,
+  fetchUser: async () => null,
   userID: "",
   allInvestmentTypes: null,
   allScenarios: null,
+  ownedScenarios : [],
+  sharedWithScenarios : [],
   handleEditScenario: async () => null,
 });
 
@@ -36,6 +41,9 @@ export const useHelperContext = () => useContext(HelperContext);
 export const HelperContextProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
+
+  const fullBackendUrl ="http://" +import.meta.env.VITE_BACKEND_IP +":" +import.meta.env.VITE_BACKEND_PORT;
+
   type Scenario = {
     _id: string;
     name: string;
@@ -49,41 +57,37 @@ export const HelperContextProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const [allScenarios, setAllScenarios] = useState<Scenario[] | null>(null);
+  const [ownedScenarios, setOwnedScenarios] = useState<Scenario[] | null>(null);
+  const [sharedWithScenarios, setSharedWithScenarios] = useState<Scenario[] | null>(null);
   const [allInvestmentTypes, setAllInvestmentTypes] = useState<
     InvestmentType[] | null
   >(null);
 
   const [userID, setUserID] = useState<User | null>(null);
 
-  const mockScenarios = [
-    { _id: "1", name: "Mock Retirement Plan" },
-    { _id: "2", name: "Guest Scenario" },
-  ];
-
-  const mockInvestmentTypes = [
-    { _id: "a", name: "Stocks" },
-    { _id: "b", name: "Bonds" },
-  ];
-
-  // useEffect(() => {
-  //   if (isDebug) {
-  //     console.log("DEBUG MODE: Injecting mock scenario and investment data.");
-  //     setAllScenarios(mockScenarios);
-  //     setAllInvestmentTypes(mockInvestmentTypes);
-  //   } else {
-  //     fetchAllScenarios();
-  //   }
-  // }, []);
-
-  // ------ WITHOUT DEBUG ------
+  
 
   useEffect(() => {
-    fetchAllScenarios();
+    const mockScenarios = [
+      { _id: "1", name: "Mock Retirement Plan" },
+      { _id: "2", name: "Guest Scenario" },
+    ];
+  
+    const mockInvestmentTypes = [
+      { _id: "a", name: "Stocks" },
+      { _id: "b", name: "Bonds" },
+    ];
+
+    if (isDebug) {
+      console.log("DEBUG MODE: Injecting mock scenario and investment data.");
+      setAllScenarios(mockScenarios);
+      setAllInvestmentTypes(mockInvestmentTypes);
+    } else {
+      fetchAllScenarios();
+    }
   }, []);
 
-  useEffect(() => {
-    console.log("All investment types:", allInvestmentTypes);
-  }, [allInvestmentTypes]);
+  // ------ WITHOUT DEBUG ------
 
   const fetchScenario = async (id: string) => {
     console.log("Fetching for scenario: ", id);
@@ -110,8 +114,8 @@ export const HelperContextProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const fetchAllScenarios = async () => {
     try {
-      const res = await fetch(`http://localhost:8000/scenario/`);
-      const json = await res.json();
+      const res = await axios.get(`http://localhost:8000/scenario/`,{withCredentials: true,});
+      const json = await res.data;
       setAllScenarios(json.data);
     } catch (error) {
       console.error("Error fetching all the scenarios:", error);
@@ -138,9 +142,44 @@ export const HelperContextProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
+  const fetchUser = async() => {
+    try {
+      const response = await axios.get(fullBackendUrl + "/user", {
+        withCredentials: true,
+      });
+      console.log(response.data);
+      setUserID(response.data);
+    } catch (err) {
+      console.error("error fetching user data", err);
+    }
+  }
+  
+  const fetchUserContent = async () => {
+
+    try {
+      const response = await axios.get(fullBackendUrl + "/scenario/userScenarios", {
+        withCredentials: true,
+      });
+      console.log(response.data);
+      setOwnedScenarios(response.data.ownedScenarios)
+      setSharedWithScenarios(response.data.sharedScenarios)
+    } catch (err) {
+      console.error("error fetching user data", err);
+    }
+  }
   const setGlobalUserID = (userID: any) => {
     setUserID(userID);
   };
+
+  useEffect(() => {
+    fetchUserContent();
+  }, []);
+
+
+  useEffect(() => {
+    console.log("All investment types:", allInvestmentTypes);
+  }, [allInvestmentTypes]);
+
   // const fetchInvestmentType = async (id: string) => {
   //   try {
   //     const res = await fetch(`http://localhost:8000/investmentTypes/${id}`);
@@ -171,10 +210,12 @@ export const HelperContextProvider: React.FC<{ children: React.ReactNode }> = ({
           fetchScenario,
           fetchAllScenarios,
           fetchSimulationResults,
-          setGlobalUserID,
+          fetchUser,
           userID,
           allInvestmentTypes,
           allScenarios,
+          ownedScenarios,
+          sharedWithScenarios,
           handleEditScenario,
         }
       }

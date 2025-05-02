@@ -18,6 +18,19 @@ const userEditZod = z.object({
     stateTaxes: stateTaxZod
 }).strict();
 
+
+router.get("/", (req, res) => {
+    console.log("/user is called");
+    if(req.isAuthenticated()){
+        console.log("user is authenticated: " + req.user);
+        res.send(req.user);
+    }
+    else{
+        console.log("user not authenticated");
+        res.send("error not authenticated");
+    }
+})
+
 router.post("/create", async (req, res) => {
     try{
         userCreateZod.parse(req.body);

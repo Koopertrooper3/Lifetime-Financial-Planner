@@ -1,10 +1,13 @@
 import {Router, Request, Response} from 'express';
 import {scenarioModel} from '../../db/Scenario';
 import scenarioZod from '../zod/scenarioZod';
-import {User} from '../../db/User';
+import {User, IUser} from '../../db/User';
 import z from "zod";
 export const router = Router();
 
+interface UserCookie {
+  id : string
+}
 router.get('/', async (req : Request, res: Response) => {
     try {
       const scenarios = await scenarioModel.find({});
@@ -14,8 +17,23 @@ router.get('/', async (req : Request, res: Response) => {
       console.log(`Error in fetching scenarios: `, (error as Error).message);
       res.status(500).json({ message: 'Server error' });
     }
-  });
+});
 
+router.get('/userScenarios', async (req : Request, res: Response) => {
+  try {
+    const user : IUser | null = await User.findById((req.user as UserCookie).id).lean()
+    if(user == null){
+      throw new Error("User does not exist")
+    }
+    const ownedScenarios = await scenarioModel.find({ _id: { $in: user.ownedScenarios } }).lean()
+    const sharedScenarios = await scenarioModel.find({ _id: { $in: user.sharedScenarios } }).lean()
+    res.status(200).json({ ownedScenarios : ownedScenarios, sharedScenarios : sharedScenarios });
+  }
+  catch (error: unknown) {
+    console.log(`Error in fetching scenarios: `, (error as Error).message);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
 router.get('/:id', async (req : Request, res: Response) => {
     const { id } = req.params;
   
@@ -59,7 +77,7 @@ router.post("/create", async (req, res) => {
 
         await user?.save()
 
-        let test = await scenarioModel.findById(newScenario._id)
+        const test = await scenarioModel.findById(newScenario._id)
         console.log("The following scenario just got added: ");
         console.log(test);
 

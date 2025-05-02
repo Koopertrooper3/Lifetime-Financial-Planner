@@ -5,7 +5,7 @@ interface Props {
     scenarioID: string;
 }
 
-export default function({scenarioID} : Props){
+export default function exportScenario({scenarioID} : Props){
     
     const JsonToYamlDownloader = function(jsonData:any, fileName = "scenario.yaml"){
         const yamlString = YAML.dump(jsonData);
@@ -61,7 +61,7 @@ export default function({scenarioID} : Props){
     }
 
     return (
-        <button onClick={handleExport}>
+        <button className="styled-button" style={{height: "30px", width: "120px"}} onClick={handleExport}>
             Export Scenario
         </button>
     )

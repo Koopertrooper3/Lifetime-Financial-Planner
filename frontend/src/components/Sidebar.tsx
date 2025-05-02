@@ -12,10 +12,22 @@ const SideBar = () => {
   const [collapsed, setCollapsed] = useState(false);
 
   const toggleSidebar = () => setCollapsed(!collapsed);
-
+  const navigationFunction = (nextPage : string) => {
+    if(nextPage == "Dashboard"){
+      window.location.href = "/dashboard"
+    }else if(nextPage == "Shared With Me"){
+      window.location.href = "/shared"
+    }else if(nextPage == "Reports"){
+      window.location.href = "/dashboard"
+    }else if(nextPage == "Investments"){
+      window.location.href = "/dashboard"
+    }else{
+      window.location.href = "/dashboard"
+    }
+  }
   const upperIcons = [
     { name: "Dashboard", icon: DashboardIcon },
-    { name: "Event Series", icon: WalletIcon },
+    { name: "Shared With Me", icon: WalletIcon },
     { name: "Reports", icon: SignalCellularAltIcon },
     { name: "Investments", icon: PaidIcon },
   ];
@@ -34,7 +46,7 @@ const SideBar = () => {
 
         <div className="sidebar-section">
           {upperIcons.map((item) => (
-            <button className="sidebar-button" key={item.name}>
+            <button className="sidebar-button" key={item.name} onClick={() => {navigationFunction(item.name)}}>
               <item.icon />
               {!collapsed && <span>{item.name}</span>}
             </button>

@@ -26,8 +26,8 @@ console.log("VITE_BACKEND_PORT:", import.meta.env.VITE_BACKEND_PORT);
 console.log("backend url test:", import.meta.env.VITE_BACKEND_IP, import.meta.env.VITE_BACKEND_PORT);
 console.log("isDebug:", isDebug);
 
-function DashboardPage() {
-  const { allScenarios, ownedScenarios } = useHelperContext();
+function SharedWithMePage() {
+  const { sharedWithScenarios } = useHelperContext();
   const [userData, setUserData] = useState<User | null>(null);
   const location = useLocation();
   const isCreatePage = location.pathname.includes("createScenario"); 
@@ -110,7 +110,7 @@ function DashboardPage() {
           exit={{ opacity: 0, x: -10 }}
           transition={{ duration: 0.3 }}
         >
-          Dashboard
+          Shared With Me
         </motion.span>
         <motion.span
           key={location.pathname}
@@ -124,8 +124,7 @@ function DashboardPage() {
       </div>
         {!isCreatePage && (
           <div className="dashboard-container">
-            <AddPlan />
-            {ownedScenarios?.map((scenario) => (
+            {sharedWithScenarios?.map((scenario) => (
               <Link
                 key={scenario._id}
                 to={`/scenario/${scenario._id}`}
@@ -156,4 +155,4 @@ function DashboardPage() {
     
 }
 
-export default DashboardPage;
+export default SharedWithMePage;

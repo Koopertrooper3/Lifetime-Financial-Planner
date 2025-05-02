@@ -69,16 +69,4 @@ app.get("/loginfail", (req, res) => {
     res.redirect(fullFrontendUrl);
 });
 
-app.get("/user", (req, res) => {
-    console.log("/user is called");
-    if(req.isAuthenticated()){
-        console.log("user is authenticated: " + req.user);
-        res.send(req.user);
-    }
-    else{
-        console.log("user not authenticated");
-        res.send("error not authenticated");
-    }
-})
-
 export default app;

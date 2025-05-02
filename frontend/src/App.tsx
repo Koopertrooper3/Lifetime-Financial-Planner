@@ -9,12 +9,12 @@ import ScenarioPage from "./pages/ScenarioPage";
 import ChartsPage from "./pages/ChartsPage";
 import InvestmentTypeForm from "./pages/InvestmentTypeForm";
 import AddNewEventSeries from "./pages/EventSeriesForm";
+import SharedWithMePage from "./pages/SharedWithMePage"
 import { LimitsInflationPage } from "./pages/LimitsInflationPage";
 import EditScenarioPage from "./pages/EditScenarioPage";
 import CreateSlideWrapper from "./CreateSlideWrapper";
 import UserProfilePage from "./pages/UserProfilePage";
 import { registerChartJSComponents } from "./components/Charts/ChartSetup";
-
 registerChartJSComponents();
 
 
@@ -55,7 +55,7 @@ function App() {
             <Route path="/chartsPage/" element={<ChartsPage />} />
             <Route path="/user-profile" element={<UserProfilePage />} />
             <Route path="/scenarios/:id/edit" element={<EditScenarioPage />} />
-
+            <Route path="/shared" element={<SharedWithMePage/>} />
             {/* <Route
             path="Limits&ContributionLimits"
             element={<LimitsInflationPage />}

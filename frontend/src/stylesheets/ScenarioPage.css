@@ -88,19 +88,37 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 16px;
+  align-items: center;
 }
 
-.simulator-run-input {
-  height:20px;
+.simulator-run-input{
+  border-radius: 5px;
 }
 
 .simulator-button {
-  height: 50px;
-  width: 100%;
   padding-top: 15px;
   padding-bottom: 15px;
   color: white;
   background-color: #4C49ED;
   border: none;
+  border-radius: 5px;
+}
+
+.styled-button {
+  color: white;
+  background-color: #4C49ED;
+  border: none;
+  border-radius: 5px;
+}
+
+.card-grid-sharing {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+  align-items: center;
+  justify-items: center;
+}
+
+.sharing-input{
   border-radius: 5px;
 }

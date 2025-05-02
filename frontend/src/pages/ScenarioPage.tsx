@@ -81,6 +81,7 @@ export default function ScenarioPage() {
     { id: "events", label: "Events" },
     { id: "strategies", label: "Strategies" },
     { id: "simulation", label: "Simulation" },
+    { id: "sharing", label: "Sharing Settings"}
   ];
   const sendSimulatorRequest = async () => {
     if (userID == null) {
@@ -102,8 +103,8 @@ export default function ScenarioPage() {
       <div className="card header-card">
         <div className="header-line">
           <h2>Scenario: {scenario.name}</h2>
-          <button className="edit-link" onClick={handleEditClick}>
-            <Link to={"/dashboard/createScenario/"}>Edit</Link>
+          <button className="styled-button edit-link" style={{height: "30px", width: "60px"}} onClick={handleEditClick}>
+            <Link style={{color:"white"}} to={"/dashboard/createScenario/"}>Edit</Link>
           </button>
           <ExportScenario scenarioID={scenario._id} />
           <Link to="/dashboard" className="close-link">
@@ -296,16 +297,16 @@ export default function ScenarioPage() {
         </div>
       )}
 
-      {/* Investments */}
+      {/* Simulation */}
       {activeTab === "simulation" && (
         <div className="card tab-content">
           <div className="card-grid-simulator">
-            <button className="simulator-button" onClick={sendSimulatorRequest}>
+            <button className="styled-button" style={{height: "3rem"}}onClick={sendSimulatorRequest}>
               Run Simulation
             </button>
             <p style={{ textAlign: "right" }}>Number of simulations</p>
             <input
-              className="simulatior-run-input"
+              className="simulator-run-input"
               type="text"
               onChange={(elem) => {
                 setNumberOfSimulations(
@@ -316,6 +317,29 @@ export default function ScenarioPage() {
           </div>
         </div>
       )}
+
+      {/* Sharing Settings */}
+      {activeTab === "sharing" && (
+        <div className="card tab-content">
+          <div className="card-grid-sharing">
+          <input
+              className="sharing-input"
+              style={{height: "1rem", width: "20rem"}}
+              type="text"
+              onChange={(elem) => {
+                setNumberOfSimulations(
+                  Number(elem.target.value.replace(/\D/, ""))
+                );
+              }}
+            />
+            <button className="styled-button" style={{height:"2.75rem", width: "15rem", height: "3rem"}}onClick={sendSimulatorRequest}>
+              Share With User
+            </button>
+          </div>
+        </div>
+      )}
+
+      
     </div>
   );
 }
