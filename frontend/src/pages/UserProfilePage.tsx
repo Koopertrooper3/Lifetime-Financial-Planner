@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import axios from "axios";
+import axiosCookie from "../axiosCookie";
 import { parse } from "yaml";
 import "../stylesheets/UserProfilePage.css";
 
@@ -10,10 +10,8 @@ const UserProfilePage = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    axios
-      .get("http://localhost:8000/user", {
-        withCredentials: true,
-      })
+    axiosCookie
+      .get("/user")
       .then((res) => {
         if (!res.data || Object.keys(res.data).length === 0) {
           setUserData("guest");
@@ -49,9 +47,8 @@ const UserProfilePage = () => {
     formData.append("yaml", yamlFile);
   
     try {
-      const res = await axios.post("http://localhost:8000/api/upload-tax", formData, {
+      const res = await axiosCookie.post("/api/upload-tax", formData, {
         headers: { "Content-Type": "multipart/form-data" },
-        withCredentials: true,
       });
   
       console.log("Upload success:", res.data);

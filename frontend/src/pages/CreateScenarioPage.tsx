@@ -3,7 +3,6 @@ import "../stylesheets/CreateScenario.css";
 import LifeExpectency from "../components/LifeExpectency";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import axios from 'axios';
 
 // import { Outlet } from "react-router-dom";
 

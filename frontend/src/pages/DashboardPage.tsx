@@ -4,7 +4,7 @@ import SideBar from "../components/Sidebar";
 import AddPlan from "../components/AddPlan";
 import { useState, useEffect } from "react";
 import LoadingWheel from "../components/LoadingWheel";
-import axios from "axios";
+import axiosCookie from "../axiosCookie";
 import { useHelperContext } from "../HelperContext";
 import { Link } from "react-router-dom";
 import { isDebug, User } from "../debug"; 
@@ -68,9 +68,7 @@ function DashboardPage() {
       }
 
       try {
-        const response = await axios.get(fullBackendUrl + "/user", {
-          withCredentials: true,
-        });
+        const response = await axiosCookie.get("/user");
         console.log(response.data);
         setUserData(response.data);
       } catch (err) {

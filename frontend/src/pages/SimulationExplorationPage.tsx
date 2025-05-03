@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axios from "axios";
+import axiosCookie from "../axiosCookie";
 import "../stylesheets/SimulationExplorationPage.css";
 
 const SimulationExplorationPage = () => {
@@ -43,7 +43,7 @@ const SimulationExplorationPage = () => {
         });
       }
 
-      const response = await axios.post("http://localhost:8000/simulation-explore", payload);
+      const response = await axiosCookie.post("/simulation-explore", payload);
       setResults(response.data);
     } catch (err) {
       console.error("Simulation request failed:", err);

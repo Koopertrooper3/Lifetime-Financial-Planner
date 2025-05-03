@@ -3,7 +3,6 @@ import Banner from "../components/Banner";
 import SideBar from "../components/Sidebar";
 import { useState, useEffect } from "react";
 import LoadingWheel from "../components/LoadingWheel";
-import axios from "axios";
 import { useHelperContext } from "../HelperContext";
 import { isDebug, User } from "../debug";
 
