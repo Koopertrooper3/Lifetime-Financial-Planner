@@ -1,5 +1,5 @@
 import * as YAML from 'js-yaml';
-import axios from 'axios';
+import axiosCookie from '../axiosCookie';
 
 interface Props {
     scenarioID: string;
@@ -34,7 +34,7 @@ export default function exportScenario({scenarioID} : Props){
     const handleExport = async function(){
         try{
             // retrieve the scenario given the scenarioID
-            const data = await axios.get(`http://localhost:8000/scenario/${scenarioID}`);
+            const data = await axiosCookie.get(`/scenario/${scenarioID}`);
             let scenario = data.data.data;
             
             // remove __v and all nested ._id field
@@ -42,7 +42,13 @@ export default function exportScenario({scenarioID} : Props){
             scenario = removeIds(scenario);
 
             // re-arrange eventSeries field
-            const eventSeriesField = Object.values(scenario["eventSeries"]);
+            const eventSeriesField:any = Object.values(scenario["eventSeries"]);
+            for(const entryObj of eventSeriesField){
+                for(const [key, val] of Object.entries(entryObj["event"])){
+                    entryObj[key] = val;
+                }
+                delete entryObj["event"];
+            }
             scenario["eventSeries"] = eventSeriesField;
             
             // re-arrange investments field

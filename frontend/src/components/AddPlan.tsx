@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useScenarioContext } from "../useScenarioContext";
 import { Scenario } from "../../../backend/db/Scenario";
 import { useHelperContext } from "../HelperContext";
-import axios from "axios";
+import axiosCookie from "../axiosCookie";
 
 const AddPlan = () => {
   const {
@@ -27,7 +27,7 @@ const AddPlan = () => {
     RothConversionStart,
     RothConversionEnd,
     RothConversionStrategy,
-    editScenario,
+    //editScenario,
     setEditScenario,
   } = useScenarioContext();
 
@@ -45,15 +45,13 @@ const AddPlan = () => {
 
   const getId = async () => {
     // grabs user info
-    const userInfo = await axios.get("http://localhost:8000/user", {
-      withCredentials: true,
-    });
+    const userInfo = await axiosCookie.get("/user")
     return userInfo.data._id;
   };
 
   const handleSaveScenario = async (userID: string, scenario: Scenario) => {
     try {
-      const res = await axios.post("http://localhost:8000/scenario/create", {
+      const res = await axiosCookie.post("/scenario/create", {
         userID,
         scenario,
       });

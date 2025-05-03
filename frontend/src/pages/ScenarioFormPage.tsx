@@ -1,13 +1,13 @@
-import { useState, useEffect, useRef } from "react";
+import { useEffect } from "react";
 import "../stylesheets/CreateScenario.css";
 import LifeExpectency from "../components/LifeExpectency";
 import { Link, useNavigate } from "react-router-dom";
 import ValidationTextFields from "../components/shared/ValidationTextFields";
 import { useHelperContext } from "../HelperContext";
 import { useScenarioContext } from "../useScenarioContext";
-import { Scenario } from "../../../backend/db/Scenario";
+// import { Scenario } from "../../../backend/db/Scenario";
 import SelectionTable from "../components/shared/SelectionTable";
-import axios from "axios";
+import axiosCookie from "../axiosCookie";
 import ImportScenario from "../components/ImportScenario";
 
 export default function ScenarioFormPage() {
@@ -52,9 +52,7 @@ export default function ScenarioFormPage() {
 
   const handleFileParsed = async function (data: unknown) {
     // grabs user info
-    const userInfo = await axios.get("http://localhost:8000/user", {
-      withCredentials: true,
-    });
+    const userInfo = await axiosCookie.get("/user");
 
     // create correct json object for backend scenario creation
     const requestBody = {
@@ -64,8 +62,8 @@ export default function ScenarioFormPage() {
 
     //attempts to create the scenario
     try {
-      const response = await axios.post(
-        "http://localhost:8000/scenario/create",
+      const response = await axiosCookie.post(
+        "/scenario/create",
         requestBody
       );
       console.log(response);

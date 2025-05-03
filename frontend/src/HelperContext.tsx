@@ -3,8 +3,8 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { isDebug, User } from "./debug";
 import { Scenario } from "../../backend/db/Scenario";
-import axios from "axios";
-import { mockSimulationResults } from "./components/Charts/MockData";
+import axiosCookie from "./axiosCookie";
+// import { mockSimulationResults } from "./components/Charts/MockData";
 
 interface HelperContextType {
   fetchScenario: (id: string) => Promise<any>;
@@ -41,8 +41,6 @@ export const useHelperContext = () => useContext(HelperContext);
 export const HelperContextProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-
-  const fullBackendUrl ="http://" +import.meta.env.VITE_BACKEND_IP +":" +import.meta.env.VITE_BACKEND_PORT;
 
   type Scenario = {
     _id: string;
@@ -92,9 +90,9 @@ export const HelperContextProvider: React.FC<{ children: React.ReactNode }> = ({
   const fetchScenario = async (id: string) => {
     console.log("Fetching for scenario: ", id);
     try {
-      const res = await fetch(`http://localhost:8000/scenario/${id}`);
-      const json = await res.json();
-      return json.data;
+      const data = await axiosCookie(`/scenario/${id}`);
+      console.log("asdsada", data)
+      return data.data.data;
     } catch (error) {
       console.error("Error fetching scenario:", error);
     }
@@ -114,7 +112,7 @@ export const HelperContextProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const fetchAllScenarios = async () => {
     try {
-      const res = await axios.get(`http://localhost:8000/scenario/`,{withCredentials: true,});
+      const res = await axiosCookie.get(`/scenario`);
       const json = await res.data;
       setAllScenarios(json.data);
     } catch (error) {
@@ -129,7 +127,7 @@ export const HelperContextProvider: React.FC<{ children: React.ReactNode }> = ({
   ) => {
     console.log("Sending scenario:", updatedFields);
     try {
-      const res = await axios.post("http://localhost:8000/scenario/edit", {
+      const res = await axiosCookie.post("/scenario/edit", {
         userID,
         scenarioID,
         updatedFields,
@@ -144,9 +142,7 @@ export const HelperContextProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const fetchUser = async() => {
     try {
-      const response = await axios.get(fullBackendUrl + "/user", {
-        withCredentials: true,
-      });
+      const response = await axiosCookie.get("/user");
       console.log(response.data);
       setUserID(response.data);
     } catch (err) {
@@ -157,9 +153,7 @@ export const HelperContextProvider: React.FC<{ children: React.ReactNode }> = ({
   const fetchUserContent = async () => {
 
     try {
-      const response = await axios.get(fullBackendUrl + "/scenario/userScenarios", {
-        withCredentials: true,
-      });
+      const response = await axiosCookie.get("/scenario/userScenarios");
       console.log(response.data);
       setOwnedScenarios(response.data.ownedScenarios)
       setSharedWithScenarios(response.data.sharedScenarios)
@@ -167,9 +161,9 @@ export const HelperContextProvider: React.FC<{ children: React.ReactNode }> = ({
       console.error("error fetching user data", err);
     }
   }
-  const setGlobalUserID = (userID: any) => {
-    setUserID(userID);
-  };
+  // const setGlobalUserID = (userID: any) => {
+  //   setUserID(userID);
+  // };
 
   useEffect(() => {
     fetchUserContent();

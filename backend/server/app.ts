@@ -29,6 +29,7 @@ app.use(
         cookie: {
             maxAge: 1000 * 60 * 60 * 24, // 1 day
             httpOnly: true, // Prevent client-side JS from accessing the cookie
+            sameSite: true,
         },
         resave: false,
         saveUninitialized: true,

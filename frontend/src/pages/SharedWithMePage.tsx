@@ -1,10 +1,10 @@
 import "../stylesheets/DashboardPage.css";
 import Banner from "../components/Banner";
 import SideBar from "../components/Sidebar";
-import AddPlan from "../components/AddPlan";
+// import AddPlan from "../components/AddPlan";
 import { useState, useEffect } from "react";
 import LoadingWheel from "../components/LoadingWheel";
-import axios from "axios";
+import axiosCookie from "../axiosCookie";
 import { useHelperContext } from "../HelperContext";
 import { Link } from "react-router-dom";
 import { isDebug, User } from "../debug"; 
@@ -47,12 +47,6 @@ function SharedWithMePage() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [location.pathname]);
 
-  const fullBackendUrl =
-    "http://" +
-    import.meta.env.VITE_BACKEND_IP +
-    ":" +
-    import.meta.env.VITE_BACKEND_PORT;
-
   useEffect(() => {
     const fetchUserData = async () => {
       if (isDebug) {
@@ -68,9 +62,7 @@ function SharedWithMePage() {
       }
 
       try {
-        const response = await axios.get(fullBackendUrl + "/user", {
-          withCredentials: true,
-        });
+        const response = await axiosCookie.get("/user");
         console.log(response.data);
         setUserData(response.data);
       } catch (err) {

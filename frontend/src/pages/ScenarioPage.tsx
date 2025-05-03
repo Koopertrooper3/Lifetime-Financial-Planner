@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import "../stylesheets/ScenarioPage.css";
 import { Link } from "react-router-dom";
-import axios from "axios";
+import axiosCookie from "../axiosCookie";
 import ExportScenario from '../components/ExportScenario';
 
 export default function ScenarioPage() {
@@ -87,7 +87,7 @@ export default function ScenarioPage() {
     if (userID == null) {
       throw new Error("Undefined user");
     }
-    await axios.post("http://localhost:8000/scenario/runsimulation", {
+    await axiosCookie.post("/scenario/runsimulation", {
       userID: userID._id,
       scenarioID: id,
       totalSimulations: numberOfSimulations,
