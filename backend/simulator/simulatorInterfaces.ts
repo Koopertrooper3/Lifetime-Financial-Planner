@@ -64,3 +64,16 @@ export interface payDiscExpensesReturn {
     totalCapitalGain : number,
     discExpenseLogMessages : string[]
 }
+export interface ExpenseObject {
+    expenseAmount : number
+    logMessage : string
+}
+export interface payNonDescExpensesReturn{
+    allExpensesPaid: boolean,
+    adjustedEventSeries : Record<string,ScenarioEvent>,
+    adjustedAccounts : Record<string,Investment>,
+    totalIncome : number,
+    totalCapitalGain : number,
+    earlyWithdrawal : number,
+    nonDescExpenseLogMessages : string[]
+}
