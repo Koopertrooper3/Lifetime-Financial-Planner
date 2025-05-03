@@ -27,7 +27,7 @@ const AddPlan = () => {
     RothConversionStart,
     RothConversionEnd,
     RothConversionStrategy,
-    editScenario,
+    //editScenario,
     setEditScenario,
   } = useScenarioContext();
 

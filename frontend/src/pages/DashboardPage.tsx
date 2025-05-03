@@ -46,13 +46,7 @@ function DashboardPage() {
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [location.pathname]);
-
-  const fullBackendUrl =
-    "http://" +
-    import.meta.env.VITE_BACKEND_IP +
-    ":" +
-    import.meta.env.VITE_BACKEND_PORT;
-
+  
   useEffect(() => {
     const fetchUserData = async () => {
       if (isDebug) {

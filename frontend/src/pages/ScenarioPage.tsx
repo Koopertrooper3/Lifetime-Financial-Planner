@@ -332,7 +332,7 @@ export default function ScenarioPage() {
                 );
               }}
             />
-            <button className="styled-button" style={{height:"2.75rem", width: "15rem", height: "3rem"}}onClick={sendSimulatorRequest}>
+            <button className="styled-button" style={{height:"2.75rem", width: "15rem"}}onClick={sendSimulatorRequest}>
               Share With User
             </button>
           </div>

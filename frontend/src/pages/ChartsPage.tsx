@@ -4,12 +4,12 @@ import SideBar from "../components/Sidebar";
 import { useState, useEffect } from "react";
 import LoadingWheel from "../components/LoadingWheel";
 import { useHelperContext } from "../HelperContext";
-import { isDebug, User } from "../debug";
+/// import { isDebug, User } from "../debug";
 
 import LineChartProbability from "../components/Charts/LineChartProbability";
 import ShadedLineChart from "../components/Charts/ShadedLineChart";
 import StackedBarChart from "../components/Charts/StackedBarChart";
-import { mockSimulationResults } from "../components/Charts/MockData"; 
+// import { mockSimulationResults } from "../components/Charts/MockData"; 
 
 function ChartsPage() {
   const { fetchSimulationResults, allScenarios } = useHelperContext();
@@ -17,11 +17,11 @@ function ChartsPage() {
   const [selectedScenarioId, setSelectedScenarioId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (isDebug) {
-      console.log("DEBUG MODE: Using mock simulation results.");
-      setSimResults(mockSimulationResults);
-      return;
-    }
+    // if (isDebug) {
+    //   console.log("DEBUG MODE: Using mock simulation results.");
+    //   setSimResults(mockSimulationResults);
+    //   return;
+    // }
 
     const loadSimulationResults = async () => {
       if (!selectedScenarioId && allScenarios?.length) {

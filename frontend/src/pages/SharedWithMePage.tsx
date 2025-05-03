@@ -1,7 +1,7 @@
 import "../stylesheets/DashboardPage.css";
 import Banner from "../components/Banner";
 import SideBar from "../components/Sidebar";
-import AddPlan from "../components/AddPlan";
+// import AddPlan from "../components/AddPlan";
 import { useState, useEffect } from "react";
 import LoadingWheel from "../components/LoadingWheel";
 import axiosCookie from "../axiosCookie";
@@ -46,12 +46,6 @@ function SharedWithMePage() {
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [location.pathname]);
-
-  const fullBackendUrl =
-    "http://" +
-    import.meta.env.VITE_BACKEND_IP +
-    ":" +
-    import.meta.env.VITE_BACKEND_PORT;
 
   useEffect(() => {
     const fetchUserData = async () => {

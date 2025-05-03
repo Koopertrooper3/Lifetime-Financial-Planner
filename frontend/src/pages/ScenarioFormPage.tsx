@@ -1,11 +1,11 @@
-import { useState, useEffect, useRef } from "react";
+import { useEffect } from "react";
 import "../stylesheets/CreateScenario.css";
 import LifeExpectency from "../components/LifeExpectency";
 import { Link, useNavigate } from "react-router-dom";
 import ValidationTextFields from "../components/shared/ValidationTextFields";
 import { useHelperContext } from "../HelperContext";
 import { useScenarioContext } from "../useScenarioContext";
-import { Scenario } from "../../../backend/db/Scenario";
+// import { Scenario } from "../../../backend/db/Scenario";
 import SelectionTable from "../components/shared/SelectionTable";
 import axiosCookie from "../axiosCookie";
 import ImportScenario from "../components/ImportScenario";

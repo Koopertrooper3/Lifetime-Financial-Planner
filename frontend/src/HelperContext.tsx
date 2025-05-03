@@ -4,7 +4,7 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import { isDebug, User } from "./debug";
 import { Scenario } from "../../backend/db/Scenario";
 import axiosCookie from "./axiosCookie";
-import { mockSimulationResults } from "./components/Charts/MockData";
+// import { mockSimulationResults } from "./components/Charts/MockData";
 
 interface HelperContextType {
   fetchScenario: (id: string) => Promise<any>;
@@ -41,8 +41,6 @@ export const useHelperContext = () => useContext(HelperContext);
 export const HelperContextProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-
-  const fullBackendUrl ="http://" +import.meta.env.VITE_BACKEND_IP +":" +import.meta.env.VITE_BACKEND_PORT;
 
   type Scenario = {
     _id: string;
@@ -163,9 +161,9 @@ export const HelperContextProvider: React.FC<{ children: React.ReactNode }> = ({
       console.error("error fetching user data", err);
     }
   }
-  const setGlobalUserID = (userID: any) => {
-    setUserID(userID);
-  };
+  // const setGlobalUserID = (userID: any) => {
+  //   setUserID(userID);
+  // };
 
   useEffect(() => {
     fetchUserContent();
