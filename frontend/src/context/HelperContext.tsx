@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { isDebug, User } from "./debug";
-import { Scenario } from "../../backend/db/Scenario";
-import axiosCookie from "./axiosCookie";
+import { isDebug, User } from "../debug";
+import { Scenario } from "../../../backend/db/Scenario";
+import axiosCookie from ".././axiosCookie";
 // import { mockSimulationResults } from "./components/Charts/MockData";
 
 interface HelperContextType {
