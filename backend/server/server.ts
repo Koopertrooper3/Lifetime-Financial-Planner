@@ -21,7 +21,7 @@ const REDIS_PORT = Number(process.env.REDIS_PORT) || 6379
 
 export let simulatorQueue : Queue
 export let queueEvents : QueueEvents
-
+export let explorationQueue : Queue
 
 //Startup code to be run before the server starts
 async function startUp(){
@@ -46,6 +46,13 @@ async function startUp(){
           port: REDIS_PORT,
         },
       });
+
+    explorationQueue = new Queue('scenarioExplorationQueue', {
+    connection: {
+        host: REDIS_HOST,
+        port: REDIS_PORT,
+    },
+    });
     
     queueEvents = new QueueEvents('simulatorQueue', {
         connection: {
@@ -80,15 +87,4 @@ startUp().then(()=>{
 });
 })
 
-/**
- * PLEASE DO NOT PUT ANY ROUTES FROM FRONTEND IN THIS FILE, WRITE THEM IN /routers and export to app.ts
- */
-//sample GET
-app.get("/", (req, res)=>{
-    res.send("yeah");
-});
-
-app.post("/scenario/taxes/import", (req, res)=>{
-    res.send("yeah");
-});
 // async () => {scraper.federalIncomeTaxScraper()}

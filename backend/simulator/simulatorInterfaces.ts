@@ -23,7 +23,7 @@ export interface Result{
     succeeded: number,
     failed: number,
     simulationRecords: Record<number,AnnualResults[]>
-  }
+}
 
 export interface TaxBracketContainer {
     "Federal" : FederalTax,
@@ -100,4 +100,15 @@ export interface AnnualResults {
 export interface InvestmentBreakdown{
     value: number,
     taxStatus: string,
+}
+
+export interface RothExploration{
+    type: "roth",
+  }
+export interface numericalExploration{
+    eventName: string,
+    type: "startYear" | "duration" | "income" | "expense" | "invest",
+    lowerBound: number,
+    upperBound: number,
+    stepSize: number,
 }

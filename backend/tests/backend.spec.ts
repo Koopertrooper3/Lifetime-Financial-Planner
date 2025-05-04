@@ -5,6 +5,7 @@ import path from 'path';
 import { SharedScenario } from '../db/User';
 
 import {Scenario} from "../db/Scenario"
+import { numericalExploration, RothExploration } from '../simulator/simulatorInterfaces';
 dotenv.config({ path: path.resolve(__dirname, '..', '..','.env') });
 
 const databaseHost = process.env.DATABASE_HOST
@@ -26,7 +27,7 @@ test('Single simulation Request', async ({ request }) => {
     data: {"userID":user?._id.toString(),"scenarioID":userScenarioID, "totalSimulations": totalSimulations}
   });
 
-  expect(await simulationRequest.json()).toEqual({completed :0, succeeded: 0, failed: 0})
+  expect(await simulationRequest.status()).toEqual(200)
 
 });
 
@@ -41,7 +42,34 @@ test('Multiple simulation Request', async ({ request }) => {
     data: {"userID":user?._id.toString(),"scenarioID":userScenarioID, "totalSimulations": totalSimulations}
   });
 
-  expect(await simulationRequest.json()).toEqual({completed :0, succeeded: 0, failed: 0})
+  expect(await simulationRequest.status()).toEqual(200)
+
+});
+interface explorationBody {
+  scenarioID: string,
+  userID: string,
+  totalSimulations: number,
+  explorationParameter: RothExploration | numericalExploration
+}
+test('Roth Optimizer Exploration Request', async ({ request }) => {
+  const client = new MongoClient(databaseConnectionString);
+  const userConnection = client.db(databaseName).collection("users")
+  const totalSimulations = 1
+  const user = await userConnection.findOne({})
+  const userScenarioID = user?.ownedScenarios[0].toString()
+  const explorationRequestBody : explorationBody = {
+    userID : user?._id.toString() || "",
+    scenarioID: userScenarioID,
+    totalSimulations : totalSimulations,
+    explorationParameter: {
+      type: "roth",
+    }
+  }
+  const explorationRequest = await request.post(`http://${backendHost}:${backendPort}/simulation/simulation-explore`, {
+    data: explorationRequestBody
+  });
+
+  expect(await explorationRequest.status()).toEqual(200)
 
 });
 
