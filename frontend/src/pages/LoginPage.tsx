@@ -1,5 +1,6 @@
 import GoogleIcon from "@mui/icons-material/Google";
 import "../stylesheets/LoginPage.css";
+import axiosCookie from "../axiosCookie";
 
 const LoginPage = () => {
   const handleGoogleLogin = () => {
@@ -13,6 +14,16 @@ const LoginPage = () => {
 
     window.location.href = fullBackendUrl + "/auth/google";
   };
+
+  const handleGuestLogin = async () => {
+    try{
+      await axiosCookie.post("/auth/guest", {});
+      window.location.href = "/dashboard";
+    }
+    catch(err){
+      console.error("Error guest login:", err)
+    }
+  }
 
   return (
     <div className="page">
@@ -34,7 +45,7 @@ const LoginPage = () => {
               <p>Sign In with Google</p>
             </button>
 
-            <p className="continue-guest" onClick={() => window.location.href = "/dashboard"}>
+            <p className="continue-guest" onClick={handleGuestLogin}>
               Continue as Guest
             </p>
 

@@ -50,6 +50,16 @@ app.use((req, res, next) => { //debug middleware
 app.use("/scenario", scenarioRouter);
 app.use("/user", userRouter);
 
+// this is the route called when user clicks on continue as guest
+app.post('/auth/guest', (req, res, next) => {
+    req.body.username = 'guest';
+    req.body.password = 'guest';
+    next();
+  },
+  passport.authenticate('guest', {session: true}), (req, res)=>{ 
+    res.send({ msg: "successfully registered guest" }) 
+})
+
 // this is the route called when user clicks login using google
 app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email']}));
 

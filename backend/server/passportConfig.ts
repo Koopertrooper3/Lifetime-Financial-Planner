@@ -1,5 +1,6 @@
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
+import { Strategy as LocalStrategy } from "passport-local";
 import {User, IUser} from '../db/User';
 import dotenv from 'dotenv';
 import process from 'process';
@@ -7,6 +8,26 @@ import path from "path";
 dotenv.config({ path: path.resolve(__dirname,'..','..','..','.env') });
 
 const backend_full_url = "http://" + process.env.BACKEND_IP + ":" + process.env.BACKEND_PORT;
+
+// Config Guest Strategy
+passport.use('guest', new LocalStrategy(
+  async (username, password, done) => {
+    try {
+      console.log('Creating guest user...');
+      const guestUser = new User({
+        googleId: "123456",
+        name: `Guest-${Math.random().toString(36).substring(2, 8)}`,
+        ownedScenarios: [],
+        sharedScenarios: []
+      });
+      
+      const savedUser = await guestUser.save();
+      done(null, savedUser);
+    } catch (err) {
+      done(err);
+    }
+  }
+));
 
 // Configure Google Strategy
 passport.use(
@@ -41,14 +62,14 @@ passport.use(
 // Serialize and deserialize user
 passport.serializeUser((user:any, done) => {
   console.log("serializeUser called");
-  done(null, user.googleId);
+  done(null, user._id);
 });
 
-passport.deserializeUser(async (googleId : string, done) => {
-  console.log("deserialize is called with googleId: " + googleId);
+passport.deserializeUser(async (_id : string, done) => {
+  console.log("deserialize is called with _id: " + _id);
   try {
     // Fetch the user from the database using the googleId
-    const user = await User.findOne({ googleId: googleId });
+    const user = await User.findById(_id);
     if (user) {
       // If the user is found, pass the user object to Passport
       console.log("user found: " + user);
