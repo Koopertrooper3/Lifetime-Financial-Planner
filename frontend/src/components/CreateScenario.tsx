@@ -7,7 +7,7 @@ import { Scenario } from "../../../backend/db/Scenario";
 import { useHelperContext } from "../context/HelperContext";
 import axiosCookie from "../axiosCookie";
 
-const AddPlan = () => {
+const CreateScenario = () => {
   const {
     name,
     maritalStatus,
@@ -46,7 +46,7 @@ const AddPlan = () => {
   const getId = async () => {
     // grabs user info
     const userInfo = await axiosCookie.get("/user");
-    return userInfo.data._id;
+    return userInfo.data.user._id;
   };
 
   const handleSaveScenario = async (userID: string, scenario: Scenario) => {
@@ -67,6 +67,7 @@ const AddPlan = () => {
 
   const handleClick = async () => {
     const currentUserId = await getId();
+    console.log("userid: ", currentUserId)
 
     const scenario = {
       name: name,
@@ -88,15 +89,15 @@ const AddPlan = () => {
       RothConversionEnd: RothConversionEnd,
       RothConversionStrategy: RothConversionStrategy,
     };
-    console.log("Add Plan: ", scenario);
+    console.log("Create Scenario: ", scenario);
     const latestScenarioData = await handleSaveScenario(
       currentUserId,
       scenario
     );
-    console.log("Add Plan: latestScenarioData", latestScenarioData);
+    console.log("Create Scenario: latestScenarioData", latestScenarioData);
     console.log("latestScenarioData.scenarioID", latestScenarioData.scenarioID);
     const latestScenario = await fetchScenario(latestScenarioData.scenarioID);
-    console.log("Add Plan: latestScenario: ", latestScenario);
+    console.log("Create Scenario: latestScenario: ", latestScenario);
     setEditScenario(latestScenario);
 
     navigate("/dashboard/createScenario");
@@ -112,4 +113,4 @@ const AddPlan = () => {
   );
 };
 
-export default AddPlan;
+export {CreateScenario};

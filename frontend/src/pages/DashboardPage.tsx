@@ -1,7 +1,7 @@
 import "../stylesheets/DashboardPage.css";
 import Banner from "../components/Banner";
 import SideBar from "../components/Sidebar";
-import AddPlan from "../components/AddPlan";
+import { CreateScenario } from "../components/CreateScenario";
 import { useState, useEffect } from "react";
 import LoadingWheel from "../components/LoadingWheel";
 import axiosCookie from "../axiosCookie";
@@ -51,17 +51,17 @@ function DashboardPage() {
 
   useEffect(() => {
     const fetchUserData = async () => {
-      if (isDebug) {
-        console.log("DEBUG MODE: Using mock user data");
-        setUserData({
-          _id: "guest-id-123",
-          name: "Guest",
-          email: "guest@example.com",
-          ownedScenarios: [], // NOTE: include mock scenario IDs
-        });
-        console.log("DEBUG MODE: Mock user data set.");
-        return;
-      }
+      // if (isDebug) {
+      //   console.log("DEBUG MODE: Using mock user data");
+      //   setUserData({
+      //     _id: "guest-id-123",
+      //     name: "Guest",
+      //     email: "guest@example.com",
+      //     ownedScenarios: [], // NOTE: include mock scenario IDs
+      //   });
+      //   console.log("DEBUG MODE: Mock user data set.");
+      //   return;
+      // }
 
       try {
         const response = await axiosCookie.get("/user");
@@ -122,7 +122,7 @@ function DashboardPage() {
         </div>
         {!isCreatePage && (
           <div className="dashboard-container">
-            <AddPlan />
+            <CreateScenario />
             {ownedScenarios?.map((scenario: any) => (
               <Link
                 key={scenario._id}

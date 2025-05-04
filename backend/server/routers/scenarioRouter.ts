@@ -8,16 +8,16 @@ export const router = Router();
 interface UserCookie {
   id : string
 }
-router.get('/', async (req : Request, res: Response) => {
-    try {
-      const scenarios = await scenarioModel.find({});
-      res.status(200).json({ data : scenarios });
-    }
-    catch (error: unknown) {
-      console.log(`Error in fetching scenarios: `, (error as Error).message);
-      res.status(500).json({ message: 'Server error' });
-    }
-});
+// router.get('/', async (req : Request, res: Response) => {
+//     try {
+//       const scenarios = await scenarioModel.find({});
+//       res.status(200).json({ data : scenarios });
+//     }
+//     catch (error: unknown) {
+//       console.log(`Error in fetching scenarios: `, (error as Error).message);
+//       res.status(500).json({ message: 'Server error' });
+//     }
+// });
 
 router.get('/userScenarios', async (req : Request, res: Response) => {
   try {
