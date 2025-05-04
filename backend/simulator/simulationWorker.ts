@@ -84,7 +84,7 @@ async function simulation(threadData : threadData){
             filingStatus = 2
         }
 
-        for(let age = startingYear - userBirthYear; age < lifeExpectancy && solvent == true; age++){
+        for(let age = startingYear - userBirthYear; age < DEBUG_TWO_RUNS && solvent == true; age++){
             const currentYearValues : AnnualValues = {
                 totalIncome: 0,
                 totalSocialSecurityIncome: 0,
@@ -211,7 +211,10 @@ async function simulation(threadData : threadData){
                 totalInvestments: roundToTwoDecimals(totalInvestments),
                 totalExpenses: roundToTwoDecimals(totalAnnualExpenses),
                 earlyWithdrawalTax: roundToTwoDecimals(currentYearValues.totalEarlyWithdrawal),
-                percentageOfTotalDiscretionaryExpenses: roundToTwoDecimals(percentageOfDiscretionaryExpenses*100)
+                percentageOfTotalDiscretionaryExpenses: roundToTwoDecimals(percentageOfDiscretionaryExpenses*100),
+                investmentBreakdown: investmentBreakdown,
+                incomeBreakdown: incomeBreakdown,
+                expenseBreakdown: expenseBreakdown,
             })
             writeCSVlog(scenario.investments,csvStream,simulatedYear)
         }
@@ -722,12 +725,17 @@ function calculateFederalIncomeTax(taxBrackets : FederalTax, income : number,soc
     }
 
     income -= standardDeduction;
+    income = income >= 0 ? income : 0 
     let previousBracket = 0
     // Iterate through the tax brackets to calculate the tax burden
     for (const bracket of incomeTaxBracket) {
         const taxableIncome = Math.min(income, bracket.upperThreshold)-previousBracket;
+        if(taxableIncome < 0){
+            break;
+        }
         taxBurden += taxableIncome * bracket.rate;
         previousBracket = bracket.upperThreshold
+        
     }
 
     if(taxBurden < 0){
@@ -784,14 +792,16 @@ function calculateStateIncomeTax(taxBrackets : StateTax, income : number,filingS
         incomeTaxBracket = taxBrackets.singleIncomeTax
     }
     
+    let previousBracket = 0
     // Iterate through the tax brackets to calculate the tax burden
     for (const bracket of incomeTaxBracket) {
-        const taxableIncome = Math.min(income, bracket.upperThreshold);
-        taxBurden += taxableIncome * bracket.rate + bracket.flatAdjustment;
 
-        if (income <= bracket.upperThreshold) {
+        const taxableIncome = Math.min(income, bracket.upperThreshold)-previousBracket;
+        if(taxableIncome < 0){
             break;
         }
+        taxBurden += taxableIncome * bracket.rate + bracket.flatAdjustment;
+        previousBracket = bracket.upperThreshold
         
     }
 
