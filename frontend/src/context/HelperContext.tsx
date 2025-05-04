@@ -205,8 +205,8 @@ export const HelperContextProvider: React.FC<{ children: React.ReactNode }> = ({
           userID,
           allInvestmentTypes,
           allScenarios,
-          ownedScenarios,
-          sharedWithScenarios,
+          // ownedScenarios,
+          // sharedWithScenarios,
           handleEditScenario,
           userAuthenticated,
           setUserAuthenticated
