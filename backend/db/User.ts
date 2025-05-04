@@ -17,7 +17,7 @@ export interface SharedScenario{
 const SharedScenarioSchema = new mongoose.Schema<SharedScenario>({
     permission: {
         type: String,
-        enum: ["read-only", "write-only"]
+        enum: ["read-only", "read-write"]
     },
     scenarioID: {
         type: mongoose.Schema.Types.ObjectId,

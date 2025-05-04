@@ -128,11 +128,20 @@ interface shareScenarioRequest {
     owner: string
     shareWith: string
 }
-router.post("/shareScenario", async (req, res) => {
+router.post("/shareScenario", async (req:any, res:any) => {
     try{
         const shareScenarioRequest : shareScenarioRequest = req.body
         const owner = await User.findById(shareScenarioRequest.owner).lean()
         const shareWithUser = await User.findById(shareScenarioRequest.shareWith)
+
+        const shareWithUserSharedScenarios = shareWithUser?.sharedScenarios;
+        if(shareWithUserSharedScenarios && shareWithUserSharedScenarios.length > 0){
+            for(const entry of shareWithUserSharedScenarios){
+                if(String(entry.scenarioID) == shareScenarioRequest.scenarioID){
+                    return res.send({ success: false, msg: "User already has access to this scenario" });
+                }
+            }
+        }
 
         if(shareWithUser == null){
             throw new Error("User does not exist")
@@ -155,11 +164,11 @@ router.post("/shareScenario", async (req, res) => {
         shareWithUser.sharedScenarios.push(sharedScenarioObject)
         await shareWithUser.save();
 
-        res.status(200).send({ success: true, message: "Scenario created shared!" });
+        res.status(200).send({ success: true, msg: "Scenario created shared!" });
     }
     catch(err){
         console.error("Error creating user:", err);
-        res.send({ success: false, message: "Error creating user", err });
+        res.send({ success: false, msg: "Error creating user", err });
     }
 })
 
