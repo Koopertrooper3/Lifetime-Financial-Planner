@@ -1,0 +1,326 @@
+[Income] Year: 2025, Amount: 75000, Event name: salary
+[Expense]: Year: 2025, Amount: 0, Expense: Federal Income Tax
+[Expense]: Year: 2025, Amount: 0, Expense: State Income Tax
+[Expense]: Year: 2025, Amount: 0, Expense: Federal Capital Gains Tax
+[Expense]: Year: 2025, Amount: 0, Expense: Early Withdrawal Income
+[Expense]: Year: 2025, Amount: 5000, Expense: food
+[Invest]: Year: 2025, Amount 82760, Investment Type: S&P 500 non-retirement
+[Invest]: Year: 2025, Amount 6270.000000000001, Investment Type: S&P 500 after-tax
+[Income] Year: 2026, Amount: 76913, Event name: salary
+[Expense]: Year: 2026, Amount: 5021.48952907712, Expense: Federal Income Tax
+[Expense]: Year: 2026, Amount: 6810.66888762368, Expense: State Income Tax
+[Expense]: Year: 2026, Amount: 0, Expense: Federal Capital Gains Tax
+[Expense]: Year: 2026, Amount: 0, Expense: Early Withdrawal Income
+[Expense]: Year: 2026, Amount: 5157.75, Expense: food
+[Invest]: Year: 2026, Amount 124275.84052588248, Investment Type: S&P 500 non-retirement
+[Invest]: Year: 2026, Amount 20199.56014832583, Investment Type: S&P 500 after-tax
+[Income] Year: 2027, Amount: 78856, Event name: salary
+[Expense]: Year: 2027, Amount: 5123.628081194078, Expense: Federal Income Tax
+[Expense]: Year: 2027, Amount: 6996.455060578202, Expense: State Income Tax
+[Expense]: Year: 2027, Amount: 0, Expense: Federal Capital Gains Tax
+[Expense]: Year: 2027, Amount: 0, Expense: Early Withdrawal Income
+[Expense]: Year: 2027, Amount: 5376.52, Expense: food
+[Invest]: Year: 2027, Amount 164919.36237891973, Investment Type: S&P 500 non-retirement
+[Invest]: Year: 2027, Amount 36781.62064597466, Investment Type: S&P 500 after-tax
+[Income] Year: 2028, Amount: 80363, Event name: salary
+[Expense]: Year: 2028, Amount: 5225.049519314008, Expense: Federal Income Tax
+[Expense]: Year: 2028, Amount: 7186.306949714803, Expense: State Income Tax
+[Expense]: Year: 2028, Amount: 0, Expense: Federal Capital Gains Tax
+[Expense]: Year: 2028, Amount: 0, Expense: Early Withdrawal Income
+[Expense]: Year: 2028, Amount: 5630.76, Expense: food
+[Invest]: Year: 2028, Amount 204161.0995436879, Investment Type: S&P 500 non-retirement
+[Invest]: Year: 2028, Amount 55975.152818052506, Investment Type: S&P 500 after-tax
+[Income] Year: 2029, Amount: 81362, Event name: salary
+[Expense]: Year: 2029, Amount: 5269.677965222502, Expense: Federal Income Tax
+[Expense]: Year: 2029, Amount: 7354.668658146821, Expense: State Income Tax
+[Expense]: Year: 2029, Amount: 0, Expense: Federal Capital Gains Tax
+[Expense]: Year: 2029, Amount: 0, Expense: Early Withdrawal Income
+[Expense]: Year: 2029, Amount: 5946.09, Expense: food
+[Invest]: Year: 2029, Amount 241524.90654545976, Investment Type: S&P 500 non-retirement
+[Invest]: Year: 2029, Amount 77696.51894545658, Investment Type: S&P 500 after-tax
+[Income] Year: 2030, Amount: 82793, Event name: salary
+[Expense]: Year: 2030, Amount: 5248.705949067698, Expense: Federal Income Tax
+[Expense]: Year: 2030, Amount: 7497.654177846076, Expense: State Income Tax
+[Expense]: Year: 2030, Amount: 0, Expense: Federal Capital Gains Tax
+[Expense]: Year: 2030, Amount: 0, Expense: Early Withdrawal Income
+[Expense]: Year: 2030, Amount: 6084.37, Expense: food
+[Invest]: Year: 2030, Amount 277425.5016444936, Investment Type: S&P 500 non-retirement
+[Invest]: Year: 2030, Amount 102179.90836192586, Investment Type: S&P 500 after-tax
+[Income] Year: 2031, Amount: 84519, Event name: salary
+[Expense]: Year: 2031, Amount: 5274.764210869298, Expense: Federal Income Tax
+[Expense]: Year: 2031, Amount: 7667.042088920089, Expense: State Income Tax
+[Expense]: Year: 2031, Amount: 0, Expense: Federal Capital Gains Tax
+[Expense]: Year: 2031, Amount: 0, Expense: Early Withdrawal Income
+[Expense]: Year: 2031, Amount: 6411.39, Expense: food
+[Invest]: Year: 2031, Amount 311780.2360536432, Investment Type: S&P 500 non-retirement
+[Invest]: Year: 2031, Amount 129501.86888406739, Investment Type: S&P 500 after-tax
+[Income] Year: 2032, Amount: 85542, Event name: salary
+[Expense]: Year: 2032, Amount: 5331.2280803614485, Expense: Federal Income Tax
+[Expense]: Year: 2032, Amount: 7855.3745332644285, Expense: State Income Tax
+[Expense]: Year: 2032, Amount: 0, Expense: Federal Capital Gains Tax
+[Expense]: Year: 2032, Amount: 0, Expense: Early Withdrawal Income
+[Expense]: Year: 2032, Amount: 6681.56, Expense: food
+[Invest]: Year: 2032, Amount 344031.9080867717, Investment Type: S&P 500 non-retirement
+[Invest]: Year: 2032, Amount 159493.77151136723, Investment Type: S&P 500 after-tax
+[Income] Year: 2033, Amount: 86409, Event name: salary
+[Expense]: Year: 2033, Amount: 5298.15369465016, Expense: Federal Income Tax
+[Expense]: Year: 2033, Amount: 8007.844873653333, Expense: State Income Tax
+[Expense]: Year: 2033, Amount: 0, Expense: Federal Capital Gains Tax
+[Expense]: Year: 2033, Amount: 0, Expense: Early Withdrawal Income
+[Expense]: Year: 2033, Amount: 6821.53, Expense: food
+[Invest]: Year: 2033, Amount 374194.20767184126, Investment Type: S&P 500 non-retirement
+[Invest]: Year: 2033, Amount 192217.41841541074, Investment Type: S&P 500 after-tax
+[Income] Year: 2034, Amount: 87575, Event name: salary
+[Expense]: Year: 2034, Amount: 5240.982803247971, Expense: Federal Income Tax
+[Expense]: Year: 2034, Amount: 8154.620965644805, Expense: State Income Tax
+[Expense]: Year: 2034, Amount: 0, Expense: Federal Capital Gains Tax
+[Expense]: Year: 2034, Amount: 0, Expense: Early Withdrawal Income
+[Expense]: Year: 2034, Amount: 7067.41, Expense: food
+[Invest]: Year: 2034, Amount 402354.01232118113, Investment Type: S&P 500 non-retirement
+[Invest]: Year: 2034, Amount 227789.24746782074, Investment Type: S&P 500 after-tax
+[Income] Year: 2035, Amount: 88817, Event name: salary
+[Expense]: Year: 2035, Amount: 5214.110863828599, Expense: Federal Income Tax
+[Expense]: Year: 2035, Amount: 8320.81411518603, Expense: State Income Tax
+[Expense]: Year: 2035, Amount: 0, Expense: Federal Capital Gains Tax
+[Expense]: Year: 2035, Amount: 0, Expense: Early Withdrawal Income
+[Expense]: Year: 2035, Amount: 7318.19, Expense: food
+[Invest]: Year: 2035, Amount 428463.03346259135, Investment Type: S&P 500 non-retirement
+[Invest]: Year: 2035, Amount 266262.75770839426, Investment Type: S&P 500 after-tax
+[Income] Year: 2036, Amount: 89610, Event name: salary
+[Expense]: Year: 2036, Amount: 5190.567685691133, Expense: Federal Income Tax
+[Expense]: Year: 2036, Amount: 8494.249631921457, Expense: State Income Tax
+[Expense]: Year: 2036, Amount: 0, Expense: Federal Capital Gains Tax
+[Expense]: Year: 2036, Amount: 0, Expense: Early Withdrawal Income
+[Expense]: Year: 2036, Amount: 7587.93, Expense: food
+[Invest]: Year: 2036, Amount 452184.0699034037, Investment Type: S&P 500 non-retirement
+[Invest]: Year: 2036, Amount 307482.9990266027, Investment Type: S&P 500 after-tax
+[Income] Year: 2037, Amount: 91426, Event name: salary
+[Expense]: Year: 2037, Amount: 5107.130209370503, Expense: Federal Income Tax
+[Expense]: Year: 2037, Amount: 8646.143790149488, Expense: State Income Tax
+[Expense]: Year: 2037, Amount: 0, Expense: Federal Capital Gains Tax
+[Expense]: Year: 2037, Amount: 0, Expense: Early Withdrawal Income
+[Expense]: Year: 2037, Amount: 7987.06, Expense: food
+[Invest]: Year: 2037, Amount 474034.37077845057, Investment Type: S&P 500 non-retirement
+[Invest]: Year: 2037, Amount 351896.11784021114, Investment Type: S&P 500 after-tax
+[Income] Year: 2038, Amount: 92117, Event name: salary
+[Expense]: Year: 2038, Amount: 5140.209084063929, Expense: Federal Income Tax
+[Expense]: Year: 2038, Amount: 8857.552126304052, Expense: State Income Tax
+[Expense]: Year: 2038, Amount: 0, Expense: Federal Capital Gains Tax
+[Expense]: Year: 2038, Amount: 0, Expense: Early Withdrawal Income
+[Expense]: Year: 2038, Amount: 8256.41, Expense: food
+[Invest]: Year: 2038, Amount 493295.8941507491, Investment Type: S&P 500 non-retirement
+[Invest]: Year: 2038, Amount 399038.7771432308, Investment Type: S&P 500 after-tax
+[Income] Year: 2039, Amount: 93468, Event name: salary
+[Expense]: Year: 2039, Amount: 5031.799727126827, Expense: Federal Income Tax
+[Expense]: Year: 2039, Amount: 9010.430637221958, Expense: State Income Tax
+[Expense]: Year: 2039, Amount: 0, Expense: Federal Capital Gains Tax
+[Expense]: Year: 2039, Amount: 0, Expense: Early Withdrawal Income
+[Expense]: Year: 2039, Amount: 8538.01, Expense: food
+[Invest]: Year: 2039, Amount 510395.57944387186, Investment Type: S&P 500 non-retirement
+[Invest]: Year: 2039, Amount 449322.85382511263, Investment Type: S&P 500 after-tax
+[Income] Year: 2040, Amount: 95149, Event name: salary
+[Expense]: Year: 2040, Amount: 4995.852038119191, Expense: Federal Income Tax
+[Expense]: Year: 2040, Amount: 9203.055542263712, Expense: State Income Tax
+[Expense]: Year: 2040, Amount: 0, Expense: Federal Capital Gains Tax
+[Expense]: Year: 2040, Amount: 0, Expense: Early Withdrawal Income
+[Expense]: Year: 2040, Amount: 8779.71, Expense: food
+[Invest]: Year: 2040, Amount 525398.6640098086, Investment Type: S&P 500 non-retirement
+[Invest]: Year: 2040, Amount 502932.7984098086, Investment Type: S&P 500 after-tax
+[Income] Year: 2041, Amount: 96389, Event name: salary
+[Expense]: Year: 2041, Amount: 4992.501247188255, Expense: Federal Income Tax
+[Expense]: Year: 2041, Amount: 9417.37941324116, Expense: State Income Tax
+[Expense]: Year: 2041, Amount: 0, Expense: Federal Capital Gains Tax
+[Expense]: Year: 2041, Amount: 0, Expense: Early Withdrawal Income
+[Expense]: Year: 2041, Amount: 9011.58, Expense: food
+[Invest]: Year: 2041, Amount 537994.0038983785, Investment Type: S&P 500 non-retirement
+[Invest]: Year: 2041, Amount 559687.0017565767, Investment Type: S&P 500 after-tax
+[Income] Year: 2042, Amount: 96899, Event name: salary
+[Expense]: Year: 2042, Amount: 4928.956631335906, Expense: Federal Income Tax
+[Expense]: Year: 2042, Amount: 9611.105509120007, Expense: State Income Tax
+[Expense]: Year: 2042, Amount: 0, Expense: Federal Capital Gains Tax
+[Expense]: Year: 2042, Amount: 0, Expense: Early Withdrawal Income
+[Expense]: Year: 2042, Amount: 9406.1, Expense: food
+[Invest]: Year: 2042, Amount 547759.9725265014, Investment Type: S&P 500 non-retirement
+[Invest]: Year: 2042, Amount 619188.5412441539, Investment Type: S&P 500 after-tax
+[Income] Year: 2043, Amount: 98272, Event name: salary
+[Expense]: Year: 2043, Amount: 4770.246996136346, Expense: Federal Income Tax
+[Expense]: Year: 2043, Amount: 9768.446477681926, Expense: State Income Tax
+[Expense]: Year: 2043, Amount: 0, Expense: Federal Capital Gains Tax
+[Expense]: Year: 2043, Amount: 0, Expense: Early Withdrawal Income
+[Expense]: Year: 2043, Amount: 9935.9, Expense: food
+[Invest]: Year: 2043, Amount 555075.8757143772, Investment Type: S&P 500 non-retirement
+[Invest]: Year: 2043, Amount 681911.1442546619, Investment Type: S&P 500 after-tax
+[Income] Year: 2044, Amount: 99618, Event name: salary
+[Expense]: Year: 2044, Amount: 4707.236859132386, Expense: Federal Income Tax
+[Expense]: Year: 2044, Amount: 9977.132145762942, Expense: State Income Tax
+[Expense]: Year: 2044, Amount: 0, Expense: Federal Capital Gains Tax
+[Expense]: Year: 2044, Amount: 0, Expense: Early Withdrawal Income
+[Expense]: Year: 2044, Amount: 10204.68, Expense: food
+[Invest]: Year: 2044, Amount 559928.5201593234, Investment Type: S&P 500 non-retirement
+[Invest]: Year: 2044, Amount 747949.0912771609, Investment Type: S&P 500 after-tax
+[Income] Year: 2045, Amount: 100763, Event name: salary
+[Expense]: Year: 2045, Amount: 4632.807760586326, Expense: Federal Income Tax
+[Expense]: Year: 2045, Amount: 10188.326344062321, Expense: State Income Tax
+[Expense]: Year: 2045, Amount: 0, Expense: Federal Capital Gains Tax
+[Expense]: Year: 2045, Amount: 0, Expense: Early Withdrawal Income
+[Expense]: Year: 2045, Amount: 10604.49, Expense: food
+[Invest]: Year: 2045, Amount 562134.2710914738, Investment Type: S&P 500 non-retirement
+[Invest]: Year: 2045, Amount 817157.3004372108, Investment Type: S&P 500 after-tax
+[Income] Year: 2046, Amount: 101733, Event name: salary
+[Expense]: Year: 2046, Amount: 4525.759433713357, Expense: Federal Income Tax
+[Expense]: Year: 2046, Amount: 10392.582019690064, Expense: State Income Tax
+[Expense]: Year: 2046, Amount: 0, Expense: Federal Capital Gains Tax
+[Expense]: Year: 2046, Amount: 0, Expense: Early Withdrawal Income
+[Expense]: Year: 2046, Amount: 11086.05, Expense: food
+[Invest]: Year: 2046, Amount 561576.074192868, Investment Type: S&P 500 non-retirement
+[Invest]: Year: 2046, Amount 889430.27699889, Investment Type: S&P 500 after-tax
+[Income] Year: 2047, Amount: 103644, Event name: salary
+[Expense]: Year: 2047, Amount: 4410.429632636924, Expense: Federal Income Tax
+[Expense]: Year: 2047, Amount: 10591.450487736633, Expense: State Income Tax
+[Expense]: Year: 2047, Amount: 0, Expense: Federal Capital Gains Tax
+[Expense]: Year: 2047, Amount: 0, Expense: Early Withdrawal Income
+[Expense]: Year: 2047, Amount: 11697.66, Expense: food
+[Invest]: Year: 2047, Amount 558529.7544129153, Investment Type: S&P 500 non-retirement
+[Invest]: Year: 2047, Amount 965311.6030229611, Investment Type: S&P 500 after-tax
+[Income] Year: 2048, Amount: 104839, Event name: salary
+[Expense]: Year: 2048, Amount: 4428.644079470575, Expense: Federal Income Tax
+[Expense]: Year: 2048, Amount: 10846.439859188731, Expense: State Income Tax
+[Expense]: Year: 2048, Amount: 0, Expense: Federal Capital Gains Tax
+[Expense]: Year: 2048, Amount: 0, Expense: Early Withdrawal Income
+[Expense]: Year: 2048, Amount: 12341.47, Expense: food
+[Invest]: Year: 2048, Amount 552606.3279426738, Investment Type: S&P 500 non-retirement
+[Invest]: Year: 2048, Amount 1044247.3159004849, Investment Type: S&P 500 after-tax
+[Income] Year: 2049, Amount: 106354, Event name: salary
+[Expense]: Year: 2049, Amount: 4370.071060961979, Expense: Federal Income Tax
+[Expense]: Year: 2049, Amount: 11066.5452674734, Expense: State Income Tax
+[Expense]: Year: 2049, Amount: 0, Expense: Federal Capital Gains Tax
+[Expense]: Year: 2049, Amount: 0, Expense: Early Withdrawal Income
+[Expense]: Year: 2049, Amount: 12715.26, Expense: food
+[Invest]: Year: 2049, Amount 544016.886916077, Investment Type: S&P 500 non-retirement
+[Invest]: Year: 2049, Amount 1126723.0322966638, Investment Type: S&P 500 after-tax
+[Income] Year: 2050, Amount: 107384, Event name: salary
+[Expense]: Year: 2050, Amount: 4338.154164078713, Expense: Federal Income Tax
+[Expense]: Year: 2050, Amount: 11308.881159705932, Expense: State Income Tax
+[Expense]: Year: 2050, Amount: 0, Expense: Federal Capital Gains Tax
+[Expense]: Year: 2050, Amount: 0, Expense: Early Withdrawal Income
+[Expense]: Year: 2050, Amount: 13328.65, Expense: food
+[Invest]: Year: 2050, Amount 532474.1983600073, Investment Type: S&P 500 non-retirement
+[Invest]: Year: 2050, Amount 1212247.5503733505, Investment Type: S&P 500 after-tax
+[Income] Year: 2051, Amount: 108456, Event name: salary
+[Expense]: Year: 2051, Amount: 0, Expense: Federal Income Tax
+[Expense]: Year: 2051, Amount: 5940.528151249067, Expense: State Income Tax
+[Expense]: Year: 2051, Amount: 0, Expense: Federal Capital Gains Tax
+[Expense]: Year: 2051, Amount: 0, Expense: Early Withdrawal Income
+[Expense]: Year: 2051, Amount: 13837.12, Expense: food
+[Invest]: Year: 2051, Amount 520787.70525098336, Investment Type: S&P 500 non-retirement
+[Invest]: Year: 2051, Amount 1308070.3777311007, Investment Type: S&P 500 after-tax
+[Income] Year: 2052, Amount: 109042, Event name: salary
+[Expense]: Year: 2052, Amount: 0, Expense: Federal Income Tax
+[Expense]: Year: 2052, Amount: 6206.264831651875, Expense: State Income Tax
+[Expense]: Year: 2052, Amount: 0, Expense: Federal Capital Gains Tax
+[Expense]: Year: 2052, Amount: 0, Expense: Early Withdrawal Income
+[Expense]: Year: 2052, Amount: 14176.36, Expense: food
+[Invest]: Year: 2052, Amount 505670.3501707972, Investment Type: S&P 500 non-retirement
+[Invest]: Year: 2052, Amount 1407184.6720245776, Investment Type: S&P 500 after-tax
+[Income] Year: 2053, Amount: 110459, Event name: salary
+[Expense]: Year: 2053, Amount: 0, Expense: Federal Income Tax
+[Expense]: Year: 2053, Amount: 6485.303631370966, Expense: State Income Tax
+[Expense]: Year: 2053, Amount: 0, Expense: Federal Capital Gains Tax
+[Expense]: Year: 2053, Amount: 0, Expense: Early Withdrawal Income
+[Expense]: Year: 2053, Amount: 14911.43, Expense: food
+[Invest]: Year: 2053, Amount 487229.136675839, Investment Type: S&P 500 non-retirement
+[Invest]: Year: 2053, Amount 1509900.3979401581, Investment Type: S&P 500 after-tax
+[Income] Year: 2054, Amount: 111211, Event name: salary
+[Expense]: Year: 2054, Amount: 0, Expense: Federal Income Tax
+[Expense]: Year: 2054, Amount: 6778.368212137094, Expense: State Income Tax
+[Expense]: Year: 2054, Amount: 0, Expense: Federal Capital Gains Tax
+[Expense]: Year: 2054, Amount: 0, Expense: Early Withdrawal Income
+[Expense]: Year: 2054, Amount: 15514.06, Expense: food
+[Invest]: Year: 2054, Amount 465324.5781446116, Investment Type: S&P 500 non-retirement
+[Invest]: Year: 2054, Amount 1615805.5248945334, Investment Type: S&P 500 after-tax
+[Income] Year: 2055, Amount: 112618, Event name: salary
+[Expense]: Year: 2055, Amount: 0, Expense: Federal Income Tax
+[Expense]: Year: 2055, Amount: 7086.223713560349, Expense: State Income Tax
+[Expense]: Year: 2055, Amount: 0, Expense: Federal Capital Gains Tax
+[Expense]: Year: 2055, Amount: 0, Expense: Early Withdrawal Income
+[Expense]: Year: 2055, Amount: 16115.96, Expense: food
+[Invest]: Year: 2055, Amount 440098.7508322875, Investment Type: S&P 500 non-retirement
+[Invest]: Year: 2055, Amount 1725393.9347291514, Investment Type: S&P 500 after-tax
+[Income] Year: 2056, Amount: 113490, Event name: salary
+[Expense]: Year: 2056, Amount: 0, Expense: Federal Income Tax
+[Expense]: Year: 2056, Amount: 10506.57830172325, Expense: State Income Tax
+[Expense]: Year: 2056, Amount: 0, Expense: Federal Capital Gains Tax
+[Expense]: Year: 2056, Amount: 0, Expense: Early Withdrawal Income
+[Expense]: Year: 2056, Amount: 17044.51, Expense: food
+[Invest]: Year: 2056, Amount 410812.06045446993, Investment Type: S&P 500 non-retirement
+[Invest]: Year: 2056, Amount 1835426.0724925874, Investment Type: S&P 500 after-tax
+[Income] Year: 2057, Amount: 114613, Event name: salary
+[Expense]: Year: 2057, Amount: 0, Expense: Federal Income Tax
+[Expense]: Year: 2057, Amount: 10944.997320621274, Expense: State Income Tax
+[Expense]: Year: 2057, Amount: 0, Expense: Federal Capital Gains Tax
+[Expense]: Year: 2057, Amount: 0, Expense: Early Withdrawal Income
+[Expense]: Year: 2057, Amount: 17786.46, Expense: food
+[Invest]: Year: 2057, Amount 378226.1600667954, Investment Type: S&P 500 non-retirement
+[Invest]: Year: 2057, Amount 1948554.7073506785, Investment Type: S&P 500 after-tax
+[Income] Year: 2058, Amount: 116233, Event name: salary
+[Expense]: Year: 2058, Amount: 183.29990840441462, Expense: Federal Income Tax
+[Expense]: Year: 2058, Amount: 11404.073109779882, Expense: State Income Tax
+[Expense]: Year: 2058, Amount: 0, Expense: Federal Capital Gains Tax
+[Expense]: Year: 2058, Amount: 0, Expense: Early Withdrawal Income
+[Expense]: Year: 2058, Amount: 18834.14, Expense: food
+[Invest]: Year: 2058, Amount 342348.95148908166, Investment Type: S&P 500 non-retirement
+[Invest]: Year: 2058, Amount 2064754.0828043618, Investment Type: S&P 500 after-tax
+[Income] Year: 2059, Amount: 117385, Event name: salary
+[RMD] Year: 2059, Amount: 2774.050588235294, Investment Type: S&P 500
+[Expense]: Year: 2059, Amount: 440.95722382918905, Expense: Federal Income Tax
+[Expense]: Year: 2059, Amount: 11884.882378068232, Expense: State Income Tax
+[Expense]: Year: 2059, Amount: 0, Expense: Federal Capital Gains Tax
+[Expense]: Year: 2059, Amount: 0, Expense: Early Withdrawal Income
+[Expense]: Year: 2059, Amount: 19335.99, Expense: food
+[Invest]: Year: 2059, Amount 303189.0174614081, Investment Type: S&P 500 non-retirement
+[Invest]: Year: 2059, Amount 2183992.10945033, Investment Type: S&P 500 after-tax
+[Income] Year: 2060, Amount: 118768, Event name: salary
+[RMD] Year: 2060, Amount: 2960.8873983739836, Investment Type: S&P 500
+[Expense]: Year: 2060, Amount: 721.7007002934217, Expense: Federal Income Tax
+[Expense]: Year: 2060, Amount: 12388.561967272424, Expense: State Income Tax
+[Expense]: Year: 2060, Amount: 0, Expense: Federal Capital Gains Tax
+[Expense]: Year: 2060, Amount: 0, Expense: Early Withdrawal Income
+[Expense]: Year: 2060, Amount: 20094.3, Expense: food
+[Invest]: Year: 2060, Amount 260751.41809990953, Investment Type: S&P 500 non-retirement
+[Invest]: Year: 2060, Amount 2306186.922299192, Investment Type: S&P 500 after-tax
+[Income] Year: 2061, Amount: 120376, Event name: salary
+[RMD] Year: 2061, Amount: 3043.237552742616, Investment Type: S&P 500
+[Expense]: Year: 2061, Amount: 1027.1581299203158, Expense: Federal Income Tax
+[Expense]: Year: 2061, Amount: 12916.312351030549, Expense: State Income Tax
+[Expense]: Year: 2061, Amount: 0, Expense: Federal Capital Gains Tax
+[Expense]: Year: 2061, Amount: 0, Expense: Early Withdrawal Income
+[Expense]: Year: 2061, Amount: 20964.74, Expense: food
+[Invest]: Year: 2061, Amount 215058.11272674057, Investment Type: S&P 500 non-retirement
+[Invest]: Year: 2061, Amount 2431375.1811575247, Investment Type: S&P 500 after-tax
+[Income] Year: 2062, Amount: 121356, Event name: salary
+[RMD] Year: 2062, Amount: 3241.4043668122276, Investment Type: S&P 500
+[Expense]: Year: 2062, Amount: 3059.2328806852443, Expense: Federal Income Tax
+[Expense]: Year: 2062, Amount: 14404.494725338489, Expense: State Income Tax
+[Expense]: Year: 2062, Amount: 0, Expense: Federal Capital Gains Tax
+[Expense]: Year: 2062, Amount: 0, Expense: Early Withdrawal Income
+[Expense]: Year: 2062, Amount: 21667.33, Expense: food
+[Invest]: Year: 2062, Amount 165933.6064117232, Investment Type: S&P 500 non-retirement
+[Invest]: Year: 2062, Amount 2556579.5868503377, Investment Type: S&P 500 after-tax
+[Income] Year: 2063, Amount: 123107, Event name: salary
+[RMD] Year: 2063, Amount: 3389.281818181818, Investment Type: S&P 500
+[Expense]: Year: 2063, Amount: 2887.882800206289, Expense: Federal Income Tax
+[Expense]: Year: 2063, Amount: 14691.90968030391, Expense: State Income Tax
+[Expense]: Year: 2063, Amount: 0, Expense: Federal Capital Gains Tax
+[Expense]: Year: 2063, Amount: 0, Expense: Early Withdrawal Income
+[Expense]: Year: 2063, Amount: 22969.28, Expense: food
+[Invest]: Year: 2063, Amount 113723.45905911243, Investment Type: S&P 500 non-retirement
+[Invest]: Year: 2063, Amount 2685024.6898187106, Investment Type: S&P 500 after-tax
+[Income] Year: 2064, Amount: 124661, Event name: salary
+[RMD] Year: 2064, Amount: 3547.350710900474, Investment Type: S&P 500
+[Expense]: Year: 2064, Amount: 2785.5524119551483, Expense: Federal Income Tax
+[Expense]: Year: 2064, Amount: 15028.735190971498, Expense: State Income Tax
+[Expense]: Year: 2064, Amount: 0, Expense: Federal Capital Gains Tax
+[Expense]: Year: 2064, Amount: 0, Expense: Early Withdrawal Income
+[Expense]: Year: 2064, Amount: 23752.3, Expense: food
+[Invest]: Year: 2064, Amount 58420.086039777605, Investment Type: S&P 500 non-retirement
+[Invest]: Year: 2064, Amount 2816915.7463491317, Investment Type: S&P 500 after-tax
