@@ -1,38 +1,32 @@
 import "../stylesheets/DashboardPage.css";
 import Banner from "../components/Banner";
 import SideBar from "../components/Sidebar";
-// import AddPlan from "../components/AddPlan";
 import { useState, useEffect } from "react";
 import LoadingWheel from "../components/LoadingWheel";
 import axiosCookie from "../axiosCookie";
-import { useHelperContext } from "../context/HelperContext";
 import { Link } from "react-router-dom";
 import { isDebug, User } from "../debug";
 import { useLocation, Outlet } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 
-// NOTE: To use debug, create an .env file with this line:
-// export const isDebug = import.meta.env.VITE_DEBUG_MODE === "true";
-// VITE_DEBUG_MODE=true
-// VITE_BACKEND_IP=localhost
-// VITE_BACKEND_PORT=8000
-
-console.log("VITE_DEBUG_MODE:", import.meta.env.VITE_DEBUG_MODE);
-console.log("VITE_BACKEND_IP:", import.meta.env.VITE_BACKEND_IP);
-console.log("VITE_BACKEND_PORT:", import.meta.env.VITE_BACKEND_PORT);
-
-console.log(
-  "backend url test:",
-  import.meta.env.VITE_BACKEND_IP,
-  import.meta.env.VITE_BACKEND_PORT
-);
-console.log("isDebug:", isDebug);
+interface Scenario {
+  _id: string;
+  scenarioID?: string;
+  scenario?: {
+    _id: string;
+    name: string;
+    // Add other scenario properties as needed
+  };
+  // Add other shared scenario properties
+}
 
 function SharedWithMePage() {
-  const { sharedWithScenarios } = useHelperContext();
+  const [sharedWithScenarios, setSharedWithScenarios] = useState<Scenario[]>([]);
   const [userData, setUserData] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
   const location = useLocation();
   const isCreatePage = location.pathname.includes("createScenario");
+
   const getBreadcrumb = () => {
     if (location.pathname.includes("AddNewInvestmentType")) {
       return " > Create Scenario > Add Investment Type";
@@ -40,9 +34,8 @@ function SharedWithMePage() {
       return " > Create Scenario > Add Event Series";
     } else if (location.pathname.includes("createScenario")) {
       return " > Create Scenario";
-    } else {
-      return "";
     }
+    return "";
   };
 
   useEffect(() => {
@@ -50,48 +43,82 @@ function SharedWithMePage() {
   }, [location.pathname]);
 
   useEffect(() => {
-    const fetchUserData = async () => {
-      if (isDebug) {
-        console.log("DEBUG MODE: Using mock user data");
-        setUserData({
-          _id: "guest-id-123",
-          name: "Guest",
-          email: "guest@example.com",
-          ownedScenarios: [], // NOTE: include mock scenario IDs
-        });
-        console.log("DEBUG MODE: Mock user data set.");
-        return;
-      }
-
+    const fetchData = async () => {
       try {
-        const response = await axiosCookie.get("/user");
-        console.log(response.data);
-        setUserData(response.data);
+        setLoading(true);
+        
+        if (isDebug) {
+          console.log("DEBUG MODE: Using mock data");
+          setUserData({
+            _id: "guest-id-123",
+            name: "Guest",
+            email: "guest@example.com",
+            ownedScenarios: [],
+          });
+          setSharedWithScenarios([
+            { 
+              _id: "1", 
+              scenarioID: "1",
+              scenario: {
+                _id: "1",
+                name: "Mock Shared Scenario 1"
+              }
+            },
+            { 
+              _id: "2",
+              scenarioID: "2",
+              scenario: {
+                _id: "2",
+                name: "Mock Shared Scenario 2"
+              }
+            }
+          ]);
+          setLoading(false);
+          return;
+        }
+
+        // Fetch user data first
+        const userResponse = await axiosCookie.get("/user");
+        setUserData(userResponse.data);
+
+        // Fetch shared scenarios
+        const sharedResponse = await axiosCookie.post("/scenario/getShareScenarios", {
+          userID: userResponse.data.user._id
+        });
+
+        // Process scenarios in parallel
+        const enrichedScenarios = await Promise.all(
+          sharedResponse.data.sharedScenarios.map(async (scenario: any) => {
+            try {
+              const scenarioResponse = await axiosCookie.get(`/scenario/${scenario.scenarioID}`);
+              return {
+                ...scenario,
+                scenario: scenarioResponse.data.data
+              };
+            } catch (error) {
+              console.error(`Error fetching scenario ${scenario.scenarioID}:`, error);
+              return scenario; // Return original if error occurs
+            }
+          })
+        );
+
+        setSharedWithScenarios(enrichedScenarios);
       } catch (err) {
-        console.error("error fetching user data", err);
+        console.error("Error fetching data:", err);
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchUserData();
+    fetchData();
   }, []);
 
-  // useEffect(() => {
-  //   const fetchScenarios = async () => {
-  //     const data = await fetchAllScenarios();
-  //     setAllScenarios(data);
-  //   };
-  //   fetchScenarios();
-  // }, []);
+  if (loading || userData == null) {
+    return <LoadingWheel />;
+  }
 
-  return userData == null ? (
-    <LoadingWheel />
-  ) : (
-    <motion.div
-    // initial={{ x: 0 }}
-    // animate={{ x: 0 }}
-    // exit={{ x: -window.innerWidth }}
-    // transition={{ duration: 0.3 }}
-    >
+  return (
+    <motion.div>
       <Banner />
       <SideBar />
       <div style={{ marginLeft: "320px", padding: "24px" }}>
@@ -116,19 +143,24 @@ function SharedWithMePage() {
         </div>
         {!isCreatePage && (
           <div className="dashboard-container">
-            {sharedWithScenarios?.map((scenario) => (
-              <Link
-                key={scenario._id}
-                to={`/scenario/${scenario._id}`}
-                className="scenario-card"
-              >
-                {scenario.name}
-              </Link>
-            ))}
+            {sharedWithScenarios.length > 0 ? (
+              sharedWithScenarios.map((scenario) => (
+                scenario?.scenario?.name && (
+                  <Link
+                    key={scenario._id}
+                    to={`/scenario/${scenario._id}`}
+                    className="scenario-card"
+                  >
+                    {scenario.scenario.name}
+                  </Link>
+                )
+              ))
+            ) : (
+              <div className="no-scenarios">No scenarios shared with you yet</div>
+            )}
           </div>
         )}
 
-        {/* Animated nested route transition */}
         <AnimatePresence mode="wait">
           <motion.div
             key={location.pathname}

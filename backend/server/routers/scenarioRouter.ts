@@ -150,6 +150,22 @@ router.post("/edit", async (req, res) => {
   }
 });
 
+router.post("/getShareScenarios", async (req:any, res:any) =>{
+  const userID = req.body.userID;
+  const user = await User.findById(userID);
+
+  if(!user){
+    return res.send({success : false, msg: "no user exist"})
+  }
+
+  const sharedScenarioObject = user.sharedScenarios;
+  res.send({
+    success: true,
+    sharedScenarios: sharedScenarioObject,
+    msg: "success"
+  })
+})
+
 // router.post("/edit", async (req, res) => {
 //   console.log("/scenario/edit hit");
 

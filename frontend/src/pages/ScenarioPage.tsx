@@ -9,7 +9,7 @@ import axiosCookie from "../axiosCookie";
 import ExportScenario from '../components/ExportScenario';
 import ShareScenarioButton from "../components/ShareScenarioButton";
 
-export default function ScenarioPage() {
+export default function ScenarioPage(props) {
   const { id } = useParams();
   const [scenario, setScenario] = useState<any>(null);
   const { ownedScenarios, fetchScenario, userID } =
