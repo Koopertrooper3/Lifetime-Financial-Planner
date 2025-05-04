@@ -31,19 +31,14 @@ async function simulation(threadData : threadData){
     const result : Result = {completed : 0, succeeded: 0, failed: 0, simulationRecords : {}}
 
  
-    const startTime = new Date();
-    const dateTimeString = `${startTime.getMonth()}_${startTime.getDay()}_${startTime.getFullYear()}_${startTime.getHours()}:${startTime.getMinutes()}:${startTime.getSeconds()}`
-    const logStream = createWriteStream(path.resolve(__dirname, '..','..','logs',`${threadData.username}_${dateTimeString}.log`), {flags: 'a'})
-    const csvStream : WriteStream = initalizeCSVLog(threadData.username,dateTimeString)
+
 
     const threadNumber : string = threadData.threadNumber.toString()
     const totalSimulations : number = threadData.simulationsPerThread
     const baseScenario : Scenario = threadData.scenario
     
     if(baseScenario == null){
-        //Error log message to be added
-        logStream.close()
-        return result
+        throw new Error("Scenario does not exist");
     }
 
 
@@ -59,6 +54,11 @@ async function simulation(threadData : threadData){
         const lifeExpectancy : number = calculateLifeExpectancy(scenario)
         const spouseLifeExpectancy : number = calculateSpousalLifeExpectancy(scenario)
         let purchaseLedger : Record<string,number> = constructPurchaseLedger(scenario.investments)
+
+        const startTime = new Date();
+        const dateTimeString = `${startTime.getMonth()+1}_${startTime.getDate()}_${startTime.getFullYear()}_${startTime.getHours()}:${startTime.getMinutes()}:${startTime.getSeconds()}`
+        const logStream = createWriteStream(path.resolve(__dirname, '..','..','logs',`${threadData.username}_${dateTimeString}.log`), {flags: 'a'})
+        const csvStream : WriteStream = initalizeCSVLog(threadData.username,dateTimeString)
 
         try{
             scenario.eventSeries = resolveEventDurations(scenario.eventSeries)
@@ -84,7 +84,7 @@ async function simulation(threadData : threadData){
             filingStatus = 2
         }
 
-        for(let age = startingYear - userBirthYear; age < DEBUG_TWO_RUNS && solvent == true; age++){
+        for(let age = startingYear - userBirthYear; age < lifeExpectancy && solvent == true; age++){
             const currentYearValues : AnnualValues = {
                 totalIncome: 0,
                 totalSocialSecurityIncome: 0,
@@ -121,7 +121,7 @@ async function simulation(threadData : threadData){
             scenario.eventSeries = processIncomeReturn.adjustedEvents
             currentYearValues.totalSocialSecurityIncome += processIncomeReturn.totalSocialSecurityIncome
             const incomeBreakdown = processIncomeReturn.incomeBreakdown
-            pushToLog(logStream,processIncomeReturn.incomeLogMessages.join("\n"))
+            pushToLog(logStream,processIncomeReturn.incomeLogMessages.join(''))
 
             //Perform RMD
             if(age >= 74 && Object.values(scenario.investments).some((investment) => investment.taxStatus == "pre-tax")){
@@ -131,7 +131,7 @@ async function simulation(threadData : threadData){
                 const RMDReturn = performRMD(scenario.investments, scenario.RMDStrategy,RMDTable,age,simulatedYear)
                 currentYearValues.totalIncome += RMDReturn.RMDIncome
                 scenario.investments = RMDReturn.adjustedAccounts
-                pushToLog(logStream,RMDReturn.RMDLogMessages.join("\n"))
+                pushToLog(logStream,RMDReturn.RMDLogMessages.join(''))
 
             }  
 
@@ -146,7 +146,7 @@ async function simulation(threadData : threadData){
                 const rothConversionReturn = rothConversionOptimizer(scenario,currentYearTaxBrackets["Federal"],currentYearValues.totalIncome,filingStatus,simulatedYear)
                 scenario.investments = rothConversionReturn.adjustedAccounts
                 currentYearValues.totalIncome += rothConversionReturn.rothConversionIncome
-                pushToLog(logStream,rothConversionReturn.rothConversionLogMessages.join('\n'))
+                pushToLog(logStream,rothConversionReturn.rothConversionLogMessages.join(''))
             }
 
             //Determine and pay taxes and non-discretionary expenses
@@ -160,7 +160,7 @@ async function simulation(threadData : threadData){
             currentYearValues.totalEarlyWithdrawal += nonDescExpenseReturn.earlyWithdrawal
             totalAnnualExpenses += nonDescExpenseReturn.totalAnnualExpenses
             expenseBreakdown = nonDescExpenseReturn.expenseBreakdown
-            pushToLog(logStream,nonDescExpenseReturn.nonDescExpenseLogMessages.join('\n'))
+            pushToLog(logStream,nonDescExpenseReturn.nonDescExpenseLogMessages.join(''))
 
             if(nonDescExpenseReturn.allExpensesPaid == false){
                 solvent = false
@@ -178,17 +178,17 @@ async function simulation(threadData : threadData){
             totalIncurredDiscretionaryExpenses += descExpenseReturn.totalIncurredDiscretionaryExpenses
             const totalDiscretionaryExpenses = descExpenseReturn.totalDiscretionaryExpenses
             expenseBreakdown = descExpenseReturn.expenseBreakdown
-            pushToLog(logStream,descExpenseReturn.discExpenseLogMessages.join('\n'))
+            pushToLog(logStream,descExpenseReturn.discExpenseLogMessages.join(''))
 
             const investReturn = processInvestEvent(scenario,simulatedYear,purchaseLedger)
             scenario.investments = investReturn.adjustedAccounts
             purchaseLedger = investReturn.adjustedPurchaseLedger
-            pushToLog(logStream,investReturn.logMessages.join('\n'))
+            pushToLog(logStream,investReturn.logMessages.join(''))
 
             const rebalanceReturn = processRebalanceEvent(scenario,simulatedYear,purchaseLedger)
             scenario.investments = rebalanceReturn.adjustedAccounts
             purchaseLedger = rebalanceReturn.adjustedPurchaseLedger
-            pushToLog(logStream,rebalanceReturn.logMessages.join('\n'))
+            pushToLog(logStream,rebalanceReturn.logMessages.join(''))
             currentYearValues.totalCapitalGains += rebalanceReturn.totalCapitalGain
 
             const normalizedScenario = normalizeScenario(scenario)
@@ -225,12 +225,13 @@ async function simulation(threadData : threadData){
             result["failed"] += 1
         }
         result['completed'] += 1
+            
+        logStream.end()
+        await finished(logStream)
+        await closeCSVlog(csvStream)
     }
 
-    
-    logStream.end()
-    await finished(logStream)
-    await closeCSVlog(csvStream)
+
     return result
 }
 
@@ -862,11 +863,11 @@ function determineTaxableCapitalGain(currentPurchasePrice : number, withdrawalAm
     return {capitalGain,newPurchasePrice}
 }
 
-function generateExpenseSeriesFromEvents(eventSeries : Record<string,ScenarioEvent>,year : number,inflationRate : number,spousalStatus : boolean){
+function generateExpenseSeriesFromEvents(eventSeries : Record<string,ScenarioEvent>,nonDiscretionaryEvents: Record<string,ScenarioEvent>,year : number,inflationRate : number,spousalStatus : boolean){
 
     const adjustedEventSeries = structuredClone(eventSeries)
 
-    const eventExpenses = Object.values(eventSeries).map((currEvent) =>{
+    const eventExpenses = Object.values(nonDiscretionaryEvents).map((currEvent) =>{
         if(currEvent.event.type != "expense" || !hasEventStarted(currEvent,year)){
             throw new Error("Filter doesn't work properly")
         }
@@ -913,7 +914,7 @@ function payNonDiscretionaryExpenses(scenario : Scenario, taxBracket : TaxBracke
     const expenseBreakdown : Record<string,number> = {};
 
     let allExpensesPaid = false
-    expenseSeries = expenseSeries.concat(determineTaxBurden(taxBracket,prevYearValues,filingStatus,filingStatus))
+    expenseSeries = expenseSeries.concat(determineTaxBurden(taxBracket,prevYearValues,filingStatus,year))
 
     let earlyWithdrawal = 0.0
     let totalIncome = 0.0
@@ -927,7 +928,7 @@ function payNonDiscretionaryExpenses(scenario : Scenario, taxBracket : TaxBracke
         }
         return record;
     }, {});
-    const eventExpensesResult = generateExpenseSeriesFromEvents(nonDiscretionaryEvents,year,inflationRate,spousalStatus)
+    const eventExpensesResult = generateExpenseSeriesFromEvents(eventSeries,nonDiscretionaryEvents,year,inflationRate,spousalStatus)
 
     expenseSeries = expenseSeries.concat(eventExpensesResult.eventExpenses)
     Object.entries(eventExpensesResult.adjustedEventSeries).map(([eventKey,event]) => {
@@ -1067,14 +1068,16 @@ function determineTaxFromWithdrawal(account : Investment, investmentData : Inves
     return {income,earlyWithdrawal,capitalGain,newPurchasePrice}
 
 }
-function generateExpenseSeriesFromSpendingStrategy(discretionaryEvents : Record<string,ScenarioEvent>, spendingStrategy : string[], year : number,inflationRate : number,spousalStatus : boolean){
+function generateExpenseSeriesFromSpendingStrategy(eventSeries : Record<string,ScenarioEvent>, spendingStrategy : string[], year : number,inflationRate : number,spousalStatus : boolean){
 
     const eventExpenses : ExpenseObject[] = []
-    const adjustedEventSeries = structuredClone(discretionaryEvents)
-    spendingStrategy.forEach((expenseID) => {
+    const adjustedEventSeries = structuredClone(eventSeries)
+
+    for(const expenseID of spendingStrategy){
         const currEvent = adjustedEventSeries[expenseID]
+
         if(currEvent.event.type != "expense" || !hasEventStarted(currEvent,year)){
-            throw new Error("Filter doesn't work properly")
+            continue
         }
 
         let totalExpense : number
@@ -1097,8 +1100,8 @@ function generateExpenseSeriesFromSpendingStrategy(discretionaryEvents : Record<
         }
         currEvent.event.initialAmount = determineExpenseValueChange(currEvent,inflationRate)
 
-        return newExpenseObject
-    })
+        
+    }
     return {eventExpenses,adjustedEventSeries}
 }
 /** Description placeholder */
@@ -1150,7 +1153,7 @@ function payDiscretionaryExpenses(scenario : Scenario, purchaseLedger : Record<s
         return record;
     }, {});
 
-    const eventExpensesResult = generateExpenseSeriesFromSpendingStrategy(discretionaryEvents,spendingStrategy,year,inflationRate,spousalStatus)
+    const eventExpensesResult = generateExpenseSeriesFromSpendingStrategy(eventSeries,spendingStrategy,year,inflationRate,spousalStatus)
     expenseSeries = expenseSeries.concat(eventExpensesResult.eventExpenses)
     const adjustedEventSeries = eventExpensesResult.adjustedEventSeries
 

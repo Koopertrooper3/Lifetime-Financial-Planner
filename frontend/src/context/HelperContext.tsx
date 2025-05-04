@@ -139,7 +139,7 @@ export const HelperContextProvider: React.FC<{ children: React.ReactNode }> = ({
           sharedWithScenarios,
           handleEditScenario,
           userAuthenticated,
-          setUserAuthenticated
+          setUserAuthenticated,
         }
       }
     >

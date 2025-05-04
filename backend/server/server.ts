@@ -1,14 +1,10 @@
 /*global console, setTimeout, clearTimeout, __dirname*/
-/*eslint no-undef: "error"*/
-
-import { Request, Response } from 'express';
 import * as dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import process from 'node:process';
 import {federalTaxModel} from '../db/taxes';
 import {federalTaxScraper} from '../scraper/taxScraper';
 import { Queue, QueueEvents } from 'bullmq';
-import bodyParser from 'body-parser';
 import app from './app';
 import path from 'node:path';
 
@@ -22,11 +18,10 @@ const databaseName = process.env.DATABASE_NAME
 const databaseConnectionString = databaseHost + ':' + databasePort + '/' + databaseName
 const REDIS_HOST = process.env.REDIS_HOST || "localhost"
 const REDIS_PORT = Number(process.env.REDIS_PORT) || 6379
-const jsonParser = bodyParser.json()
 
-let simulatorQueue : Queue
-let queueEvents : QueueEvents
-
+export let simulatorQueue : Queue
+export let queueEvents : QueueEvents
+export let explorationQueue : Queue
 
 //Startup code to be run before the server starts
 async function startUp(){
@@ -51,6 +46,13 @@ async function startUp(){
           port: REDIS_PORT,
         },
       });
+
+    explorationQueue = new Queue('scenarioExplorationQueue', {
+    connection: {
+        host: REDIS_HOST,
+        port: REDIS_PORT,
+    },
+    });
     
     queueEvents = new QueueEvents('simulatorQueue', {
         connection: {
@@ -85,34 +87,4 @@ startUp().then(()=>{
 });
 })
 
-/**
- * PLEASE DO NOT PUT ANY ROUTES FROM FRONTEND IN THIS FILE, WRITE THEM IN /routers and export to app.ts
- */
-//sample GET
-app.get("/", (req, res)=>{
-    res.send("yeah");
-});
-
-app.post("/scenario/taxes/import", (req, res)=>{
-    res.send("yeah");
-});
-
-interface runSimulationBody{
-    userID: string,
-    scenarioID: string
-    totalSimulations: number
-}
-app.post("/scenario/runsimulation", jsonParser , async (req : Request, res : Response)=>{
-    try{
-        console.log("Job request")
-        const requestBody : runSimulationBody = req.body
-        const job = await simulatorQueue.add("simulatorQueue", {userID: requestBody.userID, scenarioID : requestBody.scenarioID, totalSimulations : requestBody.totalSimulations},{ removeOnComplete: true, removeOnFail: true })
-
-        //const result = await job.waitUntilFinished(queueEvents,1000*60*1)
-        res.status(200).send({completed : 0, succeeded: 0, failed: 0})
-    }catch(err){
-        console.log((err as Error))
-    }
-    
-});
 // async () => {scraper.federalIncomeTaxScraper()}
