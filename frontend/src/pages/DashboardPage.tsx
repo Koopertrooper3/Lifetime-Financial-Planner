@@ -29,7 +29,7 @@ console.log(
 console.log("isDebug:", isDebug);
 
 function DashboardPage() {
-  const { ownedScenarios } = useHelperContext();
+  const { setUserAuthenticated, ownedScenarios } = useHelperContext();
   const [userData, setUserData] = useState<User | null>(null);
   const location = useLocation();
   const isCreatePage = location.pathname.includes("createScenario");
@@ -65,8 +65,14 @@ function DashboardPage() {
 
       try {
         const response = await axiosCookie.get("/user");
+        if(response.data.authenticated){
+          setUserData(response.data.user);
+          setUserAuthenticated(true)
+        }
+        else{
+          setUserAuthenticated(false)
+        }
         console.log(response.data);
-        setUserData(response.data);
       } catch (err) {
         console.error("error fetching user data", err);
       }

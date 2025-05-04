@@ -13,14 +13,16 @@ interface HelperContextType {
   fetchUser: () => void;
   userID: any;
   allInvestmentTypes: any[] | null;
-  allScenarios: any[] | null;
-  ownedScenarios: any[];
-  sharedWithScenarios: any[];
+  allScenarios: Scenario[];
+  ownedScenarios: Scenario[];
+  sharedWithScenarios: Scenario[];
   handleEditScenario: (
     userID: string,
     scenarioID: string,
     updatedFields: Partial<Scenario>
   ) => Promise<any>;
+  userAuthenticated: boolean;
+  setUserAuthenticated: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const HelperContext = createContext<HelperContextType>({
@@ -30,10 +32,12 @@ const HelperContext = createContext<HelperContextType>({
   fetchUser: async () => null,
   userID: "",
   allInvestmentTypes: null,
-  allScenarios: null,
+  allScenarios: [],
   ownedScenarios: [],
   sharedWithScenarios: [],
   handleEditScenario: async () => null,
+  userAuthenticated: false,
+  setUserAuthenticated: () => {},
 });
 
 export const useHelperContext = () => useContext(HelperContext);
@@ -53,16 +57,13 @@ export const HelperContextProvider: React.FC<{ children: React.ReactNode }> = ({
     [key: string]: any; //for scaling
   };
 
-  const [allScenarios, setAllScenarios] = useState<Scenario[] | null>(null);
-  const [ownedScenarios, setOwnedScenarios] = useState<Scenario[] | null>(null);
-  const [sharedWithScenarios, setSharedWithScenarios] = useState<
-    Scenario[] | null
-  >(null);
-  const [allInvestmentTypes, setAllInvestmentTypes] = useState<
-    InvestmentType[] | null
-  >(null);
+  const [allScenarios, setAllScenarios] = useState<Scenario[]>([]);
+  const [ownedScenarios, setOwnedScenarios] = useState<Scenario[]>([]);
+  const [sharedWithScenarios, setSharedWithScenarios] = useState<Scenario[]>([]);
+  const [allInvestmentTypes, setAllInvestmentTypes] = useState<InvestmentType[] | null>(null);
 
   const [userID, setUserID] = useState<User | null>(null);
+  const [userAuthenticated, setUserAuthenticated] = useState<boolean>(false);
 
   useEffect(() => {
     const mockScenarios = [
@@ -90,7 +91,6 @@ export const HelperContextProvider: React.FC<{ children: React.ReactNode }> = ({
     console.log("Fetching for scenario: ", id);
     try {
       const data = await axiosCookie(`/scenario/${id}`);
-      console.log("asdsada", data);
       return data.data.data;
     } catch (error) {
       console.error("Error fetching scenario:", error);
@@ -208,6 +208,8 @@ export const HelperContextProvider: React.FC<{ children: React.ReactNode }> = ({
           ownedScenarios,
           sharedWithScenarios,
           handleEditScenario,
+          userAuthenticated,
+          setUserAuthenticated
         }
       }
     >

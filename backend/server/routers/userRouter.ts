@@ -4,6 +4,7 @@ import z from "zod";
 import mongoose from 'mongoose';
 import { SharedScenario } from '../../db/User';
 import { stateTaxZod } from '../zod/taxesZod';
+import { authenticate } from 'passport';
 
 const router = express.Router();
 
@@ -22,12 +23,20 @@ const userEditZod = z.object({
 router.get("/", (req, res) => {
     console.log("/user is called");
     if(req.isAuthenticated()){
-        console.log("user is authenticated: " + req.user);
-        res.send(req.user);
+        console.log("user is authenticated");
+        res.send({
+            user: req.user,
+            authenticated: true,
+            msg: "user is authenticated"
+        });
     }
     else{
         console.log("user not authenticated");
-        res.send("error not authenticated");
+        res.send({
+            user: null,
+            authenticated: false,
+            msg: "error not authenticated"
+        });
     }
 })
 
