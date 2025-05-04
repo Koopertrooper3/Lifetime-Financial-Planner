@@ -1,43 +1,22 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useHelperContext } from "../context/HelperContext";
 import { useScenarioContext } from "../context/useScenarioContext";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useParams } from "react-router-dom";
 import "../stylesheets/ScenarioPage.css";
 import { Link } from "react-router-dom";
 import axiosCookie from "../axiosCookie";
 import ExportScenario from '../components/ExportScenario';
-import ShareScenarioButton from "../components/ShareScenarioButton";
+import { useLocation } from 'react-router-dom';
+import { useHelperContext } from "../context/HelperContext";
 
 export default function ScenarioPage() {
-  const { id } = useParams();
-  const [scenario, setScenario] = useState<any>(null);
-  const { ownedScenarios, fetchScenario, userID } =
-    useHelperContext();
+  const { id } = useParams(); 
   const { setEditScenario } = useScenarioContext();
   const [activeTab, setActiveTab] = useState("investments");
+  const { userID } = useHelperContext();
   const [numberOfSimulations, setNumberOfSimulations] = useState(1);
-  //const [investmentTypes, setInvestmentTypes] = useState<any[]>([]);
-  // const [distributionMap, setDistributionMap] = useState<Record<string, any>>(
-  //   {}
-  // );
-
-  useEffect(() => {
-    if (!id) return;
-    const fetch = async () => {
-      const res = await fetchScenario(id);
-      setScenario(res);
-    };
-    fetch();
-  }, [id]);
-
-  useEffect(() => {
-    if (!ownedScenarios) return;
-    const filteredScenario = ownedScenarios.find(
-      (scenario: any) => scenario._id === id
-    );
-    setScenario(filteredScenario);
-  }, []);
+  const props = useLocation().state.scenario;
+  const { permission, scenarioID, scenario } = props; // scenarioID is same as id
 
   if (!scenario) return <div>Loading....</div>;
 
@@ -61,7 +40,7 @@ export default function ScenarioPage() {
       throw new Error("Undefined user");
     }
     await axiosCookie.post("/scenario/runsimulation", {
-      userID: userID._id,
+      userID: scenarioID._id,
       scenarioID: id,
       totalSimulations: numberOfSimulations,
     });
@@ -76,10 +55,13 @@ export default function ScenarioPage() {
       <div className="card header-card">
         <div className="header-line">
           <h2>Scenario: {scenario.name}</h2>
-          <button className="styled-button edit-link" style={{height: "30px", width: "60px"}} onClick={handleEditClick}>
-            <Link style={{color:"white"}} to={"/dashboard/createScenario/"}>Edit</Link>
-          </button>
-          <ShareScenarioButton scenarioId={scenario._id}/>
+            {
+                permission === 'read-write' ? 
+                    <button className="styled-button edit-link" style={{height: "30px", width: "60px"}} onClick={handleEditClick}>
+                        <Link style={{color:"white"}} to={"/dashboard/createScenario/"}>Edit</Link> 
+                    </button>
+                    : <></>
+            }
           <ExportScenario scenarioID={scenario._id} />
           <Link to="/dashboard" className="close-link">
             Close
@@ -146,9 +128,6 @@ export default function ScenarioPage() {
         <div className="card tab-content">
           <div className="card-grid">
             {Object.values(investmentTypes).map((invType: any) => {
-              // const returnDist = distributionMap[invType.returnDistribution];
-              // const incomeDist = distributionMap[invType.incomeDistribution];
-
               return (
                 <div className="mini-card" key={invType._id}>
                   <strong>{invType.name}</strong>
@@ -290,7 +269,7 @@ export default function ScenarioPage() {
             ></input>
           </div>
         </div>
-      )}
+      )}    
     </div>
   );
 }

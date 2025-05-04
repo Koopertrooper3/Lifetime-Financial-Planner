@@ -103,6 +103,7 @@ function SharedWithMePage() {
         );
 
         setSharedWithScenarios(enrichedScenarios);
+        console.log(enrichedScenarios)
       } catch (err) {
         console.error("Error fetching data:", err);
       } finally {
@@ -148,8 +149,11 @@ function SharedWithMePage() {
                 scenario?.scenario?.name && (
                   <Link
                     key={scenario._id}
-                    to={`/scenario/${scenario._id}`}
+                    to={`/sharedScenario/${scenario._id}`}
                     className="scenario-card"
+                    state={{
+                      scenario: scenario
+                    }}
                   >
                     {scenario.scenario.name}
                   </Link>

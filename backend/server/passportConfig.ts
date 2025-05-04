@@ -14,9 +14,11 @@ passport.use('guest', new LocalStrategy(
   async (username, password, done) => {
     try {
       console.log('Creating guest user...');
+      const guestName =  `Guest-${Math.random().toString(36).substring(2, 8)}`;
       const guestUser = new User({
         googleId: "123456",
-        name: `Guest-${Math.random().toString(36).substring(2, 8)}`,
+        email: guestName + "@gmail.com",
+        name: guestName,
         ownedScenarios: [],
         sharedScenarios: []
       });

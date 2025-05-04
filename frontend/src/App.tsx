@@ -18,6 +18,7 @@ import { EventSeriesFormProvider } from "./context/EventSeriesFormContext";
 import Strategies from "./pages/StrategiesPage";
 import SpendingStrategy from "./components/Strategies/SpendingStrategy";
 import SimulationExplorationPage from "./pages/SimulationExplorationPage";
+import SharedScenarioPage from "./pages/SharedScenarioPage";
 
 registerChartJSComponents();
 
@@ -84,6 +85,7 @@ function ProtectedRoutes() {
 
           {/* Other protected routes */}
           <Route path="/scenario/:id" element={<ScenarioPage />} />
+          <Route path="/sharedScenario/:id" element={<SharedScenarioPage />} />
           <Route path="/chartsPage" element={<ChartsPage />} />
           <Route path="/user-profile" element={<UserProfilePage />} />
           <Route path="/shared" element={<SharedWithMePage />} />
