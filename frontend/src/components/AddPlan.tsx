@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useScenarioContext } from "../context/useScenarioContext";
 import { Scenario } from "../../../backend/db/Scenario";
-import { useHelperContext } from "../HelperContext";
+import { useHelperContext } from "../context/HelperContext";
 import axiosCookie from "../axiosCookie";
 
 const AddPlan = () => {
@@ -45,7 +45,7 @@ const AddPlan = () => {
 
   const getId = async () => {
     // grabs user info
-    const userInfo = await axiosCookie.get("/user")
+    const userInfo = await axiosCookie.get("/user");
     return userInfo.data._id;
   };
 

@@ -9,7 +9,7 @@ import ScenarioPage from "./pages/ScenarioPage";
 import ChartsPage from "./pages/ChartsPage";
 import InvestmentTypeForm from "./pages/InvestmentTypeForm";
 import AddNewEventSeries from "./pages/EventSeriesForm";
-import SharedWithMePage from "./pages/SharedWithMePage"
+import SharedWithMePage from "./pages/SharedWithMePage";
 import { LimitsInflationPage } from "./pages/LimitsInflationPage";
 import EditScenarioPage from "./pages/EditScenarioPage";
 import CreateSlideWrapper from "./CreateSlideWrapper";
@@ -22,85 +22,91 @@ import SimulationExplorationPage from "./pages/SimulationExplorationPage";
 
 registerChartJSComponents();
 
-function App() {
+function ProtectedRoutes() {
   return (
     <ScenarioProvider>
-      <Router>
+      <HelperContextProvider>
         <Routes>
-          <Route path="/" element={<LoginPage />} />
-          <Route
-            element={
-              <HelperContextProvider>
-                <Route path="/dashboard" element={<DashboardPage />}>
-                  <Route
-                    path="createScenario/*"
-                    element={
-                      <CreateSlideWrapper
-                        routes={[
-                          <Route path="/" element={<ScenarioFormPage />} />,
-                          <Route
-                            path="addNewInvestmentType"
-                            element={<InvestmentTypeForm />}
-                          />,
-                          <Route
-                            path="addNewEventSeries"
-                            element={
-                              <EventSeriesFormProvider>
-                                <AddNewEventSeries />
-                              </EventSeriesFormProvider>
-                            }
-                          />,
-                          <Route
-                            path="Limits&ContributionLimits"
-                            element={<LimitsInflationPage />}
-                          />,
-                          <Route
-                            path="addStrategies/*"
-                            element={
-                              <CreateSlideWrapper
-                                routes={[
-                                  <Route
-                                    key="default"
-                                    path=""
-                                    element={<Strategies />}
-                                  />,
-                                  <Route
-                                    key="spendingStrategy"
-                                    path="spendingStrategy"
-                                    element={<SpendingStrategy />}
-                                  />,
-                                ]}
-                              />
-                            }
-                          />,
-                        ]}
-                      />
-                    }
-                  />
-                </Route>
-
-                <Route path="/scenario/:id" element={<ScenarioPage />} />
-                <Route path="/chartsPage/" element={<ChartsPage />} />
-                <Route path="/user-profile" element={<UserProfilePage />} />
-                <Route
-                  path="/scenarios/:id/edit"
-                  element={<EditScenarioPage />}
+          <Route path="/dashboard" element={<DashboardPage />}>
+            <Route
+              path="createScenario/*"
+              element={
+                <CreateSlideWrapper
+                  routes={[
+                    <Route
+                      index
+                      element={<ScenarioFormPage />}
+                      key="scenario"
+                    />,
+                    <Route
+                      path="addNewInvestmentType"
+                      element={<InvestmentTypeForm />}
+                      key="investment"
+                    />,
+                    <Route
+                      path="addNewEventSeries"
+                      element={
+                        <EventSeriesFormProvider>
+                          <AddNewEventSeries />
+                        </EventSeriesFormProvider>
+                      }
+                      key="eventSeries"
+                    />,
+                    <Route
+                      path="Limits&ContributionLimits"
+                      element={<LimitsInflationPage />}
+                      key="limits"
+                    />,
+                    <Route
+                      path="addStrategies/*"
+                      element={
+                        <CreateSlideWrapper
+                          routes={[
+                            <Route
+                              index
+                              element={<Strategies />}
+                              key="strategies"
+                            />,
+                            <Route
+                              path="spendingStrategy"
+                              element={<SpendingStrategy />}
+                              key="spending"
+                            />,
+                          ]}
+                        />
+                      }
+                      key="strategiesRoot"
+                    />,
+                  ]}
                 />
-              </HelperContextProvider>
-            }
-          ></Route>            <Route path="/shared" element={<SharedWithMePage/>} />
-            <Route path="/simulationPage" element={<SimulationExplorationPage/>} />
+              }
+            />
+          </Route>
 
-          {/* <Route
-            path="Limits&ContributionLimits"
-            element={<LimitsInflationPage />}
+          {/* Other protected routes */}
+          <Route path="/scenario/:id" element={<ScenarioPage />} />
+          <Route path="/chartsPage" element={<ChartsPage />} />
+          <Route path="/user-profile" element={<UserProfilePage />} />
+          <Route path="/scenarios/:id/edit" element={<EditScenarioPage />} />
+          <Route path="/shared" element={<SharedWithMePage />} />
+          <Route
+            path="/simulationPage"
+            element={<SimulationExplorationPage />}
           />
-
-          <Route path="/AddNewEventSeries" element={<AddNewEventSeries />} /> */}
         </Routes>
-      </Router>
+      </HelperContextProvider>
     </ScenarioProvider>
   );
 }
 
-export default App;
+// Usage in App component:
+export default function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<LoginPage />} />
+        <Route path="/*" element={<ProtectedRoutes />} />
+      </Routes>
+    </Router>
+  );
+}

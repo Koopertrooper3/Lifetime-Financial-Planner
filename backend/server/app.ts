@@ -70,4 +70,27 @@ app.get("/loginfail", (req, res) => {
     res.redirect(fullFrontendUrl);
 });
 
+app.post("/logout", (req, res, next) => {
+    req.logout((err) => {
+        if (err) return next(err);
+        
+        // Destroy session (if using express-session)
+        req.session.destroy((err) => {
+          if (err) {
+            console.error('Session destruction error:', err);
+            return res.status(500).send('Logout failed');
+          }
+          
+          // Clear cookie (adjust name if using custom session cookie)
+          res.clearCookie('connect.sid', {
+            path: '/',
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+          });
+          
+          return res.status(200).json({ success: true });
+        })
+    })
+})
 export default app;

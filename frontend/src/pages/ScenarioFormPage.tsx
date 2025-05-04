@@ -5,7 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import ValidationTextFields from "../components/shared/ValidationTextFields";
 import { useHelperContext } from "../context/HelperContext";
 import { useScenarioContext } from "../context/useScenarioContext";
-import { Scenario } from "../../../backend/db/Scenario";
+// import { Scenario } from "../../../backend/db/Scenario";
 import SelectionTable from "../components/shared/SelectionTable";
 import axiosCookie from "../axiosCookie";
 import ImportScenario from "../components/ImportScenario";
