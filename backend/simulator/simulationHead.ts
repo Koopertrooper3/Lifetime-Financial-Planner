@@ -8,7 +8,7 @@ import { stateTaxParser } from '../state_taxes/statetax_parser';
 import { federalTaxModel,StateTaxBracket } from '../db/taxes';
 import {User} from '../db/User';
 import { pool } from 'workerpool';
-
+import { Result } from './simulatorInterfaces';
 dotenv.config({ path: path.resolve(__dirname,'..','..','..','.env')});
 
 const databaseHost = process.env.DATABASE_HOST
@@ -34,7 +34,7 @@ interface queueData {
   totalSimulations: number;
 }
 
-interface Result {
+interface returnToHostResults {
   completed: number,
   succeeded: number,
   failed: number,
@@ -107,7 +107,7 @@ async function simulationManager(job: Job) {
     
   }
 
-  const finalResult : Result = {completed : 0, succeeded: 0, failed: 0}
+  const finalResult : returnToHostResults = {completed : 0, succeeded: 0, failed: 0}
   const jobMessages = await Promise.all(threadArray)
 
   for(const finalMessage of jobMessages){

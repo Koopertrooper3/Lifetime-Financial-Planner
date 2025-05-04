@@ -22,6 +22,7 @@ export interface Result{
     completed: number,
     succeeded: number,
     failed: number,
+    simulationRecords: Record<number,AnnualResults[]>
   }
 
 export interface TaxBracketContainer {
@@ -62,9 +63,13 @@ export interface payDiscExpensesReturn {
     totalIncome : number,
     earlyWithdrawal : number,
     totalCapitalGain : number,
+    totalDiscretionaryExpenses : number,
+    totalIncurredDiscretionaryExpenses : number
+    expenseBreakdown : Record<string,number>,
     discExpenseLogMessages : string[]
 }
 export interface ExpenseObject {
+    name: string,
     expenseAmount : number
     logMessage : string
 }
@@ -75,5 +80,21 @@ export interface payNonDescExpensesReturn{
     totalIncome : number,
     totalCapitalGain : number,
     earlyWithdrawal : number,
+    totalAnnualExpenses : number,
+    expenseBreakdown: Record<string,number>,
     nonDescExpenseLogMessages : string[]
+}
+
+export interface AnnualResults {
+    finanicalGoal: boolean,
+    income: number,
+    totalInvestments: number,
+    totalExpenses: number,
+    earlyWithdrawalTax: number,
+    percentageOfTotalDiscretionaryExpenses: number
+}
+
+export interface InvestmentBreakdown{
+    value: number,
+    taxStatus: string,
 }
