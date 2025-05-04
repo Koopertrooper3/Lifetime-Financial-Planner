@@ -92,6 +92,9 @@ export interface AnnualResults {
     totalExpenses: number,
     earlyWithdrawalTax: number,
     percentageOfTotalDiscretionaryExpenses: number
+    investmentBreakdown: Record<string,InvestmentBreakdown>,
+    incomeBreakdown: Record<string, number>,
+    expenseBreakdown: Record<string,number>
 }
 
 export interface InvestmentBreakdown{
