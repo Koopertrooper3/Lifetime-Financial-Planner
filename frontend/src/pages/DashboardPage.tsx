@@ -29,7 +29,7 @@ console.log(
 console.log("isDebug:", isDebug);
 
 function DashboardPage() {
-  const { allScenarios, ownedScenarios } = useHelperContext();
+  const { ownedScenarios } = useHelperContext();
   const [userData, setUserData] = useState<User | null>(null);
   const location = useLocation();
   const isCreatePage = location.pathname.includes("createScenario");
