@@ -10,6 +10,7 @@ const router = express.Router();
 
 const userCreateZod = z.object({
     googleId: z.string().min(1, "id must not be empty"),
+    email: z.string(),
     name: z.string().min(1, "name must not be empty")
 }).strict();
 
@@ -45,7 +46,8 @@ router.post("/create", async (req, res) => {
         userCreateZod.parse(req.body);
         
         const newUser = await User.create({
-            googleId: "none",
+            googleId: req.body.googleId || "none",
+            email: req.body.email,
             name: req.body.name,
             ownedScenarios: [],
             sharedScenarios: [],
@@ -86,9 +88,42 @@ router.post("/edit", async (req, res)=>{
     }
 })
 
+router.post("/getIdFromEmail", async (req:any, res:any) => {
+    try {
+        const email = req.body.email;
+        
+        if (!email) {
+            return res.json({ 
+                success: false, 
+                message: "Email is required" 
+            });
+        }
+
+        const user = await User.findOne({ email: email }).select('_id');
+        
+        if (!user) {
+            return res.json({ 
+                success: false, 
+                message: "User not found" 
+            });
+        }
+
+        res.json({ 
+            success: true, 
+            userId: user._id 
+        });
+
+    } catch (err) {
+        console.error("Error finding user by email:", err);
+        res.json({ 
+            success: false, 
+            message: "Server error while finding user" 
+        });
+    }
+});
 
 interface shareScenarioRequest {
-    access: "read-only" | "read-write"
+    permission: "read-only" | "read-write"
     scenarioID : string
     owner: string
     shareWith: string
@@ -114,17 +149,17 @@ router.post("/shareScenario", async (req, res) => {
             throw new Error("Owner does not own claimed scenario")
         }
         const sharedScenarioObject : SharedScenario = {
-            permission: shareScenarioRequest.access,
+            permission: shareScenarioRequest.permission,
             scenarioID: new mongoose.Types.ObjectId(shareScenarioRequest.scenarioID)
         }
         shareWithUser.sharedScenarios.push(sharedScenarioObject)
         await shareWithUser.save();
 
-        res.status(200).send({ message: "Scenario created shared!" });
+        res.status(200).send({ success: true, message: "Scenario created shared!" });
     }
     catch(err){
         console.error("Error creating user:", err);
-        res.status(400).send({ message: "Error creating user", err });
+        res.send({ success: false, message: "Error creating user", err });
     }
 })
 

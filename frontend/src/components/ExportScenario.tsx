@@ -67,8 +67,8 @@ export default function exportScenario({scenarioID} : Props){
     }
 
     return (
-        <button className="styled-button" style={{height: "30px", width: "120px"}} onClick={handleExport}>
-            Export Scenario
+        <button className="styled-button" style={{height: "30px", width: "120px", cursor: "pointer"}} onClick={handleExport}>
+            Download as YAML
         </button>
     )
 }

@@ -43,6 +43,7 @@ passport.use(
         if(!user){ // if no user exists, we will make an user entry
           const newUser = new User({
             googleId: profile.id,
+            email: profile.emails?.[0]?.value,
             name: profile.displayName,
             ownedScenarios: [],
             sharedScenarios: [],

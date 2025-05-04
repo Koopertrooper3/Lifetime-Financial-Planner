@@ -3,6 +3,7 @@ import { stateTaxSchema, StateTax } from './taxes';
 
 export interface IUser {
     googleId: string;
+    email: string;
     name: string;
     ownedScenarios: mongoose.Types.ObjectId[];
     sharedScenarios: SharedScenario[];
@@ -26,6 +27,7 @@ const SharedScenarioSchema = new mongoose.Schema<SharedScenario>({
 
 const userSchema = new mongoose.Schema<IUser>({
     googleId: { type: String, required: true },
+    email: { type: String, required: true},
     name: { type: String, required: true },
     ownedScenarios: [{
         type: mongoose.Schema.Types.ObjectId,

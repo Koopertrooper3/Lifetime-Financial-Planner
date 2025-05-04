@@ -7,11 +7,12 @@ import "../stylesheets/ScenarioPage.css";
 import { Link } from "react-router-dom";
 import axiosCookie from "../axiosCookie";
 import ExportScenario from '../components/ExportScenario';
+import ShareScenarioButton from "../components/ShareScenarioButton";
 
 export default function ScenarioPage() {
   const { id } = useParams();
   const [scenario, setScenario] = useState<any>(null);
-  const { allInvestmentTypes, fetchScenario, allScenarios, userID } =
+  const { ownedScenarios, fetchScenario, userID } =
     useHelperContext();
   const { setEditScenario } = useScenarioContext();
   const [activeTab, setActiveTab] = useState("investments");
@@ -31,39 +32,12 @@ export default function ScenarioPage() {
   }, [id]);
 
   useEffect(() => {
-    if (!allScenarios) return;
-    const filteredScenario = allScenarios.find(
+    if (!ownedScenarios) return;
+    const filteredScenario = ownedScenarios.find(
       (scenario: any) => scenario._id === id
     );
     setScenario(filteredScenario);
   }, []);
-
-  useEffect(() => {
-    // if (!scenario || !allInvestmentTypes) return;
-    // const filteredInvestmentTypes = allInvestmentTypes.filter((invType: any) =>
-    //   scenario.investmentTypes.includes(invType._id)
-    // );
-    // setInvestmentTypes(filteredInvestmentTypes);
-  }, [scenario, allInvestmentTypes]);
-
-  useEffect(() => {
-    // const fetchDistributions = async () => {
-    //   const allDistIds = new Set<string>();
-    //   for (const invType of investmentTypes) {
-    //     if (invType.returnDistribution)
-    //       allDistIds.add(invType.returnDistribution);
-    //     if (invType.incomeDistribution)
-    //       allDistIds.add(invType.incomeDistribution);
-    //   }
-    //   const results: Record<string, any> = {};
-    //   for (const id of allDistIds) {
-    //     const res = await fetchDistribution(id);
-    //     results[id] = res;
-    //   }
-    //   setDistributionMap(results);
-    // };
-    // if (investmentTypes.length > 0) fetchDistributions();
-  });
 
   if (!scenario) return <div>Loading....</div>;
 
@@ -106,6 +80,7 @@ export default function ScenarioPage() {
           <button className="styled-button edit-link" style={{height: "30px", width: "60px"}} onClick={handleEditClick}>
             <Link style={{color:"white"}} to={"/dashboard/createScenario/"}>Edit</Link>
           </button>
+          <ShareScenarioButton scenarioId={scenario._id}/>
           <ExportScenario scenarioID={scenario._id} />
           <Link to="/dashboard" className="close-link">
             Close
