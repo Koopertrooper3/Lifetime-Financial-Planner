@@ -22,7 +22,7 @@ test('Single simulation Request', async ({ request }) => {
   const user = await userConnection.findOne({})
   const userScenarioID = user?.ownedScenarios[0].toString()
 
-  const simulationRequest = await request.post(`http://${backendHost}:${backendPort}/scenario/runsimulation`, {
+  const simulationRequest = await request.post(`http://${backendHost}:${backendPort}/simulation/run-simulation`, {
     data: {"userID":user?._id.toString(),"scenarioID":userScenarioID, "totalSimulations": totalSimulations}
   });
 
@@ -37,7 +37,7 @@ test('Multiple simulation Request', async ({ request }) => {
   const user = await userConnection.findOne({})
   const userScenarioID = user?.ownedScenarios[0].toString()
 
-  const simulationRequest = await request.post(`http://${backendHost}:${backendPort}/scenario/runsimulation`, {
+  const simulationRequest = await request.post(`http://${backendHost}:${backendPort}/simulation/run-simulation`, {
     data: {"userID":user?._id.toString(),"scenarioID":userScenarioID, "totalSimulations": totalSimulations}
   });
 

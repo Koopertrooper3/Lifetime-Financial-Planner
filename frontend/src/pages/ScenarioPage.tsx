@@ -61,7 +61,7 @@ export default function ScenarioPage() {
     if (userID == null) {
       throw new Error("Undefined user");
     }
-    await axiosCookie.post("/scenario/runsimulation", {
+    await axiosCookie.post("/simulation/run-simulation", {
       userID: userID._id,
       scenarioID: id,
       totalSimulations: numberOfSimulations,

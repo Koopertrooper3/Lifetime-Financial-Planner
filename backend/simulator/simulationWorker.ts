@@ -84,7 +84,7 @@ async function simulation(threadData : threadData){
             filingStatus = 2
         }
 
-        for(let age = startingYear - userBirthYear; age < DEBUG_TWO_RUNS && solvent == true; age++){
+        for(let age = startingYear - userBirthYear; age < lifeExpectancy && solvent == true; age++){
             const currentYearValues : AnnualValues = {
                 totalIncome: 0,
                 totalSocialSecurityIncome: 0,
@@ -862,11 +862,11 @@ function determineTaxableCapitalGain(currentPurchasePrice : number, withdrawalAm
     return {capitalGain,newPurchasePrice}
 }
 
-function generateExpenseSeriesFromEvents(eventSeries : Record<string,ScenarioEvent>,year : number,inflationRate : number,spousalStatus : boolean){
+function generateExpenseSeriesFromEvents(eventSeries : Record<string,ScenarioEvent>,nonDiscretionaryEvents: Record<string,ScenarioEvent>,year : number,inflationRate : number,spousalStatus : boolean){
 
     const adjustedEventSeries = structuredClone(eventSeries)
 
-    const eventExpenses = Object.values(eventSeries).map((currEvent) =>{
+    const eventExpenses = Object.values(nonDiscretionaryEvents).map((currEvent) =>{
         if(currEvent.event.type != "expense" || !hasEventStarted(currEvent,year)){
             throw new Error("Filter doesn't work properly")
         }
@@ -927,7 +927,7 @@ function payNonDiscretionaryExpenses(scenario : Scenario, taxBracket : TaxBracke
         }
         return record;
     }, {});
-    const eventExpensesResult = generateExpenseSeriesFromEvents(nonDiscretionaryEvents,year,inflationRate,spousalStatus)
+    const eventExpensesResult = generateExpenseSeriesFromEvents(eventSeries,nonDiscretionaryEvents,year,inflationRate,spousalStatus)
 
     expenseSeries = expenseSeries.concat(eventExpensesResult.eventExpenses)
     Object.entries(eventExpensesResult.adjustedEventSeries).map(([eventKey,event]) => {
@@ -1067,14 +1067,16 @@ function determineTaxFromWithdrawal(account : Investment, investmentData : Inves
     return {income,earlyWithdrawal,capitalGain,newPurchasePrice}
 
 }
-function generateExpenseSeriesFromSpendingStrategy(discretionaryEvents : Record<string,ScenarioEvent>, spendingStrategy : string[], year : number,inflationRate : number,spousalStatus : boolean){
+function generateExpenseSeriesFromSpendingStrategy(eventSeries : Record<string,ScenarioEvent>, spendingStrategy : string[], year : number,inflationRate : number,spousalStatus : boolean){
 
     const eventExpenses : ExpenseObject[] = []
-    const adjustedEventSeries = structuredClone(discretionaryEvents)
-    spendingStrategy.forEach((expenseID) => {
+    const adjustedEventSeries = structuredClone(eventSeries)
+
+    for(const expenseID of spendingStrategy){
         const currEvent = adjustedEventSeries[expenseID]
+
         if(currEvent.event.type != "expense" || !hasEventStarted(currEvent,year)){
-            throw new Error("Filter doesn't work properly")
+            continue
         }
 
         let totalExpense : number
@@ -1097,8 +1099,8 @@ function generateExpenseSeriesFromSpendingStrategy(discretionaryEvents : Record<
         }
         currEvent.event.initialAmount = determineExpenseValueChange(currEvent,inflationRate)
 
-        return newExpenseObject
-    })
+        
+    }
     return {eventExpenses,adjustedEventSeries}
 }
 /** Description placeholder */
@@ -1150,7 +1152,7 @@ function payDiscretionaryExpenses(scenario : Scenario, purchaseLedger : Record<s
         return record;
     }, {});
 
-    const eventExpensesResult = generateExpenseSeriesFromSpendingStrategy(discretionaryEvents,spendingStrategy,year,inflationRate,spousalStatus)
+    const eventExpensesResult = generateExpenseSeriesFromSpendingStrategy(eventSeries,spendingStrategy,year,inflationRate,spousalStatus)
     expenseSeries = expenseSeries.concat(eventExpensesResult.eventExpenses)
     const adjustedEventSeries = eventExpensesResult.adjustedEventSeries
 

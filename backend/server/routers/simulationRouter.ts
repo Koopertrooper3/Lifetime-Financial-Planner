@@ -1,9 +1,10 @@
-import express from "express";
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import express, { Request, Response } from "express";
 import { scenarioModel } from "../../db/Scenario";
 import z from "zod";
 //@ts-expect-error Incomplete
 import { runParameterSweepSimulations } from "../../simulator/simulationHead";
-
+import { simulatorQueue } from "../server";
 
 // NOTE: this is not mounted in server.ts 
 
@@ -26,6 +27,27 @@ const simExploreZod = z.object({
  *  - Queue the scenario into the existing simulation pipeline
  *  - Return an aggregated result object for charting
  */
+
+interface runSimulationBody{
+  userID: string,
+  scenarioID: string
+  totalSimulations: number
+}
+simulationRouter.post("/run-simulation", async (req : Request, res : Response)=>{
+  try{
+      console.log("Job request")
+      const requestBody : runSimulationBody = req.body
+      const job = await simulatorQueue.add("simulatorQueue", {userID: requestBody.userID, scenarioID : requestBody.scenarioID, totalSimulations : requestBody.totalSimulations},{ removeOnComplete: true, removeOnFail: true })
+
+      //const result = await job.waitUntilFinished(queueEvents,1000*60*1)
+      res.status(200).send({completed : 0, succeeded: 0, failed: 0})
+  }catch(err){
+      console.log((err as Error))
+      res.status(400).send({completed : 0, succeeded: 0, failed: 0})
+  }
+  
+});
+
 simulationRouter.post("/simulation-explore", async (req,res) => {
   const validated = simExploreZod.parse(req.body);
 
