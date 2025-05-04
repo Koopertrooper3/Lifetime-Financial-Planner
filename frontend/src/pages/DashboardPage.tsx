@@ -123,7 +123,7 @@ function DashboardPage() {
         {!isCreatePage && (
           <div className="dashboard-container">
             <AddPlan />
-            {ownedScenarios?.map((scenario) => (
+            {ownedScenarios?.map((scenario: any) => (
               <Link
                 key={scenario._id}
                 to={`/scenario/${scenario._id}`}
