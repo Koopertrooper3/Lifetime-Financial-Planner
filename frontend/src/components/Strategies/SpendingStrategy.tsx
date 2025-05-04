@@ -22,68 +22,6 @@ export default function SpendingStrategy() {
     return (event as expenseEvent).discretionary === true;
   };
 
-  // const handleDragEnd = (event: DragEndEvent) => {
-  //   const { active, over } = event;
-
-  //   if (!over || active.id === over.id) return;
-
-  //   setDiscretionaryExpenses((prev) => {
-  //     const items = [...prev];
-  //     const activeIndex = items.findIndex((item) => item.id === active.id);
-  //     const overIndex = items.findIndex((item) => item.id === over.id);
-
-  //     // Update ranks based on new position
-  //     [items[activeIndex], items[overIndex]] = [
-  //       items[overIndex],
-  //       items[activeIndex],
-  //     ];
-
-  //     return items.map((item, index) => ({
-  //       ...item,
-  //       rank: index + 1,
-  //     }));
-  //   });
-  // };
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-
-    if (!over) return;
-
-    setDiscretionaryExpenses((prev) => {
-      const items = [...prev];
-      const activeItem = items.find((item) => item.id === active.id);
-
-      if (!activeItem) return items;
-
-      // If dropped into a different column
-      if (over.data.current?.type === "column") {
-        return items.map((item) =>
-          item.id === active.id ? { ...item, status: over.id as Status } : item
-        );
-      }
-
-      // If dropped on another card (reordering)
-      const overItem = items.find((item) => item.id === over.id);
-      if (overItem && overItem.status === activeItem.status) {
-        const activeIndex = items.findIndex((item) => item.id === active.id);
-        const overIndex = items.findIndex((item) => item.id === over.id);
-
-        [items[activeIndex], items[overIndex]] = [
-          items[overIndex],
-          items[activeIndex],
-        ];
-
-        return items.map((item, index) => ({
-          ...item,
-          rank: index + 1,
-        }));
-      }
-
-      return items;
-    });
-  };
-
   useEffect(() => {
     console.log(discretionaryExpenses);
   }, [discretionaryExpenses]);
@@ -117,6 +55,53 @@ export default function SpendingStrategy() {
     );
     setDiscretionaryExpenses(expenses);
   }, [editScenario]);
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    // active represents the currently dragged item
+    // over represents the drop target, which are the two columns
+    const { active, over } = event;
+
+    if (!over) return;
+
+    // update state with previous state
+    setDiscretionaryExpenses((prev) => {
+      const items = [...prev];
+      console.log("active: ", active.id);
+      const activeItem = items.find((item) => item.id === active.id);
+      console.log("over.id: ", over.data.current?.type);
+
+      if (!activeItem) return items;
+
+      // If dropped into a different column, change the status of the activeItem
+      if (over.data.current?.type === "column") {
+        return items.map((item) =>
+          item.id === active.id ? { ...item, status: over.id as Status } : item
+        );
+      }
+
+      // If dropped on another card (reordering)
+      if (over.data.current?.type === "item") {
+        const overItem = items.find((item) => item.id === over.id);
+        if (overItem && overItem.status === activeItem.status) {
+          const activeIndex = items.findIndex((item) => item.id === active.id);
+          const overIndex = items.findIndex((item) => item.id === over.id);
+          // Swap two elements in the items array
+          [items[activeIndex], items[overIndex]] = [
+            items[overIndex],
+            items[activeIndex],
+          ];
+
+          // Update ranks based on new order
+          return items.map((item, index) => ({
+            ...item, // Keep all existing properties
+            rank: index + 1, // Update rank to be index + 1
+          }));
+        }
+      }
+
+      return items;
+    });
+  };
 
   // In your SpendingStrategy component's return statement
   return (
