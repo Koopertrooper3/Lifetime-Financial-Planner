@@ -1,6 +1,6 @@
 import * as React from "react";
 import TextField from "@mui/material/TextField";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface ValidationTextFieldsProps {
   value: string | number;
@@ -12,6 +12,7 @@ interface ValidationTextFieldsProps {
   disabled: boolean;
 }
 
+// Updated ValidationTextFields.tsx
 export default function ValidationTextFields({
   value,
   placeholder,
@@ -22,57 +23,60 @@ export default function ValidationTextFields({
   disabled,
 }: ValidationTextFieldsProps) {
   const [isError, setIsError] = useState(false);
+  const [displayValue, setDisplayValue] = useState<string>(
+    value?.toString() ?? ""
+  );
 
-  const handleIncorrectInput = (value: string) => {
+  useEffect(() => {
+    setDisplayValue(value?.toString() ?? "");
+  }, [value]);
+
+  const handleChange = (inputValue: string) => {
+    setDisplayValue(inputValue);
+
     if (inputType === "number") {
-      const num = Number(value);
+      if (inputValue === "") {
+        setInput?.(""); // Allow empty value
+        setIsError(false);
+        return;
+      }
+
+      const num = Number(inputValue);
       if (isNaN(num)) {
         setIsError(true);
         return;
       }
+
       setInput?.(num);
-      return;
+      setIsError(false);
+    } else {
+      setInput?.(inputValue);
+      setIsError(false);
     }
-
-    // For string, no conversion is needed
-    if (inputType === "string" && typeof value !== "string") {
-      setIsError(true);
-      return;
-    }
-
-    setInput?.(value);
-    setIsError(false);
   };
 
   return (
     <TextField
-      value={value}
+      value={displayValue}
       placeholder={placeholder}
-      onChange={(e) => handleIncorrectInput(e.target.value)}
+      onChange={(e) => handleChange(e.target.value)}
       error={isError}
       label={isError ? "Error" : ""}
       size="small"
       disabled={disabled}
       sx={{
         width,
-        // outer height for consistency (optional)
         "& .MuiOutlinedInput-root": {
           backgroundColor: "white",
           borderRadius: "5px",
-          minHeight: height, // controls the overall height
+          minHeight: height,
           alignItems: "flex-start",
           padding: 0,
         },
         "& input": {
           fontSize: "14px",
-          padding: "12px 16px", // vertical + horizontal padding
-          height: "auto", // allow it to grow with padding
-        },
-        "& label": {
-          fontSize: "14px",
-        },
-        "& .MuiFormHelperText-root": {
-          fontSize: "14px",
+          padding: "12px 16px",
+          height: "auto",
         },
         boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
       }}

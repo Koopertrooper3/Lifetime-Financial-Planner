@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useScenarioContext } from "../../useScenarioContext";
+import { useScenarioContext } from "../../context/useScenarioContext";
 
 interface AllocationTypeSelectorProps {
   allocationType: "Fixed" | "Glide Path";
@@ -11,12 +11,12 @@ const AllocationTypeSelector = ({
   setAllocationType,
 }: AllocationTypeSelectorProps) => {
   const { editEventSeries } = useScenarioContext();
-  
+
   useEffect(() => {
     setAllocationType(
-      editEventSeries.event.glidePath ? "Glide Path" : "Fixed"
+      editEventSeries?.event?.glidePath ? "Glide Path" : "Fixed"
     );
-  }, [editEventSeries])
+  }, [editEventSeries]);
 
   return (
     <div className="allocation-type-selector-container">

@@ -168,7 +168,7 @@ export interface rebalanceEvent{
     assetAllocation2: Record<string,number>,
 }
 
-type eventData = incomeEvent | expenseEvent | investEvent | rebalanceEvent
+export type eventData = incomeEvent | expenseEvent | investEvent | rebalanceEvent;
 
 export interface Event{
     name: string,

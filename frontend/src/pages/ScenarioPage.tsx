@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useHelperContext } from "../HelperContext";
-import { useScenarioContext } from "../useScenarioContext";
+import { useHelperContext } from "../context/HelperContext";
+import { useScenarioContext } from "../context/useScenarioContext";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import "../stylesheets/ScenarioPage.css";

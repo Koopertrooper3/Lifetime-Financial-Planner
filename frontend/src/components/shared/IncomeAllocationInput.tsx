@@ -1,6 +1,6 @@
 import ToggleSwitch from "./ToggleSwitch";
 import "../../stylesheets/shared/IncomeAllocationInput.css";
-import { useScenarioContext } from "../../useScenarioContext";
+import { useScenarioContext } from "../../context/useScenarioContext";
 import { useEffect } from "react";
 
 interface IncomeAllocationInputProps {

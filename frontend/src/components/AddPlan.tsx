@@ -2,7 +2,7 @@ import "../stylesheets/AddPlan.css";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useScenarioContext } from "../useScenarioContext";
+import { useScenarioContext } from "../context/useScenarioContext";
 import { Scenario } from "../../../backend/db/Scenario";
 import { useHelperContext } from "../HelperContext";
 import axiosCookie from "../axiosCookie";
@@ -88,6 +88,7 @@ const AddPlan = () => {
       RothConversionEnd: RothConversionEnd,
       RothConversionStrategy: RothConversionStrategy,
     };
+    console.log("Add Plan: ", scenario);
     const latestScenarioData = await handleSaveScenario(
       currentUserId,
       scenario

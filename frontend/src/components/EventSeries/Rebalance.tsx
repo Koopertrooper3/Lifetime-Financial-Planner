@@ -8,10 +8,18 @@ import { assetProportion } from "../../../../backend/db/EventSchema";
 interface EventSeriesRebalanceProps {
   allocationType: "Fixed" | "Glide Path";
   setAllocationType: (type: "Fixed" | "Glide Path") => void;
-  allocatedInvestments: assetProportion[];
-  setAllocatedInvestments: (allocatedInvestments: assetProportion[]) => void;
-  allocated2Investments: assetProportion[];
-  setAllocated2Investments: (investments: assetProportion[]) => void;
+  allocatedInvestments: Record<string, number>;
+  setAllocatedInvestments: (
+    value:
+      | Record<string, number>
+      | ((prev: Record<string, number>) => Record<string, number>)
+  ) => void;
+  allocated2Investments: Record<string, number>; // For glide path
+  setAllocated2Investments: (
+    value:
+      | Record<string, number>
+      | ((prev: Record<string, number>) => Record<string, number>)
+  ) => void;
   startYear: string;
   setStartYear: (year: string) => void;
   endYear: string;

@@ -74,11 +74,11 @@ export function useEventSeriesFormHooks() {
   >("Fixed");
   const [investments, setInvestments] = useState<Investment[]>([]);
   const [allocatedInvestments, setAllocatedInvestments] = useState<
-    assetProportion[]
-  >([]);
+    Record<string, number>
+  >({});
   const [allocated2Investments, setAllocated2Investments] = useState<
-    assetProportion[]
-  >([]);
+    Record<string, number>
+  >({});
   const [investStartYear, setInvestStartYear] = useState("");
   const [investEndYear, setInvestEndYear] = useState("");
   const [investMaxCashHoldings, setInvestMaxCashHoldings] = useState("");
@@ -92,9 +92,9 @@ export function useEventSeriesFormHooks() {
     Investment[]
   >([]);
   const [allocatedRebalanceInvestments, setAllocatedRebalanceInvestments] =
-    useState<assetProportion[]>([]);
+    useState<Record<string, number>>({});
   const [allocatedRebalance2Investments, setAllocatedRebalance2Investments] =
-    useState<assetProportion[]>([]);
+    useState<Record<string, number>>({});
   const [taxStatus, setTaxStatus] = useState<
     "pre-tax" | "after-tax" | "non-retirement"
   >("pre-tax");

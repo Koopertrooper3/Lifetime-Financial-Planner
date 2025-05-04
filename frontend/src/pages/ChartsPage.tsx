@@ -3,18 +3,20 @@ import Banner from "../components/Banner";
 import SideBar from "../components/Sidebar";
 import { useState, useEffect } from "react";
 import LoadingWheel from "../components/LoadingWheel";
-import { useHelperContext } from "../HelperContext";
-/// import { isDebug, User } from "../debug";
+import { useHelperContext } from "../context/HelperContext";
+import { isDebug, User } from "../debug";
 
 import LineChartProbability from "../components/Charts/LineChartProbability";
 import ShadedLineChart from "../components/Charts/ShadedLineChart";
 import StackedBarChart from "../components/Charts/StackedBarChart";
-// import { mockSimulationResults } from "../components/Charts/MockData"; 
+import { mockSimulationResults } from "../components/Charts/MockData";
 
 function ChartsPage() {
   const { fetchSimulationResults, allScenarios } = useHelperContext();
   const [simResults, setSimResults] = useState<any>(null);
-  const [selectedScenarioId, setSelectedScenarioId] = useState<string | null>(null);
+  const [selectedScenarioId, setSelectedScenarioId] = useState<string | null>(
+    null
+  );
 
   useEffect(() => {
     // if (isDebug) {
@@ -49,7 +51,9 @@ function ChartsPage() {
         <div className="charts-grid">
           <div className="chart-card">
             <h3>Probability of Success</h3>
-            <LineChartProbability probabilities={simResults.successProbabilities} />
+            <LineChartProbability
+              probabilities={simResults.successProbabilities}
+            />
           </div>
 
           <div className="chart-card">
@@ -76,4 +80,3 @@ function ChartsPage() {
 }
 
 export default ChartsPage;
-

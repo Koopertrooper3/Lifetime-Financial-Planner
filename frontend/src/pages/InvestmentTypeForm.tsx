@@ -6,14 +6,14 @@ import CenteredFormWrapper from "../wrapper/CenteredFormWrapper";
 import "../stylesheets/InvestmentType/AddNewInvestmentType.css";
 import ValidationTextFields from "../components/shared/ValidationTextFields";
 import { useInvestmentTypeHooks } from "../hooks/useInvestmentTypeHooks";
-import { useScenarioContext } from "../useScenarioContext";
+import { useScenarioContext } from "../context/useScenarioContext";
 import { InvestmentType } from "../../../backend/db/InvestmentTypesSchema";
 import {
   FixedDistribution,
   NormalDistribution,
   UniformDistribution,
 } from "../../../backend/db/DistributionSchemas";
-import { useHelperContext } from "../HelperContext";
+import { useHelperContext } from "../context/HelperContext"
 
 type ValueType = "Fixed Amount/Percentage" | "Normal Distribution";
 const isValueType = (val: any): val is ValueType =>
@@ -171,8 +171,6 @@ export default function InvestmentTypeForm() {
 
     // Replace with new investment type
     updatedInvestmentTypes[newInvestmentType.name] = newInvestmentType;
-
-    
 
     const userID = await (async () => {
       const res = await fetch("http://localhost:8000/user", {
