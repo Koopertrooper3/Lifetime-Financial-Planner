@@ -7,8 +7,10 @@ import { expenseEvent, eventData } from "../../../../backend/db/EventSchema.ts";
 import { useScenarioContext } from "../../context/useScenarioContext.tsx";
 import "../../stylesheets/Strategies/SpendingStrategy.css";
 import { Status } from "./Types";
+import { useNavigate } from "react-router-dom";
 
 export default function SpendingStrategy() {
+  const navigate = useNavigate();
   const { editScenario } = useScenarioContext();
   const [discretionaryExpenses, setDiscretionaryExpenses] = useState<Item[]>(
     []
@@ -22,9 +24,9 @@ export default function SpendingStrategy() {
     return (event as expenseEvent).discretionary === true;
   };
 
-  useEffect(() => {
-    console.log(discretionaryExpenses);
-  }, [discretionaryExpenses]);
+  const handleClick = () => {
+    navigate("/dashboard/createScenario/addStrategies/");
+  };
 
   useEffect(() => {
     if (!editScenario) return;
@@ -57,46 +59,46 @@ export default function SpendingStrategy() {
   }, [editScenario]);
 
   const handleDragEnd = (event: DragEndEvent) => {
-    // active represents the currently dragged item
-    // over represents the drop target, which are the two columns
     const { active, over } = event;
-
     if (!over) return;
 
-    // update state with previous state
     setDiscretionaryExpenses((prev) => {
       const items = [...prev];
-      console.log("active: ", active.id);
       const activeItem = items.find((item) => item.id === active.id);
-      console.log("over.id: ", over.data.current?.type);
-
       if (!activeItem) return items;
 
-      // If dropped into a different column, change the status of the activeItem
+      // Column drop
       if (over.data.current?.type === "column") {
         return items.map((item) =>
           item.id === active.id ? { ...item, status: over.id as Status } : item
         );
       }
 
-      // If dropped on another card (reordering)
+      // Item drop
       if (over.data.current?.type === "item") {
         const overItem = items.find((item) => item.id === over.id);
-        if (overItem && overItem.status === activeItem.status) {
+        if (!overItem) return items;
+
+        // Same column - reorder
+        if (overItem.status === activeItem.status) {
           const activeIndex = items.findIndex((item) => item.id === active.id);
           const overIndex = items.findIndex((item) => item.id === over.id);
-          // Swap two elements in the items array
+
           [items[activeIndex], items[overIndex]] = [
             items[overIndex],
             items[activeIndex],
           ];
 
-          // Update ranks based on new order
           return items.map((item, index) => ({
-            ...item, // Keep all existing properties
-            rank: index + 1, // Update rank to be index + 1
+            ...item,
+            rank: index + 1,
           }));
         }
+
+        // Different column - move
+        return items.map((item) =>
+          item.id === active.id ? { ...item, status: overItem.status } : item
+        );
       }
 
       return items;
@@ -106,7 +108,12 @@ export default function SpendingStrategy() {
   // In your SpendingStrategy component's return statement
   return (
     <div>
-      <h1>Spending Strategy</h1>
+      <h1>
+        Spending Strategy{" "}
+        <span>
+          <button onClick={handleClick}>Back</button>
+        </span>
+      </h1>
       <DndContext onDragEnd={handleDragEnd}>
         <div className="columns-container">
           {" "}

@@ -36,6 +36,14 @@ console.log("database connection string")
 console.log(databaseConnectionString)
 mongoose.connect(databaseConnectionString)
 
+// Initialize combined result using the existing Result interface
+const combinedResult: Result = {
+  completed: 0,
+  succeeded: 0,
+  failed: 0,
+  simulationRecords: {}
+};
+
 interface queueData {
   userID: string,
   scenarioID : string;
@@ -121,8 +129,17 @@ async function simulationManager(job: Job) {
     finalResult['completed'] += finalMessage['completed']
     finalResult['succeeded'] += finalMessage['succeeded']
     finalResult['failed'] += finalMessage['failed']
+    // Merge simulation by year
+    // Merge simulationRecords
+    for (const year in finalMessage.simulationRecords) {
+      if (!combinedResult.simulationRecords[year]) {
+        combinedResult.simulationRecords[year] = [];
+      }
+      combinedResult.simulationRecords[year].push(...finalMessage.simulationRecords[year]);
+    }
   }
   console.log(jobData)
+  
 
   return finalResult
 }
@@ -325,3 +342,8 @@ function range(start: number, stop: number, step: number) {
 
   return result;
 };
+
+// Chart 4.1
+function calculateProbabilityOfSuccess() {
+
+}
