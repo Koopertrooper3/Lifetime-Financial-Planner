@@ -8,9 +8,9 @@ import {
   NormalDistribution,
   UniformDistribution,
 } from "../../../backend/db/DistributionSchemas";
-import { useScenarioContext } from "../useScenarioContext";
+import { useScenarioContext } from "../context/useScenarioContext";
 import { useInflationAssumptionHooks } from "../hooks/useInflationAssumptionFormHooks";
-import { useHelperContext } from "../HelperContext";
+import { useHelperContext } from "../context/HelperContext";
 
 export function LimitsInflationPage() {
   const navigate = useNavigate();

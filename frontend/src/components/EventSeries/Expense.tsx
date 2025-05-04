@@ -4,8 +4,9 @@ import EventSeriesExpectedInput from "../shared/EventSeriesExpectedInput";
 import IncomeAllocationInput from "../shared/IncomeAllocationInput";
 import "../../stylesheets/EventSeries/Expense.css";
 import { EventSeriesExpenseProps } from "../../interfaces/EventSeries/EventSeriesExpenseProps";
-import { useScenarioContext } from "../../useScenarioContext";
+import { useScenarioContext } from "../../context/useScenarioContext";
 import ValidationTextFields from "../shared/ValidationTextFields";
+import { useEventSeriesForm } from "../../context/EventSeriesFormContext";
 
 export default function EventSeriesExpense({
   isDiscretionary,
@@ -34,6 +35,7 @@ export default function EventSeriesExpense({
   setSpousePercentage,
 }: EventSeriesExpenseProps) {
   const { editEventSeries } = useScenarioContext();
+  const { eventSeriesFormHooks } = useEventSeriesForm();
 
   const mapDistributionTypeToLabel = (
     type: string
@@ -48,10 +50,18 @@ export default function EventSeriesExpense({
   };
 
   useEffect(() => {
-    setIsDiscretionary(editEventSeries.event.discretionary || false);
-    setExpenseInitialAmount(editEventSeries.event.initialAmount || 0);
+    const {
+      setIsDiscretionary,
+      setExpenseInitialAmount,
+      setExpenseDistributionType,
+    } = eventSeriesFormHooks;
+
+    setIsDiscretionary(editEventSeries?.event?.discretionary || false);
+    setExpenseInitialAmount(editEventSeries?.event?.initialAmount || 0);
     setExpenseDistributionType(
-      mapDistributionTypeToLabel(editEventSeries.event.changeDistribution)
+      mapDistributionTypeToLabel(
+        editEventSeries?.event?.changeDistribution?.type
+      )
     );
   }, [editEventSeries]);
 
@@ -143,20 +153,20 @@ export default function EventSeriesExpense({
         </div>
         {
           <EventSeriesExpectedInput
-            // distributionType={expenseDistributionType}
-            // setDistributionType={setExpenseDistributionType}
-            // isFixedAmount={isExpenseAmount}
-            // setIsFixedAmount={setIsExpenseAmount}
-            // fixedValue={expenseFixedValue}
-            // setFixedValue={setExpenseFixedValue}
-            // mean={expenseMean}
-            // setMean={setExpenseMean}
-            // stdDev={expenseStdDev}
-            // setStdDev={setExpenseStdDev}
-            // lowerBound={expenseLowerBound}
-            // setLowerBound={setExpenseLowerBound}
-            // upperBound={expenseUpperBound}
-            // setUpperBound={setExpenseUpperBound}
+            distributionType={expenseDistributionType}
+            setDistributionType={setExpenseDistributionType}
+            isFixedAmount={isExpenseAmount}
+            setIsFixedAmount={setIsExpenseAmount}
+            fixedValue={expenseFixedValue}
+            setFixedValue={setExpenseFixedValue}
+            mean={expenseMean}
+            setMean={setExpenseMean}
+            stdDev={expenseStdDev}
+            setStdDev={setExpenseStdDev}
+            lowerBound={expenseLowerBound}
+            setLowerBound={setExpenseLowerBound}
+            upperBound={expenseUpperBound}
+            setUpperBound={setExpenseUpperBound}
           ></EventSeriesExpectedInput>
         }
         {

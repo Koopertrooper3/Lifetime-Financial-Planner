@@ -1,0 +1,15 @@
+/* Column.css */
+.column {
+  width: 300px; /* Fixed width for each column */
+  margin: 0 10px; /* Space between columns */
+  display: inline-block; /* Makes columns sit side-by-side */
+  vertical-align: top; /* Aligns columns at the top */
+}
+
+/* Container for the columns */
+.columns-container {
+  display: flex; /* Uses flexbox layout */
+  flex-direction: row; /* Explicit row direction (default) */
+  gap: 20px; /* Space between columns */
+  padding: 10px;
+}

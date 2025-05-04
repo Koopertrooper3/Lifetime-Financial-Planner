@@ -3,11 +3,11 @@ import {
   FixedDistribution,
   NormalDistribution,
   UniformDistribution,
-} from "../../backend/db/DistributionSchemas.ts";
-import { InvestmentType } from "../../backend/db/InvestmentTypesSchema";
-import { Investment } from "../../backend/db/InvestmentSchema";
-import { Event } from "../../backend/db/EventSchema";
-import { Scenario } from "../../backend/db/Scenario.ts";
+} from "../../../backend/db/DistributionSchemas.ts";
+import { InvestmentType } from "../../../backend/db/InvestmentTypesSchema.ts";
+import { Investment } from "../../../backend/db/InvestmentSchema.ts";
+import { Event } from "../../../backend/db/EventSchema.ts";
+import { Scenario } from "../../../backend/db/Scenario.ts";
 
 // Context Type
 interface ScenarioContextType {

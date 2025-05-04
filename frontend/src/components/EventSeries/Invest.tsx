@@ -4,15 +4,23 @@ import AllocationTypeSelector from "../shared/AllocationTypeSelector";
 import "../../stylesheets/EventSeries/Invest.css";
 import { Investment } from "../../../../backend/db/InvestmentSchema";
 import { assetProportion } from "../../../../backend/db/EventSchema";
-import { useScenarioContext } from "../../useScenarioContext";
+import { useScenarioContext } from "../../context/useScenarioContext";
 
 interface EventSeriesInvestProps {
   allocationType: "Fixed" | "Glide Path";
   setAllocationType: (type: "Fixed" | "Glide Path") => void;
-  allocatedInvestments: assetProportion[];
-  setAllocatedInvestments: (allocated2Investments: assetProportion[]) => void;
-  allocated2Investments: assetProportion[];
-  setAllocated2Investments: (allocated2Investments: assetProportion[]) => void;
+  allocatedInvestments: Record<string, number>;
+  setAllocatedInvestments: (
+    value:
+      | Record<string, number>
+      | ((prev: Record<string, number>) => Record<string, number>)
+  ) => void;
+  allocated2Investments: Record<string, number>; // For glide path
+  setAllocated2Investments: (
+    value:
+      | Record<string, number>
+      | ((prev: Record<string, number>) => Record<string, number>)
+  ) => void;
   startYear: string;
   setStartYear: (year: string) => void;
   endYear: string;
@@ -38,7 +46,7 @@ const EventSeriesInvest = ({
   const { editEventSeries } = useScenarioContext();
 
   useEffect(() => {
-    setMaxCashHoldings(editEventSeries.event.maxCash || 0);
+    setMaxCashHoldings(editEventSeries?.event?.maxCash || 0);
   }, [editEventSeries]);
 
   return (

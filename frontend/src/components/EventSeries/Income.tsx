@@ -3,8 +3,8 @@ import EventSeriesExpectedInput from "../shared/EventSeriesExpectedInput";
 import IncomeAllocationInput from "../shared/IncomeAllocationInput";
 import "../../stylesheets/EventSeries/Income.css";
 import { EventSeriesIncomeProps } from "../../interfaces/EventSeries/EventSeriesIncomeProps";
-import { useEventSeriesFormHooks } from "../../hooks/useEventSeriesFormHooks";
-import { useScenarioContext } from "../../useScenarioContext";
+import { useEventSeriesForm } from "../../context/EventSeriesFormContext";
+import { useScenarioContext } from "../../context/useScenarioContext";
 import ValidationTextFields from "../shared/ValidationTextFields";
 
 export default function EventSeriesIncome({
@@ -34,7 +34,7 @@ export default function EventSeriesIncome({
   setSpousePercentage,
 }: EventSeriesIncomeProps) {
   const { editEventSeries } = useScenarioContext();
-  const { eventSeriesFormHooks } = useEventSeriesFormHooks();
+  const { eventSeriesFormHooks } = useEventSeriesForm();
 
   const mapDistributionTypeToLabel = (
     type: string
@@ -54,7 +54,7 @@ export default function EventSeriesIncome({
       console.log(
         "Income: ",
         mapDistributionTypeToLabel(
-          editEventSeries.event.changeDistribution.type
+          editEventSeries.event?.changeDistribution?.type
         )
       );
       const {
@@ -71,7 +71,7 @@ export default function EventSeriesIncome({
       setIncomeInitialValue(editEventSeries.event.initialAmount || 0);
       setIncomeDistributionType(
         mapDistributionTypeToLabel(
-          editEventSeries.event.changeDistribution.type
+          editEventSeries.event?.changeDistribution?.type
         )
       );
     }
@@ -188,24 +188,22 @@ export default function EventSeriesIncome({
           </div>
         </div>
 
-        {
-          <EventSeriesExpectedInput
-          // distributionType={distributionType}
-          // setDistributionType={setDistributionType}
-          // isFixedAmount={isFixedAmount}
-          // setIsFixedAmount={setIsFixedAmount}
-          // fixedValue={fixedValue}
-          // setFixedValue={setFixedValue}
-          // mean={mean}
-          // setMean={setMean}
-          // stdDev={stdDev}
-          // setStdDev={setStdDev}
-          // lowerBound={lowerBound}
-          // setLowerBound={setLowerBound}
-          // upperBound={upperBound}
-          // setUpperBound={setUpperBound}
-          ></EventSeriesExpectedInput>
-        }
+        <EventSeriesExpectedInput
+          distributionType={distributionType}
+          setDistributionType={setDistributionType}
+          isFixedAmount={isFixedAmount}
+          setIsFixedAmount={setIsFixedAmount}
+          fixedValue={fixedValue}
+          setFixedValue={setFixedValue}
+          mean={mean}
+          setMean={setMean}
+          stdDev={stdDev}
+          setStdDev={setStdDev}
+          lowerBound={lowerBound}
+          setLowerBound={setLowerBound}
+          upperBound={upperBound}
+          setUpperBound={setUpperBound}
+        ></EventSeriesExpectedInput>
 
         <IncomeAllocationInput
           applyInflation={applyInflation}

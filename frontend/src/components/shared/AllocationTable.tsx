@@ -1,14 +1,23 @@
 import { Investment } from "../../../../backend/db/InvestmentSchema";
 import { assetProportion } from "../../../../backend/db/EventSchema";
-import { useScenarioContext } from "../../useScenarioContext";
+import { useScenarioContext } from "../../context/useScenarioContext";
 import "../../stylesheets/shared/AllocationTable.css";
 import { useState, useEffect } from "react";
+import ValidationTextFields from "./ValidationTextFields";
 
 interface AllocationTableProps {
-  allocatedInvestments: assetProportion[];
-  setAllocatedInvestments: (allocatedInvestments: assetProportion[]) => void;
-  allocated2Investments: assetProportion[];
-  setAllocated2Investments: (allocated2Investments: assetProportion[]) => void;
+  allocatedInvestments: Record<string, number>;
+  setAllocatedInvestments: (
+    value:
+      | Record<string, number>
+      | ((prev: Record<string, number>) => Record<string, number>)
+  ) => void;
+  allocated2Investments: Record<string, number>; // For glide path
+  setAllocated2Investments: (
+    value:
+      | Record<string, number>
+      | ((prev: Record<string, number>) => Record<string, number>)
+  ) => void;
   allocationType: "Fixed" | "Glide Path";
 }
 
@@ -22,8 +31,8 @@ const AllocationTable = ({
   const { editEventSeries } = useScenarioContext();
 
   useEffect(() => {
-    setAllocatedInvestments(editEventSeries.event.assetAllocation || []);
-    setAllocated2Investments(editEventSeries.event.assetAllocation2 || []);
+    setAllocatedInvestments(editEventSeries?.event?.assetAllocation || {});
+    setAllocated2Investments(editEventSeries?.event?.assetAllocation2 || {});
   }, [editEventSeries]);
 
   useEffect(() => {
@@ -37,41 +46,20 @@ const AllocationTable = ({
     investmentTypeName: string,
     value: number
   ) => {
-    const updated = [...allocatedInvestments];
-    const existingIndex = updated.findIndex(
-      (inv) => inv.asset === investmentTypeName
-    );
-    console.log(`existingIndex`, { existingIndex });
-
-    if (existingIndex >= 0) {
-      console.log({
-        [`updated[${existingIndex}]`]: updated[existingIndex],
-      });
-
-      updated[existingIndex] = { ...updated[existingIndex], proportion: value };
-    } else {
-      updated.push({ asset: investmentTypeName, proportion: value });
-    }
-
-    setAllocatedInvestments(updated);
+    setAllocatedInvestments((prevAllocations) => ({
+      ...prevAllocations, // Copy existing properties
+      [investmentTypeName]: value, // Update/add the specific property
+    }));
   };
 
   const handleFinalAllocationChange = (
     investmentTypeName: string,
     value: number
   ) => {
-    const updated = [...(allocated2Investments || [])];
-    const existingIndex = updated.findIndex(
-      (inv) => inv.asset === investmentTypeName
-    );
-
-    if (existingIndex >= 0) {
-      updated[existingIndex] = { ...updated[existingIndex], proportion: value };
-    } else {
-      updated.push({ asset: investmentTypeName, proportion: value });
-    }
-
-    setAllocated2Investments(updated);
+    setAllocated2Investments((prevAllocations) => ({
+      ...prevAllocations, // Copy existing properties
+      [investmentTypeName]: value, // Update/add the specific property
+    }));
   };
 
   console.log(`investmentTypes`, investmentTypes);
@@ -93,13 +81,9 @@ const AllocationTable = ({
       <tbody>
         {Object.entries(investmentTypes).map(
           ([key, investmentType]: [string, any]) => {
-            const initial = allocatedInvestments.find(
-              (inv) => inv.asset === investmentType.name
-            )?.proportion;
+            const initial = allocatedInvestments?.[investmentType.name];
 
-            const final = allocated2Investments?.find(
-              (inv) => inv.asset === investmentType.name
-            )?.proportion;
+            const final = allocated2Investments?.[investmentType.name];
 
             return (
               <tr key={investmentType.name}>
@@ -107,56 +91,58 @@ const AllocationTable = ({
 
                 {allocationType === "Fixed" ? (
                   <td>
-                    <input
-                      className="allocation-textbox"
-                      type="number"
-                      min="0"
-                      max="100"
+                    <ValidationTextFields
                       value={initial !== undefined ? initial * 100 : ""}
-                      placeholder="Enter a % (e.g. 60%)"
-                      onChange={(e) => {
-                        const newValue = Number(e.target.value) / 100;
+                      placeholder="Enter a % (e.g. 60)"
+                      setInput={(value) => {
+                        const numValue = value === "" ? 0 : Number(value) / 100;
                         handleInitialAllocationChange(
                           investmentType.name,
-                          newValue
+                          numValue
                         );
                       }}
+                      inputType="number"
+                      width="100px"
+                      height="40px"
+                      disabled={false}
                     />
                   </td>
                 ) : (
                   <>
                     <td>
-                      <input
-                        className="allocation-textbox"
-                        type="number"
-                        min="0"
-                        max="100"
+                      <ValidationTextFields
                         value={initial !== undefined ? initial * 100 : ""}
-                        placeholder="Enter a % (e.g. 60%)"
-                        onChange={(e) => {
-                          const newValue = Number(e.target.value) / 100;
+                        placeholder="Enter a % (e.g. 60)"
+                        setInput={(value) => {
+                          const numValue =
+                            value === "" ? 0 : Number(value) / 100;
                           handleInitialAllocationChange(
                             investmentType.name,
-                            newValue
+                            numValue
                           );
                         }}
+                        inputType="number"
+                        width="100px"
+                        height="40px"
+                        disabled={false}
                       />
                     </td>
                     <td>
-                      <input
-                        className="allocation-textbox"
-                        type="number"
-                        min="0"
-                        max="100"
+                      <ValidationTextFields
                         value={final !== undefined ? final * 100 : ""}
-                        placeholder="Enter a % (e.g. 60%)"
-                        onChange={(e) => {
-                          const newValue = Number(e.target.value) / 100;
+                        placeholder="Enter a % (e.g. 60)"
+                        setInput={(value) => {
+                          const numValue =
+                            value === "" ? 0 : Number(value) / 100;
                           handleFinalAllocationChange(
                             investmentType.name,
-                            newValue
+                            numValue
                           );
                         }}
+                        inputType="number"
+                        width="100px"
+                        height="40px"
+                        disabled={false}
                       />
                     </td>
                   </>

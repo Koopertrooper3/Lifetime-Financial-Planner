@@ -1,5 +1,5 @@
 import CollapsibleWrapper from "../../wrapper/CollapsibleWrapper";
-import { useScenarioContext } from "../../useScenarioContext";
+import { useScenarioContext } from "../../context/useScenarioContext";
 import { useNavigate } from "react-router-dom";
 import "../../stylesheets/shared/SelectionTable.css";
 

@@ -3,9 +3,9 @@ import "../stylesheets/CreateScenario.css";
 import LifeExpectency from "../components/LifeExpectency";
 import { Link, useNavigate } from "react-router-dom";
 import ValidationTextFields from "../components/shared/ValidationTextFields";
-import { useHelperContext } from "../HelperContext";
-import { useScenarioContext } from "../useScenarioContext";
-// import { Scenario } from "../../../backend/db/Scenario";
+import { useHelperContext } from "../context/HelperContext";
+import { useScenarioContext } from "../context/useScenarioContext";
+import { Scenario } from "../../../backend/db/Scenario";
 import SelectionTable from "../components/shared/SelectionTable";
 import axiosCookie from "../axiosCookie";
 import ImportScenario from "../components/ImportScenario";
@@ -566,7 +566,13 @@ export default function ScenarioFormPage() {
             Expand below to view and customize how income is spent, withdrawals
             are handled, and retirement distributions are managed.
           </p>
-          <a href="#">Click here to expand Spending & Withdrawal settings ▼</a>
+          <Link
+            to="/dashboard/createScenario/addStrategies"
+            className="add-strategies-container"
+            onClick={() => setEditEventSeries(null)}
+          >
+            Add New Strategies
+          </Link>
         </div>
 
         {/*Sharing Settings*/}

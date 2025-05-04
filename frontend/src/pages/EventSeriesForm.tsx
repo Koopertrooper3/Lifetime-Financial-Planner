@@ -18,16 +18,16 @@ import {
   assetProportion,
   eventStartType,
 } from "../../../backend/db/EventSchema";
-import { useScenarioContext } from "../useScenarioContext";
-import { useEventSeriesFormHooks } from "../hooks/useEventSeriesFormHooks";
-import { useHelperContext } from "../HelperContext";
+import { useScenarioContext } from "../context/useScenarioContext";
+import { useEventSeriesForm } from "../context/EventSeriesFormContext";
+import { useHelperContext } from "../context/HelperContext";
 
 export default function EventSeriesForm() {
   const navigate = useNavigate();
-  const { eventSeriesFormHooks } = useEventSeriesFormHooks();
   const { eventSeries, editEventSeries, editScenario, setEditScenario } =
     useScenarioContext();
   const { handleEditScenario } = useHelperContext();
+  const { eventSeriesFormHooks } = useEventSeriesForm();
 
   useEffect(() => {
     if (editEventSeries) {
@@ -93,6 +93,13 @@ export default function EventSeriesForm() {
       setEventType(editEventSeries.event?.type || "");
     }
   }, [editEventSeries]);
+
+  useEffect(() => {
+    console.log(
+      "Event Series Form: fixedIncomeValue: ",
+      eventSeriesFormHooks.fixedIncomeValue
+    );
+  }, [eventSeriesFormHooks.fixedIncomeValue]);
 
   const handleSaveEventSeries = async () => {
     if (!eventSeriesFormHooks) {
@@ -273,78 +280,22 @@ export default function EventSeriesForm() {
         discretionary: isDiscretionary,
       };
     } else if (eventType === "invest") {
-      // Original array version
-      const allocationArray: assetProportion[] = allocatedInvestments.map(
-        (inv: any) => ({
-          asset: inv.asset,
-          proportion: Number(inv.proportion),
-        })
-      );
-
-      // Convert to Record<string, number>
-      const allocation: Record<string, number> = allocationArray.reduce(
-        (acc, curr) => {
-          acc[curr.asset] = curr.proportion;
-          return acc;
-        },
-        {} as Record<string, number>
-      );
-
-      let allocation2: Record<string, number> = {};
-      if (investAllocationType === "Glide Path") {
-        const allocation2Array = allocated2Investments.map((inv: any) => ({
-          asset: inv.asset,
-          proportion: Number(inv.proportion),
-        }));
-
-        allocation2 = allocation2Array.reduce((acc, curr) => {
-          acc[curr.asset] = curr.proportion;
-          return acc;
-        }, {} as Record<string, number>);
-      }
-
       event = {
         type: "invest",
-        assetAllocation: allocation,
+        assetAllocation: allocatedInvestments,
         glidePath: investAllocationType === "Glide Path",
-        assetAllocation2: allocation2,
+        assetAllocation2:
+          investAllocationType === "Glide Path" ? allocated2Investments : {},
         maxCash: Number(investMaxCashHoldings),
       };
     } else if (eventType === "rebalance") {
-      const allocationArray: assetProportion[] =
-        allocatedRebalanceInvestments.map((inv: any) => ({
-          asset: inv.asset,
-          proportion: Number(inv.proportion),
-        }));
-
-      // Convert to Record<string, number>
-      const allocation: Record<string, number> = allocationArray.reduce(
-        (acc, curr) => {
-          acc[curr.asset] = curr.proportion;
-          return acc;
-        },
-        {} as Record<string, number>
-      );
-
-      let allocation2: Record<string, number> = {};
-      if (allocationType === "Glide Path") {
-        const allocation2Array = allocated2Investments.map((inv: any) => ({
-          asset: inv.asset,
-          proportion: Number(inv.proportion),
-        }));
-
-        allocation2 = allocation2Array.reduce((acc, curr) => {
-          acc[curr.asset] = curr.proportion;
-          return acc;
-        }, {} as Record<string, number>);
-      }
-
       event = {
         type: "rebalance",
         taxStatus: taxStatus,
-        assetAllocation: allocation,
+        assetAllocation: allocatedRebalanceInvestments,
         glidePath: allocationType === "Glide Path",
-        assetAllocation2: allocation2,
+        assetAllocation2:
+          allocationType === "Glide Path" ? allocatedRebalance2Investments : {},
       };
     } else {
       throw new Error("Event Reformatting Issue");
