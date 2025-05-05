@@ -62,10 +62,7 @@ export default function ScenarioFormPage() {
 
     //attempts to create the scenario
     try {
-      const response = await axiosCookie.post(
-        "/scenario/create",
-        requestBody
-      );
+      const response = await axiosCookie.post("/scenario/create", requestBody);
       console.log(response);
     } catch (err) {
       console.log(err);
@@ -105,7 +102,7 @@ export default function ScenarioFormPage() {
         credentials: "include", // ensures session cookie is sent
       });
       const user = await res.json();
-      return user._id;
+      return user.user._id;
     })();
     const scenarioID = editScenario._id;
     // Removes the _id from life expectancy
@@ -489,8 +486,8 @@ export default function ScenarioFormPage() {
             <span className="red-text">&nbsp;Required</span>
           </div>
           <p>
-            Expand below to view previously defined investments and investment types or create a
-            new one.
+            Expand below to view previously defined investments and investment
+            types or create a new one.
           </p>
           <SelectionTable
             title="Investment Types"

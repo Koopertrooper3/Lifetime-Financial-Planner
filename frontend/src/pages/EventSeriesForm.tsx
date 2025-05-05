@@ -323,7 +323,7 @@ export default function EventSeriesForm() {
         credentials: "include", // ensures session cookie is sent
       });
       const user = await res.json();
-      return user._id;
+      return user.user._id;
     })();
     const scenarioID = editScenario._id;
     const updatedField = {
