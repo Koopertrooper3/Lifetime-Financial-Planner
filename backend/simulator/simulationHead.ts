@@ -59,7 +59,6 @@ interface returnToHostResults {
   failed: number,
 }
 
-
 async function simulationManager(job: Job) {
   console.log("New Job")
   const jobData : queueData = job.data
@@ -144,9 +143,9 @@ async function simulationManager(job: Job) {
   }
   console.log(combinedResult.simulationRecords);
   console.log("Done");
-  await saveProbabilityData(combinedResult.simulationRecords);
-  await saveProbabilityRangeChartData(combinedResult.simulationRecords);
-  await saveStackBarData(combinedResult.simulationRecords);
+  await saveProbabilityData(job.data.userID, job.data.scenarioID, String(job.data.totalSimulations), combinedResult.simulationRecords);
+  await saveProbabilityRangeChartData(job.data.userID, job.data.scenarioID, String(job.data.totalSimulations), combinedResult.simulationRecords);
+  await saveStackBarData(job.data.userID, job.data.scenarioID, String(job.data.totalSimulations), combinedResult.simulationRecords);
 
   return finalResult
 }
@@ -545,8 +544,7 @@ function calculateAverage(values: number[]): number {
 }
 
 function calculateStackBarData(
-  simulationRecords: Record<number, AnnualResults[]>,
-  aggregationThreshold: number
+  simulationRecords: Record<number, AnnualResults[]>
 ): Record<string, {
   average: {
     investments: Record<string, number>;
@@ -622,89 +620,29 @@ function calculateStackBarData(
     const investmentEntries = Object.entries(allValues.investments);
     investmentEntries.sort((a, b) => a[1].taxStatus.localeCompare(b[1].taxStatus));
 
-    let investmentsMeanOther = 0;
-    let investmentsMedianOther = 0;
-
     // First pass: Calculate all values and sum the "Other" categories
     for (const [key, data] of investmentEntries) {
       const avgValue = calculateAverage(data.values);
       const medianValue = calculateMedian(data.values);
       
-      if (avgValue >= aggregationThreshold) {
-        yearlyResult.average.investments[`${key.split('_')[0]} (${data.taxStatus})`] = avgValue;
-      } else {
-        investmentsMeanOther += avgValue;
-      }
-      
-      if (medianValue >= aggregationThreshold) {
-        yearlyResult.median.investments[`${key.split('_')[0]} (${data.taxStatus})`] = medianValue;
-      } else {
-        investmentsMedianOther += medianValue;
-      }
+      yearlyResult.average.investments[`${key.split('_')[0]} (${data.taxStatus})`] = avgValue;
+      yearlyResult.median.investments[`${key.split('_')[0]} (${data.taxStatus})`] = medianValue;
     }
-
-    // Only add "Other" if there were any below-threshold values
-    if (investmentsMeanOther > 0) {
-      yearlyResult.average.investments['Other'] = investmentsMeanOther;
-    }
-    if (investmentsMedianOther > 0) {
-      yearlyResult.median.investments['Other'] = investmentsMedianOther;
-    }
-
-    // Process income
-    let incomeMeanOther = 0;
-    let incomeMedianOther = 0;
 
     for (const [name, data] of Object.entries(allValues.income)) {
       const avgValue = calculateAverage(data.values);
       const medianValue = calculateMedian(data.values);
       
-      if (avgValue >= aggregationThreshold) {
-        yearlyResult.average.income[name] = avgValue;
-      } else {
-        incomeMeanOther += avgValue;
-      }
-      
-      if (medianValue >= aggregationThreshold) {
-        yearlyResult.median.income[name] = medianValue;
-      } else {
-        incomeMedianOther += medianValue;
-      }
+      yearlyResult.average.income[name] = avgValue;
+      yearlyResult.median.income[name] = medianValue;
     }
-
-    if (incomeMeanOther > 0) {
-      yearlyResult.average.income['Other'] = incomeMeanOther;
-    }
-    if (incomeMedianOther > 0) {
-      yearlyResult.median.income['Other'] = incomeMedianOther;
-    }
-
-    // Process expenses (no tax status)
-    let expensesMeanOther = 0;
-    let expensesMedianOther = 0;
 
     for (const [name, data] of Object.entries(allValues.expenses)) {
       const avgValue = calculateAverage(data.values);
       const medianValue = calculateMedian(data.values);
       
-      if (avgValue >= aggregationThreshold) {
-        yearlyResult.average.expenses[name] = avgValue;
-      } else {
-        expensesMeanOther += avgValue;
-      }
-      
-      if (medianValue >= aggregationThreshold) {
-        yearlyResult.median.expenses[name] = medianValue;
-      } else {
-        expensesMedianOther += medianValue;
-      }
-    }
-
-    if (expensesMeanOther > 0) {
-      yearlyResult.average.expenses['Other'] = expensesMeanOther;
-    }
-    if (expensesMedianOther > 0) {
-      yearlyResult.median.expenses['Other'] = expensesMedianOther;
+      yearlyResult.average.expenses[name] = avgValue;
+      yearlyResult.median.expenses[name] = medianValue;
     }
 
     result[year.toString()] = yearlyResult;
@@ -717,15 +655,13 @@ async function saveStackBarData(
   userId: string,
   scenarioId: string,
   numScenario: string,
-  aggregationThreshold: number,
   simulationRecords: Record<number, AnnualResults[]>
 ) {
-  const yearlyResults = calculateStackBarData(simulationRecords, aggregationThreshold);
+  const yearlyResults = calculateStackBarData(simulationRecords);
 
   try {
     const doc = new StackBarDataModel({
       chartID: `${userId}${scenarioId}${numScenario}`,
-      aggregationThreshold, 
       yearlyResults,
     });
 
