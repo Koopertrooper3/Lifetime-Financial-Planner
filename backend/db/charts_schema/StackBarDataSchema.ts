@@ -5,10 +5,6 @@ const StackBarDataSchema = new Schema({
     type: String,
     required: true,
   },
-  aggregationThreshold: {
-    type: Number,
-    required: true
-  },
   results: {
     average: {
       investments: {
