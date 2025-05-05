@@ -56,7 +56,7 @@ async function simulation(threadData : threadData){
         let purchaseLedger : Record<string,number> = constructPurchaseLedger(scenario.investments)
 
         const startTime = new Date();
-        const dateTimeString = `${startTime.getMonth()+1}_${startTime.getDate()}_${startTime.getFullYear()}_${startTime.getHours()}:${startTime.getMinutes()}:${startTime.getSeconds()}`
+        const dateTimeString = `${startTime.getMonth()+1}_${startTime.getDate()}_${startTime.getFullYear()}_${startTime.getHours()}-${startTime.getMinutes()}-${startTime.getSeconds()}`
         const logStream = createWriteStream(path.resolve(__dirname, '..','..','logs',`${threadData.username}_${dateTimeString}.log`), {flags: 'a'})
         const csvStream : WriteStream = initalizeCSVLog(threadData.username,dateTimeString)
 

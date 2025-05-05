@@ -1,6 +1,7 @@
 // New DraggableItem component
 import { useDraggable, useDroppable } from "@dnd-kit/core";
 import { Item } from "./Types";
+import "../../stylesheets/Strategies/DraggableItem.css";
 
 export function DraggableItem({ item }: { item: Item }) {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({

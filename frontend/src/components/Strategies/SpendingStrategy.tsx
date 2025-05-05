@@ -15,10 +15,7 @@ export default function SpendingStrategy() {
   const [discretionaryExpenses, setDiscretionaryExpenses] = useState<Item[]>(
     []
   );
-  const COLUMNS: ColumnType[] = [
-    { id: "INCLUDED", name: "INCLUDED" },
-    { id: "EXCLUDED", name: "EXCLUDED" },
-  ];
+  const COLUMNS: ColumnType[] = [{ id: "Expenses", name: "Expenses" }];
 
   const isExpenseEvent = (event: eventData) => {
     return (event as expenseEvent).discretionary === true;
@@ -50,7 +47,7 @@ export default function SpendingStrategy() {
             id: uniqueName,
             name: eventName,
             rank: expenses.length + 1,
-            status: "EXCLUDED",
+            status: "Expenses",
           });
         }
       }
@@ -66,13 +63,6 @@ export default function SpendingStrategy() {
       const items = [...prev];
       const activeItem = items.find((item) => item.id === active.id);
       if (!activeItem) return items;
-
-      // Column drop
-      if (over.data.current?.type === "column") {
-        return items.map((item) =>
-          item.id === active.id ? { ...item, status: over.id as Status } : item
-        );
-      }
 
       // Item drop
       if (over.data.current?.type === "item") {
@@ -94,11 +84,6 @@ export default function SpendingStrategy() {
             rank: index + 1,
           }));
         }
-
-        // Different column - move
-        return items.map((item) =>
-          item.id === active.id ? { ...item, status: overItem.status } : item
-        );
       }
 
       return items;
@@ -107,7 +92,7 @@ export default function SpendingStrategy() {
 
   // In your SpendingStrategy component's return statement
   return (
-    <div>
+    <div className="spending-strategy-container">
       <h1>
         Spending Strategy{" "}
         <span>
@@ -116,8 +101,6 @@ export default function SpendingStrategy() {
       </h1>
       <DndContext onDragEnd={handleDragEnd}>
         <div className="columns-container">
-          {" "}
-          {/* Add this container */}
           {COLUMNS.map((column) => (
             <Column
               key={column.id}

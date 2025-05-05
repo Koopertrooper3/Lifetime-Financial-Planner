@@ -73,6 +73,137 @@ test('Roth Optimizer Exploration Request', async ({ request }) => {
 
 });
 
+test('Start Year Exploration Request', async ({ request }) => {
+  const client = new MongoClient(databaseConnectionString);
+  const userConnection = client.db(databaseName).collection("users")
+  const totalSimulations = 1
+  const user = await userConnection.findOne({})
+  const userScenarioID = user?.ownedScenarios[0].toString()
+  const explorationRequestBody : explorationBody = {
+    userID : user?._id.toString() || "",
+    scenarioID: userScenarioID,
+    totalSimulations : totalSimulations,
+    explorationParameter: {
+      type: "startYear",
+      eventName: "streaming services",
+      lowerBound: 2025,
+      upperBound: 2028,
+      stepSize: 1
+    }
+  }
+  const explorationRequest = await request.post(`http://${backendHost}:${backendPort}/simulation/simulation-explore`, {
+    data: explorationRequestBody
+  });
+
+  expect(await explorationRequest.status()).toEqual(200)
+
+});
+
+test('Duration Exploration Request', async ({ request }) => {
+  const client = new MongoClient(databaseConnectionString);
+  const userConnection = client.db(databaseName).collection("users")
+  const totalSimulations = 1
+  const user = await userConnection.findOne({})
+  const userScenarioID = user?.ownedScenarios[0].toString()
+  const explorationRequestBody : explorationBody = {
+    userID : user?._id.toString() || "",
+    scenarioID: userScenarioID,
+    totalSimulations : totalSimulations,
+    explorationParameter: {
+      type: "duration",
+      eventName: "streaming services",
+      lowerBound: 40,
+      upperBound: 45,
+      stepSize: 1
+    }
+  }
+  const explorationRequest = await request.post(`http://${backendHost}:${backendPort}/simulation/simulation-explore`, {
+    data: explorationRequestBody
+  });
+
+  expect(await explorationRequest.status()).toEqual(200)
+
+});
+
+test('Inital Income Exploration Request', async ({ request }) => {
+  const client = new MongoClient(databaseConnectionString);
+  const userConnection = client.db(databaseName).collection("users")
+  const totalSimulations = 1
+  const user = await userConnection.findOne({})
+  const userScenarioID = user?.ownedScenarios[0].toString()
+  const explorationRequestBody : explorationBody = {
+    userID : user?._id.toString() || "",
+    scenarioID: userScenarioID,
+    totalSimulations : totalSimulations,
+    explorationParameter: {
+      type: "startYear",
+      eventName: "salary",
+      lowerBound: 75000,
+      upperBound: 76252.5,
+      stepSize: 125.25
+    }
+  }
+  const explorationRequest = await request.post(`http://${backendHost}:${backendPort}/simulation/simulation-explore`, {
+    data: explorationRequestBody
+  });
+
+  expect(await explorationRequest.status()).toEqual(200)
+
+});
+
+test('Inital Expense Exploration Request', async ({ request }) => {
+  const client = new MongoClient(databaseConnectionString);
+  const userConnection = client.db(databaseName).collection("users")
+  const totalSimulations = 1
+  const user = await userConnection.findOne({})
+  const userScenarioID = user?.ownedScenarios[0].toString()
+  const explorationRequestBody : explorationBody = {
+    userID : user?._id.toString() || "",
+    scenarioID: userScenarioID,
+    totalSimulations : totalSimulations,
+    explorationParameter: {
+      type: "startYear",
+      eventName: "food",
+      lowerBound: 5000,
+      upperBound: 6252.5,
+      stepSize: 125.25
+    }
+  }
+  const explorationRequest = await request.post(`http://${backendHost}:${backendPort}/simulation/simulation-explore`, {
+    data: explorationRequestBody
+  });
+
+  expect(await explorationRequest.status()).toEqual(200)
+
+});
+
+test('Investment Allocation Exploration Request', async ({ request }) => {
+  const client = new MongoClient(databaseConnectionString);
+  const userConnection = client.db(databaseName).collection("users")
+  const totalSimulations = 1
+  const user = await userConnection.findOne({})
+  const userScenarioID = user?.ownedScenarios[0].toString()
+  const explorationRequestBody : explorationBody = {
+    userID : user?._id.toString() || "",
+    scenarioID: userScenarioID,
+    totalSimulations : totalSimulations,
+    explorationParameter: {
+      type: "startYear",
+      eventName: "food",
+      lowerBound: 0.50,
+      upperBound: 0.75,
+      stepSize: 0.25
+    }
+  }
+  const explorationRequest = await request.post(`http://${backendHost}:${backendPort}/simulation/simulation-explore`, {
+    data: explorationRequestBody
+  });
+
+  expect(await explorationRequest.status()).toEqual(200)
+
+});
+
+
 interface createScenarioResponse{
   message: string,
   scenarioID: string
