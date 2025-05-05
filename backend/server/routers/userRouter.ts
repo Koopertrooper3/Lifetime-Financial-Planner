@@ -5,8 +5,11 @@ import mongoose from 'mongoose';
 import { SharedScenario } from '../../db/User';
 import { stateTaxZod } from '../zod/taxesZod';
 import { authenticate } from 'passport';
+import { parse } from 'yaml'
+import multer from 'multer';
 
 const router = express.Router();
+const fileUpload = multer({ storage: multer.memoryStorage() })
 
 const userCreateZod = z.object({
     googleId: z.string().min(1, "id must not be empty"),
@@ -173,9 +176,21 @@ router.post("/shareScenario", async (req:any, res:any) => {
 })
 
 
-router.post("/uploadTaxes", async (req, res) => {
+router.post("/upload-tax",fileUpload.single('yaml'), async (req, res) => {
     try{
-        throw new Error("not implemented")
+        const file = req.file
+        const body = req.body
+        if(file == undefined){
+            throw new Error("No yaml file")
+        }
+        const parsedTaxes = parse(file.buffer.toString())
+        const userProfile = await User.findById(body.id)
+        if(userProfile == undefined){
+            throw new Error("Non existence user");
+        }
+        userProfile.stateTaxes= parsedTaxes
+        userProfile.save();
+        res.status(200).send();
     }
     catch(err){
         console.error("Error creating user:", err);

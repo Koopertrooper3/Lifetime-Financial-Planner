@@ -1,0 +1,59 @@
+state: TX
+year: 2024
+singleIncomeTax:
+  - rate: 0.04
+    upperThreshold: 8500.00
+    flatAdjustment: 0.00
+  - rate: 0.045
+    upperThreshold: 11700.00
+    flatAdjustment: 340.00
+  - rate: 0.0525
+    upperThreshold: 13900.00
+    flatAdjustment: 484.00
+  - rate: 0.055
+    upperThreshold: 80650.00
+    flatAdjustment: 600.00
+  - rate: 0.06
+    upperThreshold: 215400.00
+    flatAdjustment: 4271.00
+  - rate: 0.0685
+    upperThreshold: 1077550.00
+    flatAdjustment: 12356.00
+  - rate: 0.0965
+    upperThreshold: 5000000.00
+    flatAdjustment: 71413.00
+  - rate: 0.0103
+    upperThreshold: 25000000.00
+    flatAdjustment: 449929.00
+  - rate: 0.103
+    upperThreshold: .inf
+    flatAdjustment: 2509929.00
+    
+marriedIncomeTax:
+  - rate: 0.04
+    upperThreshold: 17150.00
+    flatAdjustment: 0.00
+  - rate: 0.045
+    upperThreshold: 23600.00
+    flatAdjustment: 686.00
+  - rate: 0.0525
+    upperThreshold: 27900.00
+    flatAdjustment: 976.00
+  - rate: 0.055
+    upperThreshold: 161550.00
+    flatAdjustment: 1202.00
+  - rate: 0.06
+    upperThreshold: 323200.00
+    flatAdjustment: 8553.00
+  - rate: 0.0685
+    upperThreshold: 2155350.00
+    flatAdjustment: 18252.00
+  - rate: 0.0965
+    upperThreshold: 5000000.00
+    flatAdjustment: 143754.00
+  - rate: 0.103
+    upperThreshold: 25000000
+    flatAdjustment: 418263.00
+  - rate: 0.003
+    upperThreshold: .inf
+    flatAdjustment: 2478263

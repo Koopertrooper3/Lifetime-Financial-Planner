@@ -44,10 +44,12 @@ const UserProfilePage = () => {
     if (!yamlFile) return;
   
     const formData = new FormData();
+    formData.append("state",state);
     formData.append("yaml", yamlFile);
-  
+    formData.append("id",userData.user._id)
+    
     try {
-      const res = await axiosCookie.post("/api/upload-tax", formData, {
+      const res = await axiosCookie.post("/user/upload-tax", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
   
@@ -65,7 +67,7 @@ const UserProfilePage = () => {
 
   if (userData === null) return <div>Loading...</div>;
 
-  const displayName = userData === "guest" ? "Guest" : userData.name;
+  const displayName = userData === "guest" ? "Guest" : userData.user.name;
 
   return (
     <div className="profile-container">
