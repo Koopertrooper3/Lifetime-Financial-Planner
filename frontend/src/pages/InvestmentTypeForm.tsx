@@ -15,6 +15,8 @@ import {
 } from "../../../backend/db/DistributionSchemas";
 import { useHelperContext } from "../context/HelperContext"
 
+
+// NOTE: back button here needs to be updated to go back to Investment
 type ValueType = "Fixed Amount/Percentage" | "Normal Distribution";
 const isValueType = (val: any): val is ValueType =>
   val === "Fixed Amount/Percentage" || val === "Normal Distribution";
