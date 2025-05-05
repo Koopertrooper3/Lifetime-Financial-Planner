@@ -9,22 +9,43 @@ const StackBarDataSchema = new Schema({
     type: Number,
     required: true
   },
-  useMedian: {
-    type: Boolean,
-    required: true
-  },
-  yearlyResults: {
-    type: Map,
-    of: new Schema({
-      // Key: category name, Value: aggregated value
-      categories: {
+  results: {
+    average: {
+      investments: {
         type: Map,
         of: Number,
         required: true
       },
-    }),
-    required: true
-  }
+      income: {
+        type: Map,
+        of: Number,
+        required: true
+      },
+      expenses: {
+        type: Map,
+        of: Number,
+        required: true
+      }
+    },
+    median: {
+      investments: {
+        type: Map,
+        of: Number,
+        required: true
+      },
+      income: {
+        type: Map,
+        of: Number,
+        required: true
+      },
+      expenses: {
+        type: Map,
+        of: Number,
+        required: true
+      }
+    }
+  } 
 });
 
-export const StackBarDataModel = mongoose.model('StackBarDataModel', StackBarDataSchema);
+// Create the model
+export const StackBarDataModel = mongoose.model('StackBarData', StackBarDataSchema);
