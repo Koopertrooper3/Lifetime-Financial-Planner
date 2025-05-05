@@ -1,10 +1,9 @@
 import mongoose, { Schema } from "mongoose";
 
 const ProbabilityRangeChartSchema = new Schema({
-  chartID: { 
-    type: mongoose.Schema.Types.ObjectId, 
-    ref: "Scenario",
-    required: true 
+  chartID: {
+    type: String,
+    required: true,
   },
   results: {
     type: Map,
