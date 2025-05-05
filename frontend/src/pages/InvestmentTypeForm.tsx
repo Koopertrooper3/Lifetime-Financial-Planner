@@ -15,7 +15,6 @@ import {
 } from "../../../backend/db/DistributionSchemas";
 import { useHelperContext } from "../context/HelperContext";
 
-
 // NOTE: back button here needs to be updated to go back to Investment
 type ValueType = "Fixed Amount/Percentage" | "Normal Distribution";
 const isValueType = (val: any): val is ValueType =>
@@ -179,7 +178,7 @@ export default function InvestmentTypeForm() {
         credentials: "include", // ensures session cookie is sent
       });
       const user = await res.json();
-      return user._id;
+      return user.user._id;
     })();
     const scenarioID = editScenario._id;
     const updatedField = {
