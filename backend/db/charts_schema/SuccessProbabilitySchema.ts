@@ -20,4 +20,4 @@ const SuccessProbabilityChartSchema = new Schema({
 });
 
 
-export const SuccessProbabiltyChartModel = mongoose.model('SuccessProbabiltyChartModel',  SuccessProbabilityChartSchema);
+export const SuccessProbabilityChartModel = mongoose.model('SuccessProbabiltyChartModel',  SuccessProbabilityChartSchema);
