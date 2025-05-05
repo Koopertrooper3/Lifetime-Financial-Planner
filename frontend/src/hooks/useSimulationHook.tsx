@@ -15,6 +15,15 @@ export function useSimulationHook() {
   const [param2Upper, setParam2Upper] = useState(0);
   const [param2Step, setParam2Step] = useState(1);
 
+  const [distributionType, setDistributionType] = useState<DistributionType>("Fixed Value/Percentage");
+const [isFixedAmount, setIsFixedAmount] = useState(true);
+const [fixedValue, setFixedValue] = useState("");
+const [mean, setMean] = useState("");
+const [stdDev, setStdDev] = useState("");
+const [lowerBound, setLowerBound] = useState("");
+const [upperBound, setUpperBound] = useState("");
+
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [results, setResults] = useState<any>(null);
 
