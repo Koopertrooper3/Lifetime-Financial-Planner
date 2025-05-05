@@ -14,6 +14,7 @@ import { ProbabilityRangeChartModel } from '../db/charts_schema/ProbabilityRange
 import { StackBarDataModel } from '../db/charts_schema/StackBarDataSchema';
 dotenv.config({ path: path.resolve(__dirname,'..','..','..','.env')});
 
+const simulationChartOptions = {upsert: true}
 process.on('uncaughtException', function (exception) {
   console.log(exception); // to see your exception details in the console
   // if you are on production, maybe you can send the exception details to your
@@ -261,6 +262,15 @@ async function scenarioExplorationManager(job: Job) {
   
 }
 
+explorationWorker.on('completed', job => {
+  console.log(`${job.id} has completed!`);
+});
+
+explorationWorker.on('error', err => {
+  // log the error
+  console.error(err);
+});
+
 function determineScenarioVariations(scenario : Scenario, explorationParameters : RothExploration | numericalExploration){
   const scenarioVariations : Scenario[] = []
 
@@ -397,15 +407,14 @@ async function saveProbabilityData(
 
   try {
     // Create new document
-    const doc = new SuccessProbabilityChartModel({
+    await SuccessProbabilityChartModel.findOneAndUpdate( {chartID: `${userId}${scenarioId}${numScenario}`}, {
       chartID: `${userId}${scenarioId}${numScenario}`,
       probabilities: probabilities
-    });
+    },simulationChartOptions);
 
-    // Save to database
-    const savedDoc = await doc.save();
-    console.log('Success probability data saved successfully:', savedDoc._id);
-    return savedDoc;
+
+
+    return true;
   } catch (error) {
     console.error('Error saving success probability:', error);
     throw new Error('Failed to save probability data');
@@ -512,14 +521,18 @@ async function saveProbabilityRangeChartData(
   const results = calculateProbabilityRanges(simulationRecords);
 
   try {
-    const doc = new ProbabilityRangeChartModel({
+    await ProbabilityRangeChartModel.findOneAndUpdate( {chartID: `${userId}${scenarioId}${numScenario}`},
+      {
       chartID: `${userId}${scenarioId}${numScenario}`,
-      results
-    });
+      results: results
+    },simulationChartOptions);
 
-    const savedDoc = await doc.save();
-    console.log('Probability range chart data saved successfully:', savedDoc._id);
-    return savedDoc;
+    // let doc = await ProbabilityRangeChartModel.create({
+    //   chartID: `${userId}${scenarioId}${numScenario}`,
+    //   results: results
+    // })
+
+    return true;
   } catch (error) {
     console.error('Error saving range chart data:', error);
     throw new Error('Failed to save range chart data');
@@ -663,14 +676,12 @@ async function saveStackBarData(
   const yearlyResults = calculateStackBarData(simulationRecords);
 
   try {
-    const doc = new StackBarDataModel({
+    const doc = await StackBarDataModel.findOneAndUpdate( {chartID: `${userId}${scenarioId}${numScenario}`},{
       chartID: `${userId}${scenarioId}${numScenario}`,
       results: yearlyResults
-    });
+    },simulationChartOptions);
 
-    const savedDoc = await doc.save();
-    console.log('Stack Bar Data saved successfully:', savedDoc._id);
-    return savedDoc;
+    return true;
   } catch (error) {
     console.error('Error saving stack bar data:', error);
     throw new Error('Failed to save stack bar data');
