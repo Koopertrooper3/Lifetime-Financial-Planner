@@ -1,9 +1,8 @@
 import mongoose, { Schema } from "mongoose"
 
 const SuccessProbabilityChartSchema = new Schema({
-  scenarioId: { type: Schema.Types.ObjectId, ref: 'Scenario', required: true },
-  numScenario: {
-    type: Schema.Types.ObjectId,
+  chartID: {
+    type: String,
     required: true,
   },
   probabilities: [{

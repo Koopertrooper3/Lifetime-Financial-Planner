@@ -11,6 +11,7 @@ import { pool } from 'workerpool';
 import { numericalExploration, Result, RothExploration, AnnualResults } from './simulatorInterfaces';
 import { SuccessProbabiltyChartModel } from '../db/charts_schema/SuccessProbabilitySchema';
 import { ProbabilityRangeChartModel } from '../db/charts_schema/ProbabilityRangeChartSchema';
+import { StackBarDataModel } from '../db/charts_schema/StackBarDataSchema';
 dotenv.config({ path: path.resolve(__dirname,'..','..','..','.env')});
 
 process.on('uncaughtException', function (exception) {
@@ -382,6 +383,7 @@ function calculateProbabilityOfSuccess(simulationRecords : Record<number,AnnualR
 }
 
 async function saveProbabilityData(
+  userId: string,
   scenarioId: string,
   numScenario: string,
   simulationRecords : Record<number,AnnualResults[]>
@@ -391,9 +393,8 @@ async function saveProbabilityData(
   try {
     // Create new document
     const doc = new SuccessProbabiltyChartModel({
-      scenarioId: new mongoose.Types.ObjectId(scenarioId),
-      numScenario: new mongoose.Types.ObjectId(numScenario),
-      probabilities
+      chartID: `${userId}${scenarioId}${numScenario}`,
+      probabilities: probabilities
     });
 
     // Save to database
@@ -483,7 +484,8 @@ function calculateProbabilityRanges(simulationRecords: Record<number, AnnualResu
   return results;
 }
 
-export async function saveProbabilityRangeChartData(
+async function saveProbabilityRangeChartData(
+  userId: string,
   scenarioId: string,
   numScenario: string,
   selectedQuantity: 'totalInvestments' | 'totalIncome' | 'totalExpenses' | 'earlyWithdrawalTax' | 'discretionaryExpensesPercentage',
@@ -493,9 +495,7 @@ export async function saveProbabilityRangeChartData(
 
   try {
     const doc = new ProbabilityRangeChartModel({
-      scenarioId: new mongoose.Types.ObjectId(scenarioId),
-      numScenario: new mongoose.Types.ObjectId(numScenario),
-      selectedQuantity,
+      chartID: `${userId}${scenarioId}${numScenario}`,
       yearlyResults,
     });
 
@@ -528,73 +528,118 @@ function calculateAverage(values: number[]): number {
   return sum / values.length;
 }
 
-// Almost finish need to understand the tax status 
-function calculateStackBarData(simulationRecords: Record<number, AnnualResults[]>,
-  selectedQuantity: "investments" | "income" | "expenses", aggregationThreshold: number, useMedian: boolean) {
-    const years = Object.keys(simulationRecords).map(Number).sort((a, b) => a - b);
-    // Initialize an empty object to store the final aggregated data.
-    const result: Record<string, Record<string, number>> = {};
-    
-    // Determine the function to use based on useMedian
-    const aggregate = (values: number[]) => 
-      useMedian ? calculateMedian(values) : calculateAverage(values);
+function calculateStackBarData(
+  simulationRecords: Record<number, AnnualResults[]>,
+  selectedQuantity: "investments" | "income" | "expenses",
+  aggregationThreshold: number,
+  useMedian: boolean
+): Record<string, Record<string, number>> {
+  const years = Object.keys(simulationRecords).map(Number).sort((a, b) => a - b);
+  // Initialize an empty object to store the final aggregated data.
+  const result: Record<string, Record<string, number>> = {};
+  
+  // Determine the function to use based on useMedian
+  const aggregate = (values: number[]) => 
+    useMedian ? calculateMedian(values) : calculateAverage(values);
 
-    for (const year of years) {
-      const yearResults = simulationRecords[year];
+  for (const year of years) {
+    const yearResults = simulationRecords[year];
+    // The string is the investment/income/expense name and number[] stores all the investment/income/expense values for that particular segment throughout a set of simulations for a single year 
+    const allValues: Record<string, { values: number[]; taxStatus: string }> = {};
+    // Stores segments, including Other
+    const yearlyResult: Record<string, number> = {};
 
-      // The string is the investment/income/expense name and number[] stores all the investment/income/expense values for that particular segment throughout a set of simulations for a single year 
-      const allValues: Record<string, number[]> = {};
-      // Stores segments, including Other
-      const yearlyResult: Record<string, number> = {};
-
-      for (const result of yearResults) {
-        // Collect all the values for a specific segment across the set of simulations in each year
-        switch (selectedQuantity) {
-          case "investments":
-            for (const [investmentName, investmentData] of Object.entries(result.investmentBreakdown || {})) {
-              if (!allValues[investmentName + investmentData.taxStatus]) {
-                allValues[investmentName + investmentData.taxStatus] = [];
-              }
-              allValues[investmentName + investmentData.taxStatus].push(investmentData.value);
+    // Collect all the values for a specific segment across the set of simulations in each year
+    for (const result of yearResults) {
+      switch (selectedQuantity) {
+        case "investments":
+          for (const [name, data] of Object.entries(result.investmentBreakdown || {})) {
+            const key = `${name}_${data.taxStatus}`;
+            if (!allValues[key]) {
+              allValues[key] = { values: [], taxStatus: data.taxStatus };
             }
-            break;
-          case "income":
-            for (const [incomeName, incomeValue] of Object.entries(result.incomeBreakdown || {})) {
-              if (!allValues[incomeName]) {
-                allValues[incomeName] = [];
-              }
-              allValues[incomeValue].push(incomeValue);
+            allValues[key].values.push(data.value);
+          }
+          break;
+        case "income":
+          for (const [name, value] of Object.entries(result.incomeBreakdown || {})) {
+            if (!allValues[name]) {
+              allValues[name] = { values: [], taxStatus: 'null' };
             }
-            break;
-          case "expenses":
-            for (const [expenseName, expenseValue] of Object.entries(result.expenseBreakdown || {})) {
-              if (!allValues[expenseName]) {
-                allValues[expenseName] = [];
-              }
-              allValues[expenseName].push(expenseValue);
+            allValues[name].values.push(value);
+          }
+          break;
+        case "expenses":
+          for (const [name, value] of Object.entries(result.expenseBreakdown || {})) {
+            if (!allValues[name]) {
+              allValues[name] = { values: [], taxStatus: 'null' };
             }
-            break;
-        }
+            allValues[name].values.push(value);
+          }
+          break;
       }
-
-      // Count the total number of other segment
-      let otherTotal = 0;
-      for (const [name, values] of Object.entries(allValues)) {
-        const aggregatedValue = aggregate(values);
-        if (aggregatedValue < aggregationThreshold) {
-          otherTotal += aggregatedValue;
-        }
-        else {
-          yearlyResult[name] = aggregatedValue;
-        }
-      }
-      yearlyResult["Other"] = otherTotal;
-      result[year.toString()] = yearlyResult;
     }
 
-    return result;
+    // Sorting and aggregation
+    let otherTotal = 0;
+    const entries = Object.entries(allValues);
+    
+    // Sort by tax status if investments
+    if (selectedQuantity === "investments") {
+      entries.sort((a, b) => a[1].taxStatus.localeCompare(b[1].taxStatus));
+    }
 
+    for (const [name, data] of entries) {
+      const aggregatedValue = aggregate(data.values);
+      
+      if (aggregatedValue >= aggregationThreshold) {
+        // For investments, include tax status in the label
+        const displayName = selectedQuantity === "investments" 
+          ? `${name.split('_')[0]} (${data.taxStatus})` 
+          : name;
+        yearlyResult[displayName] = aggregatedValue;
+      } else {
+        otherTotal += aggregatedValue;
+      }
+    }
+
+    if (otherTotal > 0) {
+      yearlyResult["Other"] = otherTotal;
+    }
+
+    result[year.toString()] = yearlyResult;
   }
+
+  return result;
+}
+
+async function saveStackBarData(
+  userId: string,
+  scenarioId: string,
+  numScenario: string,
+  selectedQuantity: 'investments' | 'income' | 'expenses',
+  aggregationThreshold: number,
+  useMedian: boolean,
+  simulationRecords: Record<number, AnnualResults[]>
+) {
+  const yearlyResults = calculateStackBarData(simulationRecords, selectedQuantity, aggregationThreshold, useMedian);
+
+  try {
+    const doc = new StackBarDataModel({
+      chartID: `${userId}${scenarioId}${numScenario}`,
+      aggregationThreshold, 
+      useMedian,
+      yearlyResults,
+    });
+
+    const savedDoc = await doc.save();
+    console.log('Stack Bar Data saved successfully:', savedDoc._id);
+    return savedDoc;
+  } catch (error) {
+    console.error('Error saving stack bar data:', error);
+    throw new Error('Failed to save stack bar data');
+  }
+}
 
 // ========================= Chart 5.1 ==========================
 function calculateMultiLineChartData(explorationParam: RothExploration, selectedQuantity: 'successProbability' | 'medianInvestments') {
