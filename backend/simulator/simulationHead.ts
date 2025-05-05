@@ -144,6 +144,9 @@ async function simulationManager(job: Job) {
   }
   console.log(combinedResult.simulationRecords);
   console.log("Done");
+  await saveProbabilityData(combinedResult.simulationRecords);
+  await saveProbabilityRangeChartData(combinedResult.simulationRecords);
+  
 
   return finalResult
 }
@@ -363,7 +366,7 @@ function calculateProbabilityOfSuccess(simulationRecords : Record<number,AnnualR
   for (const year of years) {
     const yearResults = simulationRecords[year];
     let successCount = 0;
-    let numSimulations = yearResults.length;
+    numSimulations = yearResults.length;
     for (let i = 0; i < numSimulations; i++) {
       const financialGoal = yearResults[i].finanicalGoal;
       if (financialGoal) {
@@ -408,18 +411,20 @@ async function saveProbabilityData(
 }
 
 // ========================= Chart 4.2 ==========================
+interface AnnualMetric {
+  median: number;
+  ranges: {
+    "10-90": [number, number];
+    "20-80": [number, number];
+    "30-70": [number, number];
+    "40-60": [number, number];
+  };
+}
+
 type Range = [number, number];
 
 interface ShadedLineChart {
-  yearlyResults: Record<string, {
-    median: number;
-    ranges: {
-      "10-90": Range;
-      "20-80": Range;
-      "30-70": Range;
-      "40-60": Range;
-    }
-  }>;
+  yearlyResults: Record<string, Record<string, AnnualMetric>>;
 };
 
 // Helper function to calculate percentiles
@@ -459,26 +464,38 @@ function collectValues(
   });
 }
 
-function calculateProbabilityRanges(simulationRecords: Record<number, AnnualResults[]>, selectedQuantity: 'totalInvestments' | 'totalIncome' | 'totalExpenses' | 'earlyWithdrawalTax' | 'discretionaryExpensesPercentage') {
+function calculateProbabilityRanges(simulationRecords: Record<number, AnnualResults[]>) {
   const years: number[] = Object.keys(simulationRecords).map(Number).sort((a, b) => a - b);
   const results: ShadedLineChart = {
     yearlyResults: {},
   };
 
+  const quantities = [
+    'totalInvestments',
+    'totalIncome',
+    'totalExpenses',
+    'earlyWithdrawalTax',
+    'discretionaryExpensesPercentage'
+  ] as const;
+
   for (const year of years) {
-    const yearResults = simulationRecords[year];
-    const values = collectValues(yearResults, selectedQuantity);
-    const sorted = [...values].sort((a, b) => a - b);
-    const median = calculatePercentile(sorted, 50);
-    results.yearlyResults[String(year)] = {
-      median: median,
-      ranges: {
-        "10-90": [calculatePercentile(sorted, 10), calculatePercentile(sorted, 90)],
-        "20-80": [calculatePercentile(sorted, 20), calculatePercentile(sorted, 80)],
-        "30-70": [calculatePercentile(sorted, 30), calculatePercentile(sorted, 70)],
-        "40-60": [calculatePercentile(sorted, 40), calculatePercentile(sorted, 60)]
-      }
-    };
+    const yearlyResults = simulationRecords[year];
+    const processedYearlyResults: Record<string, AnnualMetric> = {};
+    for (const quantity of quantities) {
+      const values = collectValues(yearlyResults, quantity);
+      const sorted = [...values].sort((a, b) => a - b);
+      const median = calculatePercentile(sorted, 50);
+      processedYearlyResults[quantity] = {
+        median: median,
+        ranges: {
+          "10-90": [calculatePercentile(sorted, 10), calculatePercentile(sorted, 90)],
+          "20-80": [calculatePercentile(sorted, 20), calculatePercentile(sorted, 80)],
+          "30-70": [calculatePercentile(sorted, 30), calculatePercentile(sorted, 70)],
+          "40-60": [calculatePercentile(sorted, 40), calculatePercentile(sorted, 60)]
+        }
+      };
+    }
+    results.yearlyResults[String(year)] = processedYearlyResults;
   }
 
   return results;
@@ -488,15 +505,14 @@ async function saveProbabilityRangeChartData(
   userId: string,
   scenarioId: string,
   numScenario: string,
-  selectedQuantity: 'totalInvestments' | 'totalIncome' | 'totalExpenses' | 'earlyWithdrawalTax' | 'discretionaryExpensesPercentage',
   simulationRecords: Record<number, AnnualResults[]>
 ) {
-  const yearlyResults = calculateProbabilityRanges(simulationRecords, selectedQuantity);
+  const results = calculateProbabilityRanges(simulationRecords);
 
   try {
     const doc = new ProbabilityRangeChartModel({
       chartID: `${userId}${scenarioId}${numScenario}`,
-      yearlyResults,
+      results
     });
 
     const savedDoc = await doc.save();
@@ -530,13 +546,22 @@ function calculateAverage(values: number[]): number {
 
 function calculateStackBarData(
   simulationRecords: Record<number, AnnualResults[]>,
-  selectedQuantity: "investments" | "income" | "expenses",
   aggregationThreshold: number,
   useMedian: boolean
-): Record<string, Record<string, number>> {
+): Record<string, {
+  investments: Record<string, number>;
+  income: Record<string, number>;
+  expenses: Record<string, number>;
+}> {
   const years = Object.keys(simulationRecords).map(Number).sort((a, b) => a - b);
   // Initialize an empty object to store the final aggregated data.
-  const result: Record<string, Record<string, number>> = {};
+  const result: Record<string, {
+    investments: Record<string, number>;
+    income: Record<string, number>;
+    expenses: Record<string, number>;
+  }> = {};
+
+  const quantities = ['investments', 'income', 'expenses'] as const;
   
   // Determine the function to use based on useMedian
   const aggregate = (values: number[]) => 
@@ -545,67 +570,78 @@ function calculateStackBarData(
   for (const year of years) {
     const yearResults = simulationRecords[year];
     // The string is the investment/income/expense name and number[] stores all the investment/income/expense values for that particular segment throughout a set of simulations for a single year 
-    const allValues: Record<string, { values: number[]; taxStatus: string }> = {};
-    // Stores segments, including Other
-    const yearlyResult: Record<string, number> = {};
+    const allValues = {
+      investments: {} as Record<string, { values: number[]; taxStatus: string }>,
+      income: {} as Record<string, { values: number[] }>,
+      expenses: {} as Record<string, { values: number[] }>
+    };
 
-    // Collect all the values for a specific segment across the set of simulations in each year
+    // Collect all the values for all segments across the set of simulations in each year
     for (const result of yearResults) {
-      switch (selectedQuantity) {
-        case "investments":
-          for (const [name, data] of Object.entries(result.investmentBreakdown || {})) {
-            const key = `${name}_${data.taxStatus}`;
-            if (!allValues[key]) {
-              allValues[key] = { values: [], taxStatus: data.taxStatus };
-            }
-            allValues[key].values.push(data.value);
-          }
-          break;
-        case "income":
-          for (const [name, value] of Object.entries(result.incomeBreakdown || {})) {
-            if (!allValues[name]) {
-              allValues[name] = { values: [], taxStatus: 'null' };
-            }
-            allValues[name].values.push(value);
-          }
-          break;
-        case "expenses":
-          for (const [name, value] of Object.entries(result.expenseBreakdown || {})) {
-            if (!allValues[name]) {
-              allValues[name] = { values: [], taxStatus: 'null' };
-            }
-            allValues[name].values.push(value);
-          }
-          break;
+      for (const [name, data] of Object.entries(result.investmentBreakdown || {})) {
+        const key = `${name}_${data.taxStatus}`;
+        allValues.investments[key] = allValues.investments[key] || { values: [], taxStatus: data.taxStatus };
+        allValues.investments[key].values.push(data.value);
+      }
+      for (const [name, value] of Object.entries(result.incomeBreakdown || {})) {
+        if (!allValues.income[name]) {
+          allValues.income[name] = { values: []};
+        }
+        allValues.income[name].values.push(value);
+      }
+      for (const [name, value] of Object.entries(result.expenseBreakdown || {})) {
+        if (!allValues.expenses[name]) {
+          allValues.expenses[name] = { values: []};
+        }
+        allValues.expenses[name].values.push(value);
       }
     }
-
-    // Sorting and aggregation
-    let otherTotal = 0;
-    const entries = Object.entries(allValues);
     
-    // Sort by tax status if investments
-    if (selectedQuantity === "investments") {
-      entries.sort((a, b) => a[1].taxStatus.localeCompare(b[1].taxStatus));
-    }
+    // Aggregation
+    const yearlyResult = {
+      investments: {} as Record<string, number>,
+      income: {} as Record<string, number>,
+      expenses: {} as Record<string, number>
+    };
 
-    for (const [name, data] of entries) {
-      const aggregatedValue = aggregate(data.values);
-      
-      if (aggregatedValue >= aggregationThreshold) {
-        // For investments, include tax status in the label
-        const displayName = selectedQuantity === "investments" 
-          ? `${name.split('_')[0]} (${data.taxStatus})` 
-          : name;
-        yearlyResult[displayName] = aggregatedValue;
+    // Sort investments by tax status
+    const investmentEntries = Object.entries(allValues.investments);
+    investmentEntries.sort((a, b) => a[1].taxStatus.localeCompare(b[1].taxStatus));
+
+    let investmentsOther = 0;
+    for (const [key, data] of investmentEntries) {
+      const value = aggregate(data.values);
+      if (value >= aggregationThreshold) {
+        yearlyResult.investments[`${key.split('_')[0]} (${data.taxStatus})`] = value;
       } else {
-        otherTotal += aggregatedValue;
+        investmentsOther += value;
       }
     }
+    if (investmentsOther > 0) yearlyResult.investments['Other'] = investmentsOther;
 
-    if (otherTotal > 0) {
-      yearlyResult["Other"] = otherTotal;
+    // Process income (no tax status)
+    let incomeOther = 0;
+    for (const [name, data] of Object.entries(allValues.income)) {
+      const value = aggregate(data.values);
+      if (value >= aggregationThreshold) {
+        yearlyResult.income[name] = value;
+      } else {
+        incomeOther += value;
+      }
     }
+    if (incomeOther > 0) yearlyResult.income['Other'] = incomeOther;
+
+    // Process expenses (no tax status)
+    let expensesOther = 0;
+    for (const [name, data] of Object.entries(allValues.expenses)) {
+      const value = aggregate(data.values);
+      if (value >= aggregationThreshold) {
+        yearlyResult.expenses[name] = value;
+      } else {
+        expensesOther += value;
+      }
+    }
+    if (expensesOther > 0) yearlyResult.expenses['Other'] = expensesOther;
 
     result[year.toString()] = yearlyResult;
   }
@@ -617,12 +653,11 @@ async function saveStackBarData(
   userId: string,
   scenarioId: string,
   numScenario: string,
-  selectedQuantity: 'investments' | 'income' | 'expenses',
   aggregationThreshold: number,
   useMedian: boolean,
   simulationRecords: Record<number, AnnualResults[]>
 ) {
-  const yearlyResults = calculateStackBarData(simulationRecords, selectedQuantity, aggregationThreshold, useMedian);
+  const yearlyResults = calculateStackBarData(simulationRecords, aggregationThreshold, useMedian);
 
   try {
     const doc = new StackBarDataModel({
