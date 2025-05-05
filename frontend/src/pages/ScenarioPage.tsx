@@ -189,10 +189,10 @@ export default function ScenarioPage() {
             <div className="mini-card" key={event._id}>
               <strong>{event.name}</strong>
               <div>
-                Start: {event.start.type} – {event.start.value}
+                Start: {event.start.type}
               </div>
               <div>
-                Duration: {event.duration.type} – {event.duration.value}
+                Duration: {event.duration.type}
               </div>
               <div>Type: {event.event.type}</div>
               <div>

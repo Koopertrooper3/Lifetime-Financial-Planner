@@ -10,6 +10,7 @@ interface HelperContextType {
   fetchScenario: (id: string) => Promise<any>;
   fetchSimulationResults: (scenarioId: string) => Promise<any>;
   fetchUser: () => void;
+  fetchUserContent: () => Promise<any>;
   userID: any;
   ownedScenarios: Scenario[];
   sharedWithScenarios: Scenario[];
@@ -26,6 +27,7 @@ const HelperContext = createContext<HelperContextType>({
   fetchScenario: async () => null,
   fetchSimulationResults: async () => null,
   fetchUser: async () => null,
+  fetchUserContent: async () => null,
   userID: "",
   ownedScenarios: [],
   sharedWithScenarios: [],
@@ -40,7 +42,9 @@ export const HelperContextProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [ownedScenarios, setOwnedScenarios] = useState<Scenario[]>([]);
-  const [sharedWithScenarios, setSharedWithScenarios] = useState<Scenario[]>([]);
+  const [sharedWithScenarios, setSharedWithScenarios] = useState<Scenario[]>(
+    []
+  );
 
   const [userID, setUserID] = useState<User | null>(null);
   const [userAuthenticated, setUserAuthenticated] = useState<boolean>(false);
@@ -134,6 +138,7 @@ export const HelperContextProvider: React.FC<{ children: React.ReactNode }> = ({
           fetchScenario,
           fetchSimulationResults,
           fetchUser,
+          fetchUserContent,
           userID,
           ownedScenarios,
           sharedWithScenarios,

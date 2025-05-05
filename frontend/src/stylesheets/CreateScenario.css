@@ -138,7 +138,8 @@
 
 .add-investment-type-container,
 .add-event-series-container,
-.limits-and-contribution-container {
+.limits-and-contribution-container,
+.add-strategies-container {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -159,7 +160,7 @@
   align-items: center;
 }
 
-.save-button {
+.save-scenario-button {
   background-color: #4C49ED;
   color: white;
   width: 100%;
@@ -169,7 +170,7 @@
   padding-bottom: 15px;
 }
 
-.save-button:hover {
+.save-scenario-button:hover {
   cursor: pointer;
 }
 

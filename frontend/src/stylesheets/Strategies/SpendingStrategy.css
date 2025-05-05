@@ -7,16 +7,16 @@
   border-radius: 10px;
 }
 
-.header-line {
+.spending-strategy-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
 }
 
 .purple-header {
   font-size: 24px;
   color: #4C49ED;
+  width: 70%;
 }
 
 .back-link {

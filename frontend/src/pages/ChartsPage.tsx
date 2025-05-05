@@ -12,8 +12,8 @@ import StackedBarChart from "../components/Charts/StackedBarChart";
 // import { mockSimulationResults } from "../components/Charts/MockData";
 
 function ChartsPage() {
-  console.log("allScenarios", allScenarios);
-  const { fetchSimulationResults, allScenarios } = useHelperContext();
+  // console.log("allScenarios", allScenarios);
+  const { fetchSimulationResults, ownedScenarios } = useHelperContext();
   const [simResults, setSimResults] = useState<any>(null);
   const [selectedScenarioId, setSelectedScenarioId] = useState<string | null>(
     null
@@ -27,8 +27,8 @@ function ChartsPage() {
     // }
 
     const loadSimulationResults = async () => {
-      if (!selectedScenarioId && allScenarios?.length) {
-        setSelectedScenarioId(allScenarios[0]._id);
+      if (!selectedScenarioId && ownedScenarios?.length) {
+        // setSelectedScenarioId(ownedScenarios[0]._id);
         return;
       }
 
@@ -39,7 +39,7 @@ function ChartsPage() {
     };
 
     loadSimulationResults();
-  }, [selectedScenarioId, allScenarios]);
+  }, [selectedScenarioId, ownedScenarios]);
 
   if (!simResults) return <LoadingWheel />;
 

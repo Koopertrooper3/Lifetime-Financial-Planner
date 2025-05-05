@@ -16,11 +16,12 @@ import UserProfilePage from "./pages/UserProfilePage";
 import { registerChartJSComponents } from "./components/Charts/ChartSetup";
 import { EventSeriesFormProvider } from "./context/EventSeriesFormContext";
 import Strategies from "./pages/StrategiesPage";
-import SpendingStrategy from "./components/Strategies/SpendingStrategy";
+import SpendingStrategy from "./components/Spending Strategy/SpendingStrategy";
 import SimulationExplorationPage from "./pages/SimulationExplorationPage";
 import SharedScenarioPage from "./pages/SharedScenarioPage";
-import AddNewInvestment from "./pages/AddNewInvestment";
+import AddNewInvestmentForm from "./pages/AddNewInvestment";
 import InvestmentForm from "./pages/InvestmentForm";
+import WithdrawalStrategy from "./components/Withdrawal Strategy/WithdrawalStrategy";
 
 registerChartJSComponents();
 
@@ -40,10 +41,16 @@ function ProtectedRoutes() {
                       element={<ScenarioFormPage />}
                       key="scenario"
                     />,
-                    <Route path="addNewInvestment" element={<AddNewInvestment />}>
-                    <Route index element={<InvestmentForm />} />
-                    <Route path="addNewInvestmentType" element={<InvestmentTypeForm />} />
-                  </Route>,
+                    <Route
+                      path="addNewInvestment"
+                      element={<AddNewInvestmentForm />}
+                    >
+                      <Route index element={<InvestmentForm />} />
+                      <Route
+                        path="addNewInvestmentType"
+                        element={<InvestmentTypeForm />}
+                      />
+                    </Route>,
                     <Route
                       path="addNewEventSeries"
                       element={
@@ -53,7 +60,7 @@ function ProtectedRoutes() {
                       }
                       key="eventSeries"
                     />,
-                      
+
                     <Route
                       path="Limits&ContributionLimits"
                       element={<LimitsInflationPage />}
@@ -73,6 +80,11 @@ function ProtectedRoutes() {
                               path="spendingStrategy"
                               element={<SpendingStrategy />}
                               key="spending"
+                            />,
+                            <Route
+                              path="withdrawalStrategy"
+                              element={<WithdrawalStrategy />}
+                              key="withdrawal"
                             />,
                           ]}
                         />

@@ -2,14 +2,23 @@ import mongoose, { Schema } from "mongoose"
 
 const SuccessProbabilityChartSchema = new Schema({
   scenarioId: { type: Schema.Types.ObjectId, ref: 'Scenario', required: true },
-  quantity: { type: String, enum: ["totalInvestments"], required: true },
-  financialGoal: { type: Number, required: true },
+  numScenario: {
+    type: Schema.Types.ObjectId,
+    required: true,
+  },
   probabilities: [{
-    year: Number,
-    successRate: Number // 0.0 to 1.0
+    year: {
+      type: Number,
+      required: true,
+    },
+    successRate: {
+      type: Number,
+      required: true,
+      min: 0,
+      max: 1
+    }
   }],
-  createdAt: { type: Date, default: Date.now }
 });
 
 
-const SuccessProbabiltyChartModel = mongoose.model('SuccessProbabiltyChartModel',  SuccessProbabilityChartSchema);
+export const SuccessProbabiltyChartModel = mongoose.model('SuccessProbabiltyChartModel',  SuccessProbabilityChartSchema);

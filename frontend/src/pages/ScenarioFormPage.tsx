@@ -508,6 +508,32 @@ export default function ScenarioFormPage() {
           </Link>
         </div>
 
+        {/*Investment*/}
+        {/* <div className="investment-container">
+          <div className="title-with-info">
+            <h3 className="green-title">Investment</h3>
+            <span className="red-text">&nbsp;Required</span>
+          </div>
+          <p>
+            Expand below to view previously defined investments or create a new
+            one.
+          </p>
+          <SelectionTable
+            title="Investments"
+            description=""
+            data={Object.values(eventSeries)}
+            emptyMessage="This plan does not contain any new event series."
+            renderAttribute={(event) => event?.event?.type}
+          ></SelectionTable>
+          <Link
+            to="/dashboard/createScenario/addNewEventSeries"
+            className="add-event-series-container"
+            onClick={() => setEditEventSeries(null)}
+          >
+            Add New Event Series
+          </Link>
+        </div> */}
+
         {/*Event Series*/}
         <div className="event-series-container">
           <div className="title-with-info">
@@ -566,24 +592,13 @@ export default function ScenarioFormPage() {
           <Link
             to="/dashboard/createScenario/addStrategies"
             className="add-strategies-container"
-            onClick={() => setEditEventSeries(null)}
           >
             Add New Strategies
           </Link>
         </div>
 
-        {/*Sharing Settings*/}
-        <div className="sharing-container">
-          <div className="title-with-info">
-            <h3 className="red-title">Sharing Setings</h3>
-            <span className="grayed-text">&nbsp;Optional</span>
-          </div>
-          <p>Expand below to manage who can access or edit this scenario.</p>
-          <a href="#">Click here to expand Sharing settings ▼</a>
-        </div>
-
         <div className="save-button-container">
-          <button className="save-button" onClick={handleSubmit}>
+          <button className="save-scenario-button" onClick={handleSubmit}>
             Save Scenario
           </button>
         </div>

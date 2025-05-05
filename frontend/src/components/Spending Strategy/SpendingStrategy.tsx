@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import type { Item, Column as ColumnType } from "./Types";
-import { Column } from "./Column";
+import type { Item, Column as ColumnType } from "./Types.ts";
+import { Column } from "./Column.tsx";
 import { DndContext, DragEndEvent } from "@dnd-kit/core";
 import { expenseEvent, eventData } from "../../../../backend/db/EventSchema.ts";
 import { useScenarioContext } from "../../context/useScenarioContext.tsx";

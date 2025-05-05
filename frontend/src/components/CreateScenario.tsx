@@ -31,7 +31,7 @@ const CreateScenario = () => {
     setEditScenario,
   } = useScenarioContext();
 
-  const { fetchScenario } = useHelperContext();
+  const { fetchScenario, fetchUserContent } = useHelperContext();
 
   useEffect(() => {
     setEditScenario(null);
@@ -67,7 +67,7 @@ const CreateScenario = () => {
 
   const handleClick = async () => {
     const currentUserId = await getId();
-    console.log("userid: ", currentUserId)
+    console.log("userid: ", currentUserId);
 
     const scenario = {
       name: name,
@@ -99,8 +99,10 @@ const CreateScenario = () => {
     const latestScenario = await fetchScenario(latestScenarioData.scenarioID);
     console.log("Create Scenario: latestScenario: ", latestScenario);
     setEditScenario(latestScenario);
-
-    navigate("/dashboard/createScenario");
+    if (!latestScenario) {
+      fetchUserContent();
+      navigate("/dashboard/createScenario");
+    }
   };
 
   return (
@@ -113,4 +115,4 @@ const CreateScenario = () => {
   );
 };
 
-export {CreateScenario};
+export { CreateScenario };

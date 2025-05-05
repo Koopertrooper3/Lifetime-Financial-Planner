@@ -9,6 +9,8 @@ import { federalTaxModel,StateTaxBracket } from '../db/taxes';
 import {User} from '../db/User';
 import { pool } from 'workerpool';
 import { numericalExploration, Result, RothExploration, AnnualResults } from './simulatorInterfaces';
+import { SuccessProbabiltyChartModel } from '../db/charts_schema/SuccessProbabilitySchema';
+import { ProbabilityRangeChartModel } from '../db/charts_schema/ProbabilityRangeChartSchema';
 dotenv.config({ path: path.resolve(__dirname,'..','..','..','.env')});
 
 process.on('uncaughtException', function (exception) {
@@ -140,7 +142,7 @@ async function simulationManager(job: Job) {
     }
   }
   console.log(combinedResult.simulationRecords);
-  console.log(jobData)
+  
 
   return finalResult
 }
@@ -331,6 +333,7 @@ function determineScenarioVariations(scenario : Scenario, explorationParameters 
     throw new Error("Undefined exploration parameter type")
   }
 
+  console.log(scenarioVariations);
   return scenarioVariations
 }
 
@@ -353,13 +356,13 @@ function range(start: number, stop: number, step: number) {
 function calculateProbabilityOfSuccess(simulationRecords : Record<number,AnnualResults[]>) {
   // Just to make sure that the years are sorted in order
   const years: number[] = Object.keys(simulationRecords).map(Number).sort((a, b) => a - b);
-  
   const results: { year: number; successRate: number; }[] = [];
+  let numSimulations = 0;
 
   for (const year of years) {
     const yearResults = simulationRecords[year];
     let successCount = 0;
-    const numSimulations = yearResults.length;
+    let numSimulations = yearResults.length;
     for (let i = 0; i < numSimulations; i++) {
       const financialGoal = yearResults[i].finanicalGoal;
       if (financialGoal) {
@@ -376,6 +379,31 @@ function calculateProbabilityOfSuccess(simulationRecords : Record<number,AnnualR
   }
 
   return results;
+}
+
+async function saveProbabilityData(
+  scenarioId: string,
+  numScenario: string,
+  simulationRecords : Record<number,AnnualResults[]>
+) {
+  const probabilities = calculateProbabilityOfSuccess(simulationRecords)
+
+  try {
+    // Create new document
+    const doc = new SuccessProbabiltyChartModel({
+      scenarioId: new mongoose.Types.ObjectId(scenarioId),
+      numScenario: new mongoose.Types.ObjectId(numScenario),
+      probabilities
+    });
+
+    // Save to database
+    const savedDoc = await doc.save();
+    console.log('Success probability data saved successfully:', savedDoc._id);
+    return savedDoc;
+  } catch (error) {
+    console.error('Error saving success probability:', error);
+    throw new Error('Failed to save probability data');
+  }
 }
 
 // ========================= Chart 4.2 ==========================
@@ -455,6 +483,31 @@ function calculateProbabilityRanges(simulationRecords: Record<number, AnnualResu
   return results;
 }
 
+export async function saveProbabilityRangeChartData(
+  scenarioId: string,
+  numScenario: string,
+  selectedQuantity: 'totalInvestments' | 'totalIncome' | 'totalExpenses' | 'earlyWithdrawalTax' | 'discretionaryExpensesPercentage',
+  simulationRecords: Record<number, AnnualResults[]>
+) {
+  const yearlyResults = calculateProbabilityRanges(simulationRecords, selectedQuantity);
+
+  try {
+    const doc = new ProbabilityRangeChartModel({
+      scenarioId: new mongoose.Types.ObjectId(scenarioId),
+      numScenario: new mongoose.Types.ObjectId(numScenario),
+      selectedQuantity,
+      yearlyResults,
+    });
+
+    const savedDoc = await doc.save();
+    console.log('Probability range chart data saved successfully:', savedDoc._id);
+    return savedDoc;
+  } catch (error) {
+    console.error('Error saving range chart data:', error);
+    throw new Error('Failed to save range chart data');
+  }
+}
+
 // ========================= Chart 4.3 ==========================
 
 function calculateMedian(values: number[]): number {
@@ -499,10 +552,10 @@ function calculateStackBarData(simulationRecords: Record<number, AnnualResults[]
         switch (selectedQuantity) {
           case "investments":
             for (const [investmentName, investmentData] of Object.entries(result.investmentBreakdown || {})) {
-              if (!allValues[investmentName]) {
-                allValues[investmentName] = [];
+              if (!allValues[investmentName + investmentData.taxStatus]) {
+                allValues[investmentName + investmentData.taxStatus] = [];
               }
-              allValues[investmentName].push(investmentData.value);
+              allValues[investmentName + investmentData.taxStatus].push(investmentData.value);
             }
             break;
           case "income":
@@ -544,12 +597,7 @@ function calculateStackBarData(simulationRecords: Record<number, AnnualResults[]
   }
 
 // ========================= Chart 5.1 ==========================
-function calculateMultiLineChartData(
-  explorationParam: RothExploration | numericalExploration,
-  selectedQuantity: 'successProbability' | 'medianInvestments',
-  
- ) 
- {
+function calculateMultiLineChartData(explorationParam: RothExploration, selectedQuantity: 'successProbability' | 'medianInvestments') {
 
 }
 

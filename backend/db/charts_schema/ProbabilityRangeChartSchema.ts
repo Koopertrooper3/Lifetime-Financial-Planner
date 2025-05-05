@@ -1,4 +1,4 @@
-import mongoose, { Schema } from "mongoose"
+import mongoose, { Schema } from "mongoose";
 
 const ProbabilityRangeChartSchema = new Schema({
   scenarioId: { 
@@ -6,20 +6,28 @@ const ProbabilityRangeChartSchema = new Schema({
     ref: "Scenario",
     required: true 
   },
-  financialGoal: { type: Number, required: true},
-  // Outer key is going to be years
+  numScenario: {
+    type: Schema.Types.ObjectId,
+    required: true,
+  },
+  selectedQuantity: {
+    type: String,
+    enum: ['totalInvestments', 'totalIncome', 'totalExpenses', 'earlyWithdrawalTax', 'discretionaryExpensesPercentage'],
+    required: true
+  },
   yearlyResults: {
     type: Map,
     of: new Schema({
-      // Key: quantity type → value: array of raw simulation values
-      totalInvestments: { type: [Number], default: [] },
-      totalIncome: { type: [Number], default: [] },
-      totalExpenses: { type: [Number], default: [] },
-      earlyWithdrawalTax: { type: [Number], default: [] },
-      percentDiscretionaryExpense: { type: [Number], default: [] }
+      median: { type: Number, required: true },
+      ranges: {
+        "10-90": { type: [Number], required: true, validate: [(val: number[]) => val.length === 2, 'Range must have 2 values'] },
+        "20-80": { type: [Number], required: true, validate: [(val: number[]) => val.length === 2, 'Range must have 2 values'] },
+        "30-70": { type: [Number], required: true, validate: [(val: number[]) => val.length === 2, 'Range must have 2 values'] },
+        "40-60": { type: [Number], required: true, validate: [(val: number[]) => val.length === 2, 'Range must have 2 values'] }
+      }
     }),
     required: true
   },
-})
+});
 
-const ProbabilityRangeChartModel = mongoose.model('SuccessProbabiltyChartModel',  ProbabilityRangeChartSchema);
+export const ProbabilityRangeChartModel = mongoose.model('ProbabilityRangeChartModel',  ProbabilityRangeChartSchema);
