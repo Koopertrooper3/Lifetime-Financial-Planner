@@ -89,7 +89,7 @@ export const ScenarioProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   // Scenario-level fields
-  const [name, setName] = useState<string>("sup");
+  const [name, setName] = useState<string>("My Scenario");
   const [maritalStatus, setMaritalStatus] = useState<"individual" | "couple">(
     "individual"
   );
