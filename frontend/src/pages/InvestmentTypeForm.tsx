@@ -13,7 +13,7 @@ import {
   NormalDistribution,
   UniformDistribution,
 } from "../../../backend/db/DistributionSchemas";
-import { useHelperContext } from "../context/HelperContext"
+import { useHelperContext } from "../context/HelperContext";
 
 
 // NOTE: back button here needs to be updated to go back to Investment

@@ -1,4 +1,9 @@
 .draggable-item {
   background-color: white;
   margin-bottom: 10px;
+  color: #4C49ED;
+  padding-left: 20px;
+  width: 50%;
+  padding-top: 10px;
+  padding-bottom: 10px;
 }

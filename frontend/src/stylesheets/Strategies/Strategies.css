@@ -1,0 +1,26 @@
+.strategies-container {
+  background-color: #F0F6FF;
+  padding: 20px;
+}
+
+.strategy-buttons-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 2rem;
+}
+
+.strategy-button {
+  display: block;
+  width: 250px;
+  padding: 12px 24px;
+  background-color: #24C849;
+  color: white;
+  text-align: center;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}

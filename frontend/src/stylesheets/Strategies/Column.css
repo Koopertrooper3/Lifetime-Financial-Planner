@@ -1,9 +1,17 @@
-/* Add to your CSS */
+/* Column container */
+.column-container {
+  width: 100%; /* Takes full width of parent */
+  max-width: 800px; /* Or whatever maximum width you prefer */
+  margin: 0 auto; /* Center the column if parent is wider */
+}
+
+/* Droppable area */
 .droppable-area {
   min-height: 200px;
+  width: 100%; /* Take full width of column container */
   background: #D7E2FF;
   border-radius: 4px;
-  padding: 10px;
+  padding: 20px; /* Increased padding */
   transition: background-color 0.2s;
 }
 
@@ -12,12 +20,23 @@
   border: 1px dashed #1a73e8;
 }
 
-.purple-title {
+.purple-header {
   color: #4C49ED;
   background-color: white;
   border-radius: 3px;
-  padding-left: 20px;
-  padding-top: 5px;
-  padding-bottom: 5px;
-  padding-right: 20px;
+  padding: 5px 20px;
+  width: 100%;
+  margin-bottom: 10px; /* Added spacing between title and droppable area */
+}
+
+.item-container {
+  position: relative; /* Needed for absolute positioning of divider */
+  margin-bottom: 8px; /* Space between items */
+}
+
+.item-divider {
+  height: 2px;
+  background-color: white; /* Light gray divider */
+  margin: 12px 12px;
+  width: 100%;
 }

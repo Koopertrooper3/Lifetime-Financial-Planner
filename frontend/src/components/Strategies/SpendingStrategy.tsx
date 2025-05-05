@@ -2,16 +2,16 @@ import { useState, useEffect } from "react";
 import type { Item, Column as ColumnType } from "./Types";
 import { Column } from "./Column";
 import { DndContext, DragEndEvent } from "@dnd-kit/core";
-import { Scenario } from "../../../../backend/db/Scenario";
 import { expenseEvent, eventData } from "../../../../backend/db/EventSchema.ts";
 import { useScenarioContext } from "../../context/useScenarioContext.tsx";
 import "../../stylesheets/Strategies/SpendingStrategy.css";
-import { Status } from "./Types";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import { useHelperContext } from "../../context/HelperContext.tsx";
 
 export default function SpendingStrategy() {
   const navigate = useNavigate();
-  const { editScenario } = useScenarioContext();
+  const { editScenario, setEditScenario } = useScenarioContext();
+  const { handleEditScenario } = useHelperContext();
   const [discretionaryExpenses, setDiscretionaryExpenses] = useState<Item[]>(
     []
   );
@@ -21,7 +21,29 @@ export default function SpendingStrategy() {
     return (event as expenseEvent).discretionary === true;
   };
 
-  const handleClick = () => {
+  useEffect(() => {
+    console.log(discretionaryExpenses);
+  }, [discretionaryExpenses]);
+
+  const handleSaveSpendingStrategy = async () => {
+    const updatedDiscretionaryExpenses: string[] = discretionaryExpenses.map(
+      (expense) => expense.name
+    );
+
+    const userID = await (async () => {
+      const res = await fetch("http://localhost:8000/user", {
+        credentials: "include", // ensures session cookie is sent
+      });
+      const user = await res.json();
+      return user._id;
+    })();
+    console.log(userID);
+    const scenarioID = editScenario._id;
+    const updatedField = {
+      spendingStrategy: updatedDiscretionaryExpenses,
+    };
+    const response = await handleEditScenario(userID, scenarioID, updatedField);
+    setEditScenario(response.data);
     navigate("/dashboard/createScenario/addStrategies/");
   };
 
@@ -93,12 +115,30 @@ export default function SpendingStrategy() {
   // In your SpendingStrategy component's return statement
   return (
     <div className="spending-strategy-container">
-      <h1>
-        Spending Strategy{" "}
-        <span>
-          <button onClick={handleClick}>Back</button>
-        </span>
-      </h1>
+      <div className="spending-strategy-header">
+        <h2 className="purple-header">Spending Strategy</h2>
+        <Link
+          to="/dashboard/createScenario/addStrategies/"
+          className="back-link"
+        >
+          {"<<"}Back
+        </Link>
+      </div>
+      <div className="description-container">
+        <p className="instruction-text">
+          Rank the order in which discretionary expenses are paid. Drag your
+          expenses onto the list below to rank them by priority, with 1 being
+          the highest.
+          <span className="secondary-text">
+            Expenses lower on the list will only be paid if there is enough cash
+            and the financial goal has not been violated.
+          </span>
+        </p>
+        <p className="hint-text">
+          Click an expense to drag and order it through the list
+        </p>
+      </div>
+
       <DndContext onDragEnd={handleDragEnd}>
         <div className="columns-container">
           {COLUMNS.map((column) => (
@@ -112,6 +152,13 @@ export default function SpendingStrategy() {
           ))}
         </div>
       </DndContext>
+
+      <div
+        className="save-spending-strategy-button"
+        onClick={handleSaveSpendingStrategy}
+      >
+        Save Spending Strategy
+      </div>
     </div>
   );
 }

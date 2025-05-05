@@ -349,12 +349,12 @@ function range(start: number, stop: number, step: number) {
   return result;
 };
 
-// Chart 4.1
+// ========================= Chart 4.1 ==========================
 function calculateProbabilityOfSuccess(simulationRecords : Record<number,AnnualResults[]>) {
   // Just to make sure that the years are sorted in order
   const years: number[] = Object.keys(simulationRecords).map(Number).sort((a, b) => a - b);
   
-  const results: { year: number; successPercentage: number }[] = [];
+  const results: { year: number; successRate: number; }[] = [];
 
   for (const year of years) {
     const yearResults = simulationRecords[year];
@@ -367,16 +367,29 @@ function calculateProbabilityOfSuccess(simulationRecords : Record<number,AnnualR
       }
     }
 
-    const successPercentage = (successCount / numSimulations) * 100;
+    const successRate = (successCount / numSimulations);
 
     results.push({
       year,
-      successPercentage
+      successRate
     });
   }
 
   return results;
 }
+
+// ========================= Chart 4.2 ==========================
+type Range = [number, number];
+
+type ShadedLineChartProps = {
+  yearlyResults: Record<string, number[]>;
+  ranges: {
+    "10-90": Range[];
+    "20-80": Range[];
+    "30-70": Range[];
+    "40-60": Range[];
+  };
+};
 
 // Helper function to calculate percentiles
 function calculatePercentile(sortedValues: number[], percentile: number) {
@@ -393,150 +406,69 @@ function calculatePercentile(sortedValues: number[], percentile: number) {
     (sortedValues[upperIndex] - sortedValues[lowerIndex]) * (index - lowerIndex);
 }
 
-interface ProbabilityRangesResult {
-  year: number;
-  selectedQuantity: string;
-  median: number;
-  percentileValues: Record<string, { min: number; max: number }>;
-}
-
-function calculateRanges(numArray: number[]): Record<string, { min: number; max: number }> {
-  const ranges = [
-    { min: 10, max: 90, label: '10-90%' },
-    { min: 20, max: 80, label: '20-80%' },
-    { min: 30, max: 70, label: '30-70%' },
-    { min: 40, max: 60, label: '40-60%' }
-  ];
-
-  const percentileValues: Record<string, { min: number; max: number }> = {};
-
-  ranges.forEach(range => {
-    percentileValues[range.label] = {
-      min: calculatePercentile(numArray, range.min),
-      max: calculatePercentile(numArray, range.max)
-    };
+// Helper to extract values based on selected quantity
+function collectValues(
+  results: AnnualResults[],
+  quantity: string
+): number[] {
+  return results.flatMap(result => {
+    switch (quantity) {
+      case 'totalInvestments':
+        return Object.values(result.investmentBreakdown).map(inv => inv.value);
+      case 'totalIncome':
+        return Object.values(result.incomeBreakdown);
+      case 'totalExpenses':
+        return Object.values(result.expenseBreakdown);
+      case 'earlyWithdrawalTax':
+        return [result.earlyWithdrawalTax ?? 0];
+      case 'discretionaryExpensesPercentage':
+        return [result.percentageOfTotalDiscretionaryExpenses ?? 0];
+      default:
+        return [];
+    }
   });
-
-  return percentileValues;
 }
 
-// Chart 4.2
 function calculateProbabilityRanges(simulationRecords: Record<number, AnnualResults[]>, selectedQuantity: 'totalInvestments' | 'totalIncome' | 'totalExpenses' | 'earlyWithdrawalTax' | 'discretionaryExpensesPercentage') {
   const years: number[] = Object.keys(simulationRecords).map(Number).sort((a, b) => a - b);
-  const results: ProbabilityRangesResult[] = [];
-
-  if (selectedQuantity == "totalInvestments") {
-    let numArray: number[] = []
-    for (const year of years) {
-      const yearResults = simulationRecords[year];
-      for (const result of yearResults) {
-        const investmentValues = Object.values(result.investmentBreakdown).map(inv => inv.value);
-        numArray.push(...investmentValues);
-      }
-      numArray.sort((a, b) => a - b);
-      const median = calculatePercentile(numArray, 50);
-
-      results.push({
-        year: year,
-        selectedQuantity: selectedQuantity,
-        median: median,
-        percentileValues: calculateRanges(numArray),
-      })
+  const results: ShadedLineChartProps = {
+    yearlyResults: {},
+    ranges: {
+      "10-90": [],
+      "20-80": [],
+      "30-70": [],
+      "40-60": []
     }
-  }
-  else if (selectedQuantity == "totalIncome") {
-    let numArray: number[] = []
-    for (const year of years) {
-      const yearResults = simulationRecords[year];
-      for (const result of yearResults) {
-        const incomeValues = Object.values(result.incomeBreakdown);
-        numArray.push(...incomeValues);
-      }
-      numArray.sort((a, b) => a - b);
-      const median = calculatePercentile(numArray, 50);
+  };
 
-      results.push({
-        year: year,
-        selectedQuantity: selectedQuantity,
-        median: median,
-        percentileValues: calculateRanges(numArray),
-      })
-    }
-  }
-  else if (selectedQuantity == "totalExpenses") {
-    let numArray: number[] = []
-    for (const year of years) {
-      const yearResults = simulationRecords[year];
-      for (const result of yearResults) {
-        const expenseValues = Object.values(result.expenseBreakdown);
-        numArray.push(...expenseValues);
-      }
-      numArray.sort((a, b) => a - b);
-      const median = calculatePercentile(numArray, 50);
-
-      results.push({
-        year: year,
-        selectedQuantity: selectedQuantity,
-        median: median,
-        percentileValues: calculateRanges(numArray),
-      })
-    }
-  }
-  else if (selectedQuantity == "earlyWithdrawalTax") {
-    let numArray: number[] = []
-    // Looping through a range of years
-    for (const year of years) {
-      const yearResults = simulationRecords[year];
-      // Each year has at least one result because there could be multiple simulations
-      for (const result of yearResults) {
-        numArray.push(result.earlyWithdrawalTax);
-      }
-      numArray.sort((a, b) => a - b);
-      const median = calculatePercentile(numArray, 50);
-
-      results.push({
-        year: year,
-        selectedQuantity: selectedQuantity,
-        median: median,
-        percentileValues: calculateRanges(numArray),
-      })
-    }
-  }
-  else if (selectedQuantity == "discretionaryExpensesPercentage") {
-    let numArray: number[] = []
-    for (const year of years) {
-      const yearResults = simulationRecords[year];
-      for (const result of yearResults) {
-        numArray.push(result.percentageOfTotalDiscretionaryExpenses);
-      }
-      numArray.sort((a, b) => a - b);
-      const median = calculatePercentile(numArray, 50);
-
-      results.push({
-        year: year,
-        selectedQuantity: selectedQuantity,
-        median: median,
-        percentileValues: calculateRanges(numArray),
-      })
-    }
-  }
-  else {
-    throw new Error("Undefined Quantity");
-  }
-}
-
-function calculateStackBarInvestmentData(simulationRecords: Record<number, AnnualResults[]>, aggregationThreshold: number, useMedian: boolean) {
-  const years: number[] = Object.keys(simulationRecords).map(Number).sort((a, b) => a - b);
   for (const year of years) {
     const yearResults = simulationRecords[year];
-    
+    const values = collectValues(yearResults, selectedQuantity);
+    results.yearlyResults[String(year)] = values;
+
+    const sorted = [...values].sort((a, b) => a - b);
+    results.ranges["10-90"].push([calculatePercentile(sorted, 10), calculatePercentile(sorted, 90)]);
+    results.ranges["20-80"].push([calculatePercentile(sorted, 20), calculatePercentile(sorted, 80)]);
+    results.ranges["30-70"].push([calculatePercentile(sorted, 30), calculatePercentile(sorted, 70)]);
+    results.ranges["40-60"].push([calculatePercentile(sorted, 40), calculatePercentile(sorted, 60)]);
   }
+
+  return results;
 }
 
-// Chart 4.3
-function calculateStackBarData(simulationRecords: Record<number, AnnualResults[]>,
-  selectedQuantity: 'investments' | 'income' | 'expenses', aggregationThreshold: number, useMedian: boolean) {
+// ========================= Chart 4.3 ==========================
 
+// function calculateStackBarInvestmentData(simulationRecords: Record<number, AnnualResults[]>, aggregationThreshold: number, useMedian: boolean) {
+//   const years: number[] = Object.keys(simulationRecords).map(Number).sort((a, b) => a - b);
+//   for (const year of years) {
+//     const yearResults = simulationRecords[year];
+    
+//   }
+// }
+
+function calculateStackBarData(simulationRecords: Record<number, AnnualResults[]>,
+  selectedQuantity: 'investments' | 'income' | 'expenses', aggregationThreshold: number, useMedian: boolean): Record<string, Record<string, number>> {
+    
   }
 
 // Chart 5.1
