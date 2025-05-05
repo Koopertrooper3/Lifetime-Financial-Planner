@@ -307,12 +307,11 @@ function determineScenarioVariations(scenario : Scenario, explorationParameters 
 
     possibleVariations.forEach((possibleProportion) =>{
       const variationScenario = structuredClone(scenario)
-      const targetEventID = Object.values(variationScenario.eventSeries).find((event)=> event.event.type == "invest")?.name
 
-      if(targetEventID == undefined){
+      const targetEvent = structuredClone(variationScenario.eventSeries[explorationParameters.eventName])
+      if(targetEvent == undefined){
         throw new Error("No invest event to parameterize")
       }
-      const targetEvent = structuredClone(variationScenario.eventSeries[targetEventID])
       if(targetEvent.event.type != "invest"){
         throw new Error("Event is not an invest event")
       }
@@ -325,7 +324,7 @@ function determineScenarioVariations(scenario : Scenario, explorationParameters 
 
       targetEvent.event.assetAllocation[firstInvestmentID] = possibleProportion
       targetEvent.event.assetAllocation[secondInvestmentID] = (1-possibleProportion)
-      variationScenario.eventSeries[targetEventID] = targetEvent
+      variationScenario.eventSeries[explorationParameters.eventName] = targetEvent
       scenarioVariations.push(variationScenario)
     })
   }else{
