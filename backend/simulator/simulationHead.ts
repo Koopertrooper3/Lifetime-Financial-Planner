@@ -25,8 +25,8 @@ const databaseConnectionString = databaseHost + ':' + databasePort + '/' + datab
 const connection = new IORedis({ maxRetriesPerRequest: null });
 const MAX_THREADS = Number(process.env.MAX_THREADS) || 1
 
-const simulationWorker = new Worker("simulatorQueue",simulationManager,{connection});
-const explorationWorker = new Worker("scenarioExplorationQueue",scenarioExplorationManager,{connection});
+const simulationWorker = new Worker("simulatorQueue",simulationManager,{connection,maxStalledCount: 0});
+const explorationWorker = new Worker("scenarioExplorationQueue",scenarioExplorationManager,{connection,maxStalledCount: 0});
 
 const simulatorPool = pool(__dirname + '/simulationWorker.js',{
   maxWorkers: MAX_THREADS
@@ -138,8 +138,8 @@ async function simulationManager(job: Job) {
       combinedResult.simulationRecords[year].push(...finalMessage.simulationRecords[year]);
     }
   }
+  console.log(combinedResult.simulationRecords)
   console.log(jobData)
-  
 
   return finalResult
 }
@@ -197,12 +197,13 @@ async function scenarioExplorationManager(job: Job) {
 
     for(const batch of simulatorBatches){
       console.log(batch)
+      console.log(scenarioVariations);
+
       if(batch == 0){
         continue
       }else{
 
         scenarioVariations.forEach((scenarioVariation) =>{
-          console.log(scenarioVariation);
           const workerData = {
             username: user?.name,
             scenarioID : jobData.scenarioID, 
@@ -263,7 +264,7 @@ function determineScenarioVariations(scenario : Scenario, explorationParameters 
     scenarioVariations.push(rothOffScenario)
 
   }else if(explorationParameters.type == "income" || explorationParameters.type == "expense"){
-    const possibleVariations = range(explorationParameters.upperBound, explorationParameters.lowerBound,explorationParameters.stepSize)
+    const possibleVariations = range(explorationParameters.lowerBound, explorationParameters.upperBound+explorationParameters.stepSize,explorationParameters.stepSize)
     const targetEventID = explorationParameters.eventName
     possibleVariations.forEach((value) =>{
       const variationScenario = structuredClone(scenario)
@@ -274,30 +275,34 @@ function determineScenarioVariations(scenario : Scenario, explorationParameters 
       }
 
       targetEvent.event.initialAmount = value
+      scenarioVariations.push(variationScenario)
     })
 
   }else if(explorationParameters.type == "duration"){
-    const possibleVariations = range(explorationParameters.upperBound, explorationParameters.lowerBound,explorationParameters.stepSize)
+    const possibleVariations = range(explorationParameters.lowerBound, explorationParameters.upperBound+explorationParameters.stepSize,explorationParameters.stepSize)
     const targetEventID = explorationParameters.eventName
     possibleVariations.forEach((startValue) =>{
       const variationScenario = structuredClone(scenario)
       const targetEvent = variationScenario.eventSeries[targetEventID]
 
       targetEvent.duration = {type: "fixed", value: startValue}
+      scenarioVariations.push(variationScenario)
     })
 
   }else if(explorationParameters.type == "startYear"){
-    const possibleVariations = range(explorationParameters.upperBound, explorationParameters.lowerBound,explorationParameters.stepSize)
+    const possibleVariations = range(explorationParameters.lowerBound, explorationParameters.upperBound+explorationParameters.stepSize,explorationParameters.stepSize)
     const targetEventID = explorationParameters.eventName
     possibleVariations.forEach((startValue) =>{
       const variationScenario = structuredClone(scenario)
       const targetEvent = variationScenario.eventSeries[targetEventID]
 
       targetEvent.start = {type: "fixed", value: startValue}
+      scenarioVariations.push(variationScenario)
+
     })
 
   }else if(explorationParameters.type == "invest"){
-    const possibleVariations = range(explorationParameters.upperBound, explorationParameters.lowerBound,explorationParameters.stepSize)
+    const possibleVariations = range(explorationParameters.lowerBound, explorationParameters.upperBound+explorationParameters.stepSize,explorationParameters.stepSize)
 
     possibleVariations.forEach((possibleProportion) =>{
       const variationScenario = structuredClone(scenario)
@@ -320,6 +325,7 @@ function determineScenarioVariations(scenario : Scenario, explorationParameters 
       targetEvent.event.assetAllocation[firstInvestmentID] = possibleProportion
       targetEvent.event.assetAllocation[secondInvestmentID] = (1-possibleProportion)
       variationScenario.eventSeries[targetEventID] = targetEvent
+      scenarioVariations.push(variationScenario)
     })
   }else{
     throw new Error("Undefined exploration parameter type")
