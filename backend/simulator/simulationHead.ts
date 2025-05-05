@@ -9,6 +9,7 @@ import { federalTaxModel,StateTaxBracket } from '../db/taxes';
 import {User} from '../db/User';
 import { pool } from 'workerpool';
 import { numericalExploration, Result, RothExploration } from './simulatorInterfaces';
+import { AnnualResults } from './simulatorInterfaces';
 dotenv.config({ path: path.resolve(__dirname,'..','..','..','.env')});
 
 process.on('uncaughtException', function (exception) {
@@ -129,8 +130,8 @@ async function simulationManager(job: Job) {
     finalResult['completed'] += finalMessage['completed']
     finalResult['succeeded'] += finalMessage['succeeded']
     finalResult['failed'] += finalMessage['failed']
+
     // Merge simulation by year
-    // Merge simulationRecords
     for (const year in finalMessage.simulationRecords) {
       if (!combinedResult.simulationRecords[year]) {
         combinedResult.simulationRecords[year] = [];
@@ -138,6 +139,7 @@ async function simulationManager(job: Job) {
       combinedResult.simulationRecords[year].push(...finalMessage.simulationRecords[year]);
     }
   }
+  console.log(combinedResult.simulationRecords);
   console.log(jobData)
   
 
@@ -344,6 +346,194 @@ function range(start: number, stop: number, step: number) {
 };
 
 // Chart 4.1
-function calculateProbabilityOfSuccess() {
+function calculateProbabilityOfSuccess(simulationRecords : Record<number,AnnualResults[]>) {
+  // Just to make sure that the years are sorted in order
+  const years: number[] = Object.keys(simulationRecords).map(Number).sort((a, b) => a - b);
+  
+  const results: { year: number; successPercentage: number }[] = [];
 
+  for (const year of years) {
+    const yearResults = simulationRecords[year];
+    let successCount = 0;
+    const numSimulations = yearResults.length;
+    for (let i = 0; i < numSimulations; i++) {
+      const financialGoal = yearResults[i].finanicalGoal;
+      if (financialGoal) {
+        successCount += 1;
+      }
+    }
+
+    const successPercentage = (successCount / numSimulations) * 100;
+
+    results.push({
+      year,
+      successPercentage
+    });
+  }
+
+  return results;
 }
+
+// Helper function to calculate percentiles
+function calculatePercentile(sortedValues: number[], percentile: number) {
+  const index = (percentile / 100) * (sortedValues.length - 1);
+  const lowerIndex = Math.floor(index);
+  const upperIndex = Math.ceil(index);
+  
+  if (lowerIndex === upperIndex) {
+    return sortedValues[lowerIndex];
+  }
+  
+  // Linear interpolation between the two nearest values
+  return sortedValues[lowerIndex] + 
+    (sortedValues[upperIndex] - sortedValues[lowerIndex]) * (index - lowerIndex);
+}
+
+interface ProbabilityRangesResult {
+  year: number;
+  selectedQuantity: string;
+  median: number;
+  percentileValues: Record<string, { min: number; max: number }>;
+}
+
+function calculateRanges(numArray: number[]): Record<string, { min: number; max: number }> {
+  const ranges = [
+    { min: 10, max: 90, label: '10-90%' },
+    { min: 20, max: 80, label: '20-80%' },
+    { min: 30, max: 70, label: '30-70%' },
+    { min: 40, max: 60, label: '40-60%' }
+  ];
+
+  const percentileValues: Record<string, { min: number; max: number }> = {};
+
+  ranges.forEach(range => {
+    percentileValues[range.label] = {
+      min: calculatePercentile(numArray, range.min),
+      max: calculatePercentile(numArray, range.max)
+    };
+  });
+
+  return percentileValues;
+}
+
+// Chart 4.2
+function calculateProbabilityRanges(simulationRecords: Record<number, AnnualResults[]>, selectedQuantity: 'totalInvestments' | 'totalIncome' | 'totalExpenses' | 'earlyWithdrawalTax' | 'discretionaryExpensesPercentage') {
+  const years: number[] = Object.keys(simulationRecords).map(Number).sort((a, b) => a - b);
+  const results: ProbabilityRangesResult[] = [];
+
+  if (selectedQuantity == "totalInvestments") {
+    let numArray: number[] = []
+    for (const year of years) {
+      const yearResults = simulationRecords[year];
+      for (const result of yearResults) {
+        const investmentValues = Object.values(result.investmentBreakdown).map(inv => inv.value);
+        numArray.push(...investmentValues);
+      }
+      numArray.sort((a, b) => a - b);
+      const median = calculatePercentile(numArray, 50);
+
+      results.push({
+        year: year,
+        selectedQuantity: selectedQuantity,
+        median: median,
+        percentileValues: calculateRanges(numArray),
+      })
+    }
+  }
+  else if (selectedQuantity == "totalIncome") {
+    let numArray: number[] = []
+    for (const year of years) {
+      const yearResults = simulationRecords[year];
+      for (const result of yearResults) {
+        const incomeValues = Object.values(result.incomeBreakdown);
+        numArray.push(...incomeValues);
+      }
+      numArray.sort((a, b) => a - b);
+      const median = calculatePercentile(numArray, 50);
+
+      results.push({
+        year: year,
+        selectedQuantity: selectedQuantity,
+        median: median,
+        percentileValues: calculateRanges(numArray),
+      })
+    }
+  }
+  else if (selectedQuantity == "totalExpenses") {
+    let numArray: number[] = []
+    for (const year of years) {
+      const yearResults = simulationRecords[year];
+      for (const result of yearResults) {
+        const expenseValues = Object.values(result.expenseBreakdown);
+        numArray.push(...expenseValues);
+      }
+      numArray.sort((a, b) => a - b);
+      const median = calculatePercentile(numArray, 50);
+
+      results.push({
+        year: year,
+        selectedQuantity: selectedQuantity,
+        median: median,
+        percentileValues: calculateRanges(numArray),
+      })
+    }
+  }
+  else if (selectedQuantity == "earlyWithdrawalTax") {
+    let numArray: number[] = []
+    // Looping through a range of years
+    for (const year of years) {
+      const yearResults = simulationRecords[year];
+      // Each year has at least one result because there could be multiple simulations
+      for (const result of yearResults) {
+        numArray.push(result.earlyWithdrawalTax);
+      }
+      numArray.sort((a, b) => a - b);
+      const median = calculatePercentile(numArray, 50);
+
+      results.push({
+        year: year,
+        selectedQuantity: selectedQuantity,
+        median: median,
+        percentileValues: calculateRanges(numArray),
+      })
+    }
+  }
+  else if (selectedQuantity == "discretionaryExpensesPercentage") {
+    let numArray: number[] = []
+    for (const year of years) {
+      const yearResults = simulationRecords[year];
+      for (const result of yearResults) {
+        numArray.push(result.percentageOfTotalDiscretionaryExpenses);
+      }
+      numArray.sort((a, b) => a - b);
+      const median = calculatePercentile(numArray, 50);
+
+      results.push({
+        year: year,
+        selectedQuantity: selectedQuantity,
+        median: median,
+        percentileValues: calculateRanges(numArray),
+      })
+    }
+  }
+  else {
+    throw new Error("Undefined Quantity");
+  }
+}
+
+function calculateStackBarInvestmentData(simulationRecords: Record<number, AnnualResults[]>, aggregationThreshold: number, useMedian: boolean) {
+  const years: number[] = Object.keys(simulationRecords).map(Number).sort((a, b) => a - b);
+  for (const year of years) {
+    const yearResults = simulationRecords[year];
+    
+  }
+}
+
+// Chart 4.3
+function calculateStackBarData(simulationRecords: Record<number, AnnualResults[]>,
+  selectedQuantity: 'investments' | 'income' | 'expenses', aggregationThreshold: number, useMedian: boolean) {
+
+  }
+
+// Chart 5.1
+
