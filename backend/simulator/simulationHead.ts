@@ -9,7 +9,7 @@ import { federalTaxModel,StateTaxBracket } from '../db/taxes';
 import {User} from '../db/User';
 import { pool } from 'workerpool';
 import { numericalExploration, Result, RothExploration, AnnualResults } from './simulatorInterfaces';
-import { SuccessProbabiltyChartModel } from '../db/charts_schema/SuccessProbabilitySchema';
+import { SuccessProbabilityChartModel } from '../db/charts_schema/SuccessProbabilitySchema';
 import { ProbabilityRangeChartModel } from '../db/charts_schema/ProbabilityRangeChartSchema';
 import { StackBarDataModel } from '../db/charts_schema/StackBarDataSchema';
 dotenv.config({ path: path.resolve(__dirname,'..','..','..','.env')});
@@ -394,7 +394,7 @@ async function saveProbabilityData(
 
   try {
     // Create new document
-    const doc = new SuccessProbabiltyChartModel({
+    const doc = new SuccessProbabilityChartModel({
       chartID: `${userId}${scenarioId}${numScenario}`,
       probabilities: probabilities
     });
