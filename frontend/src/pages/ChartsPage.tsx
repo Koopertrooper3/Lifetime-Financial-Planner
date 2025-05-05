@@ -19,7 +19,33 @@ function ChartsPage() {
   const [selectedScenarioId, setSelectedScenarioId] = useState<string | null>(
     null
   );
+  const [chartData, setChartData] = useState<{
+    probabilityRange?: any;
+    stackBarData?: any;
+    successProbability?: any;
+  }>({});
+
   const { chartID } = useParams();
+
+  useEffect(() => {
+    console.log(chartData);
+  }, [chartData]);
+
+  const fetchChartData = async () => {
+    try {
+      const res = await fetch(`http://localhost:8000/chart/${chartID}`);
+
+      const data = await res.json();
+      setChartData(data);
+    } catch (error) {
+      console.error("Error fetching chart data:", error);
+      throw error;
+    }
+  };
+
+  useEffect(() => {
+    fetchChartData;
+  }, [chartID]);
 
   useEffect(() => {
     if (isDebug) {
@@ -43,7 +69,7 @@ function ChartsPage() {
     loadSimulationResults();
   }, [selectedScenarioId, ownedScenarios]);
 
-  if (!simResults) return <LoadingWheel />;
+  if (!chartData) return <LoadingWheel />;
 
   return (
     <div>
@@ -55,7 +81,7 @@ function ChartsPage() {
           <div className="chart-card">
             <h3>Probability of Success</h3>
             <LineChartProbability
-              probabilities={simResults.successProbabilities}
+              probabilities={chartData.successProbability}
             />
           </div>
 

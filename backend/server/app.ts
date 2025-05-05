@@ -8,6 +8,7 @@ import process from 'process';
 import {router as scenarioRouter} from "./routers/scenarioRouter";
 import userRouter from './routers/userRouter';
 import simulationRouter from "./routers/simulationRouter";
+import {router as chartRouter } from "./routers/chartRouter";
 import path from "path";
 
 console.log(path.resolve(__dirname,'..','..','..','.env'))
@@ -51,6 +52,7 @@ app.use((req, res, next) => { //debug middleware
 app.use("/scenario", scenarioRouter);
 app.use("/user", userRouter);
 app.use("/simulation", simulationRouter);
+app.use("/chart", chartRouter);
 
 // this is the route called when user clicks on continue as guest
 app.post('/auth/guest', (req, res, next) => {

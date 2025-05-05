@@ -6,7 +6,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import "../stylesheets/ScenarioPage.css";
 import { Link } from "react-router-dom";
 import axiosCookie from "../axiosCookie";
-import ExportScenario from '../components/ExportScenario';
+import ExportScenario from "../components/ExportScenario";
 import ShareScenarioButton from "../components/ShareScenarioButton";
 
 export default function ScenarioPage() {
@@ -67,8 +67,8 @@ export default function ScenarioPage() {
       scenarioID: id,
       totalSimulations: numberOfSimulations,
     });
-    const chartID = userID._id+id+numberOfSimulations
-    navigate('/chartsPage/'+chartID)
+    const chartID = userID._id + id + numberOfSimulations;
+    navigate("/chartsPage/" + chartID);
   };
 
   function handleEditClick() {
@@ -80,10 +80,16 @@ export default function ScenarioPage() {
       <div className="card header-card">
         <div className="header-line">
           <h2>Scenario: {scenario.name}</h2>
-          <button className="styled-button edit-link" style={{height: "30px", width: "60px"}} onClick={handleEditClick}>
-            <Link style={{color:"white"}} to={"/dashboard/createScenario/"}>Edit</Link>
+          <button
+            className="styled-button edit-link"
+            style={{ height: "30px", width: "60px" }}
+            onClick={handleEditClick}
+          >
+            <Link style={{ color: "white" }} to={"/dashboard/createScenario/"}>
+              Edit
+            </Link>
           </button>
-          <ShareScenarioButton scenarioId={scenario._id}/>
+          <ShareScenarioButton scenarioId={scenario._id} />
           <ExportScenario scenarioID={scenario._id} />
           <Link to="/dashboard" className="close-link">
             Close
@@ -95,10 +101,10 @@ export default function ScenarioPage() {
             Life Expectancy:
             {scenario.lifeExpectancy
               .map((expectancy: any) => {
-                if (expectancy.type === "Fixed") {
+                if (expectancy.type === "fixed") {
                   return ` Fixed: ${expectancy.value}`;
                 }
-                if (expectancy.type === "Normal") {
+                if (expectancy.type === "normal") {
                   return ` Normal: mean = ${expectancy.mean}, stdev = ${expectancy.stdev}`;
                 }
                 return null;
@@ -160,22 +166,22 @@ export default function ScenarioPage() {
                   <div>Return Type: {invType.returnAmtOrPct}</div>
                   <div>
                     Return Distribution:{" "}
-                    {invType.returnDistribution?.type === "Fixed" &&
+                    {invType.returnDistribution?.type === "fixed" &&
                       `Fixed (${invType.returnDistribution?.value})`}
-                    {invType.returnDistribution?.type === "Percent" &&
+                    {invType.returnDistribution?.type === "percent" &&
                       `Percent (mean = ${invType.returnDistribution?.mean}, stdev = ${invType.returnDistribution?.stdev})`}
-                    {invType.returnDistribution?.type === "Normal" &&
+                    {invType.returnDistribution?.type === "normal" &&
                       `Normal (mean = ${invType.returnDistribution?.mean}, stdev = ${invType.returnDistribution?.stdev})`}
                   </div>
                   <div>Expense Ratio: {invType.expenseRatio}</div>
                   <div>Income Type: {invType.incomeAmtOrPct}</div>
                   <div>
                     Income Distribution:{" "}
-                    {invType.incomeDistribution?.type === "Fixed" &&
+                    {invType.incomeDistribution?.type === "fixed" &&
                       `Fixed (${invType.incomeDistribution?.value})`}
-                    {invType.incomeDistribution?.type === "Percent" &&
+                    {invType.incomeDistribution?.type === "percent" &&
                       `Percent (mean = ${invType.incomeDistribution?.mean}, stdev = ${invType.incomeDistribution?.stdev})`}
-                    {invType.incomeDistribution?.type === "Normal" &&
+                    {invType.incomeDistribution?.type === "normal" &&
                       `Normal (mean = ${invType.incomeDistribution?.mean}, stdev = ${invType.incomeDistribution?.stdev})`}
                   </div>
                   <div>Taxable: {invType.taxability ? "Yes" : "No"}</div>
@@ -192,12 +198,8 @@ export default function ScenarioPage() {
           {Object.values(eventSeries).map((event: any) => (
             <div className="mini-card" key={event._id}>
               <strong>{event.name}</strong>
-              <div>
-                Start: {event.start.type}
-              </div>
-              <div>
-                Duration: {event.duration.type}
-              </div>
+              <div>Start: {event.start.type}</div>
+              <div>Duration: {event.duration.type}</div>
               <div>Type: {event.event.type}</div>
               <div>
                 Initial Amount: ${event.event.initalAmount?.toLocaleString()}
@@ -205,7 +207,7 @@ export default function ScenarioPage() {
               <div>Change Mode: {event.event.changeAmountOrPecent}</div>
               <div>
                 Change Distribution: {event.event.changeDistribution?.type}
-                {event.event.changeDistribution?.type === "Uniform" && (
+                {event.event.changeDistribution?.type === "uniform" && (
                   <>
                     {" "}
                     ({event.event.changeDistribution.min} –{" "}
@@ -279,7 +281,11 @@ export default function ScenarioPage() {
       {activeTab === "simulation" && (
         <div className="card tab-content">
           <div className="card-grid-simulator">
-            <button className="styled-button" style={{height: "3rem"}}onClick={sendSimulatorRequest}>
+            <button
+              className="styled-button"
+              style={{ height: "3rem" }}
+              onClick={sendSimulatorRequest}
+            >
               Run Simulation
             </button>
             <p style={{ textAlign: "right" }}>Number of simulations</p>
@@ -295,7 +301,6 @@ export default function ScenarioPage() {
           </div>
         </div>
       )}
-      
     </div>
   );
 }
