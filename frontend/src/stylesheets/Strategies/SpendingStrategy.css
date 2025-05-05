@@ -1,3 +1,7 @@
+.spending-strategy-container {
+  background-color: #D7E2FF;
+}
+
 /* Column.css */
 .column {
   width: 300px; /* Fixed width for each column */

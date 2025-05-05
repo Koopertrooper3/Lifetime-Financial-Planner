@@ -19,7 +19,7 @@ export function Column({ column, cards }: ColumnProps) {
 
   return (
     <div className="column">
-      <h2>{column.name}</h2>
+      <h2 className="purple-title">{column.name}</h2>
       <div ref={setNodeRef} className="droppable-area">
         {cards.map((card) => (
           <DraggableItem key={card.id} item={card} />

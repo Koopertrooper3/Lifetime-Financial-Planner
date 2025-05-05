@@ -1,4 +1,4 @@
-export type Status = "INCLUDED" | "EXCLUDED"
+export type Status = "Expenses"
 
 export type Item = {
   id: string,
