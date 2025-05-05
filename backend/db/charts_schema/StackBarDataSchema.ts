@@ -6,40 +6,44 @@ const StackBarDataSchema = new Schema({
     required: true,
   },
   results: {
-    average: {
-      investments: {
-        type: Map,
-        of: Number,
-        required: true
+    type: Map,
+    of:{
+      average: {
+        investments: {
+          type: Map,
+          of: Number,
+          required: true
+        },
+        income: {
+          type: Map,
+          of: Number,
+          required: true
+        },
+        expenses: {
+          type: Map,
+          of: Number,
+          required: true
+        }
       },
-      income: {
-        type: Map,
-        of: Number,
-        required: true
-      },
-      expenses: {
-        type: Map,
-        of: Number,
-        required: true
-      }
-    },
-    median: {
-      investments: {
-        type: Map,
-        of: Number,
-        required: true
-      },
-      income: {
-        type: Map,
-        of: Number,
-        required: true
-      },
-      expenses: {
-        type: Map,
-        of: Number,
-        required: true
+      median: {
+        investments: {
+          type: Map,
+          of: Number,
+          required: true
+        },
+        income: {
+          type: Map,
+          of: Number,
+          required: true
+        },
+        expenses: {
+          type: Map,
+          of: Number,
+          required: true
+        }
       }
     }
+    
   } 
 });
 

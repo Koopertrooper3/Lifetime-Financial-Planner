@@ -83,11 +83,14 @@ async function simulationManager(job: Job) {
   const federalTax = await federalTaxModel.findOne({year: taxYear}).lean()
   // eslint-disable-next-line prefer-const
   let stateTaxes : StateTaxBracket = stateTaxParser()[scenario.residenceState]
-  const user = await User.findById(jobData.userID);
+  const user = await User.findById(jobData.userID).lean();
 
+  if(user == null){
+    throw new Error("User does not exist");
+  }
 
   if(stateTaxes == null){
-    throw new Error("Implement custom state taxes later")
+    stateTaxes = ((user.stateTaxes as unknown) as StateTaxBracket)
   }
   
   const threadArray : Promise<Result>[] = []
@@ -662,7 +665,7 @@ async function saveStackBarData(
   try {
     const doc = new StackBarDataModel({
       chartID: `${userId}${scenarioId}${numScenario}`,
-      yearlyResults,
+      results: yearlyResults
     });
 
     const savedDoc = await doc.save();
