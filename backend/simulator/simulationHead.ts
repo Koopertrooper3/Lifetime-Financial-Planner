@@ -466,10 +466,10 @@ function calculateProbabilityRanges(simulationRecords: Record<number, AnnualResu
 //   }
 // }
 
-function calculateStackBarData(simulationRecords: Record<number, AnnualResults[]>,
-  selectedQuantity: 'investments' | 'income' | 'expenses', aggregationThreshold: number, useMedian: boolean): Record<string, Record<string, number>> {
+// function calculateStackBarData(simulationRecords: Record<number, AnnualResults[]>,
+//   selectedQuantity: 'investments' | 'income' | 'expenses', aggregationThreshold: number, useMedian: boolean): Record<string, Record<string, number>> {
     
-  }
+//   }
 
 // Chart 5.1
 
