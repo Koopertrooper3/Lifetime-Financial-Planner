@@ -485,11 +485,11 @@ export default function ScenarioFormPage() {
         {/*Investment Types*/}
         <div className="investment-type-container">
           <div className="title-with-info">
-            <h3 className="green-title">Investment Types</h3>
+            <h3 className="green-title">Investment</h3>
             <span className="red-text">&nbsp;Required</span>
           </div>
           <p>
-            Expand below to view previously defined investment types or create a
+            Expand below to view previously defined investments and investment types or create a
             new one.
           </p>
           <SelectionTable
@@ -503,7 +503,7 @@ export default function ScenarioFormPage() {
             }
           ></SelectionTable>
           <Link
-            to="/dashboard/createScenario/addNewInvestmentType"
+            to="/dashboard/createScenario/addNewInvestment"
             className="add-investment-type-container"
             onClick={() => setEditInvestmentType(null)}
           >

@@ -19,6 +19,8 @@ import Strategies from "./pages/StrategiesPage";
 import SpendingStrategy from "./components/Strategies/SpendingStrategy";
 import SimulationExplorationPage from "./pages/SimulationExplorationPage";
 import SharedScenarioPage from "./pages/SharedScenarioPage";
+import AddNewInvestment from "./pages/AddNewInvestment";
+import InvestmentForm from "./pages/InvestmentForm";
 
 registerChartJSComponents();
 
@@ -38,11 +40,10 @@ function ProtectedRoutes() {
                       element={<ScenarioFormPage />}
                       key="scenario"
                     />,
-                    <Route
-                      path="addNewInvestmentType"
-                      element={<InvestmentTypeForm />}
-                      key="investment"
-                    />,
+                    <Route path="addNewInvestment" element={<AddNewInvestment />}>
+                    <Route index element={<InvestmentForm />} />
+                    <Route path="addNewInvestmentType" element={<InvestmentTypeForm />} />
+                  </Route>,
                     <Route
                       path="addNewEventSeries"
                       element={
@@ -52,6 +53,7 @@ function ProtectedRoutes() {
                       }
                       key="eventSeries"
                     />,
+                
                     <Route
                       path="Limits&ContributionLimits"
                       element={<LimitsInflationPage />}
