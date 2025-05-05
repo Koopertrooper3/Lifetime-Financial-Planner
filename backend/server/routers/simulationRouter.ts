@@ -30,8 +30,24 @@ simulationRouter.post("/run-simulation", async (req : Request, res : Response)=>
       const requestBody : runSimulationBody = req.body
       const job = await simulatorQueue.add("simulatorQueue", {userID: requestBody.userID, scenarioID : requestBody.scenarioID, totalSimulations : requestBody.totalSimulations},{ removeOnComplete: true, removeOnFail: true })
 
-      const result = await job.waitUntilFinished(simulatorQueueEvents)
       res.status(200).send(job.id)
+  }catch(err){
+      console.log((err as Error))
+      res.status(400)
+  }
+  
+});
+
+simulationRouter.post("/run-simulation/poll", async (req : Request, res : Response)=>{
+  try{
+      console.log("Job request")
+      const jobid = req.body.id
+      const job = await simulatorQueue.getJob(jobid.toString()) 
+      if(job == undefined){
+        throw new Error("Job does not exist")
+      }
+      const result = await job.waitUntilFinished(simulatorQueueEvents)
+      res.status(200).send(true)
   }catch(err){
       console.log((err as Error))
       res.status(400)
