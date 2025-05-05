@@ -62,10 +62,14 @@ export default function ScenarioPage() {
     if (userID == null) {
       throw new Error("Undefined user");
     }
-    await axiosCookie.post("/simulation/run-simulation", {
+    const simResponse = await axiosCookie.post("/simulation/run-simulation", {
       userID: userID._id,
       scenarioID: id,
       totalSimulations: numberOfSimulations,
+    });
+
+    await axiosCookie.post("/simulation/run-simulation/poll", {
+      id : simResponse.data
     });
     const chartID = userID._id+id+numberOfSimulations
     navigate('/chartsPage/'+chartID)
