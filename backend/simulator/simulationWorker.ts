@@ -30,9 +30,6 @@ const SOCIAL_SECURITY_PROPORTION = 0.85
 async function simulation(threadData : threadData){
     const result : Result = {completed : 0, succeeded: 0, failed: 0, simulationRecords : {}}
 
- 
-
-
     const threadNumber : string = threadData.threadNumber.toString()
     const totalSimulations : number = threadData.simulationsPerThread
     const baseScenario : Scenario = threadData.scenario
@@ -139,7 +136,6 @@ async function simulation(threadData : threadData){
             const updateInvestmentReturn = updateInvestments(scenario.investmentTypes,scenario.investments)
             scenario.investments = updateInvestmentReturn.updatedAccounts
             currentYearValues.totalIncome += updateInvestmentReturn.totalInvestmentIncome
-            const investmentBreakdown = updateInvestmentReturn.investmentBreakdown
 
             //Run roth conversion optimizer if conditions allow
             if(scenario.RothConversionOpt == true && simulatedYear >= scenario.RothConversionStart && simulatedYear <= scenario.RothConversionEnd){
@@ -205,6 +201,11 @@ async function simulation(threadData : threadData){
             if(!(simulatedYear in result.simulationRecords)){
                 result.simulationRecords[simulatedYear] = [];
             }
+
+            const investmentBreakdownRecord : Record<string,InvestmentBreakdown> = {}
+            Object.entries(scenario.investments).forEach( ([key,account]) =>{
+                investmentBreakdownRecord[key] = {value: account.value, taxStatus: account.taxStatus}
+            })
             result.simulationRecords[simulatedYear].push({
                 finanicalGoal : totalInvestments >= scenario.financialGoal,
                 income: roundToTwoDecimals(currentYearValues.totalIncome),
@@ -212,7 +213,7 @@ async function simulation(threadData : threadData){
                 totalExpenses: roundToTwoDecimals(totalAnnualExpenses),
                 earlyWithdrawalTax: roundToTwoDecimals(currentYearValues.totalEarlyWithdrawal),
                 percentageOfTotalDiscretionaryExpenses: roundToTwoDecimals(percentageOfDiscretionaryExpenses*100),
-                investmentBreakdown: investmentBreakdown,
+                investmentBreakdown: investmentBreakdownRecord,
                 incomeBreakdown: incomeBreakdown,
                 expenseBreakdown: expenseBreakdown,
             })
@@ -586,7 +587,6 @@ function performRMD(investments : Record<string,Investment>, RMDStrategy : strin
 function updateInvestments(investmentDataRecord : Record<string,InvestmentType>, accounts : Record<string,Investment>){
     let totalInvestmentIncome = 0.0;
     const updatedAccounts : Record<string,Investment> = {};
-    const investmentBreakdown: Record<string,InvestmentBreakdown> = {};
 
     Object.entries(accounts).forEach( ([key,account]) =>{
         const currentInvestmentData = investmentDataRecord[account.investmentType]
@@ -595,7 +595,6 @@ function updateInvestments(investmentDataRecord : Record<string,InvestmentType>,
 
         let investmentIncome = 0.0
         let investmentValueChange = 0.0
-        investmentBreakdown[key] = {value: account.value, taxStatus: account.taxStatus}
         //Determine investment returns from dividends and interest
         if(currentInvestmentData.returnAmtOrPct == "amount"){
             investmentValueChange = resolveDistribution(currentInvestmentData.returnDistribution)
@@ -628,7 +627,7 @@ function updateInvestments(investmentDataRecord : Record<string,InvestmentType>,
         updatedAccounts[modifiedAccount.id] = modifiedAccount
     })
 
-    return {totalInvestmentIncome, investmentBreakdown,updatedAccounts}
+    return {totalInvestmentIncome,updatedAccounts}
     
 }
 
@@ -1301,15 +1300,20 @@ function processInvestEvent(scenario: Scenario,year : number,purchaseLedger : Re
         },0.0)
 
         if(totalAfterTaxContribution > afterTaxContributionLimit){
-            const reductionProportion = afterTaxContributionLimit/totalAfterTaxContribution
-            Object.entries(realizedInvestmentAllocations).forEach(([asset,contribution]) =>{
-
+            const totalReduction = totalAfterTaxContribution*(afterTaxContributionLimit/totalAfterTaxContribution)
+            
+            const afterTaxInvestments = Object.entries(realizedInvestmentAllocations).filter(([asset,proprotion]) => adjustedAccounts[asset].taxStatus == "after-tax");
+            const otherInvestments = Object.entries(realizedInvestmentAllocations).filter(([asset,proprotion]) => adjustedAccounts[asset].taxStatus != "after-tax");
+            const reductionPerInvestment = totalReduction/afterTaxInvestments.length
+            const increasePerInvestment = totalReduction/otherInvestments.length
+            Object.entries(realizedInvestmentAllocations).forEach( ([asset,contribution]) => {
                 if(adjustedAccounts[asset].taxStatus == "after-tax"){
-                    contribution -= contribution*reductionProportion
+                    contribution -= reductionPerInvestment
                 }else{
-                    contribution += contribution*reductionProportion
+                    contribution += increasePerInvestment
                 }
                 realizedInvestmentAllocations[asset] = contribution
+                
             })
         }
 
@@ -1317,6 +1321,7 @@ function processInvestEvent(scenario: Scenario,year : number,purchaseLedger : Re
         Object.entries(realizedInvestmentAllocations).map(([asset,contribution]) =>{
             adjustedAccounts[asset].value += contribution
             adjustedPurchaseLedger[asset] += contribution
+            adjustedAccounts["cash"].value -= contribution
             logMessages.push(investLogMessage(year,contribution,asset))
         })
 
