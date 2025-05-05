@@ -8,8 +8,7 @@ import { stateTaxParser } from '../state_taxes/statetax_parser';
 import { federalTaxModel,StateTaxBracket } from '../db/taxes';
 import {User} from '../db/User';
 import { pool } from 'workerpool';
-import { numericalExploration, Result, RothExploration } from './simulatorInterfaces';
-import { AnnualResults } from './simulatorInterfaces';
+import { numericalExploration, Result, RothExploration, AnnualResults } from './simulatorInterfaces';
 dotenv.config({ path: path.resolve(__dirname,'..','..','..','.env')});
 
 process.on('uncaughtException', function (exception) {
@@ -381,14 +380,16 @@ function calculateProbabilityOfSuccess(simulationRecords : Record<number,AnnualR
 // ========================= Chart 4.2 ==========================
 type Range = [number, number];
 
-type ShadedLineChartProps = {
-  yearlyResults: Record<string, number[]>;
-  ranges: {
-    "10-90": Range[];
-    "20-80": Range[];
-    "30-70": Range[];
-    "40-60": Range[];
-  };
+interface ShadedLineChart {
+  yearlyResults: Record<string, {
+    median: number;
+    ranges: {
+      "10-90": Range;
+      "20-80": Range;
+      "30-70": Range;
+      "40-60": Range;
+    }
+  }>;
 };
 
 // Helper function to calculate percentiles
@@ -401,7 +402,6 @@ function calculatePercentile(sortedValues: number[], percentile: number) {
     return sortedValues[lowerIndex];
   }
   
-  // Linear interpolation between the two nearest values
   return sortedValues[lowerIndex] + 
     (sortedValues[upperIndex] - sortedValues[lowerIndex]) * (index - lowerIndex);
 }
@@ -431,26 +431,24 @@ function collectValues(
 
 function calculateProbabilityRanges(simulationRecords: Record<number, AnnualResults[]>, selectedQuantity: 'totalInvestments' | 'totalIncome' | 'totalExpenses' | 'earlyWithdrawalTax' | 'discretionaryExpensesPercentage') {
   const years: number[] = Object.keys(simulationRecords).map(Number).sort((a, b) => a - b);
-  const results: ShadedLineChartProps = {
+  const results: ShadedLineChart = {
     yearlyResults: {},
-    ranges: {
-      "10-90": [],
-      "20-80": [],
-      "30-70": [],
-      "40-60": []
-    }
   };
 
   for (const year of years) {
     const yearResults = simulationRecords[year];
     const values = collectValues(yearResults, selectedQuantity);
-    results.yearlyResults[String(year)] = values;
-
     const sorted = [...values].sort((a, b) => a - b);
-    results.ranges["10-90"].push([calculatePercentile(sorted, 10), calculatePercentile(sorted, 90)]);
-    results.ranges["20-80"].push([calculatePercentile(sorted, 20), calculatePercentile(sorted, 80)]);
-    results.ranges["30-70"].push([calculatePercentile(sorted, 30), calculatePercentile(sorted, 70)]);
-    results.ranges["40-60"].push([calculatePercentile(sorted, 40), calculatePercentile(sorted, 60)]);
+    const median = calculatePercentile(sorted, 50);
+    results.yearlyResults[String(year)] = {
+      median: median,
+      ranges: {
+        "10-90": [calculatePercentile(sorted, 10), calculatePercentile(sorted, 90)],
+        "20-80": [calculatePercentile(sorted, 20), calculatePercentile(sorted, 80)],
+        "30-70": [calculatePercentile(sorted, 30), calculatePercentile(sorted, 70)],
+        "40-60": [calculatePercentile(sorted, 40), calculatePercentile(sorted, 60)]
+      }
+    };
   }
 
   return results;
@@ -458,18 +456,99 @@ function calculateProbabilityRanges(simulationRecords: Record<number, AnnualResu
 
 // ========================= Chart 4.3 ==========================
 
-// function calculateStackBarInvestmentData(simulationRecords: Record<number, AnnualResults[]>, aggregationThreshold: number, useMedian: boolean) {
-//   const years: number[] = Object.keys(simulationRecords).map(Number).sort((a, b) => a - b);
-//   for (const year of years) {
-//     const yearResults = simulationRecords[year];
-    
-//   }
-// }
+function calculateMedian(values: number[]): number {
+  if (!values.length) return 0;
+  const sorted = [...values].sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+  return sorted.length % 2 === 0 
+    ? (sorted[mid - 1] + sorted[mid]) / 2 
+    : sorted[mid];
+}
 
-// function calculateStackBarData(simulationRecords: Record<number, AnnualResults[]>,
-//   selectedQuantity: 'investments' | 'income' | 'expenses', aggregationThreshold: number, useMedian: boolean): Record<string, Record<string, number>> {
-    
-//   }
+function calculateAverage(values: number[]): number {
+  if (!values.length) return 0;
+  let sum = 0;
+  for (let num of values) {
+    sum += num;
+  }
+  return sum / values.length;
+}
 
-// Chart 5.1
+// Almost finish need to understand the tax status 
+function calculateStackBarData(simulationRecords: Record<number, AnnualResults[]>,
+  selectedQuantity: "investments" | "income" | "expenses", aggregationThreshold: number, useMedian: boolean) {
+    const years = Object.keys(simulationRecords).map(Number).sort((a, b) => a - b);
+    // Initialize an empty object to store the final aggregated data.
+    const result: Record<string, Record<string, number>> = {};
+    
+    // Determine the function to use based on useMedian
+    const aggregate = (values: number[]) => 
+      useMedian ? calculateMedian(values) : calculateAverage(values);
+
+    for (const year of years) {
+      const yearResults = simulationRecords[year];
+
+      // The string is the investment/income/expense name and number[] stores all the investment/income/expense values for that particular segment throughout a set of simulations for a single year 
+      const allValues: Record<string, number[]> = {};
+      // Stores segments, including Other
+      const yearlyResult: Record<string, number> = {};
+
+      for (const result of yearResults) {
+        // Collect all the values for a specific segment across the set of simulations in each year
+        switch (selectedQuantity) {
+          case "investments":
+            for (const [investmentName, investmentData] of Object.entries(result.investmentBreakdown || {})) {
+              if (!allValues[investmentName]) {
+                allValues[investmentName] = [];
+              }
+              allValues[investmentName].push(investmentData.value);
+            }
+            break;
+          case "income":
+            for (const [incomeName, incomeValue] of Object.entries(result.incomeBreakdown || {})) {
+              if (!allValues[incomeName]) {
+                allValues[incomeName] = [];
+              }
+              allValues[incomeValue].push(incomeValue);
+            }
+            break;
+          case "expenses":
+            for (const [expenseName, expenseValue] of Object.entries(result.expenseBreakdown || {})) {
+              if (!allValues[expenseName]) {
+                allValues[expenseName] = [];
+              }
+              allValues[expenseName].push(expenseValue);
+            }
+            break;
+        }
+      }
+
+      // Count the total number of other segment
+      let otherTotal = 0;
+      for (const [name, values] of Object.entries(allValues)) {
+        const aggregatedValue = aggregate(values);
+        if (aggregatedValue < aggregationThreshold) {
+          otherTotal += aggregatedValue;
+        }
+        else {
+          yearlyResult[name] = aggregatedValue;
+        }
+      }
+      yearlyResult["Other"] = otherTotal;
+      result[year.toString()] = yearlyResult;
+    }
+
+    return result;
+
+  }
+
+// ========================= Chart 5.1 ==========================
+function calculateMultiLineChartData(
+  explorationParam: RothExploration | numericalExploration,
+  selectedQuantity: 'successProbability' | 'medianInvestments',
+  
+ ) 
+ {
+
+}
 
