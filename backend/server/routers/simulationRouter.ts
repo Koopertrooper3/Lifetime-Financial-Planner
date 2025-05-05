@@ -4,7 +4,7 @@ import { scenarioModel } from "../../db/Scenario";
 import z from "zod";
 //@ts-expect-error Incomplete
 import { runParameterSweepSimulations } from "../../simulator/simulationHead";
-import { explorationQueue, simulatorQueue } from "../server";
+import { explorationQueue, simulatorQueueEvents, explorationQueueEvents, simulatorQueue } from "../server";
 import { numericalExploration, RothExploration } from "../../simulator/simulatorInterfaces";
 
 const simulationRouter = express.Router();
@@ -30,7 +30,7 @@ simulationRouter.post("/run-simulation", async (req : Request, res : Response)=>
       const requestBody : runSimulationBody = req.body
       const job = await simulatorQueue.add("simulatorQueue", {userID: requestBody.userID, scenarioID : requestBody.scenarioID, totalSimulations : requestBody.totalSimulations},{ removeOnComplete: true, removeOnFail: true })
 
-      //const result = await job.waitUntilFinished(queueEvents,1000*60*1)
+      const result = await job.waitUntilFinished(simulatorQueueEvents)
       res.status(200).send(job.id)
   }catch(err){
       console.log((err as Error))
@@ -64,18 +64,14 @@ simulationRouter.post("/simulation-explore", async (req,res) => {
       res.status(404).json({ error: "Scenario not found." });
     }
 
-    /**
-     * NOTE:
-     * The `runParameterSweepSimulations()` or some similar 
-     * function needs to be implemented in simulationHead.ts.
-     */
-    explorationQueue.add("scenarioExplorationQueue",{
+    const job = await explorationQueue.add("scenarioExplorationQueue",{
       userID: explorationRequest.userID, 
       scenarioID : explorationRequest.scenarioID, 
       totalSimulations : explorationRequest.totalSimulations,
       explorationPrameters : explorationRequest.explorationParameter
     },{ removeOnComplete: true, removeOnFail: true })
 
+    await job.waitUntilFinished(explorationQueueEvents)
     res.status(200).send();
   } catch (err) {
     console.error(err);
@@ -83,4 +79,18 @@ simulationRouter.post("/simulation-explore", async (req,res) => {
   }
 });
 
+simulationRouter.get("/fetch-results/:id", async (req,res) => {
+  //const validated = simExploreZod.parse(req.body);
+  const resultID = req.params.id
+
+  try {
+    const results = null;
+    if (!results) {
+      res.status(404).json({ error: "Results not found." });
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Simulation failed or not implemented yet." });
+  }
+});
 export default simulationRouter;

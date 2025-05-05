@@ -96,8 +96,8 @@ export const HelperContextProvider: React.FC<{ children: React.ReactNode }> = ({
   const fetchUser = async () => {
     try {
       const response = await axiosCookie.get("/user");
-      console.log(response.data);
-      setUserID(response.data);
+      console.log(response.data.user);
+      setUserID(response.data.user);
     } catch (err) {
       console.error("error fetching user data", err);
     }
@@ -115,6 +115,7 @@ export const HelperContextProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   useEffect(() => {
+    fetchUser();
     fetchUserContent();
   }, []);
 

@@ -2,7 +2,7 @@
 import { useHelperContext } from "../context/HelperContext";
 import { useScenarioContext } from "../context/useScenarioContext";
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import "../stylesheets/ScenarioPage.css";
 import { Link } from "react-router-dom";
 import axiosCookie from "../axiosCookie";
@@ -12,11 +12,13 @@ import ShareScenarioButton from "../components/ShareScenarioButton";
 export default function ScenarioPage() {
   const { id } = useParams();
   const [scenario, setScenario] = useState<any>(null);
-  const { ownedScenarios, fetchScenario, userID } =
+  const { ownedScenarios, fetchScenario, fetchUser, userID } =
     useHelperContext();
   const { setEditScenario } = useScenarioContext();
   const [activeTab, setActiveTab] = useState("investments");
   const [numberOfSimulations, setNumberOfSimulations] = useState(1);
+  const navigate = useNavigate();
+
   //const [investmentTypes, setInvestmentTypes] = useState<any[]>([]);
   // const [distributionMap, setDistributionMap] = useState<Record<string, any>>(
   //   {}
@@ -65,6 +67,8 @@ export default function ScenarioPage() {
       scenarioID: id,
       totalSimulations: numberOfSimulations,
     });
+    const chartID = userID._id+id+numberOfSimulations
+    navigate('/chartsPage/'+chartID)
   };
 
   function handleEditClick() {

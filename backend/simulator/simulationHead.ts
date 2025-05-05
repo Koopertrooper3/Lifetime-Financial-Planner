@@ -142,7 +142,7 @@ async function simulationManager(job: Job) {
     }
   }
   console.log(combinedResult.simulationRecords);
-  
+  console.log("Done");
 
   return finalResult
 }

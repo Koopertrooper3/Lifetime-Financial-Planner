@@ -100,7 +100,7 @@ function ProtectedRoutes() {
           {/* Other protected routes */}
           <Route path="/scenario/:id" element={<ScenarioPage />} />
           <Route path="/sharedScenario/:id" element={<SharedScenarioPage />} />
-          <Route path="/chartsPage" element={<ChartsPage />} />
+          <Route path="/chartsPage/:id" element={<ChartsPage />} />
           <Route path="/user-profile" element={<UserProfilePage />} />
           <Route path="/shared" element={<SharedWithMePage />} />
           <Route

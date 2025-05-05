@@ -20,8 +20,9 @@ const REDIS_HOST = process.env.REDIS_HOST || "localhost"
 const REDIS_PORT = Number(process.env.REDIS_PORT) || 6379
 
 export let simulatorQueue : Queue
-export let queueEvents : QueueEvents
+export let simulatorQueueEvents : QueueEvents
 export let explorationQueue : Queue
+export let explorationQueueEvents : QueueEvents
 
 //Startup code to be run before the server starts
 async function startUp(){
@@ -54,12 +55,19 @@ async function startUp(){
     },
     });
     
-    queueEvents = new QueueEvents('simulatorQueue', {
+    simulatorQueueEvents = new QueueEvents('simulatorQueue', {
         connection: {
           host: REDIS_HOST,
           port: REDIS_PORT,
         },
       });
+
+      explorationQueueEvents = new QueueEvents('scenarioExplorationQueue', {
+    connection: {
+        host: REDIS_HOST,
+        port: REDIS_PORT,
+    },
+    });
 
 
     return
