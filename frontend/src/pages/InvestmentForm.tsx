@@ -8,14 +8,14 @@ import ValidationTextFields from "../components/shared/ValidationTextFields";
 import { useScenarioContext } from "../context/useScenarioContext";
 import { useInvestmentHooks } from "../hooks/useInvestmentHooks";
 import { Investment } from "../../../backend/db/InvestmentSchema";
-import { useHelperContext } from "../context/HelperContext"
-
+import { useHelperContext } from "../context/HelperContext";
 
 export default function AddNewInvestmentForm() {
   const navigate = useNavigate();
   const navigateRef = useRef(false);
   const { handleEditScenario } = useHelperContext();
-  const { editScenario, setEditScenario, investmentTypes } = useScenarioContext();
+  const { editScenario, setEditScenario, investmentTypes } =
+    useScenarioContext();
   const { investmentHooks } = useInvestmentHooks();
   const taxOptions = [
     { label: "Taxable", value: "non-retirement" },
@@ -34,8 +34,7 @@ export default function AddNewInvestmentForm() {
     e.preventDefault();
     const { investmentType, marketValue, taxStatus } = investmentHooks;
 
-
-    // NOTE: Have to change ID later. 
+    // NOTE: Have to change ID later.
     const newInvestment: Investment = {
       investmentType: investmentType,
       value: Number(marketValue),
@@ -45,9 +44,13 @@ export default function AddNewInvestmentForm() {
     // add hook as well
     // ------------------------------------------------
 
-    const userID = await (await fetch("http://localhost:8000/user", {
-      credentials: "include",
-    })).json().then(res => res._id);
+    const userID = await (
+      await fetch("http://localhost:8000/user", {
+        credentials: "include",
+      })
+    )
+      .json()
+      .then((res) => res.user.user_id);
 
     const scenarioID = editScenario._id;
     const updatedInvestments = {
@@ -96,7 +99,6 @@ export default function AddNewInvestmentForm() {
           <Link to="addNewInvestmentType" className="inline-link">
             + Add New Investment Type
           </Link>
-
         </div>
 
         {/* Current Market Value */}
@@ -113,8 +115,8 @@ export default function AddNewInvestmentForm() {
           />
         </div>
 
-         {/* Tax Status */}
-         <div className="taxability-container">
+        {/* Tax Status */}
+        <div className="taxability-container">
           <h3 className="purple-title">Tax Status</h3>
           {taxOptions.map(({ label, value }) => (
             <label className="option" key={value}>
@@ -123,7 +125,11 @@ export default function AddNewInvestmentForm() {
                 name="taxStatus"
                 value={value}
                 checked={investmentHooks.taxStatus === value}
-                onChange={() => investmentHooks.setTaxStatus(value as "non-retirement" | "pre-tax" | "after-tax")}
+                onChange={() =>
+                  investmentHooks.setTaxStatus(
+                    value as "non-retirement" | "pre-tax" | "after-tax"
+                  )
+                }
               />
               {label}
             </label>
