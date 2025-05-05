@@ -13,35 +13,25 @@ import StackedBarChart from "../components/Charts/StackedBarChart";
 import { mockSimulationResults } from "../components/Charts/MockData";
 
 function ChartsPage() {
-  // console.log("allScenarios", allScenarios);
-  const { fetchSimulationResults, ownedScenarios } = useHelperContext();
-  const [simResults, setSimResults] = useState<any>(null);
-  const [selectedScenarioId, setSelectedScenarioId] = useState<string | null>(
-    null
-  );
-  const { chartID } = useParams();
-
-  useEffect(() => {
-    if (isDebug) {
-      console.log("DEBUG MODE: Using mock simulation results.");
-      setSimResults(mockSimulationResults);
-      return;
-    }
-
-    const loadSimulationResults = async () => {
-      if (!selectedScenarioId && ownedScenarios?.length) {
-        // setSelectedScenarioId(ownedScenarios[0]._id);
+    const { fetchSimulationResults } = useHelperContext();
+    const { id } = useParams();  // assuming route: /chartsPage/:id
+    const [simResults, setSimResults] = useState<any>(null);
+  
+    useEffect(() => {
+      if (isDebug) {
+        console.log("DEBUG MODE: Using mock simulation results.");
+        setSimResults(mockSimulationResults);
         return;
       }
-
-      if (selectedScenarioId) {
-        const results = await fetchSimulationResults(selectedScenarioId);
+  
+      const loadSimulationResults = async () => {
+        if (!id) return;
+        const results = await fetchSimulationResults(id);
         setSimResults(results);
-      }
-    };
-
-    loadSimulationResults();
-  }, [selectedScenarioId, ownedScenarios]);
+      };
+  
+      loadSimulationResults();
+    }, [id]);  
 
   if (!simResults) return <LoadingWheel />;
 
