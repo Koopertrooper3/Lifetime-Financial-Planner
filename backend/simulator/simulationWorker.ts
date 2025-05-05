@@ -28,12 +28,13 @@ const EARLY_WITHDRAWAL_AGE = 59
 const SOCIAL_SECURITY_PROPORTION = 0.85
 
 async function simulation(threadData : threadData){
-    const result : Result = {completed : 0, succeeded: 0, failed: 0, simulationRecords : {}}
 
-    const threadNumber : string = threadData.threadNumber.toString()
+    const explorationNumber : number = threadData.explorationNumber
     const totalSimulations : number = threadData.simulationsPerThread
     const baseScenario : Scenario = threadData.scenario
-    
+
+    const result : Result = {explorationNumber: explorationNumber, completed : 0, succeeded: 0, failed: 0, simulationRecords : {}}
+
     if(baseScenario == null){
         throw new Error("Scenario does not exist");
     }

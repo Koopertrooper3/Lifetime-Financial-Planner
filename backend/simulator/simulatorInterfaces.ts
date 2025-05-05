@@ -7,7 +7,7 @@ export interface threadData {
 
     username: string,
     scenarioID : string, 
-    threadNumber: number
+    explorationNumber: number
     simulationsPerThread: number,
     scenario: Scenario,
     federalTaxes : FederalTax,
@@ -19,6 +19,7 @@ export interface threadData {
  *
  */
 export interface Result{
+    explorationNumber: number,
     completed: number,
     succeeded: number,
     failed: number,

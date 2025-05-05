@@ -38,6 +38,7 @@ mongoose.connect(databaseConnectionString)
 
 // Initialize combined result using the existing Result interface
 const combinedResult: Result = {
+  explorationNumber: 0,
   completed: 0,
   succeeded: 0,
   failed: 0,
@@ -96,7 +97,7 @@ async function simulationManager(job: Job) {
       const workerData = {
         username: user?.name,
         scenarioID : jobData.scenarioID, 
-        threadNumber: batch, 
+        explorationNumber: 0, 
         simulationsPerThread: batch,
         scenario: scenario,
         federalTaxes : federalTax,
@@ -203,11 +204,11 @@ async function scenarioExplorationManager(job: Job) {
         continue
       }else{
 
-        scenarioVariations.forEach((scenarioVariation) =>{
+        scenarioVariations.forEach((scenarioVariation,index) =>{
           const workerData = {
-            username: user?.name,
+            username: user?.name || "",
             scenarioID : jobData.scenarioID, 
-            threadNumber: batch, 
+            explorationNumber: index, 
             simulationsPerThread: batch,
             scenario: scenarioVariation,
             federalTaxes : federalTax,
