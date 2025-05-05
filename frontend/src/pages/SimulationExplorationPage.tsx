@@ -1,148 +1,175 @@
-import React, { useState } from "react";
-import axiosCookie from "../axiosCookie";
+import React from "react";
+import { useSimulationHook } from "../hooks/useSimulationHook";
 import "../stylesheets/SimulationExplorationPage.css";
 
-const SimulationExplorationPage = () => {
-  const [scenarioId, setScenarioId] = useState("");
-  const [param1Name, setParam1Name] = useState("");
-  const [param1Lower, setParam1Lower] = useState(0);
-  const [param1Upper, setParam1Upper] = useState(0);
-  const [param1Step, setParam1Step] = useState(1);
-
-  const [param2Name, setParam2Name] = useState("");
-  const [param2Lower, setParam2Lower] = useState(0);
-  const [param2Upper, setParam2Upper] = useState(0);
-  const [param2Step, setParam2Step] = useState(1);
-
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [results, setResults] = useState<any>(null);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
-    try {
-      const payload: any = {
-        scenarioId,
-        parameters: [
-          {
-            name: param1Name,
-            lowerBound: param1Lower,
-            upperBound: param1Upper,
-            stepSize: param1Step,
-          },
-        ],
-      };
-
-      if (param2Name.trim()) {
-        payload.parameters.push({
-          name: param2Name,
-          lowerBound: param2Lower,
-          upperBound: param2Upper,
-          stepSize: param2Step,
-        });
-      }
-
-      const response = await axiosCookie.post("/simulation-explore", payload);
-      setResults(response.data);
-    } catch (err) {
-      console.error("Simulation request failed:", err);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+export default function SimulationExplorationPage() {
+  const form = useSimulationHook();
 
   return (
     <div className="simulation-container">
-      <h2 className="simulation-header">Scenario Exploration (1D / 2D)</h2>
-      <form onSubmit={handleSubmit} className="simulation-form">
-        <input
-          type="text"
-          placeholder="Scenario ID"
-          value={scenarioId}
-          onChange={(e) => setScenarioId(e.target.value)}
-          className="simulation-input"
-          required
-        />
-  
-        <div className="simulation-section-title">Primary Parameter</div>
-        <input
-          type="text"
-          placeholder="Parameter 1 Name"
-          value={param1Name}
-          onChange={(e) => setParam1Name(e.target.value)}
-          className="simulation-input"
-          required
-        />
-        <input
-          type="number"
-          placeholder="Lower Bound"
-          value={param1Lower}
-          onChange={(e) => setParam1Lower(Number(e.target.value))}
-          className="simulation-input"
-        />
-        <input
-          type="number"
-          placeholder="Upper Bound"
-          value={param1Upper}
-          onChange={(e) => setParam1Upper(Number(e.target.value))}
-          className="simulation-input"
-        />
-        <input
-          type="number"
-          placeholder="Step Size"
-          value={param1Step}
-          onChange={(e) => setParam1Step(Number(e.target.value))}
-          className="simulation-input"
-        />
-  
-        <div className="simulation-section-title">Optional: Second Parameter for 2D</div>
-        <input
-          type="text"
-          placeholder="Parameter 2 Name (optional)"
-          value={param2Name}
-          onChange={(e) => setParam2Name(e.target.value)}
-          className="simulation-input"
-        />
-        <input
-          type="number"
-          placeholder="Lower Bound"
-          value={param2Lower}
-          onChange={(e) => setParam2Lower(Number(e.target.value))}
-          className="simulation-input"
-        />
-        <input
-          type="number"
-          placeholder="Upper Bound"
-          value={param2Upper}
-          onChange={(e) => setParam2Upper(Number(e.target.value))}
-          className="simulation-input"
-        />
-        <input
-          type="number"
-          placeholder="Step Size"
-          value={param2Step}
-          onChange={(e) => setParam2Step(Number(e.target.value))}
-          className="simulation-input"
-        />
-  
+      <form className="simulation-form" onSubmit={form.handleSubmit}>
+        <h2 className="simulation-header">Scenario Parameter Exploration</h2>
+        <p>
+          Use this form to simulate how changes to one or two parameters affect your financial scenario. This helps visualize potential outcomes based on varying input assumptions.
+        </p>
+
+       
+        <div className="form-section">
+          <h3>Step 1: Select a Scenario</h3>
+          <p>Enter the unique ID of the scenario you'd like to simulate. This is typically a 24-character identifier generated when the scenario was saved.</p>
+          <label htmlFor="scenarioId">Scenario ID</label>
+          <input
+            id="scenarioId"
+            type="text"
+            placeholder="e.g., 660f4abc1234567890abcdef"
+            value={form.scenarioId}
+            onChange={(e) => form.setScenarioId(e.target.value)}
+          />
+        </div>
+
+       
+        <div className="form-section">
+          <h3>Step 2: Define a Primary Parameter</h3>
+          <p>
+            Choose a parameter to test. For example, annual return rate, savings amount, or a boolean setting like retirement eligibility. You can simulate either numeric ranges or a true/false condition.
+          </p>
+
+          <label htmlFor="param1Name">Parameter Name</label>
+          <input
+            id="param1Name"
+            type="text"
+            placeholder="e.g., expectedReturn"
+            value={form.param1Name}
+            onChange={(e) => form.setParam1Name(e.target.value)}
+            required
+          />
+
+          <label htmlFor="param1Type">Parameter Type</label>
+          <select
+            id="param1Type"
+            value={form.param1Type}
+            onChange={(e) => form.setParam1Type(e.target.value as "numeric" | "boolean")}
+          >
+            <option value="numeric">Numeric</option>
+            <option value="boolean">Boolean</option>
+          </select>
+
+          {form.param1Type === "numeric" ? (
+            <div className="row-group">
+              <div>
+                <label htmlFor="param1Lower">Lower Bound</label>
+                <input
+                  id="param1Lower"
+                  type="number"
+                  placeholder="e.g., 4"
+                  value={form.param1Lower}
+                  onChange={(e) => form.setParam1Lower(Number(e.target.value))}
+                />
+              </div>
+              <div>
+                <label htmlFor="param1Upper">Upper Bound</label>
+                <input
+                  id="param1Upper"
+                  type="number"
+                  placeholder="e.g., 8"
+                  value={form.param1Upper}
+                  onChange={(e) => form.setParam1Upper(Number(e.target.value))}
+                />
+              </div>
+              <div>
+                <label htmlFor="param1Step">Step Size</label>
+                <input
+                  id="param1Step"
+                  type="number"
+                  placeholder="e.g., 1"
+                  value={form.param1Step}
+                  onChange={(e) => form.setParam1Step(Number(e.target.value))}
+                />
+              </div>
+            </div>
+          ) : (
+            <div>
+              <label htmlFor="param1BoolValue">Boolean Value</label>
+              <select
+                id="param1BoolValue"
+                value={form.param1BoolValue.toString()}
+                onChange={(e) => form.setParam1BoolValue(e.target.value === "true")}
+              >
+                <option value="true">True</option>
+                <option value="false">False</option>
+              </select>
+            </div>
+          )}
+        </div>
+
+        {/* Parameter 2 */}
+        <div className="form-section">
+          <h3>Step 3: (Optional) Add a Second Parameter</h3>
+          <p>
+            To run a 2D simulation, you can include a second numeric parameter. This creates a grid of combinations between the two parameters and provides deeper insights.
+          </p>
+
+          <label htmlFor="param2Name">Parameter Name</label>
+          <input
+            id="param2Name"
+            type="text"
+            placeholder="e.g., contributionAmount"
+            value={form.param2Name}
+            onChange={(e) => form.setParam2Name(e.target.value)}
+          />
+
+          <div className="row-group">
+            <div>
+              <label htmlFor="param2Lower">Lower Bound</label>
+              <input
+                id="param2Lower"
+                type="number"
+                placeholder="e.g., 5000"
+                value={form.param2Lower}
+                onChange={(e) => form.setParam2Lower(Number(e.target.value))}
+              />
+            </div>
+            <div>
+              <label htmlFor="param2Upper">Upper Bound</label>
+              <input
+                id="param2Upper"
+                type="number"
+                placeholder="e.g., 15000"
+                value={form.param2Upper}
+                onChange={(e) => form.setParam2Upper(Number(e.target.value))}
+              />
+            </div>
+            <div>
+              <label htmlFor="param2Step">Step Size</label>
+              <input
+                id="param2Step"
+                type="number"
+                placeholder="e.g., 1000"
+                value={form.param2Step}
+                onChange={(e) => form.setParam2Step(Number(e.target.value))}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Submit */}
         <button
           type="submit"
-          disabled={isSubmitting}
           className="simulation-button"
+          disabled={form.isSubmitting}
         >
-          {isSubmitting ? "Running Simulations..." : "Run Simulations"}
+          {form.isSubmitting ? "Running..." : "Run Simulation"}
         </button>
-      </form>
-  
-      {results && (
-        <div className="simulation-results">
-          <h3>Simulation Results</h3>
-          <pre>{JSON.stringify(results, null, 2)}</pre>
-        </div>
-      )}
-    </div>
-  );  
-};
 
-export default SimulationExplorationPage;
+        {/* Results */}
+        {form.results && (
+          <div className="simulation-results">
+            <h3>Simulation Results</h3>
+            <p>The output below reflects the scenario outcomes based on your selected parameter ranges.</p>
+            <pre>{JSON.stringify(form.results, null, 2)}</pre>
+          </div>
+        )}
+      </form>
+    </div>
+  );
+}

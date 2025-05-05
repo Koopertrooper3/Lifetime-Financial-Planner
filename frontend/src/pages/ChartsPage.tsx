@@ -12,6 +12,7 @@ import StackedBarChart from "../components/Charts/StackedBarChart";
 // import { mockSimulationResults } from "../components/Charts/MockData";
 
 function ChartsPage() {
+  console.log("allScenarios", allScenarios);
   const { fetchSimulationResults, allScenarios } = useHelperContext();
   const [simResults, setSimResults] = useState<any>(null);
   const [selectedScenarioId, setSelectedScenarioId] = useState<string | null>(

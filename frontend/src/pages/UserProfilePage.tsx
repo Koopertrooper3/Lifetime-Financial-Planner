@@ -1,122 +1,152 @@
-import { useEffect, useState, useRef } from "react";
+import React, { useState } from "react";
 import axiosCookie from "../axiosCookie";
-import { parse } from "yaml";
-import "../stylesheets/UserProfilePage.css";
+import "../stylesheets/SimulationExplorationPage.css";
 
-const UserProfilePage = () => {
-  const [userData, setUserData] = useState<any | "guest" | null>(null);
-  const [state, setState] = useState<string>("");
-  const [yamlFile, setYamlFile] = useState<File | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+export default function SimulationExplorationPage() {
+  const [scenarioId, setScenarioId] = useState("");
+  const [param1Name, setParam1Name] = useState("");
+  const [param1Lower, setParam1Lower] = useState(0);
+  const [param1Upper, setParam1Upper] = useState(0);
+  const [param1Step, setParam1Step] = useState(1);
+  const [param2Name, setParam2Name] = useState("");
+  const [param2Lower, setParam2Lower] = useState(0);
+  const [param2Upper, setParam2Upper] = useState(0);
+  const [param2Step, setParam2Step] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [results, setResults] = useState<any>(null);
 
-  useEffect(() => {
-    axiosCookie
-      .get("/user")
-      .then((res) => {
-        if (!res.data || Object.keys(res.data).length === 0) {
-          setUserData("guest");
-        } else {
-          setUserData(res.data);
-        }
-      })
-      .catch(() => setUserData("guest")); // NOTE: current fallback to guest, correct later
-  }, []);
-
-  const handleYAMLUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      try {
-        const content = event.target?.result as string;
-        const parsed = parse(content); // Validate here
-        setYamlFile(file);
-        console.log("Parsed YAML:", parsed);
-      } catch (err) {
-        alert("Invalid YAML file.");
-      }
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    const payload: any = {
+      scenarioId,
+      parameters: [
+        {
+          name: param1Name,
+          lowerBound: param1Lower,
+          upperBound: param1Upper,
+          stepSize: param1Step,
+        },
+      ],
     };
-    reader.readAsText(file);
-  };
 
-  const uploadYamlToServer = async () => {
-    if (!yamlFile) return;
-  
-    const formData = new FormData();
-    formData.append("yaml", yamlFile);
-  
-    try {
-      const res = await axiosCookie.post("/api/upload-tax", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
+    if (param2Name.trim()) {
+      payload.parameters.push({
+        name: param2Name,
+        lowerBound: param2Lower,
+        upperBound: param2Upper,
+        stepSize: param2Step,
       });
-  
-      console.log("Upload success:", res.data);
-      alert("YAML uploaded successfully!");
+    }
+
+    try {
+      const response = await axiosCookie.post("/simulation-explore", payload);
+      setResults(response.data);
     } catch (err) {
-      console.error("Upload failed:", err);
-      alert("Upload failed.");
+      console.error("Simulation request failed:", err);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const openFileDialog = () => {
-    fileInputRef.current?.click();
-  };
-
-  if (userData === null) return <div>Loading...</div>;
-
-  const displayName = userData === "guest" ? "Guest" : userData.name;
-
   return (
-    <div className="profile-container">
-    <h2 className="header">User Profile</h2>
-
-    <div className="expected-container">
-        <p className="black-word"><strong>Name:</strong> {displayName}</p>
-
-        <div className="profile-section">
-        <label htmlFor="state-input" className="purple-title">State of Residence</label>
-        <input
+    <div className="simulation-container">
+      <h2 className="simulation-header">Scenario Parameter Exploration</h2>
+      <form className="simulation-form" onSubmit={handleSubmit}>
+        <div className="form-section">
+          <label>Scenario ID</label>
+          <input
             type="text"
-            id="state-input"
-            placeholder="Enter your state (e.g., New York)"
-            value={state}
-            onChange={(e) => setState(e.target.value)}
-            className="textbox"
-        />
+            placeholder="e.g., 660f4abc..."
+            value={scenarioId}
+            onChange={(e) => setScenarioId(e.target.value)}
+          />
         </div>
 
-        <div className="yaml-upload-section">
-        <div className="title-with-info" style={{ marginBottom: "10px" }}>
-            <h3 className="purple-title">Upload YAML for State Tax Info</h3>
-            <span className="grayed-text">Optional</span>
+        <div className="form-section">
+          <h3>Primary Parameter</h3>
+          <label>Name</label>
+          <input
+            type="text"
+            value={param1Name}
+            onChange={(e) => setParam1Name(e.target.value)}
+            required
+          />
+          <div className="row-group">
+            <div>
+              <label>Lower</label>
+              <input
+                type="number"
+                value={param1Lower}
+                onChange={(e) => setParam1Lower(Number(e.target.value))}
+              />
+            </div>
+            <div>
+              <label>Upper</label>
+              <input
+                type="number"
+                value={param1Upper}
+                onChange={(e) => setParam1Upper(Number(e.target.value))}
+              />
+            </div>
+            <div>
+              <label>Step</label>
+              <input
+                type="number"
+                value={param1Step}
+                onChange={(e) => setParam1Step(Number(e.target.value))}
+              />
+            </div>
+          </div>
         </div>
-        <button onClick={openFileDialog} className="save-investment-type-button">
-            Upload YAML
+
+        <div className="form-section">
+          <h3>Optional: Second Parameter (2D)</h3>
+          <label>Name</label>
+          <input
+            type="text"
+            value={param2Name}
+            onChange={(e) => setParam2Name(e.target.value)}
+          />
+          <div className="row-group">
+            <div>
+              <label>Lower</label>
+              <input
+                type="number"
+                value={param2Lower}
+                onChange={(e) => setParam2Lower(Number(e.target.value))}
+              />
+            </div>
+            <div>
+              <label>Upper</label>
+              <input
+                type="number"
+                value={param2Upper}
+                onChange={(e) => setParam2Upper(Number(e.target.value))}
+              />
+            </div>
+            <div>
+              <label>Step</label>
+              <input
+                type="number"
+                value={param2Step}
+                onChange={(e) => setParam2Step(Number(e.target.value))}
+              />
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" className="simulation-button" disabled={isSubmitting}>
+          {isSubmitting ? "Running..." : "Run Simulation"}
         </button>
-        <input
-            type="file"
-            ref={fileInputRef}
-            accept=".yaml,.yml"
-            onChange={handleYAMLUpload}
-            style={{ display: "none" }}
-        />
-        {yamlFile && (
-            <>
-            <p className="black-word">Uploaded: <strong>{yamlFile.name}</strong></p>
-            <button
-                onClick={uploadYamlToServer}
-                className="save-investment-type-button confirm-upload-button"
-            >
-                Confirm & Upload to Server
-            </button>
-            </>
-        )}
+      </form>
+
+      {results && (
+        <div className="simulation-results">
+          <h3>Results</h3>
+          <pre>{JSON.stringify(results, null, 2)}</pre>
         </div>
+      )}
     </div>
-    </div>
-
   );
-};
-
-export default UserProfilePage;
+}
