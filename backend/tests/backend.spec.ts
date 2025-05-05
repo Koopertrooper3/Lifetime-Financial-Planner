@@ -188,8 +188,8 @@ test('Investment Allocation Exploration Request', async ({ request }) => {
     scenarioID: userScenarioID,
     totalSimulations : totalSimulations,
     explorationParameter: {
-      type: "startYear",
-      eventName: "food",
+      type: "invest",
+      eventName: "blab",
       lowerBound: 0.50,
       upperBound: 0.75,
       stepSize: 0.25

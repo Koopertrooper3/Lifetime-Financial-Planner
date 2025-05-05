@@ -145,7 +145,7 @@ async function testScenario() {
     }
 
     const investEvent : Event = {
-        name: "invest",
+        name: "my investments",
         start: {type: "startWith", eventSeries: "salary"},
         duration: {type: "fixed", value: 10},
         event: {
