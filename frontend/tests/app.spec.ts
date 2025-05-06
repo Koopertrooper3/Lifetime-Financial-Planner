@@ -3,14 +3,58 @@ import { expect } from 'playwright/test';
 
 
 
-test('Check scenario display', async ({ page }) => {
-  await page.goto('http://localhost:5173/dashboard');
-  await page.getByRole('link', { name: 'reimu' }).click();
-  await expect(page.locator('#root')).toContainText('Fixed: 80');
-  await expect(page.locator('#root')).toContainText('Normal: mean = 82, stdev = 3');
-  await expect(page.locator('#root')).toContainText('Financial Goal: $10000');
-  await expect(page.locator('#root')).toContainText('Residence State: NY');
-  await page.getByText('Martial Status: couple').click();
-  await expect(page.locator('#root')).toContainText('couple');
+test('Create and check scenario display', async ({ page }) => {
+  await page.goto('http://localhost:5173/');
+  await page.getByText('Continue as Guest').click();
+  await page.getByRole('button', { name: 'Create a New Scenario' }).click();
+  await page.getByRole('textbox', { name: 'Enter name' }).click();
+  await page.getByRole('textbox', { name: 'Enter name' }).fill('My Scenario Test');
+  await page.getByRole('textbox', { name: 'Enter amount' }).click();
+  await page.getByRole('textbox', { name: 'Enter amount' }).fill('3000');
+  await page.getByRole('textbox', { name: 'Enter a year (e.g., 2003)' }).first().click();
+  await page.getByRole('textbox', { name: 'Enter a year (e.g., 2003)' }).first().fill('2000');
+  await page.getByRole('link', { name: 'Add New Investment Type' }).click();
+  await page.getByRole('textbox', { name: '$' }).click();
+  await page.getByRole('textbox', { name: '$' }).fill('15000');
+  await page.getByRole('link', { name: '+ Add New Investment Type' }).click();
+  await page.getByRole('textbox', { name: 'e.g., S&P 500 ETF' }).click();
+  await page.getByRole('textbox', { name: 'e.g., S&P 500 ETF' }).fill('S&P 500');
+  await page.getByRole('textbox', { name: 'Describe your investment type' }).click();
+  await page.getByRole('textbox', { name: 'Describe your investment type' }).fill('track the snp 500 index');
+  await page.getByRole('textbox', { name: 'Enter a dollar amount (e.g. $' }).first().click();
+  await page.getByRole('textbox', { name: 'Enter a dollar amount (e.g. $' }).first().fill('3');
+  await page.getByRole('checkbox').first().uncheck();
+  await page.getByRole('textbox', { name: 'Enter a percentage amount (e.' }).nth(1).click();
+  await page.getByRole('textbox', { name: 'Enter a percentage amount (e.' }).nth(1).fill('0.5');
+  await page.getByRole('textbox', { name: 'Enter a dollar amount (e.g. $' }).click();
+  await page.getByRole('textbox', { name: 'Enter a dollar amount (e.g. $' }).fill('4');
+  await page.getByRole('checkbox').nth(1).uncheck();
+  await page.getByRole('textbox', { name: 'Enter a percentage amount (e.' }).first().click();
+  await page.getByRole('textbox', { name: 'Enter a percentage amount (e.' }).first().fill('7');
+  await page.getByRole('button', { name: 'Save Investment Type' }).click();
+  await page.getByRole('link', { name: 'Add New Event Series' }).click();
+  await page.getByRole('textbox', { name: 'e.g., Retirement Income,' }).click();
+  await page.getByRole('textbox', { name: 'e.g., Retirement Income,' }).fill('Salary');
+  await page.getByRole('textbox', { name: 'Describe your event series, e' }).click();
+  await page.getByRole('textbox', { name: 'Describe your event series, e' }).fill('salary');
+  await page.getByRole('textbox', { name: 'Enter a fixed year (e.g. 2024)' }).click();
+  await page.getByRole('textbox', { name: 'Enter a fixed year (e.g. 2024)' }).fill('2025');
+  await page.getByRole('textbox', { name: 'Enter a number of year (e.g.' }).click();
+  await page.getByRole('textbox', { name: 'Enter a number of year (e.g.' }).fill('40');
+  await page.getByRole('radio', { name: 'Wages' }).check();
+  await page.getByRole('textbox', { name: 'Enter a dollar amount (eg. $' }).click();
+  await page.getByRole('textbox', { name: 'Enter a dollar amount (eg. $' }).fill('80000');
+  await page.getByRole('textbox', { name: 'Enter a dollar amount (e.g. $' }).click();
+  await page.getByRole('textbox', { name: 'Enter a dollar amount (e.g. $' }).fill('4');
+  await page.getByRole('checkbox').first().uncheck();
+  await page.getByRole('button', { name: 'Save Event Series' }).click();
+  await page.getByRole('button', { name: 'Save Scenario' }).click();
+  await page.getByRole('button', { name: 'Investment Types' }).click();
+  await page.getByRole('button', { name: 'Events' }).click();
+  await expect(page.locator('#root')).toContainText('Initial Amount: $80,000');
+  await page.getByRole('button', { name: 'Strategies' }).click();
+  await page.getByRole('button', { name: 'Investment Types' }).click();
+  await expect(page.locator('#root')).toContainText('Return Distribution: Fixed (7)');
+  await expect(page.locator('#root')).toContainText('Income Distribution: Fixed (4)');
 });
 

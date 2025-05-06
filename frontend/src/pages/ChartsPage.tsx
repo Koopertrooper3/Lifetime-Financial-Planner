@@ -15,6 +15,7 @@ import MultiLineChart from "../components/Charts/MultiLineChart";
 import SurfacePlot from "../components/Charts/SurfacePlot";
 import ContourPlot from "../components/Charts/ContourPlot";
 import { mockSimulationResults } from "../components/Charts/MockData";
+import axiosCookie from "../axiosCookie";
 import { ChartData } from "../components/Charts/ChartDataTypes";
 
 function ChartsPage() {
@@ -54,8 +55,12 @@ function ChartsPage() {
 
     const loadSimulationResults = async () => {
       if (!id) return;
-      const results = await fetchSimulationResults(id);
-      setSimResults(results);
+      try{
+        const results = await axiosCookie.get(`/charts/${id}`)
+        setSimResults(results.data);
+      }catch(error){
+        console.log(error)
+      }
     };
 
     loadSimulationResults();
@@ -79,74 +84,74 @@ function ChartsPage() {
             />
           </div>
 
-          {/* Chart 4.2 */}
-          <div className="chart-card">
-            <h3>Shaded Probability Ranges</h3>
-            <ShadedLineChart
-              yearlyResults={simResults.yearlyResults}
-              ranges={simResults.ranges}
-            />
+            {/* Chart 4.2 */}
+            <div className="chart-card">
+              <h3>Shaded Probability Ranges</h3>
+              <ShadedLineChart
+                yearlyResults={simResults.yearlyResults}
+                ranges={simResults.ranges}
+              />
+            </div>
+
+            {/* Chart 4.3 */}
+            <div className="chart-card">
+              <h3>Investment Breakdown</h3>
+              <StackedBarChart yearlyBreakdown={simResults.yearlyBreakdown} />
+            </div>
+
+            {/* ------------------------------ Section 4 Charts --------------------------------- */}
+
+
+            {/* ------------------------------ Section 5 Charts --------------------------------- */}
+            {/* Chart 5.1 */}
+            <div className="chart-card">
+              <h3>Multi-line Chart Over Time</h3>
+              <MultiLineChart
+                simulationRecords={simResults.simulationRecords}
+                quantity="totalInvestments"
+              />
+            </div>
+
+            {/* Chart 5.2 */}
+            <div className="chart-card">
+              <h3>Line Chart by Parameter</h3>
+              <LineChartByParam
+                simulationRecords={simResults.simulationRecords}
+                quantity="totalInvestments"
+              />
+            </div>
+
+            {/* ------------------------------ Section 5 Charts --------------------------------- */}
+
+
+            {/* ------------------------------ Section 6 Plots  --------------------------------- */}
+
+            {/* Chart 6.1 */}
+            <div className="chart-card">
+              <h3>3D Surface Plot</h3>
+              <SurfacePlot
+                surfaceData={simResults.surfaceData}
+                param1Values={simResults.param1Values}
+                param2Values={simResults.param2Values}
+              />
+            </div>
+
+            {/* Chart 6.2 */}
+            <div className="chart-card">
+              <h3>Contour Plot</h3>
+              <ContourPlot
+                surfaceData={simResults.surfaceData}
+                param1Values={simResults.param1Values}
+                param2Values={simResults.param2Values}
+              />
+            </div>
+
+            {/* ------------------------------ Section 6 Plots  --------------------------------- */}
+            
           </div>
-
-          {/* Chart 4.3 */}
-          <div className="chart-card">
-            <h3>Investment Breakdown</h3>
-            <StackedBarChart yearlyBreakdown={simResults.yearlyBreakdown} />
-          </div>
-
-          {/* ------------------------------ Section 4 Charts --------------------------------- */}
-
-
-          {/* ------------------------------ Section 5 Charts --------------------------------- */}
-          {/* Chart 5.1 */}
-          <div className="chart-card">
-            <h3>Multi-line Chart Over Time</h3>
-            <MultiLineChart
-              simulationRecords={simResults.simulationRecords}
-              quantity="totalInvestments"
-            />
-          </div>
-
-          {/* Chart 5.2 */}
-          <div className="chart-card">
-            <h3>Line Chart by Parameter</h3>
-            <LineChartByParam
-              simulationRecords={simResults.simulationRecords}
-              quantity="totalInvestments"
-            />
-          </div>
-
-          {/* ------------------------------ Section 5 Charts --------------------------------- */}
-
-
-          {/* ------------------------------ Section 6 Plots  --------------------------------- */}
-
-          {/* Chart 6.1 */}
-          <div className="chart-card">
-            <h3>3D Surface Plot</h3>
-            <SurfacePlot
-              surfaceData={simResults.surfaceData}
-              param1Values={simResults.param1Values}
-              param2Values={simResults.param2Values}
-            />
-          </div>
-
-          {/* Chart 6.2 */}
-          <div className="chart-card">
-            <h3>Contour Plot</h3>
-            <ContourPlot
-              surfaceData={simResults.surfaceData}
-              param1Values={simResults.param1Values}
-              param2Values={simResults.param2Values}
-            />
-          </div>
-
-          {/* ------------------------------ Section 6 Plots  --------------------------------- */}
-          
         </div>
       </div>
-    </div>
-  );
+    );
 }
 
 export default ChartsPage;
