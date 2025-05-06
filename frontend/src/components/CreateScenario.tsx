@@ -99,10 +99,8 @@ const CreateScenario = () => {
     const latestScenario = await fetchScenario(latestScenarioData.scenarioID);
     console.log("Create Scenario: latestScenario: ", latestScenario);
     setEditScenario(latestScenario);
-    if (!latestScenario) {
-      fetchUserContent();
-      navigate("/dashboard/createScenario");
-    }
+    fetchUserContent();
+    navigate("/dashboard/createScenario");
   };
 
   return (
