@@ -206,16 +206,16 @@ export default function ScenarioPage() {
               <div>Duration: {event.duration.type}</div>
               <div>Type: {event.event.type}</div>
               <div>
-                Initial Amount: ${event.event.initalAmount?.toLocaleString()}
+                Initial Amount: ${event.event.initialAmount?.toLocaleString()}
               </div>
-              <div>Change Mode: {event.event.changeAmountOrPecent}</div>
+              <div>Change Mode: {event.event.changeAmtOrPct}</div>
               <div>
                 Change Distribution: {event.event.changeDistribution?.type}
                 {event.event.changeDistribution?.type === "uniform" && (
                   <>
                     {" "}
-                    ({event.event.changeDistribution.min} –{" "}
-                    {event.event.changeDistribution.max})
+                    ({event.event.changeDistribution.lower} –{" "}
+                    {event.event.changeDistribution.upper})
                   </>
                 )}
               </div>
