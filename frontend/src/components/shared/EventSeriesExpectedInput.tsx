@@ -3,7 +3,6 @@ import "../../stylesheets/InvestmentType/ExpectedInput.css";
 import ValidationTextFields from "./ValidationTextFields";
 import { useEffect } from "react";
 import { useScenarioContext } from "../../context/useScenarioContext";
-import { useEventSeriesForm } from "../../context/EventSeriesFormContext";
 import { ExpectedInput } from "../../interfaces/EventSeries/ExpectedInput";
 
 const EventSeriesExpectedInput: React.FC<ExpectedInput> = ({
@@ -31,7 +30,6 @@ const EventSeriesExpectedInput: React.FC<ExpectedInput> = ({
         if (type === "fixed") return "Fixed Value/Percentage";
         if (type === "uniform") return "Uniform Distribution";
       };
-
 
       setDistributionType(
         mapDistributionTypeToLabel(

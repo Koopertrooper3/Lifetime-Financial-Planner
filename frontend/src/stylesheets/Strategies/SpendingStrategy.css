@@ -161,3 +161,12 @@
 .save-spending-strategy-button:hover {
   cursor: pointer;
 }
+
+.roth-years-container {
+  display: flex;
+}
+
+.text-field {
+  margin-right: 10px;
+}
+

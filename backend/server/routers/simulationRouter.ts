@@ -87,12 +87,28 @@ simulationRouter.post("/simulation-explore", async (req,res) => {
       explorationPrameters : explorationRequest.explorationParameter
     },{ removeOnComplete: true, removeOnFail: true })
 
-    await job.waitUntilFinished(explorationQueueEvents)
-    res.status(200).send();
+    res.status(200).send(job.id);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Simulation failed or not implemented yet." });
   }
+});
+
+simulationRouter.post("/simulation-explore/poll", async (req : Request, res : Response)=>{
+  try{
+      console.log("Job request")
+      const jobid = req.body.id
+      const job = await explorationQueue.getJob(jobid.toString()) 
+      if(job == undefined){
+        throw new Error("Job does not exist")
+      }
+      const result = await job.waitUntilFinished(simulatorQueueEvents)
+      res.status(200).send(true)
+  }catch(err){
+      console.log((err as Error))
+      res.status(400)
+  }
+  
 });
 
 simulationRouter.get("/fetch-results/:id", async (req,res) => {
