@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import "../stylesheets/ChartsPage.css";
 import Banner from "../components/Banner";
 import SideBar from "../components/Sidebar";

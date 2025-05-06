@@ -27,14 +27,14 @@ export default function SimulationExplorationPage() {
               stepSize: form.param1Step,
             };
 
-      const { data: jobId } = await axiosCookie.post("/simulation-explore", {
+      const { data: jobId } = await axiosCookie.post("/simulation/simulation-explore", {
         userID,
         scenarioID: form.scenarioId,
         totalSimulations: form.numSimulations,
-        explorationParameters: explorationParam, // Fixed spelling (was explorationPrameters)
+        explorationParameter: explorationParam, // Fixed spelling (was explorationPrameters)
       });
 
-      await axiosCookie.post("/run-simulation/poll", { id: jobId });
+      await axiosCookie.post("/simulation/simulation-explore/poll", { id: jobId });
 
       const { data: simulationResults } = await axiosCookie.get(
         `/fetch-results/${jobId}`
@@ -255,7 +255,7 @@ export default function SimulationExplorationPage() {
           type="submit"
           className="simulation-button"
           disabled={form.isSubmitting}
-          onClick={() => sendOneDimensionalSimulatorRequest}
+          onClick={() => sendOneDimensionalSimulatorRequest()}
         >
           {form.isSubmitting ? "Running..." : "Run Simulation"}
         </button>
