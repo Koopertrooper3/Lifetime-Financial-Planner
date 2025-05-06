@@ -6,32 +6,56 @@ import LoadingWheel from "../components/LoadingWheel";
 import { useHelperContext } from "../context/HelperContext";
 import { useParams } from "react-router-dom";
 import { isDebug, User } from "../debug";
-
+import axios from "axios";
 import LineChartProbability from "../components/Charts/LineChartProbability";
 import ShadedLineChart from "../components/Charts/ShadedLineChart";
 import StackedBarChart from "../components/Charts/StackedBarChart";
 import { mockSimulationResults } from "../components/Charts/MockData";
+import { ChartData } from "../components/Charts/ChartDataTypes";
 
 function ChartsPage() {
-    const { fetchSimulationResults } = useHelperContext();
-    const { id } = useParams();  // assuming route: /chartsPage/:id
-    const [simResults, setSimResults] = useState<any>(null);
-  
-    useEffect(() => {
-      if (isDebug) {
-        console.log("DEBUG MODE: Using mock simulation results.");
-        setSimResults(mockSimulationResults);
-        return;
+  const { fetchSimulationResults } = useHelperContext();
+  const { id } = useParams(); // assuming route: /chartsPage/:id
+  const [simResults, setSimResults] = useState<any>(null);
+  const [chartData, setChartData] = useState<ChartData | null>(null);
+
+  const fetchChartData = async (id: string) => {
+    try {
+      const response = await axios.get(`/chart/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching chart data:", error);
+      return null;
+    }
+  };
+
+  useEffect(() => {
+    const loadChartData = async () => {
+      if (!id) return;
+      const data = await fetchChartData(id);
+      if (data) {
+        setChartData(data);
       }
+    };
   
-      const loadSimulationResults = async () => {
-        if (!id) return;
-        const results = await fetchSimulationResults(id);
-        setSimResults(results);
-      };
-  
-      loadSimulationResults();
-    }, [id]);  
+    loadChartData();
+  }, [id]);
+
+  useEffect(() => {
+    if (isDebug) {
+      console.log("DEBUG MODE: Using mock simulation results.");
+      setSimResults(mockSimulationResults);
+      return;
+    }
+
+    const loadSimulationResults = async () => {
+      if (!id) return;
+      const results = await fetchSimulationResults(id);
+      setSimResults(results);
+    };
+
+    loadSimulationResults();
+  }, [id]);
 
   if (!chartData) return <LoadingWheel />;
 

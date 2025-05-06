@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { assetProportion } from "../../../backend/db/EventSchema";
 import { Investment } from "../../../backend/db/InvestmentSchema";
 
 export function useEventSeriesFormHooks() {
