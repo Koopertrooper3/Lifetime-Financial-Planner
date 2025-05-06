@@ -5,8 +5,8 @@ import { useState, useEffect } from "react";
 import LoadingWheel from "../components/LoadingWheel";
 import { useHelperContext } from "../context/HelperContext";
 import { useParams } from "react-router-dom";
-import { isDebug } from "../debug";
-
+import { isDebug, User } from "../debug";
+import axios from "axios";
 import LineChartProbability from "../components/Charts/LineChartProbability";
 import ShadedLineChart from "../components/Charts/ShadedLineChart";
 import StackedBarChart from "../components/Charts/StackedBarChart";
@@ -16,11 +16,35 @@ import SurfacePlot from "../components/Charts/SurfacePlot";
 import ContourPlot from "../components/Charts/ContourPlot";
 import { mockSimulationResults } from "../components/Charts/MockData";
 import axiosCookie from "../axiosCookie";
+import { ChartData } from "../components/Charts/ChartDataTypes";
 
 function ChartsPage() {
   const { fetchSimulationResults } = useHelperContext();
-  const { id } = useParams();
+  const { id } = useParams(); // assuming route: /chartsPage/:id
   const [simResults, setSimResults] = useState<any>(null);
+  const [chartData, setChartData] = useState<ChartData | null>(null);
+
+  const fetchChartData = async (id: string) => {
+    try {
+      const response = await axios.get(`/chart/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching chart data:", error);
+      return null;
+    }
+  };
+
+  useEffect(() => {
+    const loadChartData = async () => {
+      if (!id) return;
+      const data = await fetchChartData(id);
+      if (data) {
+        setChartData(data);
+      }
+    };
+  
+    loadChartData();
+  }, [id]);
 
   useEffect(() => {
     if (isDebug) {
@@ -42,22 +66,23 @@ function ChartsPage() {
     loadSimulationResults();
   }, [id]);
 
-  if (!simResults){
-    return <LoadingWheel />;
-  }else{
-    return (
-      <div>
-        <Banner />
-        <SideBar />
-        <div className="charts-container">
-          <h2>Charts</h2>
-          <div className="charts-grid">
-            {/* ------------------------------ Section 4 Charts --------------------------------- */}
-            {/* Chart 4.1 */}
-            <div className="chart-card">
-              <h3>Probability of Success</h3>
-              <LineChartProbability probabilities={simResults.successProbability.probabilities} />
-            </div>
+  if (!chartData) return <LoadingWheel />;
+
+  return (
+    <div>
+      <Banner />
+      <SideBar />
+      <div className="charts-container">
+        <h2>Charts</h2>
+        <div className="charts-grid">
+          {/* ------------------------------ Section 4 Charts --------------------------------- */}
+          {/* Chart 4.1 */}
+          <div className="chart-card">
+            <h3>Probability of Success</h3>
+            <LineChartProbability
+              probabilities={chartData.successProbability}
+            />
+          </div>
 
             {/* Chart 4.2 */}
             <div className="chart-card">

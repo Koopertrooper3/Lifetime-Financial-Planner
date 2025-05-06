@@ -4,7 +4,6 @@ import { Event as ScenarioEvent } from "../db/EventSchema"
 import { Investment } from "../db/InvestmentSchema"
 
 export interface threadData {
-
     username: string,
     scenarioID : string, 
     explorationNumber: number

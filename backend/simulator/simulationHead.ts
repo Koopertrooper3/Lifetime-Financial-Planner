@@ -664,6 +664,8 @@ function calculateStackBarData(
     result[year.toString()] = yearlyResult;
   }
 
+  console.log(result);
+
   return result;
 }
 

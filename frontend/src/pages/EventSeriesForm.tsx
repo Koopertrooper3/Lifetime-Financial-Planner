@@ -30,6 +30,14 @@ export default function EventSeriesForm() {
   const { eventSeriesFormHooks } = useEventSeriesForm();
 
   useEffect(() => {
+    console.log("selectedEvent:", eventSeriesFormHooks.selectedEvent);
+    console.log(
+      "event options:",
+      Object.values(eventSeries).map((e) => e.name)
+    );
+  }, [eventSeriesFormHooks.selectedEvent]);
+
+  useEffect(() => {
     if (editEventSeries) {
       console.log(editEventSeries);
       const {
@@ -61,7 +69,12 @@ export default function EventSeriesForm() {
         if (type === "normal") return "Normal Distribution";
         if (type === "fixed") return "Fixed Value";
         if (type === "uniform") return "Uniform Distribution";
-        if (type === "eventBased") return "Event Based";
+        if (type === "startWith" || type === "startAfter") return "Event Based";
+      };
+
+      const mapEventBased = (type: string) => {
+        if (type === "startWith") return "with";
+        if (type === "startAfter") return "after";
       };
 
       // Name
@@ -76,8 +89,13 @@ export default function EventSeriesForm() {
       setStdDevYear(editEventSeries.start?.stdev || "");
       setLowerBoundYear(editEventSeries.start?.lower || "");
       setUpperBoundYear(editEventSeries.start?.upper || "");
-      setWithOrAfter(editEventSeries.start?.withOrAfter || "");
-      setSelectedEvent(editEventSeries.start?.event || "");
+      const mapped = mapEventBased(editEventSeries.start?.withOrAfter);
+      setWithOrAfter(mapped ?? "with"); // use as default
+      console.log(
+        "editEventSeries.start?.eventSeries: ",
+        editEventSeries.start?.eventSeries
+      );
+      setSelectedEvent(editEventSeries.start?.eventSeries || "");
 
       // Duration
       setDurationType(
@@ -94,12 +112,12 @@ export default function EventSeriesForm() {
     }
   }, [editEventSeries]);
 
-  useEffect(() => {
-    console.log(
-      "Event Series Form: fixedIncomeValue: ",
-      eventSeriesFormHooks.fixedIncomeValue
-    );
-  }, [eventSeriesFormHooks.fixedIncomeValue]);
+  // useEffect(() => {
+  //   console.log(
+  //     "Event Series Form: fixedIncomeValue: ",
+  //     eventSeriesFormHooks.fixedIncomeValue
+  //   );
+  // }, [eventSeriesFormHooks.fixedIncomeValue]);
 
   const handleSaveEventSeries = async () => {
     if (!eventSeriesFormHooks) {
@@ -159,18 +177,13 @@ export default function EventSeriesForm() {
       investAllocationType,
       allocatedInvestments,
       allocated2Investments,
-      investStartYear,
-      investEndYear,
       investMaxCashHoldings,
 
       // Rebalance
       allocationType,
-      rebalanceStartYear,
-      rebalanceEndYear,
       allocatedRebalanceInvestments,
       allocatedRebalance2Investments,
       taxStatus,
-      rebalanceMaxCashHoldings,
     } = eventSeriesFormHooks;
 
     // =========== Start =============
@@ -193,12 +206,11 @@ export default function EventSeriesForm() {
         lower: Number(lowerBoundYear),
         upper: Number(upperBoundYear),
       };
-      // } else if (startYearModel === "EventBased") {
-      //   start = {
-      //     type: "eventBased",
-      //     withOrAfter: withOrAfter,
-      //     event: selectedEvent,
-      //   };
+    } else if (startYearModel === "EventBased") {
+      start = {
+        type: withOrAfter === "with" ? "startWith" : "startAfter",
+        eventSeries: selectedEvent,
+      };
     } else {
       throw new Error("Invalid start year model selected");
     }
@@ -570,19 +582,26 @@ export default function EventSeriesForm() {
                 </label>
               </div>
 
-              {/* Textbox for Investment Name */}
-              {/* <div className="event-name-input">
-                <div className="input-label">Related Investment Name</div>
-                <ValidationTextFields
-                  value={eventSeriesFormHooks.eventSeriesName}
-                  placeholder="Enter event name"
-                  setInput={eventSeriesFormHooks.setEventSeriesName}
-                  inputType="string"
-                  width="100%"
-                  height="1.4375em"
-                  disabled={false}
-                />
-              </div> */}
+              {/* Event Series Dropdown */}
+              <div className="event-series-dropdown">
+                <label htmlFor="event-series-select">
+                  Select Event Series:
+                </label>
+                <select
+                  id="event-series-select"
+                  value={eventSeriesFormHooks.selectedEvent || ""}
+                  onChange={(e) =>
+                    eventSeriesFormHooks.setSelectedEvent(e.target.value)
+                  }
+                >
+                  <option value="">-- Select an Event Series --</option>
+                  {(Object.values(eventSeries) as Event[]).map((event) => (
+                    <option key={event.name} value={event.name}>
+                      {event.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
           )}
         </div>

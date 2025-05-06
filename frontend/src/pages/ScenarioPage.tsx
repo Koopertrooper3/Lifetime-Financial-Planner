@@ -6,7 +6,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import "../stylesheets/ScenarioPage.css";
 import { Link } from "react-router-dom";
 import axiosCookie from "../axiosCookie";
-import ExportScenario from '../components/ExportScenario';
+import ExportScenario from "../components/ExportScenario";
 import ShareScenarioButton from "../components/ShareScenarioButton";
 
 export default function ScenarioPage() {
@@ -84,10 +84,16 @@ export default function ScenarioPage() {
       <div className="card header-card">
         <div className="header-line">
           <h2>Scenario: {scenario.name}</h2>
-          <button className="styled-button edit-link" style={{height: "30px", width: "60px"}} onClick={handleEditClick}>
-            <Link style={{color:"white"}} to={"/dashboard/createScenario/"}>Edit</Link>
+          <button
+            className="styled-button edit-link"
+            style={{ height: "30px", width: "60px" }}
+            onClick={handleEditClick}
+          >
+            <Link style={{ color: "white" }} to={"/dashboard/createScenario/"}>
+              Edit
+            </Link>
           </button>
-          <ShareScenarioButton scenarioId={scenario._id}/>
+          <ShareScenarioButton scenarioId={scenario._id} />
           <ExportScenario scenarioID={scenario._id} />
           <Link to="/dashboard" className="close-link">
             Close
@@ -196,12 +202,8 @@ export default function ScenarioPage() {
           {Object.values(eventSeries).map((event: any) => (
             <div className="mini-card" key={event._id}>
               <strong>{event.name}</strong>
-              <div>
-                Start: {event.start.type}
-              </div>
-              <div>
-                Duration: {event.duration.type}
-              </div>
+              <div>Start: {event.start.type}</div>
+              <div>Duration: {event.duration.type}</div>
               <div>Type: {event.event.type}</div>
               <div>
                 Initial Amount: ${event.event.initialAmount?.toLocaleString()}
@@ -283,7 +285,11 @@ export default function ScenarioPage() {
       {activeTab === "simulation" && (
         <div className="card tab-content">
           <div className="card-grid-simulator">
-            <button className="styled-button" style={{height: "3rem"}}onClick={sendSimulatorRequest}>
+            <button
+              className="styled-button"
+              style={{ height: "3rem" }}
+              onClick={sendSimulatorRequest}
+            >
               Run Simulation
             </button>
             <p style={{ textAlign: "right" }}>Number of simulations</p>
@@ -299,7 +305,6 @@ export default function ScenarioPage() {
           </div>
         </div>
       )}
-      
     </div>
   );
 }
