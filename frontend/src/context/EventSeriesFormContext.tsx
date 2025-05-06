@@ -1,7 +1,4 @@
-import React, { createContext, useContext, useState } from "react";
-import { Dispatch, SetStateAction } from "react";
-import { assetProportion } from "../../../backend/db/EventSchema";
-import { Investment } from "../../../backend/db/InvestmentSchema";
+import React, { createContext, useContext } from "react";
 import { useEventSeriesFormHooks } from "../hooks/useEventSeriesFormHooks";
 
 // Create Context

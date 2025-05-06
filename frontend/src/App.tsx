@@ -61,8 +61,6 @@ function ProtectedRoutes() {
                       key="eventSeries"
                     />,
 
-                    
-
                     <Route
                       path="Limits&ContributionLimits"
                       element={<LimitsInflationPage />}

@@ -50,7 +50,7 @@ export default function AddNewInvestmentForm() {
       })
     )
       .json()
-      .then((res) => res.user.user_id);
+      .then((res) => res._id);
 
     const scenarioID = editScenario._id;
     const updatedInvestments = {
