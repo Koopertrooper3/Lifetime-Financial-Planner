@@ -22,9 +22,10 @@ import { useStackedBarChartData } from "../hooks/useStackedBarChartData";
 
 function ChartsPage() {
   const { fetchSimulationResults } = useHelperContext();
-  const { id } = useParams(); 
+  const { id } = useParams();
   const [simResults, setSimResults] = useState<any>(null);
   const [chartData, setChartData] = useState<ChartData | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchChartData = async (id: string) => {
     try {
@@ -32,6 +33,7 @@ function ChartsPage() {
       return response.data;
     } catch (error) {
       console.error("Error fetching chart data:", error);
+      setError("Failed to load chart metadata.");
       return null;
     }
   };
@@ -40,11 +42,8 @@ function ChartsPage() {
     const loadChartData = async () => {
       if (!id) return;
       const data = await fetchChartData(id);
-      if (data) {
-        setChartData(data);
-      }
+      if (data) setChartData(data);
     };
-
     loadChartData();
   }, [id]);
 
@@ -58,20 +57,33 @@ function ChartsPage() {
     const loadSimulationResults = async () => {
       if (!id) return;
       try {
-        const results = await axiosCookie.get(`/simulation/simulation-results/${id}`);
+        const results =await fetchSimulationResults(id);
         setSimResults(results.data);
       } catch (error) {
         console.error("Error fetching simulation results:", error);
+        setError("Failed to load simulation results.");
       }
     };
-
     loadSimulationResults();
   }, [id]);
 
-  if (!chartData || !simResults) return <LoadingWheel />;
+  if (error) {
+    return (
+      <div className="error-container">
+        <Banner />
+        <SideBar />
+        <div className="charts-container">
+          <h2>Charts</h2>
+          <p className="error-message">{error}</p>
+        </div>
+      </div>
+    );
+  }
 
-  const { yearlyResults, ranges } = useProbabilityRangeChartData(simResults.probabilityRangeChart);
-  const yearlyBreakdown = useStackedBarChartData(simResults.stackBarChart, "average");
+  if (!simResults) return <LoadingWheel />;
+
+  const { yearlyResults, ranges } = useProbabilityRangeChartData(simResults.probabilityRangeChart ?? []);
+  const yearlyBreakdown = useStackedBarChartData(simResults.stackBarChart ?? {}, "average");
 
   return (
     <div>
@@ -80,58 +92,50 @@ function ChartsPage() {
       <div className="charts-container">
         <h2>Charts</h2>
         <div className="charts-grid">
-          {/* ------------------------------ Section 4 Charts --------------------------------- */}
-          {/* Chart 4.1 */}
-          <div className="chart-card">
-            <h3>Probability of Success</h3>
-            <LineChartProbability
-              probabilities={chartData.successProbability}
-            />
-          </div>
 
-            {/* Chart 4.2 */}
+          {/* Chart 4.1 */}
+          {chartData?.successProbability ? (
+            <div className="chart-card">
+              <h3>Probability of Success</h3>
+              <LineChartProbability probabilities={chartData.successProbability} />
+            </div>
+          ) : null}
+
+          {/* Chart 4.2 */}
+          {simResults.yearlyResults && simResults.ranges ? (
             <div className="chart-card">
               <h3>Shaded Probability Ranges</h3>
-              <ShadedLineChart
-                yearlyResults={simResults.yearlyResults}
-                ranges={simResults.ranges}
-              />
+              <ShadedLineChart yearlyResults={yearlyResults} ranges={ranges} />
             </div>
+          ) : null}
 
-            {/* Chart 4.3 */}
+          {/* Chart 4.3 */}
+          {yearlyBreakdown ? (
             <div className="chart-card">
               <h3>Investment Breakdown</h3>
-              <StackedBarChart yearlyBreakdown={simResults.yearlyBreakdown} />
+              <StackedBarChart yearlyBreakdown={yearlyBreakdown} />
             </div>
+          ) : null}
 
-            {/* ------------------------------ Section 4 Charts --------------------------------- */}
-
-
-            {/* ------------------------------ Section 5 Charts --------------------------------- */}
-            {/* Chart 5.1 */}
+          {/* Chart 5.1 */}
+          {simResults.simulationRecords ? (
             <div className="chart-card">
               <h3>Multi-line Chart Over Time</h3>
-              <MultiLineChart
-                simulationRecords={simResults.simulationRecords}
-                quantity="totalInvestments"
-              />
+              <MultiLineChart simulationRecords={simResults.simulationRecords} quantity="totalInvestments" />
             </div>
+          ) : null}
 
-            {/* Chart 5.2 */}
+          {/* Chart 5.2 */}
+          {simResults.simulationRecords ? (
             <div className="chart-card">
               <h3>Line Chart by Parameter</h3>
-              <LineChartByParam
-                simulationRecords={simResults.simulationRecords}
-                quantity="totalInvestments"
-              />
+              <LineChartByParam simulationRecords={simResults.simulationRecords} quantity="totalInvestments" />
             </div>
+          ) : null}
 
-            {/* ------------------------------ Section 5 Charts --------------------------------- */}
-
-
-            {/* ------------------------------ Section 6 Plots  --------------------------------- */}
-
-            {/* Chart 6.1 */}
+          
+          {/* Chart 6.1 */}
+          {simResults.surfaceData && simResults.param1Values && simResults.param2Values ? (
             <div className="chart-card">
               <h3>3D Surface Plot</h3>
               <SurfacePlot
@@ -140,8 +144,10 @@ function ChartsPage() {
                 param2Values={simResults.param2Values}
               />
             </div>
+          ) : null}
 
-            {/* Chart 6.2 */}
+          {/* Chart 6.2 */}
+          {simResults.surfaceData && simResults.param1Values && simResults.param2Values ? (
             <div className="chart-card">
               <h3>Contour Plot</h3>
               <ContourPlot
@@ -150,13 +156,12 @@ function ChartsPage() {
                 param2Values={simResults.param2Values}
               />
             </div>
+          ) : null}
 
-            {/* ------------------------------ Section 6 Plots  --------------------------------- */}
-            
-          </div>
         </div>
       </div>
-    );
+    </div>
+  );
 }
 
 export default ChartsPage;
