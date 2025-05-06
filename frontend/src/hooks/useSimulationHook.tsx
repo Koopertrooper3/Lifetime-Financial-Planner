@@ -3,7 +3,9 @@ import { useState } from "react";
 export function useSimulationHook() {
   const [scenarioId, setScenarioId] = useState("");
   const [param1Name, setParam1Name] = useState("");
-  const [param1Type, setParam1Type] = useState<"numeric" | "boolean">("numeric");
+  const [param1Type, setParam1Type] = useState<"numeric" | "boolean">(
+    "numeric"
+  );
 
   const [param1Lower, setParam1Lower] = useState(0);
   const [param1Upper, setParam1Upper] = useState(0);
@@ -15,14 +17,17 @@ export function useSimulationHook() {
   const [param2Upper, setParam2Upper] = useState(0);
   const [param2Step, setParam2Step] = useState(1);
 
-  const [distributionType, setDistributionType] = useState<DistributionType>("Fixed Value/Percentage");
-const [isFixedAmount, setIsFixedAmount] = useState(true);
-const [fixedValue, setFixedValue] = useState("");
-const [mean, setMean] = useState("");
-const [stdDev, setStdDev] = useState("");
-const [lowerBound, setLowerBound] = useState("");
-const [upperBound, setUpperBound] = useState("");
+  const [numSimulations, setNumSimulations] = useState(1);
 
+  // const [distributionType, setDistributionType] = useState<DistributionType>(
+  //   "Fixed Value/Percentage"
+  // );
+  const [isFixedAmount, setIsFixedAmount] = useState(true);
+  const [fixedValue, setFixedValue] = useState("");
+  const [mean, setMean] = useState("");
+  const [stdDev, setStdDev] = useState("");
+  const [lowerBound, setLowerBound] = useState("");
+  const [upperBound, setUpperBound] = useState("");
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [results, setResults] = useState<any>(null);
@@ -37,7 +42,7 @@ const [upperBound, setUpperBound] = useState("");
       parameters.push({
         name: param1Name,
         boolValues: [param1BoolValue, !param1BoolValue],
-        type: "boolean"
+        type: "boolean",
       });
     } else {
       parameters.push({
@@ -45,7 +50,7 @@ const [upperBound, setUpperBound] = useState("");
         lowerBound: param1Lower,
         upperBound: param1Upper,
         stepSize: param1Step,
-        type: "numeric"
+        type: "numeric",
       });
     }
 
@@ -55,24 +60,24 @@ const [upperBound, setUpperBound] = useState("");
         lowerBound: param2Lower,
         upperBound: param2Upper,
         stepSize: param2Step,
-        type: "numeric"
+        type: "numeric",
       });
     }
 
-    try {
-      const response = await fetch("/simulation-explore", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ scenarioId, parameters }),
-      });
+    // try {
+    //   const response = await fetch("/simulation-explore", {
+    //     method: "POST",
+    //     headers: { "Content-Type": "application/json" },
+    //     body: JSON.stringify({ scenarioId, parameters }),
+    //   });
 
-      const data = await response.json();
-      setResults(data);
-    } catch (err) {
-      console.error("Simulation request failed:", err);
-    } finally {
-      setIsSubmitting(false);
-    }
+    //   const data = await response.json();
+    //   setResults(data);
+    // } catch (err) {
+    //   console.error("Simulation request failed:", err);
+    // } finally {
+    //   setIsSubmitting(false);
+    // }
   };
 
   return {
@@ -98,8 +103,11 @@ const [upperBound, setUpperBound] = useState("");
     setParam2Upper,
     param2Step,
     setParam2Step,
+    numSimulations,
+    setNumSimulations,
     isSubmitting,
     results,
     handleSubmit,
+    setResults,
   };
 }

@@ -2,9 +2,8 @@
 import { useHelperContext } from "../context/HelperContext";
 import { useScenarioContext } from "../context/useScenarioContext";
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, Link } from "react-router-dom";
 import "../stylesheets/ScenarioPage.css";
-import { Link } from "react-router-dom";
 import axiosCookie from "../axiosCookie";
 import ExportScenario from "../components/ExportScenario";
 import ShareScenarioButton from "../components/ShareScenarioButton";
@@ -41,6 +40,10 @@ export default function ScenarioPage() {
     setScenario(filteredScenario);
   }, []);
 
+  const handleClick = () => {
+    navigate("/simulationPage");
+  };
+
   if (!scenario) return <div>Loading....</div>;
 
   const investments = scenario.investments;
@@ -69,10 +72,10 @@ export default function ScenarioPage() {
     });
 
     await axiosCookie.post("/simulation/run-simulation/poll", {
-      id : simResponse.data
+      id: simResponse.data,
     });
-    const chartID = userID._id+id+numberOfSimulations
-    navigate('/chartsPage/'+chartID)
+    const chartID = userID._id + id + numberOfSimulations;
+    navigate("/chartsPage/" + chartID);
   };
 
   function handleEditClick() {
@@ -302,6 +305,13 @@ export default function ScenarioPage() {
                 );
               }}
             ></input>
+            <button
+              onClick={handleClick}
+              className="styled-button"
+              style={{ height: "3rem" }}
+            >
+              Run 1D/2D Scenario Exploration
+            </button>
           </div>
         </div>
       )}

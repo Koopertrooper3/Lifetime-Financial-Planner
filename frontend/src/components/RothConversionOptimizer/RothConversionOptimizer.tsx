@@ -9,11 +9,17 @@ import { useHelperContext } from "../../context/HelperContext.tsx";
 import { Investment } from "../../../../backend/db/InvestmentSchema.ts";
 import ValidationTextFields from "../shared/ValidationTextFields.tsx";
 
-export function RothOptimizerToggle() {
-  const [isEnabled, setIsEnabled] = useState(false);
+interface RothOptimizerToggleProps {
+  isEnabled: boolean;
+  onToggle: (enabled: boolean) => void;
+}
 
+export function RothOptimizerToggle({
+  isEnabled,
+  onToggle,
+}: RothOptimizerToggleProps) {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setIsEnabled(e.target.checked);
+    onToggle(e.target.checked); // Call parent's handler
   };
 
   return (
@@ -39,6 +45,11 @@ export default function RothConversionOptimizer() {
   const COLUMNS: ColumnType[] = [{ id: "Investments", name: "Investments" }];
   const [rothStartYear, setRothStartYear] = useState<string | number>("");
   const [rothEndYear, setRothEndYear] = useState<string | number>("");
+  const [isRothOptimizerEnabled, setIsRothOptimizerEnabled] = useState(false);
+
+  const handleToggle = (enabled: boolean) => {
+    setIsRothOptimizerEnabled(enabled);
+  };
 
   const handleSaveRothConverstionOptimizer = async () => {
     const updatedInvestments: string[] = preTaxInvestments.map(
@@ -55,7 +66,10 @@ export default function RothConversionOptimizer() {
     console.log(userID);
     const scenarioID = editScenario._id;
     const updatedField = {
-      expenseWithdrawalStrategy: updatedInvestments,
+      RothConversionOpt: isRothOptimizerEnabled,
+      RothConverstionStart: Number(rothStartYear),
+      RothConverstionEnd: Number(rothEndYear),
+      RothConverstionStrategy: updatedInvestments,
     };
     const response = await handleEditScenario(userID, scenarioID, updatedField);
     setEditScenario(response.data);
@@ -154,12 +168,15 @@ export default function RothConversionOptimizer() {
             the user's current tax bracket during the selected period.
           </span>
         </p>
-        <RothOptimizerToggle></RothOptimizerToggle>
+        <RothOptimizerToggle
+          isEnabled={isRothOptimizerEnabled}
+          onToggle={handleToggle}
+        />
       </div>
 
       <div className="roth-years-container">
         <div>
-          <div className="purple-text">Start Year</div>
+          <div className="purple-text text-field">Start Year</div>
           <ValidationTextFields
             value={rothStartYear ?? ""}
             placeholder="Enter a year (eg. 2003)"
@@ -171,7 +188,7 @@ export default function RothConversionOptimizer() {
           />
         </div>
         <div>
-          <div className="purple-text">End Year</div>
+          <div className="purple-text text-field">End Year</div>
           <ValidationTextFields
             value={rothEndYear ?? ""}
             placeholder="Enter a year (eg. 2003)"

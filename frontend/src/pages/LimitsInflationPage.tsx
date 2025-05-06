@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import CenteredFormWrapper from "../wrapper/CenteredFormWrapper";
 import ValidationTextFields from "../components/shared/ValidationTextFields";
@@ -17,9 +17,7 @@ export function LimitsInflationPage() {
 
   const {
     inflationAssumption,
-    setInflationAssumption,
     afterTaxContributionLimit,
-    setAfterTaxContributionLimit,
     editScenario,
     setEditScenario,
   } = useScenarioContext();

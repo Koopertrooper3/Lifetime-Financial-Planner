@@ -2,7 +2,6 @@ import { useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import CenteredFormWrapper from "../wrapper/CenteredFormWrapper";
-import ExpectedInput from "../components/shared/InvestmentExpectedInput";
 import "../stylesheets/AddNewInvestment.css";
 import ValidationTextFields from "../components/shared/ValidationTextFields";
 import { useScenarioContext } from "../context/useScenarioContext";
@@ -50,13 +49,17 @@ export default function AddNewInvestmentForm() {
       })
     )
       .json()
-      .then((res) => res._id);
+      .then((res) => res.user._id);
 
     const scenarioID = editScenario._id;
     const updatedInvestments = {
       ...editScenario.investments,
       [investmentType]: newInvestment,
     };
+
+    console.log("investment form: ", updatedInvestments);
+    console.log("scenario id: ", scenarioID);
+    console.log("userID: ", userID);
 
     const response = await handleEditScenario(userID, scenarioID, {
       investments: updatedInvestments,

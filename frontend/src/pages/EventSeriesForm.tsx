@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import CenteredFormWrapper from "../wrapper/CenteredFormWrapper";
@@ -126,7 +126,6 @@ export default function EventSeriesForm() {
 
     const {
       eventSeriesName,
-      eventSeriesDescription,
 
       // Year
       startYearModel,

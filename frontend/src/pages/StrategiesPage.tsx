@@ -1,18 +1,9 @@
-import { useState } from "react";
-import type {
-  Item,
-  Column as ColumnType,
-} from "../components/Spending Strategy/Types";
-import { Column } from "../components/Spending Strategy/Column";
-import { DndContext, DragEndEvent } from "@dnd-kit/core";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import CenteredFormWrapper from "../wrapper/CenteredFormWrapper";
 import { motion } from "framer-motion";
 import "../stylesheets/Strategies/Strategies.css";
 
 export default function Strategies() {
-  const navigate = useNavigate();
-
   return (
     <motion.div
       initial={{ x: window.innerWidth }}

@@ -22,6 +22,7 @@ import SharedScenarioPage from "./pages/SharedScenarioPage";
 import AddNewInvestmentForm from "./pages/AddNewInvestment";
 import InvestmentForm from "./pages/InvestmentForm";
 import WithdrawalStrategy from "./components/Withdrawal Strategy/WithdrawalStrategy";
+import RothConversionOptimizer from "./components/RothConversionOptimizer/RothConversionOptimizer";
 
 registerChartJSComponents();
 
@@ -85,6 +86,11 @@ function ProtectedRoutes() {
                               path="withdrawalStrategy"
                               element={<WithdrawalStrategy />}
                               key="withdrawal"
+                            />,
+                            <Route
+                              path="rothConversionOptimizer"
+                              element={<RothConversionOptimizer />}
+                              key="rothConversionOptimizer"
                             />,
                           ]}
                         />
