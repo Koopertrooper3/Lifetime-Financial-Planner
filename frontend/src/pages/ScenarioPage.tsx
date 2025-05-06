@@ -58,23 +58,49 @@ export default function ScenarioPage() {
     { id: "strategies", label: "Strategies" },
     { id: "simulation", label: "Simulation" },
   ];
+  
   const sendSimulatorRequest = async () => {
-    if (userID == null) {
-      throw new Error("Undefined user");
+    try {
+      if (!userID || !userID._id) throw new Error("Undefined user");
+      console.log("Starting simulation request...");
+      console.log("User ID:", userID._id);
+      console.log("Scenario ID:", id);
+      console.log("Number of Simulations:", numberOfSimulations);
+  
+      const simResponse = await axiosCookie.post("/simulation/run-simulation", {
+        userID: userID._id,
+        scenarioID: id,
+        totalSimulations: numberOfSimulations,
+      });
+  
+      console.log("Job submitted. Polling for completion...", simResponse.data);
+  
+      const jobId = simResponse.data;
+  
+      // Fallback timeout logic: 15s
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => {
+          reject(new Error("Simulation polling timed out after 15 seconds."));
+        }, 15000);
+      });
+  
+      const pollPromise = axiosCookie.post("/simulation/run-simulation/poll", {
+        id: jobId,
+      });
+  
+      await Promise.race([pollPromise, timeoutPromise]);
+  
+      console.log("Simulation finished. Redirecting to charts...");
+  
+      const chartID = userID._id + id + numberOfSimulations;
+      navigate("/chartsPage/" + chartID);
+    } catch (err) {
+      console.error("Simulation error:", err);
+      alert("Simulation failed or took too long. Please try again or check server logs.");
     }
-    const simResponse = await axiosCookie.post("/simulation/run-simulation", {
-      userID: userID._id,
-      scenarioID: id,
-      totalSimulations: numberOfSimulations,
-    });
-
-    await axiosCookie.post("/simulation/run-simulation/poll", {
-      id : simResponse.data
-    });
-    const chartID = userID._id+id+numberOfSimulations
-    navigate('/chartsPage/'+chartID)
   };
-
+  
+  
   function handleEditClick() {
     setEditScenario(scenario); // Store the scenario
   }

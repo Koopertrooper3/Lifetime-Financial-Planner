@@ -17,10 +17,12 @@ import ContourPlot from "../components/Charts/ContourPlot";
 import { mockSimulationResults } from "../components/Charts/MockData";
 import axiosCookie from "../axiosCookie";
 import { ChartData } from "../components/Charts/ChartDataTypes";
+import { useProbabilityRangeChartData } from "../hooks/useProbabilityRangeChartData";
+import { useStackedBarChartData } from "../hooks/useStackedBarChartData";
 
 function ChartsPage() {
   const { fetchSimulationResults } = useHelperContext();
-  const { id } = useParams(); // assuming route: /chartsPage/:id
+  const { id } = useParams(); 
   const [simResults, setSimResults] = useState<any>(null);
   const [chartData, setChartData] = useState<ChartData | null>(null);
 
@@ -42,7 +44,7 @@ function ChartsPage() {
         setChartData(data);
       }
     };
-  
+
     loadChartData();
   }, [id]);
 
@@ -55,18 +57,21 @@ function ChartsPage() {
 
     const loadSimulationResults = async () => {
       if (!id) return;
-      try{
-        const results = await axiosCookie.get(`/charts/${id}`)
+      try {
+        const results = await axiosCookie.get(`/simulation/simulation-results/${id}`);
         setSimResults(results.data);
-      }catch(error){
-        console.log(error)
+      } catch (error) {
+        console.error("Error fetching simulation results:", error);
       }
     };
 
     loadSimulationResults();
   }, [id]);
 
-  if (!chartData) return <LoadingWheel />;
+  if (!chartData || !simResults) return <LoadingWheel />;
+
+  const { yearlyResults, ranges } = useProbabilityRangeChartData(simResults.probabilityRangeChart);
+  const yearlyBreakdown = useStackedBarChartData(simResults.stackBarChart, "average");
 
   return (
     <div>
@@ -151,8 +156,7 @@ function ChartsPage() {
           </div>
         </div>
       </div>
-    );
-  }
+  );
 }
 
 export default ChartsPage;
