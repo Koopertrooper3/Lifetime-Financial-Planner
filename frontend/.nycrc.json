@@ -3,5 +3,5 @@
     "all": false,
     "report-dir": "./coverage",
     "reporter": ["json","text"],
-    "clean": false
+    "clean": true
 }

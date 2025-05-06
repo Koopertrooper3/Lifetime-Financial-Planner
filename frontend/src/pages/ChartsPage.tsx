@@ -152,7 +152,6 @@ function ChartsPage() {
         </div>
       </div>
     );
-  }
 }
 
 export default ChartsPage;
