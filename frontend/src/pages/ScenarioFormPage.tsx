@@ -116,6 +116,7 @@ export default function ScenarioFormPage() {
     const updatedFields = {
       name: name,
       maritalStatus: maritalStatus,
+      financialGoal: financialGoal,
       birthYears: birthYears,
       lifeExpectancy: cleanedLifeExpectancy,
     };

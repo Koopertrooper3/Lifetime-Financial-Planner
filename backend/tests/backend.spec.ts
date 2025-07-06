@@ -34,7 +34,7 @@ test('Single simulation Request', async ({ request }) => {
 test('Multiple simulation Request', async ({ request }) => {
   const client = new MongoClient(databaseConnectionString);
   const userConnection = client.db(databaseName).collection("users")
-  const totalSimulations= 10
+  const totalSimulations= 50
   const user = await userConnection.findOne({})
   const userScenarioID = user?.ownedScenarios[0].toString()
 

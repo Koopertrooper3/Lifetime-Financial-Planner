@@ -26,7 +26,7 @@ export default function SelectionTable({
     setEditEventSeries(null);
     if (title === "Investment Types") {
       setEditInvestmentType(type);
-      navigate("/dashboard/createScenario/addNewInvestmentType");
+      navigate("/dashboard/createScenario/addNewInvestment/addNewInvestmentType");
     } else {
       setEditEventSeries(type);
       navigate("/dashboard/createScenario/addNewEventSeries");
